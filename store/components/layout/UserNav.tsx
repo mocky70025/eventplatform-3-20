@@ -2,100 +2,90 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/Button";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
-import { User, LogOut, LayoutDashboard, Check } from "lucide-react";
 
 export function UserNav() {
-    const [user, setUser] = useState<any>(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [mounted, setMounted] = useState(false);
-    const supabase = createClient();
-    const router = useRouter();
+  const [user, setUser] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
+  const supabase = createClient();
+  const router = useRouter();
 
-    useEffect(() => {
-        setMounted(true);
-        // Get initial user
-        supabase.auth.getUser().then(({ data: { user } }) => {
-            setUser(user);
-            setIsLoading(false);
-        });
+  useEffect(() => {
+    setMounted(true);
+    supabase.auth.getUser().then(({ data: { user: u }, error }) => {
+      if (error) {
+        if (error.name !== 'AuthSessionMissingError' && error.message !== 'Auth session missing!') {
+          console.error('getUser error:', error);
+        }
+        setUser(null);
+      } else {
+        setUser(u ?? null);
+      }
+      setIsLoading(false);
+    }).catch((err) => {
+      if (err?.name !== 'AuthSessionMissingError' && err?.message !== 'Auth session missing!') {
+        console.error('getUser exception:', err);
+      }
+      setUser(null);
+      setIsLoading(false);
+    });
 
-        // Listen for auth changes
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-            setUser(session?.user ?? null);
-            setIsLoading(false);
-        });
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      setIsLoading(false);
+    });
 
-        return () => subscription.unsubscribe();
-    }, [supabase.auth]);
+    return () => subscription.unsubscribe();
+  }, [supabase.auth]);
 
-    const handleLogout = async () => {
-        await supabase.auth.signOut();
-        router.refresh();
-        router.push("/login");
-    };
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.refresh();
+    router.push("/login");
+  };
 
-    // Prevent hydration mismatch by not rendering until mounted
-    if (!mounted || isLoading) {
-        return (
-            <div className="flex items-center gap-4">
-                <div className="w-20 h-8 bg-gray-100 animate-pulse rounded-md" />
-            </div>
-        );
-    }
-
-    if (!user) {
-        return (
-            <div className="flex items-center gap-4">
-                <Link href="/login">
-                    <Button variant="ghost" size="sm">
-                        ログイン
-                    </Button>
-                </Link>
-                <Link href="/signup">
-                    <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700">
-                        新規登録
-                    </Button>
-                </Link>
-            </div>
-        );
-    }
-
+  if (!mounted || isLoading) {
     return (
-        <div className="flex items-center gap-4">
-            <Link href="/">
-                <Button variant="ghost" size="sm" className="hidden sm:flex gap-2 text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50">
-                    <LayoutDashboard className="h-4 w-4" />
-                    ホーム
-                </Button>
-            </Link>
-            <Link href="/applications">
-                <Button variant="ghost" size="sm" className="hidden sm:flex gap-2 text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50">
-                    <Check className="h-4 w-4" />
-                    申込管理
-                </Button>
-            </Link>
-            <Link href="/profile">
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 gap-2 text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50"
-                >
-                    <User className="h-4 w-4" />
-                    プロフィール
-                </Button>
-            </Link>
-            <Button
-                variant="outline"
-                size="sm"
-                onClick={handleLogout}
-                className="h-8 gap-2 border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
-            >
-                <LogOut className="h-4 w-4" />
-                <span className="hidden sm:inline">ログアウト</span>
-            </Button>
-        </div>
+      <>
+        <div className="w-px h-6 bg-slate-200 mx-2" />
+        <div className="w-16 h-8 bg-slate-100 animate-pulse rounded-lg" />
+      </>
     );
+  }
+
+  if (!user) {
+    return (
+      <>
+        <div className="w-px h-6 bg-slate-200 mx-2" />
+        <Link
+          href="/login"
+          className="text-sm font-medium text-slate-500 hover:text-slate-700 px-3 py-2"
+        >
+          ログイン
+        </Link>
+        <Link
+          href="/signup"
+          className="text-sm font-semibold text-white bg-store-500 hover:bg-store-600 px-4 py-2 rounded-xl transition-colors"
+        >
+          新規登録
+        </Link>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <div className="w-px h-6 bg-slate-200 mx-2" />
+      <button
+        onClick={handleLogout}
+        className="text-sm text-slate-400 hover:text-red-500 px-3 py-2 transition-colors"
+      >
+        ログアウト
+      </button>
+    </>
+  );
 }

@@ -2,22 +2,13 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
 function getOrigin(request: Request): string {
-    // Use NEXT_PUBLIC_APP_URL if available (for Vercel)
+    // Use NEXT_PUBLIC_APP_URL if available (for Vercel) - trusted source
     if (process.env.NEXT_PUBLIC_APP_URL) {
         return process.env.NEXT_PUBLIC_APP_URL;
     }
-    
-    // Fallback to request URL origin
+
+    // Fallback to request URL origin (do not trust x-forwarded-host without allowlist)
     const url = new URL(request.url);
-    
-    // Check for Vercel headers
-    const forwardedHost = request.headers.get('x-forwarded-host');
-    const forwardedProto = request.headers.get('x-forwarded-proto') || 'https';
-    
-    if (forwardedHost) {
-        return `${forwardedProto}://${forwardedHost}`;
-    }
-    
     return url.origin;
 }
 
@@ -25,14 +16,16 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const origin = getOrigin(request);
     const code = searchParams.get('code');
-    const next = searchParams.get('next') ?? '/';
+    const rawNext = searchParams.get('next') ?? '/';
+    // Prevent open redirect: only allow relative paths starting with /
+    const next = rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : '/';
     const type = searchParams.get('type') ?? '';
     const error = searchParams.get('error');
     const error_description = searchParams.get('error_description');
 
     if (error) {
         console.error('Auth error:', error, error_description);
-        return NextResponse.redirect(`${origin}/login?error=${error}&error_description=${error_description}`);
+        return NextResponse.redirect(`${origin}/login?error=${encodeURIComponent(error)}&error_description=${encodeURIComponent(error_description || '')}`);
     }
 
     if (!code) {

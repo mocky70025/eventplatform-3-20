@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1440">
+  <title>Eventra - 主催者ダッシュボード</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Noto Sans JP', 'sans-serif'] },
+          colors: {
+            store: { 50: '#ecfdf5', 100: '#d1fae5', 200: '#a7f3d0', 300: '#6ee7b7', 400: '#34d399', 500: '#10b981', 600: '#059669', 700: '#047857', 800: '#065f46', 900: '#064e3b' },
+            org: { 50: '#fff7ed', 100: '#ffedd5', 200: '#fed7aa', 300: '#fdba74', 400: '#fb923c', 500: '#f97316', 600: '#ea580c', 700: '#c2410c', 800: '#9a3412', 900: '#7c2d12' },
+            accent: { pink: '#ec4899', yellow: '#eab308', purple: '#8b5cf6', sky: '#0ea5e9' },
+            neutral: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1', 400: '#94a3b8', 500: '#64748b', 600: '#475569', 700: '#334155', 800: '#1e293b', 900: '#0f172a' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { font-family: 'Noto Sans JP', sans-serif; }
+    body { width: 1440px; margin: 0 auto; background: #f8fafc; }
+  </style>
+  <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="bg-white px-8 h-16 flex items-center justify-between border-b border-neutral-100 sticky top-0 z-50">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 bg-org-500 rounded-xl flex items-center justify-center">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"/></svg>
+      </div>
+      <span class="text-lg font-bold text-neutral-900">Eventra</span>
+      <span class="text-[10px] bg-org-100 text-org-700 px-2 rounded-full font-semibold inline-flex items-center justify-center h-5" style="line-height:1;">主催者</span>
+    </div>
+    <nav class="flex items-center gap-1">
+      <a class="text-sm font-medium text-org-700 bg-org-50 px-4 py-2 rounded-lg">ダッシュボード</a>
+      <a class="text-sm font-medium text-neutral-500 hover:text-neutral-700 px-4 py-2 rounded-lg">イベント管理</a>
+      <a class="text-sm font-medium text-neutral-500 hover:text-neutral-700 px-4 py-2 rounded-lg">出店者管理</a>
+      <a class="text-sm font-medium text-neutral-500 hover:text-neutral-700 px-4 py-2 rounded-lg">プロフィール</a>
+      <div class="w-px h-6 bg-neutral-200 mx-2"></div>
+      <button class="text-sm text-neutral-400 hover:text-red-500 px-3 py-2">ログアウト</button>
+    </nav>
+  </header>
+
+  <main class="max-w-6xl mx-auto py-8 px-6">
+
+    <!-- Hero Banner -->
+    <div class="bg-gradient-to-r from-org-500 to-org-700 rounded-2xl p-8 text-white mb-6 relative overflow-hidden">
+      <div class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/4"></div>
+      <div class="absolute bottom-0 right-32 w-40 h-40 bg-white/5 rounded-full translate-y-1/3"></div>
+      <div class="relative z-10">
+        <p class="text-sm font-medium text-orange-100 mb-1">Welcome back</p>
+        <h1 class="text-2xl font-bold mb-2">おかえりなさい、イベント企画室さん</h1>
+        <p class="text-orange-100 mb-6">次のイベントまであと 12日</p>
+        <button class="bg-white text-org-700 font-semibold rounded-xl px-6 py-2.5 text-sm hover:bg-orange-50 transition-colors shadow-lg shadow-org-900/20">新しいイベントを作成</button>
+      </div>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="grid grid-cols-4 gap-3 mb-6">
+      <div class="bg-white rounded-2xl border border-neutral-200 p-5">
+        <div class="flex items-center justify-between mb-3">
+          <div class="w-10 h-10 bg-org-50 rounded-xl flex items-center justify-center">
+            <svg class="w-5 h-5 text-org-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          </div>
+          <span class="text-xs text-store-600 font-medium bg-store-50 px-2 rounded-full inline-flex items-center justify-center h-5" style="line-height:1;">+1 今月</span>
+        </div>
+        <p class="text-sm text-neutral-500 mb-1">開催中イベント</p>
+        <p class="text-3xl font-bold text-neutral-900">2</p>
+      </div>
+      <div class="bg-white rounded-2xl border border-neutral-200 p-5">
+        <div class="flex items-center justify-between mb-3">
+          <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
+            <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          </div>
+          <span class="text-xs text-store-600 font-medium bg-store-50 px-2 rounded-full inline-flex items-center justify-center h-5" style="line-height:1;">+5 今週</span>
+        </div>
+        <p class="text-sm text-neutral-500 mb-1">申込総数</p>
+        <p class="text-3xl font-bold text-neutral-900">48</p>
+      </div>
+      <div class="bg-white rounded-2xl border border-neutral-200 p-5">
+        <div class="flex items-center justify-between mb-3">
+          <div class="w-10 h-10 bg-store-50 rounded-xl flex items-center justify-center">
+            <svg class="w-5 h-5 text-store-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+        </div>
+        <p class="text-sm text-neutral-500 mb-1">承認済み出店者</p>
+        <p class="text-3xl font-bold text-neutral-900">32</p>
+      </div>
+      <div class="bg-white rounded-2xl border border-neutral-200 p-5">
+        <div class="flex items-center justify-between mb-3">
+          <div class="w-10 h-10 bg-yellow-50 rounded-xl flex items-center justify-center">
+            <svg class="w-5 h-5 text-yellow-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          </div>
+          <span class="text-xs text-yellow-600 font-medium bg-yellow-50 px-2 rounded-full inline-flex items-center justify-center h-5" style="line-height:1;">要対応</span>
+        </div>
+        <p class="text-sm text-neutral-500 mb-1">審査待ち</p>
+        <p class="text-3xl font-bold text-neutral-900">8</p>
+      </div>
+    </div>
+
+    <!-- Two Column Layout -->
+    <div class="grid grid-cols-3 gap-6">
+
+      <!-- LEFT: col-span-2 -->
+      <div class="col-span-2 space-y-6">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-bold text-neutral-900">直近のイベント</h2>
+            <a class="text-xs font-medium text-org-600 hover:text-org-700">すべて見る</a>
+          </div>
+
+          <!-- Event Card 1 -->
+          <div class="bg-white rounded-2xl border border-neutral-200 p-5 mb-4">
+            <div class="flex items-start justify-between mb-3">
+              <div>
+                <div class="flex items-center gap-2 mb-1">
+                  <h3 class="text-base font-bold text-neutral-900">春のハンドメイドマーケット 2026</h3>
+                  <span class="h-5 inline-flex items-center justify-center text-xs font-semibold bg-org-100 text-org-700 px-2.5 rounded-full" style="line-height:1;">募集中</span>
+                </div>
+                <div class="flex items-center gap-4 text-sm text-neutral-500">
+                  <span class="flex items-center gap-1.5">
+                    <svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                    2026年3月22日
+                  </span>
+                  <span class="flex items-center gap-1.5">
+                    <svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"/><circle cx="12" cy="11" r="3"/></svg>
+                    東京ビッグサイト 西ホール
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="mb-3">
+              <div class="flex items-center justify-between text-sm mb-1.5">
+                <span class="text-neutral-600 font-medium">出店者募集</span>
+                <span class="text-neutral-500">24 / 30枠</span>
+              </div>
+              <div class="w-full h-2 bg-neutral-100 rounded-full overflow-hidden">
+                <div class="h-full bg-org-400 rounded-full" style="width: 80%"></div>
+              </div>
+            </div>
+            <div class="flex items-center justify-between pt-2 border-t border-neutral-100">
+              <div class="flex items-center gap-3 text-xs text-neutral-400">
+                <span>申込: 28件</span>
+                <span>承認: 24件</span>
+                <span>保留: 4件</span>
+              </div>
+              <a class="text-sm font-medium text-org-600 hover:text-org-700">詳細を見る</a>
+            </div>
+          </div>
+
+          <!-- Event Card 2 -->
+          <div class="bg-white rounded-2xl border border-neutral-200 p-5">
+            <div class="flex items-start justify-between mb-3">
+              <div>
+                <div class="flex items-center gap-2 mb-1">
+                  <h3 class="text-base font-bold text-neutral-900">アート&クラフトフェスティバル</h3>
+                  <span class="h-5 inline-flex items-center justify-center text-xs font-semibold bg-neutral-100 text-neutral-600 px-2.5 rounded-full" style="line-height:1;">募集終了</span>
+                </div>
+                <div class="flex items-center gap-4 text-sm text-neutral-500">
+                  <span class="flex items-center gap-1.5">
+                    <svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                    2026年4月5日
+                  </span>
+                  <span class="flex items-center gap-1.5">
+                    <svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"/><circle cx="12" cy="11" r="3"/></svg>
+                    横浜赤レンガ倉庫
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="mb-3">
+              <div class="flex items-center justify-between text-sm mb-1.5">
+                <span class="text-neutral-600 font-medium">出店者募集</span>
+                <span class="text-neutral-500">20 / 20枠</span>
+              </div>
+              <div class="w-full h-2 bg-neutral-100 rounded-full overflow-hidden">
+                <div class="h-full bg-store-400 rounded-full" style="width: 100%"></div>
+              </div>
+            </div>
+            <div class="flex items-center justify-between pt-2 border-t border-neutral-100">
+              <div class="flex items-center gap-3 text-xs text-neutral-400">
+                <span>申込: 35件</span>
+                <span>承認: 20件</span>
+                <span>却下: 15件</span>
+              </div>
+              <a class="text-sm font-medium text-org-600 hover:text-org-700">詳細を見る</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: col-span-1 -->
+      <div class="space-y-6">
+
+        <!-- Recent Applications -->
+        <div class="bg-white rounded-2xl border border-neutral-200 p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-base font-bold text-neutral-900">最近の申込</h2>
+            <a class="text-xs font-medium text-org-600 hover:text-org-700">すべて見る</a>
+          </div>
+          <div class="space-y-0">
+            <div class="py-3 border-b border-neutral-100 flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-accent-pink/10 flex items-center justify-center text-accent-pink text-xs font-bold shrink-0">田</div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between mb-0.5">
+                  <span class="text-sm font-medium text-neutral-800 truncate">田中花子</span>
+                  <span class="h-5 inline-flex items-center justify-center text-[10px] font-semibold bg-yellow-50 text-yellow-700 px-2 rounded-full" style="line-height:1;">審査中</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-xs text-neutral-400 truncate">春のハンドメイドマーケット</span>
+                  <span class="text-xs text-neutral-400 shrink-0 ml-2">2時間前</span>
+                </div>
+              </div>
+            </div>
+            <div class="py-3 border-b border-neutral-100 flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-accent-purple/10 flex items-center justify-center text-accent-purple text-xs font-bold shrink-0">佐</div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between mb-0.5">
+                  <span class="text-sm font-medium text-neutral-800 truncate">佐藤工房</span>
+                  <span class="h-5 inline-flex items-center justify-center text-[10px] font-semibold bg-store-50 text-store-700 px-2 rounded-full" style="line-height:1;">承認済み</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-xs text-neutral-400 truncate">春のハンドメイドマーケット</span>
+                  <span class="text-xs text-neutral-400 shrink-0 ml-2">5時間前</span>
+                </div>
+              </div>
+            </div>
+            <div class="py-3 border-b border-neutral-100 flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-accent-sky/10 flex items-center justify-center text-accent-sky text-xs font-bold shrink-0">木</div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between mb-0.5">
+                  <span class="text-sm font-medium text-neutral-800 truncate">木村アクセサリー</span>
+                  <span class="h-5 inline-flex items-center justify-center text-[10px] font-semibold bg-yellow-50 text-yellow-700 px-2 rounded-full" style="line-height:1;">審査中</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-xs text-neutral-400 truncate">春のハンドメイドマーケット</span>
+                  <span class="text-xs text-neutral-400 shrink-0 ml-2">昨日</span>
+                </div>
+              </div>
+            </div>
+            <div class="py-3 border-b border-neutral-100 flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-store-100 flex items-center justify-center text-store-700 text-xs font-bold shrink-0">山</div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between mb-0.5">
+                  <span class="text-sm font-medium text-neutral-800 truncate">山田陶器店</span>
+                  <span class="h-5 inline-flex items-center justify-center text-[10px] font-semibold bg-store-50 text-store-700 px-2 rounded-full" style="line-height:1;">承認済み</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-xs text-neutral-400 truncate">アート&クラフトフェスティバル</span>
+                  <span class="text-xs text-neutral-400 shrink-0 ml-2">2日前</span>
+                </div>
+              </div>
+            </div>
+            <div class="py-3 flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-700 text-xs font-bold shrink-0">鈴</div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between mb-0.5">
+                  <span class="text-sm font-medium text-neutral-800 truncate">鈴木レザークラフト</span>
+                  <span class="h-5 inline-flex items-center justify-center text-[10px] font-semibold bg-yellow-50 text-yellow-700 px-2 rounded-full" style="line-height:1;">審査中</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-xs text-neutral-400 truncate">春のハンドメイドマーケット</span>
+                  <span class="text-xs text-neutral-400 shrink-0 ml-2">3日前</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notifications -->
+        <div class="bg-white rounded-2xl border border-neutral-200 p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-base font-bold text-neutral-900">お知らせ</h2>
+            <a class="text-xs font-medium text-org-600 hover:text-org-700">すべて見る</a>
+          </div>
+          <div class="space-y-0">
+            <div class="py-3 border-b border-neutral-100 flex items-start gap-3">
+              <div class="w-2 h-2 bg-org-500 rounded-full mt-1.5 shrink-0"></div>
+              <div class="flex-1">
+                <p class="text-sm text-neutral-700 leading-relaxed">「春のハンドメイドマーケット」に新しい申込が届きました。</p>
+                <p class="text-xs text-neutral-400 mt-1">2026年3月10日</p>
+              </div>
+            </div>
+            <div class="py-3 border-b border-neutral-100 flex items-start gap-3">
+              <div class="w-2 h-2 bg-org-500 rounded-full mt-1.5 shrink-0"></div>
+              <div class="flex-1">
+                <p class="text-sm text-neutral-700 leading-relaxed">イベント掲載ガイドラインが更新されました。ご確認ください。</p>
+                <p class="text-xs text-neutral-400 mt-1">2026年3月8日</p>
+              </div>
+            </div>
+            <div class="py-3 flex items-start gap-3">
+              <div class="w-2 h-2 bg-neutral-300 rounded-full mt-1.5 shrink-0"></div>
+              <div class="flex-1">
+                <p class="text-sm text-neutral-700 leading-relaxed">「アート&クラフトフェスティバル」の出店者募集が締め切られました。</p>
+                <p class="text-xs text-neutral-400 mt-1">2026年3月5日</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+</body>
+</html>

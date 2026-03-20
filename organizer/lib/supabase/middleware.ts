@@ -1,6 +1,22 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+// Public routes that don't require authentication
+const PUBLIC_ROUTES = [
+    '/login',
+    '/signup',
+    '/forgot-password',
+    '/reset-password',
+    '/terms',
+    '/privacy',
+    '/auth/callback',
+    '/api/auth',
+]
+
+function isPublicRoute(pathname: string): boolean {
+    return PUBLIC_ROUTES.some(route => pathname.startsWith(route))
+}
+
 export async function updateSession(request: NextRequest) {
     let response = NextResponse.next({
         request: {
@@ -8,9 +24,22 @@ export async function updateSession(request: NextRequest) {
         },
     })
 
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+        console.error('Missing Supabase environment variables in middleware');
+        if (!isPublicRoute(request.nextUrl.pathname)) {
+            const url = request.nextUrl.clone()
+            url.pathname = '/login'
+            return NextResponse.redirect(url)
+        }
+        return response;
+    }
+
     const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        supabaseUrl,
+        supabaseAnonKey,
         {
             cookies: {
                 get(name: string) {
@@ -57,7 +86,34 @@ export async function updateSession(request: NextRequest) {
         }
     )
 
-    await supabase.auth.getUser()
+    try {
+        const { data: { user } } = await supabase.auth.getUser()
+
+        const pathname = request.nextUrl.pathname
+
+        // Redirect unauthenticated users from protected routes to login
+        if (!user && !isPublicRoute(pathname)) {
+            const url = request.nextUrl.clone()
+            url.pathname = '/login'
+            url.searchParams.set('next', pathname)
+            return NextResponse.redirect(url)
+        }
+
+        // Redirect authenticated users away from login/signup pages
+        if (user && (pathname === '/login' || pathname === '/signup')) {
+            const url = request.nextUrl.clone()
+            url.pathname = '/'
+            return NextResponse.redirect(url)
+        }
+    } catch (error) {
+        console.error('Middleware auth error:', error)
+        // On auth error, allow public routes but block protected ones
+        if (!isPublicRoute(request.nextUrl.pathname)) {
+            const url = request.nextUrl.clone()
+            url.pathname = '/login'
+            return NextResponse.redirect(url)
+        }
+    }
 
     return response
 }

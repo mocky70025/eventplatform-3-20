@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1440">
+  <title>Eventra - イベント詳細</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Noto Sans JP', 'sans-serif'] },
+          colors: {
+            store: { 50: '#ecfdf5', 100: '#d1fae5', 200: '#a7f3d0', 300: '#6ee7b7', 400: '#34d399', 500: '#10b981', 600: '#059669', 700: '#047857', 800: '#065f46', 900: '#064e3b' },
+            org: { 50: '#fff7ed', 100: '#ffedd5', 200: '#fed7aa', 300: '#fdba74', 400: '#fb923c', 500: '#f97316', 600: '#ea580c', 700: '#c2410c', 800: '#9a3412', 900: '#7c2d12' },
+            accent: { pink: '#ec4899', yellow: '#eab308', purple: '#8b5cf6', sky: '#0ea5e9' },
+            neutral: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1', 400: '#94a3b8', 500: '#64748b', 600: '#475569', 700: '#334155', 800: '#1e293b', 900: '#0f172a' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { font-family: 'Noto Sans JP', sans-serif; }
+    body { width: 1440px; margin: 0 auto; background: #f8fafc; }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="bg-white px-8 h-16 flex items-center justify-between border-b border-neutral-100 sticky top-0 z-50">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 bg-org-500 rounded-xl flex items-center justify-center">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"/></svg>
+      </div>
+      <span class="text-lg font-bold text-neutral-900">Eventra</span>
+      <span class="text-[10px] bg-org-100 text-org-700 px-2 rounded-full font-semibold inline-flex items-center justify-center h-5" style="line-height:1;">主催者</span>
+    </div>
+    <nav class="flex items-center gap-1">
+      <a class="text-sm font-medium text-neutral-500 hover:text-neutral-700 px-4 py-2 rounded-lg">ダッシュボード</a>
+      <a class="text-sm font-medium text-org-700 bg-org-50 px-4 py-2 rounded-lg">イベント管理</a>
+      <a class="text-sm font-medium text-neutral-500 hover:text-neutral-700 px-4 py-2 rounded-lg">出店者管理</a>
+      <a class="text-sm font-medium text-neutral-500 hover:text-neutral-700 px-4 py-2 rounded-lg">プロフィール</a>
+      <div class="w-px h-6 bg-neutral-200 mx-2"></div>
+      <button class="text-sm text-neutral-400 hover:text-red-500 px-3 py-2">ログアウト</button>
+    </nav>
+  </header>
+
+  <main class="max-w-5xl mx-auto py-8 px-6">
+
+    <!-- Back + Actions -->
+    <div class="flex items-center justify-between mb-6">
+      <a class="inline-flex items-center gap-1.5 text-sm text-neutral-500 hover:text-neutral-700">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
+        イベント一覧へ戻る
+      </a>
+      <div class="flex items-center gap-3">
+        <button class="text-sm font-medium text-neutral-500 hover:text-neutral-700 border border-neutral-200 px-4 py-2 rounded-xl flex items-center gap-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+          複製
+        </button>
+        <button class="text-sm font-medium text-red-500 hover:text-red-600 border border-red-200 px-4 py-2 rounded-xl flex items-center gap-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+          削除
+        </button>
+        <button class="text-sm font-bold text-white bg-org-500 hover:bg-org-600 px-5 py-2 rounded-xl flex items-center gap-1.5 shadow-lg shadow-org-500/20">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+          編集する
+        </button>
+      </div>
+    </div>
+
+    <!-- Hero / Event Header -->
+    <div class="bg-white rounded-2xl border border-neutral-200 overflow-hidden mb-6">
+      <!-- Cover Image -->
+      <div class="h-48 bg-gradient-to-br from-org-100 via-org-50 to-accent-yellow/10 flex items-center justify-center relative">
+        <svg class="w-16 h-16 text-org-300" fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        <div class="absolute top-4 right-4 flex gap-2">
+          <span class="h-7 inline-flex items-center justify-center px-3 rounded-full bg-white/90 backdrop-blur text-org-700 text-xs font-bold shadow-sm" style="line-height:1;">募集中</span>
+        </div>
+      </div>
+      <!-- Event Info -->
+      <div class="p-6">
+        <h1 class="text-2xl font-bold text-neutral-900 mb-3">静岡フードフェスティバル 2026</h1>
+        <div class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-neutral-500 mb-4">
+          <span class="flex items-center gap-1.5">
+            <svg class="w-4 h-4 text-org-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            2026年4月12日（土）〜 4月13日（日）
+          </span>
+          <span class="flex items-center gap-1.5">
+            <svg class="w-4 h-4 text-org-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            静岡市 駿府城公園
+          </span>
+          <span class="flex items-center gap-1.5">
+            <svg class="w-4 h-4 text-org-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            10:00 〜 18:00
+          </span>
+          <span class="flex items-center gap-1.5">
+            <svg class="w-4 h-4 text-org-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+            フード / グルメ
+          </span>
+        </div>
+        <!-- Stats Row -->
+        <div class="flex gap-3">
+          <div class="flex-1 bg-org-50 rounded-xl p-4 text-center">
+            <p class="text-2xl font-bold text-org-600">24</p>
+            <p class="text-xs text-neutral-500 font-medium mt-1">応募数</p>
+          </div>
+          <div class="flex-1 bg-store-50 rounded-xl p-4 text-center">
+            <p class="text-2xl font-bold text-store-600">12</p>
+            <p class="text-xs text-neutral-500 font-medium mt-1">承認済み</p>
+          </div>
+          <div class="flex-1 bg-accent-yellow/10 rounded-xl p-4 text-center">
+            <p class="text-2xl font-bold text-yellow-600">8</p>
+            <p class="text-xs text-neutral-500 font-medium mt-1">審査中</p>
+          </div>
+          <div class="flex-1 bg-red-50 rounded-xl p-4 text-center">
+            <p class="text-2xl font-bold text-red-500">4</p>
+            <p class="text-xs text-neutral-500 font-medium mt-1">却下</p>
+          </div>
+          <div class="flex-1 bg-neutral-50 rounded-xl p-4 text-center">
+            <p class="text-2xl font-bold text-neutral-700">30</p>
+            <p class="text-xs text-neutral-500 font-medium mt-1">募集枠</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Two Column Layout -->
+    <div class="grid grid-cols-3 gap-6">
+      <!-- Left: Details (2 cols) -->
+      <div class="col-span-2 space-y-6">
+
+        <!-- Event Description -->
+        <div class="bg-white rounded-2xl border border-neutral-200 p-6">
+          <h2 class="text-base font-bold text-neutral-900 mb-4 flex items-center gap-2">
+            <svg class="w-5 h-5 text-org-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            イベント概要
+          </h2>
+          <p class="text-sm text-neutral-600 leading-relaxed mb-4">
+            静岡の食文化を楽しむ大規模フードフェスティバル。地元の名店から人気キッチンカーまで、多彩なグルメが大集合。ステージイベントやワークショップも開催し、家族連れで一日中楽しめるイベントです。
+          </p>
+          <p class="text-sm text-neutral-600 leading-relaxed">
+            昨年は2日間で来場者数3万人を記録。今年はエリアを拡大し、より多くの出店者様にご参加いただける体制を整えました。
+          </p>
+        </div>
+
+        <!-- All Event Details (matching org-02 creation form fields) -->
+        <div class="bg-white rounded-2xl border border-neutral-200 p-6">
+          <h2 class="text-base font-bold text-neutral-900 mb-4 flex items-center gap-2">
+            <svg class="w-5 h-5 text-org-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            イベント詳細
+          </h2>
+          <div class="space-y-3 text-sm">
+            <div class="flex justify-between py-2.5 border-b border-neutral-50">
+              <span class="text-neutral-400 font-medium">イベント名</span>
+              <span class="text-neutral-900 font-semibold">静岡フードフェスティバル 2026</span>
+            </div>
+            <div class="flex justify-between py-2.5 border-b border-neutral-50">
+              <span class="text-neutral-400 font-medium">開催開始日</span>
+              <span class="text-neutral-900 font-semibold">2026年4月12日（土）</span>
+            </div>
+            <div class="flex justify-between py-2.5 border-b border-neutral-50">
+              <span class="text-neutral-400 font-medium">開催終了日</span>
+              <span class="text-neutral-900 font-semibold">2026年4月13日（日）</span>
+            </div>
+            <div class="flex justify-between py-2.5 border-b border-neutral-50">
+              <span class="text-neutral-400 font-medium">開催時間（開始）</span>
+              <span class="text-neutral-900 font-semibold">10:00</span>
+            </div>
+            <div class="flex justify-between py-2.5 border-b border-neutral-50">
+              <span class="text-neutral-400 font-medium">開催時間（終了）</span>
+              <span class="text-neutral-900 font-semibold">18:00</span>
+            </div>
+            <div class="flex justify-between py-2.5 border-b border-neutral-50">
+              <span class="text-neutral-400 font-medium">会場名</span>
+              <span class="text-neutral-900 font-semibold">駿府城公園 中央広場</span>
+            </div>
+            <div class="flex justify-between py-2.5 border-b border-neutral-50">
+              <span class="text-neutral-400 font-medium">住所</span>
+              <span class="text-neutral-900 font-semibold">静岡県静岡市葵区駿府城公園1-1</span>
+            </div>
+            <div class="flex justify-between py-2.5 border-b border-neutral-50">
+              <span class="text-neutral-400 font-medium">カテゴリ</span>
+              <span class="text-neutral-900 font-semibold">フードフェス</span>
+            </div>
+            <div class="flex justify-between py-2.5">
+              <span class="text-neutral-400 font-medium">カバー画像</span>
+              <span class="text-neutral-900 font-semibold">event_cover.jpg</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Booth Details -->
+        <div class="bg-white rounded-2xl border border-neutral-200 p-6">
+          <h2 class="text-base font-bold text-neutral-900 mb-4 flex items-center gap-2">
+            <svg class="w-5 h-5 text-org-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+            出店条件
+          </h2>
+          <div class="space-y-3 text-sm">
+            <div class="flex justify-between py-2 border-b border-neutral-50">
+              <span class="text-neutral-400 font-medium">出店料</span>
+              <span class="text-neutral-900 font-bold">15,000円 / 1ブース</span>
+            </div>
+            <div class="flex justify-between py-2 border-b border-neutral-50">
+              <span class="text-neutral-400 font-medium">ブースサイズ</span>
+              <span class="text-neutral-900 font-semibold">3m x 3m</span>
+            </div>
+            <div class="flex justify-between py-2 border-b border-neutral-50">
+              <span class="text-neutral-400 font-medium">電源</span>
+              <span class="text-neutral-900 font-semibold">100V / 20A（1口）</span>
+            </div>
+            <div class="flex justify-between py-2 border-b border-neutral-50">
+              <span class="text-neutral-400 font-medium">給排水</span>
+              <span class="text-neutral-900 font-semibold">あり（共用）</span>
+            </div>
+            <div class="flex justify-between py-2">
+              <span class="text-neutral-400 font-medium">搬入時間</span>
+              <span class="text-neutral-900 font-semibold">当日 7:00 〜 9:30</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Sidebar (1 col) -->
+      <div class="space-y-6">
+
+        <!-- Schedule / Status Timeline (matching store-03 pattern) -->
+        <div class="bg-white rounded-2xl border border-neutral-200 p-6">
+          <h3 class="text-base font-bold text-neutral-900 mb-5">ステータス</h3>
+
+          <!-- Step 1: Completed -->
+          <div class="flex gap-3">
+            <div class="flex flex-col items-center">
+              <div class="w-8 h-8 bg-store-500 rounded-full flex items-center justify-center">
+                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+              </div>
+              <div class="w-0.5 h-8 bg-store-300"></div>
+            </div>
+            <div class="pb-4">
+              <p class="text-sm font-semibold text-neutral-900">イベント作成</p>
+              <p class="text-xs text-neutral-500 mt-0.5">2026/02/15</p>
+            </div>
+          </div>
+
+          <!-- Step 2: Completed -->
+          <div class="flex gap-3">
+            <div class="flex flex-col items-center">
+              <div class="w-8 h-8 bg-store-500 rounded-full flex items-center justify-center">
+                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+              </div>
+              <div class="w-0.5 h-8 bg-store-300"></div>
+            </div>
+            <div class="pb-4">
+              <p class="text-sm font-semibold text-neutral-900">募集開始</p>
+              <p class="text-xs text-neutral-500 mt-0.5">2026/03/01</p>
+            </div>
+          </div>
+
+          <!-- Step 3: Completed -->
+          <div class="flex gap-3">
+            <div class="flex flex-col items-center">
+              <div class="w-8 h-8 bg-store-500 rounded-full flex items-center justify-center">
+                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+              </div>
+              <div class="w-0.5 h-8 bg-store-300"></div>
+            </div>
+            <div class="pb-4">
+              <p class="text-sm font-semibold text-neutral-900">募集締切</p>
+              <p class="text-xs text-neutral-500 mt-0.5">2026/03/31</p>
+            </div>
+          </div>
+
+          <!-- Step 4: Current -->
+          <div class="flex gap-3">
+            <div class="flex flex-col items-center">
+              <div class="w-8 h-8 bg-store-100 border-2 border-store-400 rounded-full flex items-center justify-center">
+                <div class="w-2.5 h-2.5 bg-store-500 rounded-full"></div>
+              </div>
+              <div class="w-0.5 h-8 bg-neutral-200"></div>
+            </div>
+            <div class="pb-4">
+              <p class="text-sm font-semibold text-store-700">審査中</p>
+              <p class="text-xs text-orange-600 font-medium mt-0.5">期限: 2026/04/05</p>
+            </div>
+          </div>
+
+          <!-- Step 5: Upcoming -->
+          <div class="flex gap-3">
+            <div class="flex flex-col items-center">
+              <div class="w-8 h-8 bg-neutral-200 rounded-full flex items-center justify-center text-xs font-bold text-neutral-400">5</div>
+            </div>
+            <div>
+              <p class="text-sm font-medium text-neutral-400">イベント開催</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Applications -->
+        <div class="bg-white rounded-2xl border border-neutral-200 p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-base font-bold text-neutral-900">最近の応募</h3>
+            <a class="text-xs font-medium text-org-600 hover:text-org-700">すべて見る</a>
+          </div>
+          <div class="space-y-3">
+            <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-neutral-50">
+              <div class="w-9 h-9 rounded-full bg-store-100 flex items-center justify-center text-store-700 text-xs font-bold">山</div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold text-neutral-900 truncate">たこ焼き本舗</p>
+                <p class="text-xs text-neutral-400">2時間前</p>
+              </div>
+              <span class="h-6 inline-flex items-center justify-center px-2 rounded-full bg-yellow-100 text-yellow-700 text-[10px] font-bold" style="line-height:1;">審査中</span>
+            </div>
+            <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-neutral-50">
+              <div class="w-9 h-9 rounded-full bg-accent-pink/10 flex items-center justify-center text-accent-pink text-xs font-bold">鈴</div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold text-neutral-900 truncate">Crepe Stand LUNA</p>
+                <p class="text-xs text-neutral-400">5時間前</p>
+              </div>
+              <span class="h-6 inline-flex items-center justify-center px-2 rounded-full bg-yellow-100 text-yellow-700 text-[10px] font-bold" style="line-height:1;">審査中</span>
+            </div>
+            <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-neutral-50">
+              <div class="w-9 h-9 rounded-full bg-accent-purple/10 flex items-center justify-center text-accent-purple text-xs font-bold">佐</div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold text-neutral-900 truncate">焼きそば太郎</p>
+                <p class="text-xs text-neutral-400">昨日</p>
+              </div>
+              <span class="h-6 inline-flex items-center justify-center px-2 rounded-full bg-store-100 text-store-700 text-[10px] font-bold" style="line-height:1;">承認済</span>
+            </div>
+            <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-neutral-50">
+              <div class="w-9 h-9 rounded-full bg-accent-sky/10 flex items-center justify-center text-accent-sky text-xs font-bold">田</div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold text-neutral-900 truncate">Hawaiian Shaved Ice</p>
+                <p class="text-xs text-neutral-400">2日前</p>
+              </div>
+              <span class="h-6 inline-flex items-center justify-center px-2 rounded-full bg-store-100 text-store-700 text-[10px] font-bold" style="line-height:1;">承認済</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="bg-white rounded-2xl border border-neutral-200 p-6">
+          <h3 class="text-base font-bold text-neutral-900 mb-4">クイックアクション</h3>
+          <div class="space-y-2">
+            <button class="w-full text-left text-sm font-medium text-neutral-700 hover:text-org-600 hover:bg-org-50 px-3 py-2.5 rounded-xl flex items-center gap-2 transition-colors">
+              <svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+              募集ページを共有
+            </button>
+            <button class="w-full text-left text-sm font-medium text-neutral-700 hover:text-org-600 hover:bg-org-50 px-3 py-2.5 rounded-xl flex items-center gap-2 transition-colors">
+              <svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              応募者リストをCSV出力
+            </button>
+            <button class="w-full text-left text-sm font-medium text-neutral-700 hover:text-org-600 hover:bg-org-50 px-3 py-2.5 rounded-xl flex items-center gap-2 transition-colors">
+              <svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              イベント設定
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js"></script>
+</body>
+</html>

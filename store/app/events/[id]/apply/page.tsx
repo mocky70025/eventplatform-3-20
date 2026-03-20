@@ -24,37 +24,39 @@ export default async function ApplyPage({ params }: PageProps) {
     }
     if (!user) redirect("/login");
 
-    const { data: exhibitor } = await supabase
+    const { data: exhibitors } = await supabase
         .from("exhibitors")
         .select("*")
         .eq("user_id", user.id)
-        .single();
+        .order("created_at", { ascending: false })
+        .limit(1);
+    const exhibitor = exhibitors?.[0];
 
     if (!exhibitor) redirect("/onboarding");
 
     // 2. Refresh Event Details
-    const { data: event } = await supabase
+    const { data: event, error: eventError } = await supabase
         .from("events")
         .select("*, organizers(company_name)")
         .eq("id", id)
         .single();
 
-    if (!event) return notFound();
+    if (eventError || !event) return notFound();
 
-    // 3. Check for existing application
+    // 3. Check for existing application (use maybeSingle to avoid error when no rows)
     const { data: existingApp } = await supabase
         .from("event_applications")
         .select("id")
         .eq("event_id", id)
         .eq("exhibitor_id", exhibitor.id)
-        .single();
+        .maybeSingle();
 
     if (existingApp) {
         redirect(`/events/${id}`);
     }
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-slate-50">
             <Header />
             <main className="container mx-auto px-4 py-8 max-w-2xl">
                 <ApplyClient event={event} exhibitor={exhibitor} />

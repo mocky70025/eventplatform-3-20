@@ -1,19 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
 import { Header } from "@/components/layout/Header";
-import { Button } from "@/components/ui/Button";
 import {
     ArrowLeft,
-    Calendar,
-    MapPin,
-    Store,
-    User,
     Mail,
-    Phone,
     FileText,
+    MessageCircle,
     ExternalLink,
-    AlertTriangle,
-    CheckCircle2,
-    XCircle
 } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
@@ -67,87 +59,106 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
         notFound();
     }
 
+    const shopInitial = app.exhibitors?.shop_name?.charAt(0) || "?";
+
+    const statusLabel = app.status === "approved" ? "承認済み"
+        : app.status === "rejected" ? "却下済み"
+        : "審査中";
+    const statusColor = app.status === "approved" ? "bg-emerald-100 text-emerald-700"
+        : app.status === "rejected" ? "bg-red-100 text-red-700"
+        : "bg-yellow-100 text-yellow-700";
+
     return (
-        <div className="min-h-screen bg-orange-50/30">
+        <div className="min-h-screen bg-slate-50">
             <Header />
 
-            <main className="container mx-auto px-4 py-8 max-w-5xl">
-                <div className="mb-8">
-                    <Link href="/applications" className="flex items-center text-sm font-medium text-gray-500 hover:text-orange-600 transition-colors mb-4 group">
-                        <ArrowLeft className="w-4 h-4 mr-1 group-hover:-translate-x-1 transition-transform" /> 申込一覧へ戻る
-                    </Link>
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                        <div>
-                            <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-                                申込詳細
-                            </h1>
-                            <p className="text-gray-500 mt-1">
-                                {app.exhibitors?.shop_name} からの応募内容を確認してください。
-                            </p>
-                        </div>
+            <main className="max-w-5xl mx-auto py-8 px-6">
 
-                        <ApplicationStatusActions 
-                            initialStatus={app.status} 
-                            applicationId={app.id}
-                            eventId={(app.events as any)?.id}
-                        />
+                {/* Back Link */}
+                <Link href="/applications" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 mb-6">
+                    <ArrowLeft className="w-4 h-4" />
+                    出店者管理へ戻る
+                </Link>
+
+                {/* Page Header */}
+                <div className="flex items-center justify-between mb-6">
+                    <div>
+                        <h1 className="text-2xl font-bold text-slate-900">申請審査</h1>
+                        <p className="text-sm text-slate-500 mt-1">出店者の情報を確認し、承認または却下してください。</p>
                     </div>
+                    <span className={`h-7 inline-flex items-center justify-center px-3 rounded-full text-xs font-bold ${statusColor}`} style={{ lineHeight: 1 }}>
+                        {statusLabel}
+                    </span>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Left Column: Exhibitor Profile */}
-                    <div className="lg:col-span-2 space-y-8">
-                        {/* Exhibitor Profile Card */}
-                        <section className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
-                            <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                                <Store className="w-6 h-6 text-emerald-600" />
-                                出店者プロフィール
-                            </h2>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-                            <div className="space-y-6">
-                                <div className="flex items-start gap-4">
-                                    <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600 border border-emerald-100 shrink-0">
-                                        <Store className="w-8 h-8" />
-                                    </div>
-                                    <div>
-                                        <h3 className="text-2xl font-bold text-gray-900">{app.exhibitors?.shop_name}</h3>
-                                        <p className="text-gray-500 font-medium">{app.exhibitors?.name}</p>
-                                    </div>
+                    {/* Left: Applicant Details (2 cols) */}
+                    <div className="lg:col-span-2 space-y-6">
+
+                        {/* Applicant Profile Card */}
+                        <div className="bg-white rounded-2xl border border-slate-200 p-6">
+                            <div className="flex items-start gap-5">
+                                <div className="w-16 h-16 rounded-2xl bg-emerald-100 flex items-center justify-center text-emerald-700 text-xl font-bold shrink-0">
+                                    {shopInitial}
                                 </div>
-
-                                <div className="bg-gray-50 rounded-xl p-5 border border-gray-100">
-                                    <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">自己紹介 / メッセージ</h4>
-                                    <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-                                        {app.message || "メッセージはありません。"}
+                                <div className="flex-1 min-w-0">
+                                    <h2 className="text-xl font-bold text-slate-900">{app.exhibitors?.shop_name}</h2>
+                                    <p className="text-sm text-slate-500 mt-0.5">代表: {app.exhibitors?.name}</p>
+                                    {app.exhibitors?.genre && (
+                                        <div className="flex flex-wrap gap-2 mt-3">
+                                            <span className="h-6 inline-flex items-center justify-center px-2.5 rounded-full bg-emerald-100 text-emerald-700 text-xs font-medium" style={{ lineHeight: 1 }}>
+                                                {app.exhibitors.genre}
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="shrink-0 text-right">
+                                    <p className="text-xs text-slate-400">応募日</p>
+                                    <p className="text-sm font-semibold text-slate-700">
+                                        {app.created_at ? new Date(app.created_at).toLocaleDateString("ja-JP") : "-"}
                                     </p>
                                 </div>
+                            </div>
+                        </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="p-4 rounded-xl border border-gray-100 flex items-center gap-3">
-                                        <Mail className="w-5 h-5 text-gray-400" />
-                                        <div className="text-sm">
-                                            <p className="text-gray-400 font-medium leading-none mb-1">メール</p>
-                                            <p className="text-gray-900 font-bold">{app.exhibitors?.email}</p>
-                                        </div>
-                                    </div>
-                                    <div className="p-4 rounded-xl border border-gray-100 flex items-center gap-3">
-                                        <Phone className="w-5 h-5 text-gray-400" />
-                                        <div className="text-sm">
-                                            <p className="text-gray-400 font-medium leading-none mb-1">電話番号</p>
-                                            <p className="text-gray-900 font-bold">{app.exhibitors?.phone_number}</p>
-                                        </div>
-                                    </div>
+                        {/* Contact Info */}
+                        <div className="bg-white rounded-2xl border border-slate-200 p-6">
+                            <h3 className="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
+                                <Mail className="w-5 h-5 text-orange-500" />
+                                連絡先情報
+                            </h3>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                                <div className="flex justify-between py-2 border-b border-slate-50">
+                                    <span className="text-slate-400 font-medium">メール</span>
+                                    <span className="text-slate-900 font-semibold">{app.exhibitors?.email || "-"}</span>
+                                </div>
+                                <div className="flex justify-between py-2 border-b border-slate-50">
+                                    <span className="text-slate-400 font-medium">電話番号</span>
+                                    <span className="text-slate-900 font-semibold">{app.exhibitors?.phone_number || "-"}</span>
                                 </div>
                             </div>
-                        </section>
+                        </div>
+
+                        {/* Message from Applicant */}
+                        <div className="bg-white rounded-2xl border border-slate-200 p-6">
+                            <h3 className="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
+                                <MessageCircle className="w-5 h-5 text-orange-500" />
+                                応募者からのメッセージ
+                            </h3>
+                            <div className="bg-slate-50 rounded-xl p-4">
+                                <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">
+                                    {app.message || "メッセージはありません。"}
+                                </p>
+                            </div>
+                        </div>
 
                         {/* Documents Section */}
-                        <section className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
-                            <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                                <FileText className="w-6 h-6 text-orange-600" />
+                        <div className="bg-white rounded-2xl border border-slate-200 p-6">
+                            <h3 className="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
+                                <FileText className="w-5 h-5 text-orange-500" />
                                 提出書類
-                            </h2>
-
+                            </h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <DocumentCard
                                     label="営業許可証"
@@ -167,42 +178,65 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
                                     imageUrl={app.exhibitors?.fire_equipment_layout_image_url}
                                 />
                             </div>
-                        </section>
+                        </div>
+
                     </div>
 
-                    {/* Right Column: Event Summary & Status */}
-                    <div className="space-y-8">
-                        {/* Event Card */}
-                        <section className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm sticky top-24">
-                            <p className="text-[10px] font-extrabold text-gray-500 uppercase tracking-widest mb-1">対象イベント</p>
-                            <h3 className="text-lg font-bold text-gray-900 mb-4">{app.events?.event_name}</h3>
+                    {/* Right: Sidebar (1 col) */}
+                    <div className="space-y-6">
 
-                            <div className="space-y-3 text-sm text-gray-600">
-                                <div className="flex items-center gap-2">
-                                    <Calendar className="w-4 h-4 text-orange-500" />
-                                    {app.events?.event_start_date}
+                        {/* Decision Panel */}
+                        <div className="bg-white rounded-2xl border-2 border-orange-200 p-6">
+                            <h3 className="text-base font-bold text-slate-900 mb-4">審査アクション</h3>
+                            <ApplicationStatusActions
+                                initialStatus={app.status}
+                                applicationId={app.id}
+                                eventId={(app.events as any)?.id}
+                            />
+                        </div>
+
+                        {/* Application Summary / Event Info */}
+                        <div className="bg-white rounded-2xl border border-slate-200 p-6">
+                            <h3 className="text-base font-bold text-slate-900 mb-4">応募概要</h3>
+                            <div className="space-y-3 text-sm">
+                                <div className="flex justify-between py-2 border-b border-slate-50">
+                                    <span className="text-slate-400 font-medium">応募先</span>
+                                    <span className="text-slate-900 font-semibold">{app.events?.event_name}</span>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <MapPin className="w-4 h-4 text-orange-500" />
-                                    {app.events?.venue_name}
+                                <div className="flex justify-between py-2 border-b border-slate-50">
+                                    <span className="text-slate-400 font-medium">開催日</span>
+                                    <span className="text-slate-900 font-semibold">{app.events?.event_start_date || "-"}</span>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <Store className="w-4 h-4 text-orange-500" />
-                                    {app.events?.genre}
+                                <div className="flex justify-between py-2 border-b border-slate-50">
+                                    <span className="text-slate-400 font-medium">会場</span>
+                                    <span className="text-slate-900 font-semibold">{app.events?.venue_name || "-"}</span>
+                                </div>
+                                <div className="flex justify-between py-2 border-b border-slate-50">
+                                    <span className="text-slate-400 font-medium">カテゴリ</span>
+                                    <span className="text-slate-900 font-semibold">{app.events?.genre || "-"}</span>
+                                </div>
+                                <div className="flex justify-between py-2">
+                                    <span className="text-slate-400 font-medium">応募日時</span>
+                                    <span className="text-slate-900 font-semibold">
+                                        {app.created_at ? new Date(app.created_at).toLocaleDateString("ja-JP") : "-"}
+                                    </span>
                                 </div>
                             </div>
 
-                            <div className="mt-8 pt-6 border-t border-gray-100">
-                                <Link href={`/events/${app.events?.id}`}>
-                                    <Button variant="outline" className="w-full border-orange-200 text-orange-600 hover:bg-orange-50 gap-2">
-                                        イベント管理画面を見る
-                                        <ExternalLink className="w-4 h-4" />
-                                    </Button>
+                            <div className="mt-5 pt-4 border-t border-slate-100">
+                                <Link
+                                    href={`/events/${app.events?.id}`}
+                                    className="w-full inline-flex items-center justify-center gap-2 border border-orange-200 text-orange-600 hover:bg-orange-50 py-2.5 rounded-xl text-sm font-medium transition-colors"
+                                >
+                                    イベント管理画面を見る
+                                    <ExternalLink className="w-4 h-4" />
                                 </Link>
                             </div>
-                        </section>
+                        </div>
+
                     </div>
                 </div>
+
             </main>
         </div>
     );

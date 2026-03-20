@@ -8,8 +8,8 @@ const notoSansJP = Noto_Sans_JP({
 });
 
 export const metadata: Metadata = {
-  title: "管理画面 | イベントプラットフォーム",
-  description: "Platform Administration",
+  title: "管理画面 | Eventra",
+  description: "Eventra Platform Administration",
 };
 
 export default function RootLayout({
@@ -20,7 +20,7 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body
-        className={`${notoSansJP.variable} antialiased bg-gray-50 text-gray-900 font-sans`}
+        className={`${notoSansJP.variable} antialiased bg-slate-50 text-slate-900 font-sans`}
       >
         {children}
       </body>

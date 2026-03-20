@@ -1,6 +1,26 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+// Public routes that don't require authentication
+const PUBLIC_ROUTES = [
+    '/login',
+    '/signup',
+    '/forgot-password',
+    '/reset-password',
+    '/auth/callback',
+    '/api/auth',
+    '/events',
+    '/organizers',
+    '/privacy',
+    '/terms',
+]
+
+function isPublicRoute(pathname: string): boolean {
+    // Home page is public
+    if (pathname === '/') return true
+    return PUBLIC_ROUTES.some(route => pathname.startsWith(route))
+}
+
 export async function updateSession(request: NextRequest) {
     let response = NextResponse.next({
         request: {
@@ -12,8 +32,12 @@ export async function updateSession(request: NextRequest) {
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
     if (!supabaseUrl || !supabaseAnonKey) {
-        // If env vars are missing, just return the response without auth
         console.error('Missing Supabase environment variables in middleware');
+        if (!isPublicRoute(request.nextUrl.pathname)) {
+            const url = request.nextUrl.clone()
+            url.pathname = '/login'
+            return NextResponse.redirect(url)
+        }
         return response;
     }
 
@@ -67,11 +91,32 @@ export async function updateSession(request: NextRequest) {
     )
 
     try {
-        await supabase.auth.getUser()
+        const { data: { user } } = await supabase.auth.getUser()
+
+        const pathname = request.nextUrl.pathname
+
+        // Redirect unauthenticated users from protected routes to login
+        if (!user && !isPublicRoute(pathname)) {
+            const url = request.nextUrl.clone()
+            url.pathname = '/login'
+            url.searchParams.set('next', pathname)
+            return NextResponse.redirect(url)
+        }
+
+        // Redirect authenticated users away from login/signup pages
+        if (user && (pathname === '/login' || pathname === '/signup')) {
+            const url = request.nextUrl.clone()
+            url.pathname = '/'
+            return NextResponse.redirect(url)
+        }
     } catch (error) {
-        // Silently handle auth errors in middleware
-        // This prevents the entire app from crashing if Supabase is unreachable
         console.error('Middleware auth error:', error);
+        // On auth error, allow public routes but block protected ones
+        if (!isPublicRoute(request.nextUrl.pathname)) {
+            const url = request.nextUrl.clone()
+            url.pathname = '/login'
+            return NextResponse.redirect(url)
+        }
     }
 
     return response

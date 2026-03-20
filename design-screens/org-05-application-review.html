@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1440">
+  <title>Eventra - 申請審査</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Noto Sans JP', 'sans-serif'] },
+          colors: {
+            store: { 50: '#ecfdf5', 100: '#d1fae5', 200: '#a7f3d0', 300: '#6ee7b7', 400: '#34d399', 500: '#10b981', 600: '#059669', 700: '#047857', 800: '#065f46', 900: '#064e3b' },
+            org: { 50: '#fff7ed', 100: '#ffedd5', 200: '#fed7aa', 300: '#fdba74', 400: '#fb923c', 500: '#f97316', 600: '#ea580c', 700: '#c2410c', 800: '#9a3412', 900: '#7c2d12' },
+            accent: { pink: '#ec4899', yellow: '#eab308', purple: '#8b5cf6', sky: '#0ea5e9' },
+            neutral: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1', 400: '#94a3b8', 500: '#64748b', 600: '#475569', 700: '#334155', 800: '#1e293b', 900: '#0f172a' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { font-family: 'Noto Sans JP', sans-serif; }
+    body { width: 1440px; margin: 0 auto; background: #f8fafc; }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="bg-white px-8 h-16 flex items-center justify-between border-b border-neutral-100 sticky top-0 z-50">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 bg-org-500 rounded-xl flex items-center justify-center">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"/></svg>
+      </div>
+      <span class="text-lg font-bold text-neutral-900">Eventra</span>
+      <span class="text-[10px] bg-org-100 text-org-700 px-2 rounded-full font-semibold inline-flex items-center justify-center h-5" style="line-height:1;">主催者</span>
+    </div>
+    <nav class="flex items-center gap-1">
+      <a class="text-sm font-medium text-neutral-500 hover:text-neutral-700 px-4 py-2 rounded-lg">ダッシュボード</a>
+      <a class="text-sm font-medium text-neutral-500 hover:text-neutral-700 px-4 py-2 rounded-lg">イベント管理</a>
+      <a class="text-sm font-medium text-org-700 bg-org-50 px-4 py-2 rounded-lg">出店者管理</a>
+      <a class="text-sm font-medium text-neutral-500 hover:text-neutral-700 px-4 py-2 rounded-lg">プロフィール</a>
+      <div class="w-px h-6 bg-neutral-200 mx-2"></div>
+      <button class="text-sm text-neutral-400 hover:text-red-500 px-3 py-2">ログアウト</button>
+    </nav>
+  </header>
+
+  <main class="max-w-5xl mx-auto py-8 px-6">
+
+    <!-- Back Link -->
+    <a class="inline-flex items-center gap-1.5 text-sm text-neutral-500 hover:text-neutral-700 mb-6">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
+      出店者管理へ戻る
+    </a>
+
+    <!-- Page Header -->
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h1 class="text-2xl font-bold text-neutral-900">申請審査</h1>
+        <p class="text-sm text-neutral-500 mt-1">出店者の情報を確認し、承認または却下してください。</p>
+      </div>
+      <span class="h-7 inline-flex items-center justify-center px-3 rounded-full bg-yellow-100 text-yellow-700 text-xs font-bold" style="line-height:1;">審査中</span>
+    </div>
+
+    <div class="grid grid-cols-3 gap-6">
+
+      <!-- Left: Applicant Details (2 cols) -->
+      <div class="col-span-2 space-y-6">
+
+        <!-- Applicant Profile Card -->
+        <div class="bg-white rounded-2xl border border-neutral-200 p-6">
+          <div class="flex items-start gap-5">
+            <div class="w-16 h-16 rounded-2xl bg-store-100 flex items-center justify-center text-store-700 text-xl font-bold shrink-0">山</div>
+            <div class="flex-1 min-w-0">
+              <h2 class="text-xl font-bold text-neutral-900">たこ焼き本舗</h2>
+              <p class="text-sm text-neutral-500 mt-0.5">代表: 山田 太郎</p>
+              <div class="flex flex-wrap gap-2 mt-3">
+                <span class="h-6 inline-flex items-center justify-center px-2.5 rounded-full bg-store-100 text-store-700 text-xs font-medium" style="line-height:1;">和食</span>
+                <span class="h-6 inline-flex items-center justify-center px-2.5 rounded-full bg-store-100 text-store-700 text-xs font-medium" style="line-height:1;">中華</span>
+                <span class="h-6 inline-flex items-center justify-center px-2.5 rounded-full bg-neutral-100 text-neutral-600 text-xs font-medium" style="line-height:1;">キッチンカー</span>
+              </div>
+            </div>
+            <div class="shrink-0 text-right">
+              <p class="text-xs text-neutral-400">応募日</p>
+              <p class="text-sm font-semibold text-neutral-700">2026/03/10</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contact Info -->
+        <div class="bg-white rounded-2xl border border-neutral-200 p-6">
+          <h3 class="text-base font-bold text-neutral-900 mb-4 flex items-center gap-2">
+            <svg class="w-5 h-5 text-org-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+            連絡先情報
+          </h3>
+          <div class="grid grid-cols-2 gap-4 text-sm">
+            <div class="flex justify-between py-2 border-b border-neutral-50">
+              <span class="text-neutral-400 font-medium">メール</span>
+              <span class="text-neutral-900 font-semibold">yamada@takoyaki-honpo.jp</span>
+            </div>
+            <div class="flex justify-between py-2 border-b border-neutral-50">
+              <span class="text-neutral-400 font-medium">電話番号</span>
+              <span class="text-neutral-900 font-semibold">090-1234-5678</span>
+            </div>
+            <div class="flex justify-between py-2 border-b border-neutral-50">
+              <span class="text-neutral-400 font-medium">住所</span>
+              <span class="text-neutral-900 font-semibold">静岡市葵区XX町1-2-3</span>
+            </div>
+            <div class="flex justify-between py-2 border-b border-neutral-50">
+              <span class="text-neutral-400 font-medium">営業許可</span>
+              <span class="h-6 inline-flex items-center justify-center px-2 rounded-full bg-store-100 text-store-700 text-xs font-bold" style="line-height:1;">確認済</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Message from Applicant -->
+        <div class="bg-white rounded-2xl border border-neutral-200 p-6">
+          <h3 class="text-base font-bold text-neutral-900 mb-4 flex items-center gap-2">
+            <svg class="w-5 h-5 text-org-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+            応募者からのメッセージ
+          </h3>
+          <div class="bg-neutral-50 rounded-xl p-4">
+            <p class="text-sm text-neutral-700 leading-relaxed">
+              静岡フードフェスティバルへの出店を希望しております。当店は創業10年のたこ焼き専門店で、特製ソースが自慢です。昨年は浜松のフードイベントにも参加し、1日で500食を完売しました。来場者の皆さまに喜んでいただける自信があります。どうぞよろしくお願いいたします。
+            </p>
+          </div>
+        </div>
+
+        <!-- Past Event History -->
+        <div class="bg-white rounded-2xl border border-neutral-200 p-6">
+          <h3 class="text-base font-bold text-neutral-900 mb-4 flex items-center gap-2">
+            <svg class="w-5 h-5 text-org-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            過去の出店履歴
+          </h3>
+          <div class="space-y-3">
+            <div class="flex items-center justify-between p-3 bg-neutral-50 rounded-xl">
+              <div>
+                <p class="text-sm font-semibold text-neutral-900">浜松フードパーク 2025</p>
+                <p class="text-xs text-neutral-400">2025/11/03</p>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="flex items-center gap-1">
+                  <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                  <span class="text-sm font-bold text-neutral-700">4.5</span>
+                </div>
+                <span class="h-6 inline-flex items-center justify-center px-2 rounded-full bg-store-100 text-store-700 text-[10px] font-bold" style="line-height:1;">完了</span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-neutral-50 rounded-xl">
+              <div>
+                <p class="text-sm font-semibold text-neutral-900">名古屋グルメ博 2025</p>
+                <p class="text-xs text-neutral-400">2025/09/15</p>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="flex items-center gap-1">
+                  <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                  <span class="text-sm font-bold text-neutral-700">4.8</span>
+                </div>
+                <span class="h-6 inline-flex items-center justify-center px-2 rounded-full bg-store-100 text-store-700 text-[10px] font-bold" style="line-height:1;">完了</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right: Sidebar (1 col) -->
+      <div class="space-y-6">
+
+        <!-- Decision Panel -->
+        <div class="bg-white rounded-2xl border-2 border-org-200 p-6">
+          <h3 class="text-base font-bold text-neutral-900 mb-4">審査アクション</h3>
+
+          <!-- Internal Note -->
+          <div class="mb-4">
+            <label class="text-sm font-medium text-neutral-600 mb-2 block">内部メモ</label>
+            <textarea rows="3" placeholder="審査に関するメモ（出店者には表示されません）" class="w-full border border-neutral-200 rounded-xl px-3 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-300 focus:outline-none focus:ring-2 focus:ring-org-500 focus:border-org-500 resize-none"></textarea>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="space-y-2.5">
+            <button class="w-full bg-store-500 hover:bg-store-600 text-white py-3 rounded-xl text-sm font-bold transition-colors flex items-center justify-center gap-2 shadow-lg shadow-store-500/20">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              承認する
+            </button>
+            <button class="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl text-sm font-bold transition-colors flex items-center justify-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              却下する
+            </button>
+            <button class="w-full border border-neutral-200 text-neutral-600 hover:bg-neutral-50 py-3 rounded-xl text-sm font-medium transition-colors flex items-center justify-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              保留にする
+            </button>
+          </div>
+        </div>
+
+        <!-- Application Summary -->
+        <div class="bg-white rounded-2xl border border-neutral-200 p-6">
+          <h3 class="text-base font-bold text-neutral-900 mb-4">応募概要</h3>
+          <div class="space-y-3 text-sm">
+            <div class="flex justify-between py-2 border-b border-neutral-50">
+              <span class="text-neutral-400 font-medium">応募先</span>
+              <span class="text-neutral-900 font-semibold">静岡フードフェス</span>
+            </div>
+            <div class="flex justify-between py-2 border-b border-neutral-50">
+              <span class="text-neutral-400 font-medium">応募日時</span>
+              <span class="text-neutral-900 font-semibold">3/10 14:32</span>
+            </div>
+            <div class="flex justify-between py-2 border-b border-neutral-50">
+              <span class="text-neutral-400 font-medium">Eventra歴</span>
+              <span class="text-neutral-900 font-semibold">1年2ヶ月</span>
+            </div>
+            <div class="flex justify-between py-2 border-b border-neutral-50">
+              <span class="text-neutral-400 font-medium">出店回数</span>
+              <span class="text-neutral-900 font-semibold">8回</span>
+            </div>
+            <div class="flex justify-between py-2">
+              <span class="text-neutral-400 font-medium">平均評価</span>
+              <div class="flex items-center gap-1">
+                <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                <span class="text-neutral-900 font-bold">4.6</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Documents -->
+        <div class="bg-white rounded-2xl border border-neutral-200 p-6">
+          <h3 class="text-base font-bold text-neutral-900 mb-4">提出書類</h3>
+          <div class="space-y-2">
+            <div class="flex items-center gap-3 p-3 bg-neutral-50 rounded-xl">
+              <svg class="w-5 h-5 text-red-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-neutral-900 truncate">営業許可証.pdf</p>
+                <p class="text-xs text-neutral-400">1.2 MB</p>
+              </div>
+              <svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            </div>
+            <div class="flex items-center gap-3 p-3 bg-neutral-50 rounded-xl">
+              <svg class="w-5 h-5 text-blue-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-neutral-900 truncate">メニュー写真.jpg</p>
+                <p class="text-xs text-neutral-400">3.4 MB</p>
+              </div>
+              <svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js"></script>
+</body>
+</html>

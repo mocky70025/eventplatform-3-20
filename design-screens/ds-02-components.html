@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1440">
+  <title>Design System - Components</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Noto Sans JP', 'sans-serif'] },
+          colors: {
+            store: { 50: '#ecfdf5', 100: '#d1fae5', 200: '#a7f3d0', 300: '#6ee7b7', 400: '#34d399', 500: '#10b981', 600: '#059669', 700: '#047857', 800: '#065f46', 900: '#064e3b' },
+            org: { 50: '#fff7ed', 100: '#ffedd5', 200: '#fed7aa', 300: '#fdba74', 400: '#fb923c', 500: '#f97316', 600: '#ea580c', 700: '#c2410c', 800: '#9a3412', 900: '#7c2d12' },
+            accent: { pink: '#ec4899', yellow: '#eab308', purple: '#8b5cf6', sky: '#0ea5e9' },
+            neutral: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1', 400: '#94a3b8', 500: '#64748b', 600: '#475569', 700: '#334155', 800: '#1e293b', 900: '#0f172a' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { font-family: 'Noto Sans JP', sans-serif; }
+    body { width: 1440px; margin: 0 auto; background: #fff; }
+    .section-label { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #94a3b8; margin-bottom: 16px; }
+    .comp-row { display: flex; align-items: center; gap: 16px; padding: 16px 0; border-bottom: 1px solid #f1f5f9; }
+  </style>
+  <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+</head>
+<body class="p-16">
+
+  <div class="mb-12 pb-6 border-b-2 border-neutral-900">
+    <h1 class="text-4xl font-black text-neutral-900 tracking-tight">Components</h1>
+    <p class="text-sm text-neutral-500 mt-1">Eventra Design System v1.0 -- 全コンポーネント定義</p>
+  </div>
+
+  <!-- ==================== 1. NAVIGATION ==================== -->
+  <section class="mb-16">
+    <h2 class="text-2xl font-bold text-neutral-900 mb-2">1. Navigation</h2>
+    <p class="text-sm text-neutral-500 mb-6">全画面で完全に同一のヘッダーを使用する。ロゴ、ナビ項目名、並び順、スタイルは一切変えない。</p>
+
+    <!-- Store Header -->
+    <div class="mb-6">
+      <p class="section-label">Header -- Store (出店者)</p>
+      <div class="border border-neutral-200 rounded-2xl overflow-hidden">
+        <div class="bg-white px-8 h-16 flex items-center justify-between border-b border-neutral-100">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 bg-store-500 rounded-xl flex items-center justify-center">
+              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"/></svg>
+            </div>
+            <span class="text-lg font-bold text-neutral-900">Eventra</span>
+            <span class="text-[10px] bg-store-100 text-store-700 px-2 rounded-full font-semibold inline-flex items-center justify-center h-5" style="line-height:1;">出店者</span>
+          </div>
+          <nav class="flex items-center gap-1">
+            <a class="text-sm font-medium text-store-700 bg-store-50 px-4 py-2 rounded-lg">ホーム</a>
+            <a class="text-sm font-medium text-neutral-500 hover:text-neutral-700 px-4 py-2 rounded-lg">イベント検索</a>
+            <a class="text-sm font-medium text-neutral-500 hover:text-neutral-700 px-4 py-2 rounded-lg">申込管理</a>
+            <a class="text-sm font-medium text-neutral-500 hover:text-neutral-700 px-4 py-2 rounded-lg">プロフィール</a>
+            <div class="w-px h-6 bg-neutral-200 mx-2"></div>
+            <button class="text-sm text-neutral-400 hover:text-red-500 px-3 py-2">ログアウト</button>
+          </nav>
+        </div>
+      </div>
+      <div class="mt-2 text-[10px] text-neutral-400 flex gap-4">
+        <span>Logo: 36x36 store-500 rounded-xl</span>
+        <span>Active: store-700 text + store-50 bg + rounded-lg</span>
+        <span>Inactive: neutral-500</span>
+        <span>Height: 64px</span>
+        <span>Position: sticky top-0</span>
+      </div>
+    </div>
+
+    <!-- Organizer Header -->
+    <div class="mb-6">
+      <p class="section-label">Header -- Organizer (主催者)</p>
+      <div class="border border-neutral-200 rounded-2xl overflow-hidden">
+        <div class="bg-white px-8 h-16 flex items-center justify-between border-b border-neutral-100">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 bg-org-500 rounded-xl flex items-center justify-center">
+              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"/></svg>
+            </div>
+            <span class="text-lg font-bold text-neutral-900">Eventra</span>
+            <span class="text-[10px] bg-org-100 text-org-700 px-2 rounded-full font-semibold inline-flex items-center justify-center h-5" style="line-height:1;">主催者</span>
+          </div>
+          <nav class="flex items-center gap-1">
+            <a class="text-sm font-medium text-org-700 bg-org-50 px-4 py-2 rounded-lg">ダッシュボード</a>
+            <a class="text-sm font-medium text-neutral-500 hover:text-neutral-700 px-4 py-2 rounded-lg">イベント管理</a>
+            <a class="text-sm font-medium text-neutral-500 hover:text-neutral-700 px-4 py-2 rounded-lg">出店者管理</a>
+            <a class="text-sm font-medium text-neutral-500 hover:text-neutral-700 px-4 py-2 rounded-lg">プロフィール</a>
+            <div class="w-px h-6 bg-neutral-200 mx-2"></div>
+            <button class="text-sm text-neutral-400 hover:text-red-500 px-3 py-2">ログアウト</button>
+          </nav>
+        </div>
+      </div>
+      <div class="mt-2 text-[10px] text-neutral-400 flex gap-4">
+        <span>Logo: 36x36 org-500 rounded-xl</span>
+        <span>Active: org-700 text + org-50 bg</span>
+        <span>Nav items: ダッシュボード / イベント管理 / 出店者管理 / プロフィール</span>
+      </div>
+    </div>
+
+    <!-- Guest Header -->
+    <div class="mb-6">
+      <p class="section-label">Header -- Guest (未ログイン)</p>
+      <div class="border border-neutral-200 rounded-2xl overflow-hidden">
+        <div class="bg-white px-8 h-16 flex items-center justify-between border-b border-neutral-100">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 bg-neutral-800 rounded-xl flex items-center justify-center">
+              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"/></svg>
+            </div>
+            <span class="text-lg font-bold text-neutral-900">Eventra</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <a class="text-sm font-medium text-neutral-600 px-4 py-2">ログイン</a>
+            <a class="text-sm font-medium text-white bg-store-500 px-5 py-2 rounded-xl">新規登録</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Breadcrumb -->
+    <div>
+      <p class="section-label">Breadcrumb</p>
+      <div class="flex gap-8">
+        <div>
+          <p class="text-xs text-neutral-400 mb-2">Store</p>
+          <nav class="text-sm">
+            <span class="text-store-600 hover:underline cursor-pointer">ホーム</span>
+            <span class="text-neutral-300 mx-1.5">/</span>
+            <span class="text-store-600 hover:underline cursor-pointer">申込管理</span>
+            <span class="text-neutral-300 mx-1.5">/</span>
+            <span class="text-neutral-700 font-medium">申込詳細</span>
+          </nav>
+        </div>
+        <div>
+          <p class="text-xs text-neutral-400 mb-2">Organizer</p>
+          <nav class="text-sm">
+            <span class="text-org-600 hover:underline cursor-pointer">ダッシュボード</span>
+            <span class="text-neutral-300 mx-1.5">/</span>
+            <span class="text-org-600 hover:underline cursor-pointer">イベント管理</span>
+            <span class="text-neutral-300 mx-1.5">/</span>
+            <span class="text-neutral-700 font-medium">イベント編集</span>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="w-full h-px bg-neutral-200 my-8"></div>
+
+  <!-- ==================== 2. BUTTONS ==================== -->
+  <section class="mb-16">
+    <h2 class="text-2xl font-bold text-neutral-900 mb-2">2. Buttons</h2>
+    <p class="text-sm text-neutral-500 mb-6">rounded-xl統一。Primaryはロールカラーに従い、Secondary/Dangerは共通。</p>
+
+    <!-- Store Buttons -->
+    <div class="mb-6">
+      <p class="section-label">Primary -- Store</p>
+      <div class="flex items-center gap-4">
+        <button class="bg-store-500 hover:bg-store-600 text-white font-semibold px-6 py-2.5 rounded-xl text-sm transition-colors">出店を申し込む</button>
+        <button class="bg-store-500 text-white font-semibold px-5 py-2 rounded-xl text-sm">検索する</button>
+        <button class="bg-store-500 text-white font-medium px-4 py-1.5 rounded-xl text-xs">保存</button>
+        <button class="bg-store-300 text-white font-semibold px-6 py-2.5 rounded-xl text-sm cursor-not-allowed opacity-60">Disabled</button>
+      </div>
+      <div class="mt-2 text-[10px] text-neutral-400">Default: store-500 / Hover: store-600 / Disabled: store-300 + opacity-60 / Font: semibold</div>
+    </div>
+
+    <!-- Organizer Buttons -->
+    <div class="mb-6">
+      <p class="section-label">Primary -- Organizer</p>
+      <div class="flex items-center gap-4">
+        <button class="bg-org-500 hover:bg-org-600 text-white font-semibold px-6 py-2.5 rounded-xl text-sm transition-colors">イベントを作成</button>
+        <button class="bg-org-500 text-white font-semibold px-5 py-2 rounded-xl text-sm">承認する</button>
+        <button class="bg-org-500 text-white font-medium px-4 py-1.5 rounded-xl text-xs">保存</button>
+        <button class="bg-org-300 text-white font-semibold px-6 py-2.5 rounded-xl text-sm cursor-not-allowed opacity-60">Disabled</button>
+      </div>
+    </div>
+
+    <!-- Secondary -->
+    <div class="mb-6">
+      <p class="section-label">Secondary / Outline (共通)</p>
+      <div class="flex items-center gap-4">
+        <button class="border-2 border-neutral-300 text-neutral-700 font-semibold px-6 py-2.5 rounded-xl text-sm hover:bg-neutral-50">キャンセル</button>
+        <button class="border-2 border-neutral-300 text-neutral-600 font-medium px-5 py-2 rounded-xl text-sm">戻る</button>
+        <button class="border-2 border-store-400 text-store-600 font-semibold px-6 py-2.5 rounded-xl text-sm hover:bg-store-50">もっと見る</button>
+        <button class="border-2 border-org-400 text-org-600 font-semibold px-6 py-2.5 rounded-xl text-sm hover:bg-org-50">もっと見る</button>
+      </div>
+    </div>
+
+    <!-- Danger -->
+    <div class="mb-6">
+      <p class="section-label">Danger (共通)</p>
+      <div class="flex items-center gap-4">
+        <button class="bg-red-500 text-white font-semibold px-6 py-2.5 rounded-xl text-sm">削除する</button>
+        <button class="border-2 border-red-300 text-red-600 font-medium px-5 py-2 rounded-xl text-sm">取り消す</button>
+      </div>
+    </div>
+
+    <!-- Social Login -->
+    <div>
+      <p class="section-label">Social Login (共通)</p>
+      <div class="flex items-center gap-4">
+        <button class="flex items-center gap-3 border border-neutral-300 text-neutral-700 font-medium px-6 py-2.5 rounded-xl text-sm hover:bg-neutral-50 w-56 justify-center">
+          <svg class="w-5 h-5" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          Googleで続ける
+        </button>
+        <button class="flex items-center gap-3 text-white font-medium px-6 py-2.5 rounded-xl text-sm w-56 justify-center" style="background:#06C755;">
+          <svg class="w-5 h-5" fill="white" viewBox="0 0 24 24"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>
+          LINEで続ける
+        </button>
+      </div>
+      <div class="mt-2 text-[10px] text-neutral-400">Google: border-neutral-300 / LINE: bg #06C755 / 幅固定 w-56 / 両ロール共通</div>
+    </div>
+  </section>
+
+  <div class="w-full h-px bg-neutral-200 my-8"></div>
+
+  <!-- ==================== 3. FORM ELEMENTS ==================== -->
+  <section class="mb-16">
+    <h2 class="text-2xl font-bold text-neutral-900 mb-2">3. Form Elements</h2>
+    <p class="text-sm text-neutral-500 mb-6">全フォーム要素は rounded-xl + py-2.5 px-4 で統一。ラベルは body-sm (14px/500)。</p>
+
+    <div class="grid grid-cols-3 gap-8">
+      <!-- Default -->
+      <div>
+        <label class="block text-sm font-medium text-neutral-700 mb-1.5">ラベル</label>
+        <input type="text" value="入力済みテキスト" class="w-full border border-neutral-300 rounded-xl px-4 py-2.5 text-sm text-neutral-900 focus:ring-2 focus:ring-store-500 focus:border-store-500 outline-none transition-shadow">
+        <p class="text-xs text-neutral-400 mt-1">ヘルパーテキスト（任意）</p>
+      </div>
+
+      <!-- Placeholder -->
+      <div>
+        <label class="block text-sm font-medium text-neutral-700 mb-1.5">プレースホルダー <span class="text-neutral-400 font-normal">（任意）</span></label>
+        <input type="text" placeholder="テキストを入力..." class="w-full border border-neutral-300 rounded-xl px-4 py-2.5 text-sm placeholder-neutral-400 outline-none">
+      </div>
+
+      <!-- Error -->
+      <div>
+        <label class="block text-sm font-medium text-neutral-700 mb-1.5">エラー状態</label>
+        <input type="text" value="不正な入力" class="w-full border-2 border-red-400 rounded-xl px-4 py-2.5 text-sm text-neutral-900 bg-red-50 outline-none">
+        <p class="text-xs text-red-500 mt-1">エラーメッセージ</p>
+      </div>
+
+      <!-- Select -->
+      <div>
+        <label class="block text-sm font-medium text-neutral-700 mb-1.5">セレクト</label>
+        <select class="w-full border border-neutral-300 rounded-xl px-4 py-2.5 text-sm text-neutral-900 bg-white outline-none appearance-none" style="background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2212%22%20height%3D%228%22%20viewBox%3D%220%200%2012%208%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M1%201.5L6%206.5L11%201.5%22%20stroke%3D%22%2394a3b8%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 16px center;">
+          <option>選択してください</option>
+          <option>和食</option>
+          <option>洋食</option>
+        </select>
+      </div>
+
+      <!-- Textarea -->
+      <div class="col-span-2">
+        <label class="block text-sm font-medium text-neutral-700 mb-1.5">テキストエリア</label>
+        <textarea rows="3" placeholder="説明を入力..." class="w-full border border-neutral-300 rounded-xl px-4 py-2.5 text-sm placeholder-neutral-400 resize-none outline-none"></textarea>
+        <div class="flex justify-end mt-1"><span class="text-xs text-neutral-400">0/500</span></div>
+      </div>
+
+      <!-- File Upload -->
+      <div class="col-span-3">
+        <label class="block text-sm font-medium text-neutral-700 mb-1.5">ファイルアップロード</label>
+        <div class="border-2 border-dashed border-neutral-300 rounded-2xl p-8 text-center hover:border-store-400 transition-colors cursor-pointer">
+          <svg class="w-8 h-8 text-neutral-300 mx-auto mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+          <p class="text-sm text-neutral-600">クリックまたはドラッグ&ドロップでアップロード</p>
+          <p class="text-xs text-neutral-400 mt-1">PNG, JPG, PDF (最大10MB)</p>
+        </div>
+        <div class="mt-2 text-[10px] text-neutral-400">border-dashed border-2 neutral-300 / hover: store-400 (Store) or org-400 (Organizer) / rounded-2xl</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="w-full h-px bg-neutral-200 my-8"></div>
+
+  <!-- ==================== 4. BADGES & TAGS ==================== -->
+  <section class="mb-16">
+    <h2 class="text-2xl font-bold text-neutral-900 mb-2">4. Badges & Tags</h2>
+    <p class="text-sm text-neutral-500 mb-6">ステータスとカテゴリを瞬時に伝える。全てrounded-full + text-xs + font-semibold。</p>
+
+    <!-- Application Status -->
+    <div class="mb-6">
+      <p class="section-label">Application Status</p>
+      <div class="flex items-center gap-3">
+        <span class="inline-flex items-center justify-center gap-1.5 bg-green-100 text-green-700 text-xs font-semibold h-7 px-3 rounded-full" style="line-height:1;">
+          <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+          承認済み
+        </span>
+        <span class="inline-flex items-center justify-center gap-1.5 bg-yellow-100 text-yellow-700 text-xs font-semibold h-7 px-3 rounded-full" style="line-height:1;">
+          <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          審査中
+        </span>
+        <span class="inline-flex items-center justify-center gap-1.5 bg-red-100 text-red-700 text-xs font-semibold h-7 px-3 rounded-full" style="line-height:1;">
+          <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg>
+          不承認
+        </span>
+        <span class="inline-flex items-center justify-center gap-1.5 bg-neutral-100 text-neutral-500 text-xs font-semibold h-7 px-3 rounded-full" style="line-height:1;">
+          保留中
+        </span>
+      </div>
+    </div>
+
+    <!-- Event Status -->
+    <div class="mb-6">
+      <p class="section-label">Event Status</p>
+      <div class="flex items-center gap-3">
+        <span class="inline-flex items-center justify-center bg-store-500 text-white text-xs font-bold h-7 px-3 rounded-full" style="line-height:1;">募集中</span>
+        <span class="inline-flex items-center justify-center bg-yellow-500 text-white text-xs font-bold h-7 px-3 rounded-full" style="line-height:1;">締切間近</span>
+        <span class="inline-flex items-center justify-center bg-neutral-600 text-white text-xs font-bold h-7 px-3 rounded-full" style="line-height:1;">近日公開</span>
+        <span class="inline-flex items-center justify-center bg-neutral-300 text-neutral-600 text-xs font-bold h-7 px-3 rounded-full" style="line-height:1;">募集終了</span>
+      </div>
+    </div>
+
+    <!-- Document Status -->
+    <div class="mb-6">
+      <p class="section-label">Document Status</p>
+      <div class="flex items-center gap-3">
+        <span class="inline-flex items-center justify-center gap-1.5 bg-green-50 text-green-700 text-xs font-medium h-7 px-3 rounded-lg border border-green-200" style="line-height:1;">
+          <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+          認証済み
+        </span>
+        <span class="inline-flex items-center justify-center gap-1.5 bg-yellow-50 text-yellow-700 text-xs font-medium h-7 px-3 rounded-lg border border-yellow-200" style="line-height:1;">
+          確認中
+        </span>
+        <span class="inline-flex items-center justify-center gap-1.5 bg-neutral-50 text-neutral-500 text-xs font-medium h-7 px-3 rounded-lg border border-neutral-200" style="line-height:1;">
+          未提出
+        </span>
+      </div>
+    </div>
+
+    <!-- Category Tags -->
+    <div>
+      <p class="section-label">Category Tags</p>
+      <p class="text-xs text-neutral-400 mb-3">背景: accent-color/10、テキスト: accent-color。各カテゴリに固定の色を割り当てる。</p>
+      <div class="flex items-center gap-2">
+        <span class="inline-flex items-center justify-center text-xs bg-org-100 text-org-700 font-medium h-6 px-2.5 rounded-full" style="line-height:1;">フードフェス</span>
+        <span class="inline-flex items-center justify-center text-xs bg-accent-purple/10 text-accent-purple font-medium h-6 px-2.5 rounded-full" style="line-height:1;">音楽フェス</span>
+        <span class="inline-flex items-center justify-center text-xs bg-accent-sky/10 text-accent-sky font-medium h-6 px-2.5 rounded-full" style="line-height:1;">スポーツ</span>
+        <span class="inline-flex items-center justify-center text-xs bg-accent-pink/10 text-accent-pink font-medium h-6 px-2.5 rounded-full" style="line-height:1;">マーケット</span>
+        <span class="inline-flex items-center justify-center text-xs bg-accent-yellow/10 text-accent-yellow font-medium h-6 px-2.5 rounded-full" style="line-height:1;">お祭り</span>
+        <span class="inline-flex items-center justify-center text-xs bg-store-100 text-store-700 font-medium h-6 px-2.5 rounded-full" style="line-height:1;">アウトドア</span>
+        <span class="inline-flex items-center justify-center text-xs bg-neutral-100 text-neutral-600 font-medium h-6 px-2.5 rounded-full" style="line-height:1;">屋外</span>
+        <span class="inline-flex items-center justify-center text-xs bg-neutral-100 text-neutral-600 font-medium h-6 px-2.5 rounded-full" style="line-height:1;">屋内</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="w-full h-px bg-neutral-200 my-8"></div>
+
+  <!-- ==================== 5. CARDS ==================== -->
+  <section class="mb-16">
+    <h2 class="text-2xl font-bold text-neutral-900 mb-2">5. Cards</h2>
+    <p class="text-sm text-neutral-500 mb-6">全カード: bg-white rounded-2xl border border-neutral-200。hover時は shadow-md + translateY(-2px)。</p>
+
+    <div class="grid grid-cols-3 gap-6">
+      <!-- Event Card -->
+      <div>
+        <p class="section-label">Event Card</p>
+        <div class="bg-white rounded-2xl border border-neutral-200 overflow-hidden transition-all hover:shadow-md hover:-translate-y-0.5 cursor-pointer">
+          <div class="relative h-44 bg-gradient-to-br from-org-200 to-accent-pink/30 flex items-center justify-center">
+            <svg class="w-12 h-12 text-white/40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"/></svg>
+            <span class="absolute top-3 left-3 inline-flex items-center justify-center bg-store-500 text-white text-xs font-bold h-6 px-3 rounded-full" style="line-height:1;">募集中</span>
+            <span class="absolute top-3 right-3 inline-flex items-center justify-center bg-white/90 text-xs font-medium text-neutral-700 h-6 px-2 rounded-lg" style="line-height:1;">残り12日</span>
+          </div>
+          <div class="p-5">
+            <div class="flex gap-2 mb-2">
+              <span class="inline-flex items-center justify-center text-xs bg-org-100 text-org-700 font-medium h-5 px-2 rounded-full" style="line-height:1;">フードフェス</span>
+              <span class="inline-flex items-center justify-center text-xs bg-neutral-100 text-neutral-600 font-medium h-5 px-2 rounded-full" style="line-height:1;">屋外</span>
+            </div>
+            <h3 class="font-bold text-neutral-900 text-base mb-2 leading-snug">東京ストリートフードフェスティバル 2026</h3>
+            <div class="space-y-1 text-sm text-neutral-500">
+              <div class="flex items-center gap-2">
+                <svg class="w-3.5 h-3.5 text-neutral-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                2026/4/12 (土) - 13 (日)
+              </div>
+              <div class="flex items-center gap-2">
+                <svg class="w-3.5 h-3.5 text-neutral-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/></svg>
+                東京都渋谷区 代々木公園
+              </div>
+            </div>
+            <div class="flex items-center justify-between mt-4 pt-3 border-t border-neutral-100">
+              <span class="text-sm"><span class="text-neutral-400">出店料</span> <span class="font-bold text-neutral-900">15,000円</span></span>
+              <span class="text-sm"><span class="text-neutral-400">募集</span> <span class="font-bold text-store-600">30枠</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Info Card -->
+      <div>
+        <p class="section-label">Info Card</p>
+        <div class="bg-white rounded-2xl border border-neutral-200 p-5">
+          <h3 class="text-lg font-semibold text-neutral-900 mb-4">基本情報</h3>
+          <div class="space-y-3">
+            <div class="flex justify-between py-2 border-b border-neutral-100 text-sm">
+              <span class="text-neutral-500">店舗名</span>
+              <span class="font-medium text-neutral-900">たこやき太郎</span>
+            </div>
+            <div class="flex justify-between py-2 border-b border-neutral-100 text-sm">
+              <span class="text-neutral-500">ジャンル</span>
+              <span class="font-medium text-neutral-900">和食</span>
+            </div>
+            <div class="flex justify-between py-2 text-sm">
+              <span class="text-neutral-500">電話番号</span>
+              <span class="font-medium text-neutral-900">090-1234-5678</span>
+            </div>
+          </div>
+        </div>
+        <div class="mt-2 text-[10px] text-neutral-400">p-5 / heading-3 + space-y-3 rows / border-b dividers</div>
+      </div>
+
+      <!-- Status Card -->
+      <div>
+        <p class="section-label">Status Card (Success)</p>
+        <div class="bg-green-50 rounded-2xl border border-green-200 p-5">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <div>
+              <h3 class="font-bold text-green-800">出店が承認されました</h3>
+              <p class="text-xs text-green-600">2026年3月5日に承認</p>
+            </div>
+          </div>
+          <p class="text-sm text-green-700">主催者と詳細を確認してください。</p>
+        </div>
+        <div class="mt-2 text-[10px] text-neutral-400">bg-{color}-50 / border-{color}-200 / icon: bg-{color}-500</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="w-full h-px bg-neutral-200 my-8"></div>
+
+  <!-- ==================== 6. STEP INDICATOR ==================== -->
+  <section class="mb-16">
+    <h2 class="text-2xl font-bold text-neutral-900 mb-2">6. Step Indicator</h2>
+    <p class="text-sm text-neutral-500 mb-6">オンボーディング用。4ステップ固定。完了=filled circle+check、現在=numbered ring、未着手=gray。</p>
+
+    <div class="grid grid-cols-2 gap-8">
+      <!-- Store -->
+      <div>
+        <p class="section-label">Store Version</p>
+        <div class="relative max-w-lg">
+          <div class="absolute top-5 left-5 right-5 flex h-0.5">
+            <div class="flex-1 bg-store-300"></div>
+            <div class="flex-1 bg-neutral-200"></div>
+            <div class="flex-1 bg-neutral-200"></div>
+          </div>
+          <div class="relative z-10 flex justify-between">
+            <div class="flex flex-col items-center">
+              <div class="w-10 h-10 bg-store-500 rounded-full flex items-center justify-center"><svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></div>
+              <span class="text-xs text-store-700 font-medium mt-1.5 whitespace-nowrap">基本情報</span>
+            </div>
+            <div class="flex flex-col items-center">
+              <div class="w-10 h-10 border-2 border-store-500 bg-white rounded-full flex items-center justify-center text-sm font-bold text-store-600">2</div>
+              <span class="text-xs text-store-700 font-semibold mt-1.5 whitespace-nowrap">店舗情報</span>
+            </div>
+            <div class="flex flex-col items-center">
+              <div class="w-10 h-10 bg-neutral-200 rounded-full flex items-center justify-center text-sm font-medium text-neutral-400">3</div>
+              <span class="text-xs text-neutral-400 mt-1.5 whitespace-nowrap">書類</span>
+            </div>
+            <div class="flex flex-col items-center">
+              <div class="w-10 h-10 bg-neutral-200 rounded-full flex items-center justify-center text-sm font-medium text-neutral-400">4</div>
+              <span class="text-xs text-neutral-400 mt-1.5 whitespace-nowrap">確認</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Organizer -->
+      <div>
+        <p class="section-label">Organizer Version</p>
+        <div class="relative max-w-lg">
+          <div class="absolute top-5 left-5 right-5 flex h-0.5">
+            <div class="flex-1 bg-org-300"></div>
+            <div class="flex-1 bg-neutral-200"></div>
+            <div class="flex-1 bg-neutral-200"></div>
+          </div>
+          <div class="relative z-10 flex justify-between">
+            <div class="flex flex-col items-center">
+              <div class="w-10 h-10 bg-org-500 rounded-full flex items-center justify-center"><svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></div>
+              <span class="text-xs text-org-700 font-medium mt-1.5 whitespace-nowrap">基本情報</span>
+            </div>
+            <div class="flex flex-col items-center">
+              <div class="w-10 h-10 border-2 border-org-500 bg-white rounded-full flex items-center justify-center text-sm font-bold text-org-600">2</div>
+              <span class="text-xs text-org-700 font-semibold mt-1.5 whitespace-nowrap">団体情報</span>
+            </div>
+            <div class="flex flex-col items-center">
+              <div class="w-10 h-10 bg-neutral-200 rounded-full flex items-center justify-center text-sm font-medium text-neutral-400">3</div>
+              <span class="text-xs text-neutral-400 mt-1.5 whitespace-nowrap">確認</span>
+            </div>
+            <div class="flex flex-col items-center">
+              <div class="w-10 h-10 bg-neutral-200 rounded-full flex items-center justify-center text-sm font-medium text-neutral-400">4</div>
+              <span class="text-xs text-neutral-400 mt-1.5 whitespace-nowrap">完了</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="w-full h-px bg-neutral-200 my-8"></div>
+
+  <!-- ==================== 7. RULES ==================== -->
+  <section class="mb-16">
+    <h2 class="text-2xl font-bold text-neutral-900 mb-2">7. Usage Rules</h2>
+    <p class="text-sm text-neutral-500 mb-6">このデザインシステムの使用にあたって守るべきルール。</p>
+
+    <div class="grid grid-cols-2 gap-6">
+      <div class="bg-green-50 rounded-2xl p-5 border border-green-200">
+        <h3 class="text-sm font-bold text-green-800 mb-3">DO</h3>
+        <ul class="text-sm text-green-700 space-y-2">
+          <li>- 全画面で同一のヘッダーHTMLを使用する</li>
+          <li>- ナビ項目名は定義通りに固定する（Store: ホーム/イベント検索/申込管理/プロフィール）</li>
+          <li>- CTAボタンにはロールカラー（Store=green, Org=orange）を使用する</li>
+          <li>- カードは常に rounded-2xl + border-neutral-200</li>
+          <li>- ステータスバッジは定義済みの色を厳密に使う</li>
+          <li>- フォーム要素は rounded-xl + py-2.5 px-4 で統一する</li>
+          <li>- 各ページのmax-widthはLayout定義に従う</li>
+        </ul>
+      </div>
+      <div class="bg-red-50 rounded-2xl p-5 border border-red-200">
+        <h3 class="text-sm font-bold text-red-800 mb-3">DON'T</h3>
+        <ul class="text-sm text-red-700 space-y-2">
+          <li>- ヘッダーのナビ項目名や順序を画面ごとに変えない</li>
+          <li>- ロゴのアイコンや形状を変えない（常に正方形 rounded-xl + グリッドSVG）</li>
+          <li>- 絵文字（Unicode Emoji）を使用しない</li>
+          <li>- カードに shadow-lg を常時適用しない（hover時のみ shadow-md）</li>
+          <li>- ブレッドクラムのリンク色をロールカラーと別の色にしない</li>
+          <li>- フォームの角丸をコンポーネントごとにバラバラにしない</li>
+          <li>- 文中に装飾目的のアイコンを追加しない</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+</body>
+</html>

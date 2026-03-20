@@ -1,34 +1,42 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { createClient } from '@/lib/supabase/server';
 
-function getOrigin(request: Request): string {
-    // Use NEXT_PUBLIC_APP_URL if available (for Vercel)
+function getOrigin(request: NextRequest): string {
+    // Use NEXT_PUBLIC_APP_URL if available (for Vercel) - trusted source
     if (process.env.NEXT_PUBLIC_APP_URL) {
         return process.env.NEXT_PUBLIC_APP_URL;
     }
-    
-    // Fallback to request URL origin
+
+    // Fallback to request URL origin (do not trust x-forwarded-host without allowlist)
     const url = new URL(request.url);
-    
-    // Check for Vercel headers
-    const forwardedHost = request.headers.get('x-forwarded-host');
-    const forwardedProto = request.headers.get('x-forwarded-proto') || 'https';
-    
-    if (forwardedHost) {
-        return `${forwardedProto}://${forwardedHost}`;
-    }
-    
     return url.origin;
 }
 
-export async function GET(request: Request) {
+function clearStateCookie(response: NextResponse): NextResponse {
+    response.cookies.set('line_oauth_state', '', { maxAge: 0, path: '/api/auth' });
+    return response;
+}
+
+function errorRedirect(origin: string, error: string): NextResponse {
+    return clearStateCookie(NextResponse.redirect(`${origin}/login?error=${encodeURIComponent(error)}`));
+}
+
+export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const origin = getOrigin(request);
     const code = searchParams.get('code');
     const state = searchParams.get('state');
 
+    // Verify CSRF state parameter
+    const storedState = request.cookies.get('line_oauth_state')?.value ?? null;
+
+    if (!state || !storedState || state !== storedState) {
+        return errorRedirect(origin, 'invalid-state');
+    }
+
     if (!code) {
-        return NextResponse.redirect(`${origin}/login?error=no-code`);
+        return errorRedirect(origin, 'no-code');
     }
 
     const client_id = process.env.LINE_CHANNEL_ID;
@@ -36,11 +44,12 @@ export async function GET(request: Request) {
     const redirect_uri = `${origin}/api/auth/line/callback`;
 
     if (!client_id || !client_secret) {
-        return NextResponse.json({ error: 'LINE credentials missing' }, { status: 500 });
+        return clearStateCookie(
+            NextResponse.json({ error: 'LINE credentials missing' }, { status: 500 })
+        );
     }
 
     try {
-        console.log('1. Starting token exchange with code:', code);
         // 1. Exchange code for access token (and ID Token)
         const tokenResponse = await fetch('https://api.line.me/oauth2/v2.1/token', {
             method: 'POST',
@@ -54,22 +63,22 @@ export async function GET(request: Request) {
                 client_id: client_id,
                 client_secret: client_secret,
             }),
+            signal: AbortSignal.timeout(30000),
         });
 
         const tokenData = await tokenResponse.json();
 
         if (!tokenResponse.ok) {
-            console.error('LINE Token Error response:', tokenData);
-            return NextResponse.redirect(`${origin}/login?error=line-token-error&detail=${encodeURIComponent(JSON.stringify(tokenData))}`);
+            console.error('LINE Token Error:', tokenResponse.status, tokenData);
+            return errorRedirect(origin, 'line-token-error');
         }
 
         const { id_token } = tokenData;
         if (!id_token) {
-            console.error('No ID token in response');
-            return NextResponse.redirect(`${origin}/login?error=no-id-token`);
+            console.error('No ID token in response. Keys:', Object.keys(tokenData));
+            return errorRedirect(origin, 'no-id-token');
         }
 
-        console.log('2. Verifying ID Token');
         // 2. Decode ID Token to get user email
         const verifyResponse = await fetch('https://api.line.me/oauth2/v2.1/verify', {
             method: 'POST',
@@ -78,39 +87,60 @@ export async function GET(request: Request) {
                 id_token: id_token,
                 client_id: client_id,
             }),
+            signal: AbortSignal.timeout(30000),
         });
 
         const claims = await verifyResponse.json();
 
         if (!verifyResponse.ok) {
-            console.error('ID Token Verification Error:', claims);
-            return NextResponse.redirect(`${origin}/login?error=token-verification-failed`);
+            console.error('ID Token Verification Error:', verifyResponse.status, claims);
+            return errorRedirect(origin, 'token-verification-failed');
         }
 
         if (!claims.email) {
             console.error('Email not found in LINE claims. Make sure you have requested email permission.');
-            return NextResponse.redirect(`${origin}/login?error=email-not-found-in-line`);
+            return errorRedirect(origin, 'email-not-found-in-line');
         }
 
         const email = claims.email;
-        console.log('3. Claims received for email:', email);
+        const metadata = { full_name: claims.name, picture: claims.picture };
         const supabaseAdmin = createAdminClient();
 
-        console.log('4. Attempting to create user in Supabase');
         // 3. Find or Create User in Supabase (Service Role)
         const { data: createdUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
             email: email,
             email_confirm: true,
-            user_metadata: { full_name: claims.name, picture: claims.picture }
+            user_metadata: metadata,
         });
 
-        if (createError && !createError.message.includes('already been registered')) {
-            console.error('Supabase Create User Error:', createError);
-            return NextResponse.redirect(`${origin}/login?error=create-user-failed&msg=${encodeURIComponent(createError.message)}`);
+        let userId: string;
+
+        if (createError && createError.status === 422) {
+            // User already exists — look up by email and update metadata
+            const { data: { users } } = await supabaseAdmin.auth.admin.listUsers({
+                filter: { email: email },
+                page: 1,
+                perPage: 1,
+            } as any);
+            const existingUser = users?.[0];
+            if (!existingUser || existingUser.email !== email) {
+                console.error('User exists but could not be found:', email);
+                return errorRedirect(origin, 'auth-failed');
+            }
+            userId = existingUser.id;
+
+            // Update user_metadata with latest LINE profile
+            await supabaseAdmin.auth.admin.updateUserById(userId, {
+                user_metadata: { ...existingUser.user_metadata, ...metadata },
+            });
+        } else if (createError) {
+            console.error('Supabase Create User Error:', createError.message, createError.status);
+            return errorRedirect(origin, 'auth-failed');
+        } else {
+            userId = createdUser.user!.id;
         }
 
-        console.log('5. Generating magic link for login');
-        // 4. Generate Magic Link
+        // 4. Generate Magic Link and verify server-side to create session directly
         const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
             type: 'magiclink',
             email: email,
@@ -120,16 +150,44 @@ export async function GET(request: Request) {
         });
 
         if (linkError || !linkData.properties?.action_link) {
-            console.error('Supabase Magic Link Error:', linkError);
-            return NextResponse.redirect(`${origin}/login?error=magic-link-failed&msg=${encodeURIComponent(linkError?.message || 'no-link')}`);
+            console.error('Supabase Magic Link Error:', linkError?.message);
+            return errorRedirect(origin, 'magic-link-failed');
         }
 
-        console.log('6. Auth successful, redirecting to action link');
-        // 5. Redirect user to the Action Link
-        return NextResponse.redirect(linkData.properties.action_link);
+        // 5. Exchange the token server-side instead of redirecting to the action link
+        //    This avoids exposing the token in browser history / Referer headers
+        const actionUrl = new URL(linkData.properties.action_link);
+        const token_hash = actionUrl.searchParams.get('token_hash') ?? actionUrl.hash?.replace('#', '') ?? null;
+        const tokenType = actionUrl.searchParams.get('type') ?? 'magiclink';
+
+        if (!token_hash) {
+            console.error('Could not extract token_hash from action link:', linkData.properties.action_link);
+            return errorRedirect(origin, 'magic-link-failed');
+        }
+
+        const supabase = await createClient();
+        const { data: sessionData, error: sessionError } = await supabase.auth.verifyOtp({
+            type: tokenType as 'magiclink',
+            token_hash: token_hash,
+        });
+
+        if (sessionError || !sessionData.user) {
+            console.error('Session creation error:', sessionError?.message);
+            return errorRedirect(origin, 'session-failed');
+        }
+
+        // 6. Check if profile exists to decide redirect destination
+        const { data: profile } = await supabase
+            .from('exhibitors')
+            .select('id')
+            .eq('user_id', sessionData.user.id)
+            .maybeSingle();
+
+        const destination = profile ? '/' : '/onboarding';
+        return clearStateCookie(NextResponse.redirect(`${origin}${destination}`));
 
     } catch (err: any) {
-        console.error('Unexpected Auth Error in catch block:', err);
-        return NextResponse.redirect(`${origin}/login?error=server-error&msg=${encodeURIComponent(err.message)}`);
+        console.error('Unexpected Auth Error:', err.message);
+        return errorRedirect(origin, 'server-error');
     }
 }

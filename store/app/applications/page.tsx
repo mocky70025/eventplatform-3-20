@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import Image from "next/image";
 import { Header } from "@/components/layout/Header";
 import {
     Calendar,
@@ -16,27 +17,21 @@ import { cn } from "@/lib/utils";
 
 export default async function ApplicationsPage() {
     const supabase = await createClient();
-    let session = null;
-    try {
-        const { data, error } = await supabase.auth.getSession();
-        if (!error) {
-            session = data.session;
-        }
-    } catch (error) {
-        console.error("Applications page auth error:", error);
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !user) {
         redirect("/login");
     }
 
-    if (!session) {
-        redirect("/login");
-    }
-
-    // Get exhibitor profile
-    const { data: exhibitor } = await supabase
+    // Get exhibitor profile (use .limit(1) to handle duplicates gracefully)
+    const { data: exhibitors, error: exhibitorError } = await supabase
         .from("exhibitors")
-        .select("id")
-        .eq("user_id", session.user.id)
-        .single();
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(1);
+
+    const exhibitor = exhibitors?.[0];
 
     if (!exhibitor) {
         redirect("/onboarding");
@@ -64,8 +59,8 @@ export default async function ApplicationsPage() {
                 return {
                     label: "承認済み",
                     icon: CheckCircle2,
-                    className: "bg-emerald-50 text-emerald-700 border-emerald-100",
-                    iconClass: "text-emerald-500"
+                    className: "bg-green-50 text-green-700 border-green-100",
+                    iconClass: "text-green-500"
                 };
             case "rejected":
                 return {
@@ -85,13 +80,13 @@ export default async function ApplicationsPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col">
+        <div className="min-h-screen bg-slate-50 flex flex-col">
             <Header />
 
             <main className="flex-1 container mx-auto px-4 py-8 max-w-5xl">
                 <div className="mb-8">
-                    <h1 className="text-2xl font-bold text-gray-900">申込管理</h1>
-                    <p className="text-gray-500 mt-1">イベントへの申込状況を確認できます。</p>
+                    <h1 className="text-2xl font-bold text-slate-900">申込管理</h1>
+                    <p className="text-slate-500 mt-1">イベントへの申込状況を確認できます。</p>
                 </div>
 
                 {applications && applications.length > 0 ? (
@@ -103,19 +98,21 @@ export default async function ApplicationsPage() {
                             return (
                                 <div
                                     key={app.id}
-                                    className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow"
+                                    className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow"
                                 >
                                     <div className="p-5 md:p-6 flex flex-col md:flex-row md:items-center gap-6">
                                         {/* Event Image / Placeholder */}
-                                        <div className="w-full md:w-32 h-32 md:h-24 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0">
+                                        <div className="relative w-full md:w-32 h-32 md:h-24 rounded-lg bg-slate-100 overflow-hidden flex-shrink-0">
                                             {app.event?.main_image_url ? (
-                                                <img
+                                                <Image
                                                     src={app.event.main_image_url}
                                                     alt={app.event.event_name}
-                                                    className="w-full h-full object-cover"
+                                                    fill
+                                                    sizes="(max-width: 768px) 100vw, 128px"
+                                                    className="object-cover"
                                                 />
                                             ) : (
-                                                <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                                <div className="w-full h-full flex items-center justify-center text-slate-400">
                                                     <Calendar className="w-8 h-8" />
                                                 </div>
                                             )}
@@ -131,18 +128,18 @@ export default async function ApplicationsPage() {
                                                     <StatusIcon className={cn("w-3.5 h-3.5", statusInfo.iconClass)} />
                                                     {statusInfo.label}
                                                 </div>
-                                                <span className="text-xs text-gray-400">
+                                                <span className="text-xs text-slate-400">
                                                     申込日: {new Date(app.created_at).toLocaleDateString('ja-JP')}
                                                 </span>
                                             </div>
 
                                             <Link href={`/applications/${app.id}`} className="block">
-                                                <h2 className="text-lg font-bold text-gray-900 truncate hover:text-emerald-600 transition-colors">
+                                                <h2 className="text-lg font-bold text-slate-900 truncate hover:text-store-600 transition-colors">
                                                     {app.event?.event_name}
                                                 </h2>
                                             </Link>
 
-                                            <div className="mt-2 flex flex-wrap gap-y-2 gap-x-4 text-sm text-gray-500">
+                                            <div className="mt-2 flex flex-wrap gap-y-2 gap-x-4 text-sm text-slate-500">
                                                 <div className="flex items-center gap-1.5">
                                                     <Calendar className="w-4 h-4" />
                                                     {app.event?.event_start_date ? new Date(app.event.event_start_date).toLocaleDateString('ja-JP') : "未定"}
@@ -155,10 +152,10 @@ export default async function ApplicationsPage() {
                                         </div>
 
                                         {/* Actions */}
-                                        <div className="flex flex-col sm:flex-row md:flex-col lg:flex-row gap-2 pt-4 md:pt-0 border-t md:border-t-0 border-gray-100">
+                                        <div className="flex flex-col sm:flex-row md:flex-col lg:flex-row gap-2 pt-4 md:pt-0 border-t md:border-t-0 border-slate-100">
                                             <Link href={`/events/${app.event?.id}`}>
                                                 <Button variant="outline" size="sm" className="w-full">
-                                                    詳細を表示
+                                                    詳細を見る
                                                 </Button>
                                             </Link>
                                         </div>
@@ -166,8 +163,8 @@ export default async function ApplicationsPage() {
 
                                     {/* Message snippet if any */}
                                     {app.message && (
-                                        <div className="bg-gray-50 px-5 md:px-6 py-3 border-t border-gray-100">
-                                            <p className="text-xs text-gray-500 line-clamp-1 italic">
+                                        <div className="bg-slate-50 px-5 md:px-6 py-3 border-t border-slate-100">
+                                            <p className="text-xs text-slate-500 line-clamp-1 italic">
                                                 " {app.message} "
                                             </p>
                                         </div>
@@ -177,14 +174,14 @@ export default async function ApplicationsPage() {
                         })}
                     </div>
                 ) : (
-                    <div className="bg-white rounded-2xl border-2 border-dashed border-gray-200 p-12 text-center">
-                        <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <AlertCircle className="w-8 h-8 text-gray-300" />
+                    <div className="bg-white rounded-2xl border-2 border-dashed border-slate-200 p-12 text-center">
+                        <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <AlertCircle className="w-8 h-8 text-slate-300" />
                         </div>
-                        <h3 className="text-lg font-bold text-gray-900">申込済みのイベントはありません</h3>
-                        <p className="text-gray-500 mt-2 mb-6">気になるイベントを探して申し込んでみましょう。</p>
+                        <h3 className="text-lg font-bold text-slate-900">申込済みのイベントはありません</h3>
+                        <p className="text-slate-500 mt-2 mb-6">気になるイベントを探して申し込んでみましょう。</p>
                         <Link href="/">
-                            <Button className="bg-emerald-600 hover:bg-emerald-700">
+                            <Button className="bg-store-600 hover:bg-store-700">
                                 イベントを探す
                             </Button>
                         </Link>

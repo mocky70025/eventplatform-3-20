@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1440">
+  <title>Eventra - 主催者通知</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Noto Sans JP', 'sans-serif'] },
+          colors: {
+            store: { 50: '#ecfdf5', 100: '#d1fae5', 200: '#a7f3d0', 300: '#6ee7b7', 400: '#34d399', 500: '#10b981', 600: '#059669', 700: '#047857', 800: '#065f46', 900: '#064e3b' },
+            org: { 50: '#fff7ed', 100: '#ffedd5', 200: '#fed7aa', 300: '#fdba74', 400: '#fb923c', 500: '#f97316', 600: '#ea580c', 700: '#c2410c', 800: '#9a3412', 900: '#7c2d12' },
+            accent: { pink: '#ec4899', yellow: '#eab308', purple: '#8b5cf6', sky: '#0ea5e9' },
+            neutral: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1', 400: '#94a3b8', 500: '#64748b', 600: '#475569', 700: '#334155', 800: '#1e293b', 900: '#0f172a' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { font-family: 'Noto Sans JP', sans-serif; }
+    body { width: 1440px; margin: 0 auto; background: #ffffff; }
+  </style>
+</head>
+<body class="bg-neutral-50">
+
+  <!-- Header -->
+  <header class="bg-white px-8 h-16 flex items-center justify-between border-b border-neutral-100 sticky top-0 z-50">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 bg-org-500 rounded-xl flex items-center justify-center">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"/></svg>
+      </div>
+      <span class="text-lg font-bold text-neutral-900">Eventra</span>
+      <span class="text-[10px] bg-org-100 text-org-700 px-2 rounded-full font-semibold inline-flex items-center justify-center h-5" style="line-height:1;">主催者</span>
+    </div>
+    <nav class="flex items-center gap-1">
+      <a class="text-sm font-medium text-neutral-500 hover:text-neutral-700 px-4 py-2 rounded-lg">ダッシュボード</a>
+      <a class="text-sm font-medium text-neutral-500 hover:text-neutral-700 px-4 py-2 rounded-lg">イベント管理</a>
+      <a class="text-sm font-medium text-neutral-500 hover:text-neutral-700 px-4 py-2 rounded-lg">出店者管理</a>
+      <a class="text-sm font-medium text-neutral-500 hover:text-neutral-700 px-4 py-2 rounded-lg">プロフィール</a>
+      <div class="w-px h-6 bg-neutral-200 mx-2"></div>
+      <button class="text-sm text-neutral-400 hover:text-red-500 px-3 py-2">ログアウト</button>
+    </nav>
+  </header>
+
+  <main class="max-w-4xl mx-auto py-8 px-6">
+
+    <!-- Page Header -->
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h1 class="text-2xl font-bold text-neutral-900">通知</h1>
+        <p class="text-sm text-neutral-500 mt-1">出店申請やイベントに関するお知らせを確認できます。</p>
+      </div>
+      <button class="text-sm text-org-600 font-medium hover:underline">すべて既読にする</button>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="flex gap-2 mb-6">
+      <button class="px-4 py-2 rounded-full text-sm font-semibold bg-org-500 text-white">すべて</button>
+      <button class="px-4 py-2 rounded-full text-sm font-medium bg-white border border-neutral-200 text-neutral-600 hover:border-neutral-300">応募関連</button>
+      <button class="px-4 py-2 rounded-full text-sm font-medium bg-white border border-neutral-200 text-neutral-600 hover:border-neutral-300">イベント情報</button>
+      <button class="px-4 py-2 rounded-full text-sm font-medium bg-white border border-neutral-200 text-neutral-600 hover:border-neutral-300">システム</button>
+    </div>
+
+    <!-- Notifications List -->
+    <div class="bg-white rounded-2xl border border-neutral-200 divide-y divide-neutral-100">
+
+      <!-- Unread: New Application -->
+      <div class="flex gap-4 p-5 bg-org-50/50">
+        <div class="w-10 h-10 rounded-full bg-org-100 flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5 text-org-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="w-2 h-2 rounded-full bg-org-500 shrink-0"></span>
+            <h4 class="text-sm font-bold text-neutral-900">新しい出店申請が届きました</h4>
+          </div>
+          <p class="text-sm text-neutral-600 leading-relaxed"><span class="font-semibold text-neutral-700">たこ焼き本舗</span> が「静岡フードフェスティバル 2026」に応募しました。</p>
+          <div class="flex items-center gap-4 mt-2">
+            <span class="text-xs text-neutral-400">2時間前</span>
+            <a class="text-xs text-org-600 font-medium hover:underline">審査する</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Unread: Message from vendor -->
+      <div class="flex gap-4 p-5 bg-org-50/50">
+        <div class="w-10 h-10 rounded-full bg-accent-sky/10 flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5 text-accent-sky" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="w-2 h-2 rounded-full bg-org-500 shrink-0"></span>
+            <h4 class="text-sm font-bold text-neutral-900">出店者からメッセージ</h4>
+          </div>
+          <p class="text-sm text-neutral-600 leading-relaxed"><span class="font-semibold text-neutral-700">Crepe Stand LUNA</span>: 「電源の件で確認させてください。当日は200Vの機材を...」</p>
+          <div class="flex items-center gap-4 mt-2">
+            <span class="text-xs text-neutral-400">3時間前</span>
+            <a class="text-xs text-org-600 font-medium hover:underline">返信する</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Unread: New Application -->
+      <div class="flex gap-4 p-5 bg-org-50/50">
+        <div class="w-10 h-10 rounded-full bg-org-100 flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5 text-org-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="w-2 h-2 rounded-full bg-org-500 shrink-0"></span>
+            <h4 class="text-sm font-bold text-neutral-900">新しい出店申請が届きました</h4>
+          </div>
+          <p class="text-sm text-neutral-600 leading-relaxed"><span class="font-semibold text-neutral-700">Hawaiian Shaved Ice</span> が「静岡フードフェスティバル 2026」に応募しました。</p>
+          <div class="flex items-center gap-4 mt-2">
+            <span class="text-xs text-neutral-400">5時間前</span>
+            <a class="text-xs text-org-600 font-medium hover:underline">審査する</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Read: Application Approved -->
+      <div class="flex gap-4 p-5">
+        <div class="w-10 h-10 rounded-full bg-store-100 flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5 text-store-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <div class="flex-1 min-w-0">
+          <h4 class="text-sm font-medium text-neutral-700 mb-1">出店申請を承認しました</h4>
+          <p class="text-sm text-neutral-500 leading-relaxed"><span class="font-medium text-neutral-600">焼きそば太郎</span> の「静岡フードフェスティバル 2026」への出店を承認しました。</p>
+          <div class="flex items-center gap-4 mt-2">
+            <span class="text-xs text-neutral-400">昨日 16:45</span>
+            <a class="text-xs text-neutral-500 font-medium hover:underline">詳細を見る</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Read: Deadline Reminder -->
+      <div class="flex gap-4 p-5">
+        <div class="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        </div>
+        <div class="flex-1 min-w-0">
+          <h4 class="text-sm font-medium text-neutral-700 mb-1">募集締切が近づいています</h4>
+          <p class="text-sm text-neutral-500 leading-relaxed">「静岡フードフェスティバル 2026」の募集締切まであと21日です。現在8件の未審査応募があります。</p>
+          <div class="flex items-center gap-4 mt-2">
+            <span class="text-xs text-neutral-400">昨日 09:00</span>
+            <a class="text-xs text-neutral-500 font-medium hover:underline">イベント詳細</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Read: Rejection -->
+      <div class="flex gap-4 p-5">
+        <div class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <div class="flex-1 min-w-0">
+          <h4 class="text-sm font-medium text-neutral-700 mb-1">出店申請を却下しました</h4>
+          <p class="text-sm text-neutral-500 leading-relaxed"><span class="font-medium text-neutral-600">Sample Store</span> の応募を却下しました。理由: ジャンル不一致</p>
+          <div class="flex items-center gap-4 mt-2">
+            <span class="text-xs text-neutral-400">3日前</span>
+            <a class="text-xs text-neutral-500 font-medium hover:underline">詳細を見る</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Read: System -->
+      <div class="flex gap-4 p-5">
+        <div class="w-10 h-10 rounded-full bg-accent-purple/10 flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5 text-accent-purple" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <div class="flex-1 min-w-0">
+          <h4 class="text-sm font-medium text-neutral-700 mb-1">システムアップデート</h4>
+          <p class="text-sm text-neutral-500 leading-relaxed">出店者の評価機能がリリースされました。イベント終了後に出店者を評価できるようになりました。</p>
+          <div class="flex items-center gap-4 mt-2">
+            <span class="text-xs text-neutral-400">1週間前</span>
+            <a class="text-xs text-neutral-500 font-medium hover:underline">詳細を見る</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Pagination -->
+    <div class="flex items-center justify-center gap-2 mt-6">
+      <button class="w-9 h-9 rounded-lg border border-neutral-200 text-neutral-400 flex items-center justify-center text-sm">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
+      </button>
+      <button class="w-9 h-9 rounded-lg bg-org-500 text-white flex items-center justify-center text-sm font-bold">1</button>
+      <button class="w-9 h-9 rounded-lg border border-neutral-200 text-neutral-600 flex items-center justify-center text-sm font-medium hover:bg-neutral-50">2</button>
+      <button class="w-9 h-9 rounded-lg border border-neutral-200 text-neutral-600 flex items-center justify-center text-sm font-medium hover:bg-neutral-50">3</button>
+      <button class="w-9 h-9 rounded-lg border border-neutral-200 text-neutral-600 flex items-center justify-center text-sm">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+
+  </main>
+
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js"></script>
+</body>
+</html>

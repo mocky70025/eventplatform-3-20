@@ -1,29 +1,42 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/Button";
-import { Store, User, Phone, MapPin, Globe, Loader2, Save, ArrowLeft, Sparkles, AlertCircle, Check, X } from "lucide-react";
+import { Loader2, Check, X, AlertCircle, Sparkles, Camera } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-export function ProfileForm() {
+const GENRE_OPTIONS = ["和食", "中華", "洋食", "スイーツ", "カフェ・ドリンク", "エスニック"];
+const STYLE_OPTIONS = ["キッチンカー", "テント出店", "屋台"];
+
+interface ProfileFormProps {
+    initialProfile: any;
+}
+
+export function ProfileForm({ initialProfile }: ProfileFormProps) {
     const router = useRouter();
-    const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
+    const [isUploadingImage, setIsUploadingImage] = useState(false);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
+    const [avatarUrl, setAvatarUrl] = useState<string | null>(initialProfile?.avatar_url || null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const supabase = createClient();
 
-    const [formData, setFormData] = useState({
-        storeName: "",
-        repName: "",
-        email: "",
-        phone: "",
-        website: "",
-        description: "",
-    });
+    const initialFormData = {
+        storeName: initialProfile?.shop_name || "",
+        repName: initialProfile?.name || "",
+        email: initialProfile?.email || "",
+        phone: initialProfile?.phone_number || "",
+        address: initialProfile?.address || "",
+        description: initialProfile?.description || "",
+        genres: (initialProfile?.genres as string[]) || [],
+        styles: (initialProfile?.business_styles as string[]) || [],
+    };
+
+    const [formData, setFormData] = useState(initialFormData);
+    const [showErrors, setShowErrors] = useState(false);
 
     const [files, setFiles] = useState<{ [key: string]: File | null }>({
         businessLicense: null,
@@ -33,10 +46,10 @@ export function ProfileForm() {
     });
 
     const [previews, setPreviews] = useState<{ [key: string]: string }>({
-        businessLicense: "",
-        vehicleInspection: "",
-        plInsurance: "",
-        fireLayout: "",
+        businessLicense: initialProfile?.business_license_image_url || "",
+        vehicleInspection: initialProfile?.vehicle_inspection_image_url || "",
+        plInsurance: initialProfile?.pl_insurance_image_url || "",
+        fireLayout: initialProfile?.fire_equipment_layout_image_url || "",
     });
 
     const [aiResults, setAiResults] = useState<{ [key: string]: { status: 'idle' | 'verifying' | 'success' | 'error', message?: string, data?: any } }>({
@@ -46,62 +59,106 @@ export function ProfileForm() {
         fireLayout: { status: 'idle' },
     });
 
-    useEffect(() => {
-        const loadProfile = async () => {
-            try {
-                const { data: { user } } = await supabase.auth.getUser();
-                if (!user) {
-                    router.push("/login");
-                    return;
-                }
-
-                const { data: profile, error: profileError } = await supabase
-                    .from("exhibitors")
-                    .select("*")
-                    .eq("user_id", user.id)
-                    .single();
-
-                if (profileError) throw profileError;
-
-                if (profile) {
-                    // #region agent log
-                    fetch('http://127.0.0.1:7243/ingest/24386baa-c201-40e8-8398-79c24751054d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'store/components/profile/ProfileForm.tsx:66',message:'Profile loaded',data:{hasProfile:!!profile,hasBusinessLicense:!!profile.business_license_image_url,businessLicenseUrl:profile.business_license_image_url?.substring(0,50)||null,hasVehicleInspection:!!profile.vehicle_inspection_image_url,hasPlInsurance:!!profile.pl_insurance_image_url,hasFireLayout:!!profile.fire_equipment_layout_image_url,hasWebsite:!!profile.website,hasDescription:!!profile.description},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'F'})}).catch(()=>{});
-                    // #endregion
-                    setFormData({
-                        storeName: profile.shop_name || "",
-                        repName: profile.name || "",
-                        email: profile.email || "",
-                        phone: profile.phone_number || "",
-                        website: profile.website || "",
-                        description: profile.description || "",
-                    });
-                    setPreviews({
-                        businessLicense: profile.business_license_image_url || "",
-                        vehicleInspection: profile.vehicle_inspection_image_url || "",
-                        plInsurance: profile.pl_insurance_image_url || "",
-                        fireLayout: profile.fire_equipment_layout_image_url || "",
-                    });
-                }
-            } catch (err: any) {
-                console.error("Profile load error:", err);
-                setError("プロフィールの読み込みに失敗しました");
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        loadProfile();
-    }, [supabase, router]);
-
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
         setSuccess("");
     };
 
+    const toggleChip = (type: "genres" | "styles", value: string) => {
+        setFormData(prev => ({
+            ...prev,
+            [type]: prev[type].includes(value)
+                ? prev[type].filter((v: string) => v !== value)
+                : [...prev[type], value],
+        }));
+        setSuccess("");
+    };
+
+    const handleCancel = () => {
+        setFormData(initialFormData);
+        setError("");
+        setSuccess("");
+    };
+
+    const handleImageClick = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (!file.type.startsWith("image/")) {
+            setError("画像ファイルを選択してください");
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+            setError("画像は5MB以内にしてください");
+            return;
+        }
+
+        setIsUploadingImage(true);
+        setError("");
+
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) throw new Error("セッションがありません");
+
+            const ext = file.name.split(".").pop();
+            const filePath = `${user.id}/avatar.${ext}`;
+
+            const { error: uploadError } = await supabase.storage
+                .from("exhibitor-avatars")
+                .upload(filePath, file, { upsert: true });
+
+            if (uploadError) throw uploadError;
+
+            const { data: urlData } = supabase.storage
+                .from("exhibitor-avatars")
+                .getPublicUrl(filePath);
+
+            const publicUrl = urlData.publicUrl;
+
+            const { error: updateError } = await supabase
+                .from("exhibitors")
+                .update({ avatar_url: publicUrl })
+                .eq("user_id", user.id);
+
+            if (updateError) throw updateError;
+
+            setAvatarUrl(publicUrl);
+            setSuccess("プロフィール画像を更新しました");
+            router.refresh();
+        } catch (err: any) {
+            console.error("Image upload error:", err);
+            setError(err.message || "画像のアップロードに失敗しました");
+        } finally {
+            setIsUploadingImage(false);
+            if (fileInputRef.current) fileInputRef.current.value = "";
+        }
+    };
+
+    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+    const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
+
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement> | null, key: string) => {
         if (e && e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
+
+            if (file.size > MAX_FILE_SIZE) {
+                setError("ファイルサイズが大きすぎます（最大10MB）");
+                e.target.value = '';
+                return;
+            }
+
+            if (!ALLOWED_TYPES.includes(file.type)) {
+                setError("対応していないファイル形式です（JPEG, PNG, GIF, WebP, PDFのみ）");
+                e.target.value = '';
+                return;
+            }
+
+            setError("");
             setFiles(prev => ({ ...prev, [key]: file }));
 
             const reader = new FileReader();
@@ -109,7 +166,6 @@ export function ProfileForm() {
                 const result = reader.result as string;
                 setPreviews(prev => ({ ...prev, [key]: result }));
 
-                // Start AI Verification
                 setAiResults(prev => ({ ...prev, [key]: { status: 'verifying' } }));
                 try {
                     const response = await fetch('/api/verify-document', {
@@ -135,26 +191,27 @@ export function ProfileForm() {
         }
     };
 
+    const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf'];
+
     const uploadFiles = async (userId: string) => {
         const updatedUrls: { [key: string]: string } = {};
 
         for (const [key, file] of Object.entries(files)) {
             if (file) {
-                const fileExt = file.name.split('.').pop();
-                const fileName = `${userId}/${key}_${Math.random().toString(36).substring(2)}.${fileExt}`;
-                const filePath = fileName;
+                const fileExt = (file.name.split('.').pop() || '').toLowerCase();
+                if (!ALLOWED_EXTENSIONS.includes(fileExt)) {
+                    throw new Error(`${key}: 対応していないファイル形式です（${ALLOWED_EXTENSIONS.join(', ')}のみ）`);
+                }
+                const fileName = `${userId}/${key}_${crypto.randomUUID()}.${fileExt}`;
 
                 const { error: uploadError } = await supabase.storage
                     .from('exhibitor-documents')
-                    .upload(filePath, file);
+                    .upload(fileName, file);
 
                 if (uploadError) throw uploadError;
 
-                const { data: { publicUrl } } = supabase.storage
-                    .from('exhibitor-documents')
-                    .getPublicUrl(filePath);
-
-                updatedUrls[key] = publicUrl;
+                // Store file path (not public URL) for use with signed URLs
+                updatedUrls[key] = fileName;
             }
         }
         return updatedUrls;
@@ -162,6 +219,12 @@ export function ProfileForm() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!formData.storeName || !formData.repName || !formData.phone) {
+            setShowErrors(true);
+            return;
+        }
+
         setIsSaving(true);
         setError("");
         setSuccess("");
@@ -172,17 +235,22 @@ export function ProfileForm() {
 
             const uploadedUrls = await uploadFiles(user.id);
 
-            // #region agent log
-            fetch('http://127.0.0.1:7243/ingest/24386baa-c201-40e8-8398-79c24751054d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'store/components/profile/ProfileForm.tsx:170',message:'Before update - form data and uploaded URLs',data:{formData:{storeName:formData.storeName,repName:formData.repName,email:formData.email,phone:formData.phone,website:formData.website,description:formData.description},uploadedUrls:Object.keys(uploadedUrls),hasBusinessLicense:!!uploadedUrls.businessLicense,hasVehicleInspection:!!uploadedUrls.vehicleInspection,hasPlInsurance:!!uploadedUrls.plInsurance,hasFireLayout:!!uploadedUrls.fireLayout},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-            // #endregion
+            // Validate input lengths
+            if (formData.storeName.length > 200) throw new Error("店舗名は200文字以内で入力してください");
+            if (formData.repName.length > 100) throw new Error("代表者名は100文字以内で入力してください");
+            if (formData.phone.length > 20) throw new Error("電話番号の形式が正しくありません");
+            if (formData.description.length > 2000) throw new Error("店舗紹介は2000文字以内で入力してください");
+            if (formData.address.length > 200) throw new Error("住所は200文字以内で入力してください");
 
             const updateData: any = {
                 shop_name: formData.storeName,
                 name: formData.repName,
                 email: formData.email,
                 phone_number: formData.phone,
+                address: formData.address,
                 description: formData.description,
-                updated_at: new Date().toISOString(),
+                genres: formData.genres,
+                business_styles: formData.styles,
             };
 
             if (uploadedUrls.businessLicense) updateData.business_license_image_url = uploadedUrls.businessLicense;
@@ -190,18 +258,10 @@ export function ProfileForm() {
             if (uploadedUrls.plInsurance) updateData.pl_insurance_image_url = uploadedUrls.plInsurance;
             if (uploadedUrls.fireLayout) updateData.fire_equipment_layout_image_url = uploadedUrls.fireLayout;
 
-            // #region agent log
-            fetch('http://127.0.0.1:7243/ingest/24386baa-c201-40e8-8398-79c24751054d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'store/components/profile/ProfileForm.tsx:186',message:'Update data prepared',data:{updateDataKeys:Object.keys(updateData),hasWebsite:!!updateData.website,hasDescription:!!updateData.description,emailValue:updateData.email,shopNameValue:updateData.shop_name},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-            // #endregion
-
             const { error: updateError } = await supabase
                 .from("exhibitors")
                 .update(updateData)
                 .eq("user_id", user.id);
-
-            // #region agent log
-            fetch('http://127.0.0.1:7243/ingest/24386baa-c201-40e8-8398-79c24751054d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'store/components/profile/ProfileForm.tsx:191',message:'Update result',data:{hasError:!!updateError,errorMessage:updateError?.message,errorCode:updateError?.code,errorDetails:updateError?.details,errorHint:updateError?.hint},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-            // #endregion
 
             if (updateError) throw updateError;
 
@@ -215,217 +275,263 @@ export function ProfileForm() {
         }
     };
 
-    if (isLoading) {
-        return (
-            <div className="flex items-center justify-center py-20">
-                <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
-            </div>
-        );
-    }
+    const initials = formData.storeName
+        ? formData.storeName.substring(0, 2)
+        : "店";
+
+    const inputClass = "w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-store-500 focus:border-store-500";
 
     return (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="bg-emerald-600 px-8 py-6">
-                <h1 className="text-2xl font-bold text-white">出店者プロフィール設定</h1>
-                <p className="text-emerald-100 mt-1">
-                    店舗情報や提出書類を最新の状態に保ちましょう。
-                </p>
+        <form onSubmit={handleSubmit} className="space-y-6">
+            {error && (
+                <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm">
+                    {error}
+                </div>
+            )}
+            {success && (
+                <div className="bg-store-50 border border-store-200 text-store-700 px-4 py-3 rounded-xl text-sm">
+                    {success}
+                </div>
+            )}
+
+            {/* Hidden file input for avatar */}
+            <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageChange}
+            />
+
+            {/* Profile header card */}
+            <div className="bg-white rounded-2xl border border-slate-200 p-6">
+                <div className="flex items-center gap-5">
+                    <div className="relative">
+                        {avatarUrl ? (
+                            <img
+                                src={avatarUrl}
+                                alt="プロフィール画像"
+                                className="w-20 h-20 rounded-full object-cover"
+                            />
+                        ) : (
+                            <div className="w-20 h-20 rounded-full bg-store-100 flex items-center justify-center text-store-700 text-xl font-bold">
+                                {initials}
+                            </div>
+                        )}
+                        <button
+                            type="button"
+                            onClick={handleImageClick}
+                            disabled={isUploadingImage}
+                            className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 transition-colors shadow-sm disabled:opacity-50"
+                        >
+                            {isUploadingImage ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            ) : (
+                                <Camera className="w-3.5 h-3.5" />
+                            )}
+                        </button>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <h2 className="text-lg font-bold text-slate-900 truncate">
+                            {formData.storeName || "店舗名未設定"}
+                        </h2>
+                        <p className="text-sm text-slate-500 mt-0.5">
+                            @{formData.email ? formData.email.split("@")[0] : "handle"}
+                        </p>
+                        <div className="flex items-center gap-2 mt-2">
+                            <span className="h-5 inline-flex items-center justify-center px-2 rounded-full bg-store-100 text-store-700 text-xs font-medium" style={{ lineHeight: 1 }}>
+                                認証済み
+                            </span>
+                            <span className="h-5 inline-flex items-center justify-center px-2 rounded-full bg-slate-100 text-slate-600 text-xs font-medium" style={{ lineHeight: 1 }}>
+                                出店回数 {initialProfile?.event_count ?? 0}
+                            </span>
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={handleImageClick}
+                        disabled={isUploadingImage}
+                        className="px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-50"
+                    >
+                        {isUploadingImage ? "アップロード中..." : "画像を変更"}
+                    </button>
+                </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-8 space-y-8">
-                {error && (
-                    <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
-                        {error}
+            {/* Basic info form card */}
+            <div id="basic" className="bg-white rounded-2xl border border-slate-200 p-6 space-y-5">
+                <h3 className="text-base font-bold text-slate-900">基本情報</h3>
+
+                {/* Store name */}
+                <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                        店舗名 <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                        name="storeName"
+                        value={formData.storeName}
+                        onChange={handleChange}
+                        placeholder="例: やきとり太郎"
+                        className={cn(inputClass, showErrors && !formData.storeName && "border-red-400 focus:ring-red-500 focus:border-red-500")}
+                    />
+                    {showErrors && !formData.storeName && (
+                        <p className="text-xs text-red-500 mt-1">店舗名を入力してください</p>
+                    )}
+                </div>
+
+                {/* Rep name + Phone in 2-col */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                            代表者名 <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                            name="repName"
+                            value={formData.repName}
+                            onChange={handleChange}
+                            placeholder="例: 山田 太郎"
+                            className={cn(inputClass, showErrors && !formData.repName && "border-red-400 focus:ring-red-500 focus:border-red-500")}
+                        />
+                        {showErrors && !formData.repName && (
+                            <p className="text-xs text-red-500 mt-1">代表者名を入力してください</p>
+                        )}
                     </div>
-                )}
-                {success && (
-                    <div className="bg-emerald-50 border border-emerald-200 text-emerald-600 px-4 py-3 rounded-lg text-sm">
-                        {success}
-                    </div>
-                )}
-
-                <div className="space-y-6">
-                    <h2 className="text-lg font-bold text-gray-900 border-l-4 border-emerald-500 pl-3">基本情報</h2>
-
-                    <div className="space-y-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">店舗名 / 団体名 <span className="text-emerald-500">*</span></label>
-                            <div className="relative">
-                                <Store className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                                <input
-                                    name="storeName"
-                                    value={formData.storeName}
-                                    onChange={handleChange}
-                                    required
-                                    className="block w-full pl-10 rounded-lg border-gray-300 bg-gray-50 p-3 text-gray-900 focus:bg-white focus:ring-2 focus:ring-emerald-200 focus:border-emerald-500 transition-all font-medium"
-                                />
-                            </div>
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">代表者名 <span className="text-emerald-500">*</span></label>
-                            <div className="relative">
-                                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                                <input
-                                    name="repName"
-                                    value={formData.repName}
-                                    onChange={handleChange}
-                                    required
-                                    className="block w-full pl-10 rounded-lg border-gray-300 bg-gray-50 p-3 text-gray-900 focus:bg-white focus:ring-2 focus:ring-emerald-200 focus:border-emerald-500 transition-all font-medium"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">メールアドレス <span className="text-emerald-500">*</span></label>
-                                <div className="relative">
-                                    <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                                    <input
-                                        name="email"
-                                        value={formData.email}
-                                        onChange={handleChange}
-                                        type="email"
-                                        required
-                                        className="block w-full pl-10 rounded-lg border-gray-300 bg-gray-50 p-3 text-gray-900 focus:bg-white focus:ring-2 focus:ring-emerald-200 focus:border-emerald-500 transition-all font-medium"
-                                    />
-                                </div>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">電話番号 <span className="text-emerald-500">*</span></label>
-                                <div className="relative">
-                                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                                    <input
-                                        name="phone"
-                                        value={formData.phone}
-                                        onChange={handleChange}
-                                        type="tel"
-                                        required
-                                        className="block w-full pl-10 rounded-lg border-gray-300 bg-gray-50 p-3 text-gray-900 focus:bg-white focus:ring-2 focus:ring-emerald-200 focus:border-emerald-500 transition-all font-medium"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">お店の紹介文</label>
-                            <textarea
-                                name="description"
-                                value={formData.description}
-                                onChange={handleChange}
-                                rows={4}
-                                className="block w-full rounded-lg border-gray-300 bg-gray-50 p-3 text-gray-900 focus:bg-white focus:ring-2 focus:ring-emerald-200 focus:border-emerald-500 transition-all font-medium"
-                            />
-                        </div>
+                    <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                            電話番号 <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                            name="phone"
+                            value={formData.phone}
+                            onChange={handleChange}
+                            type="tel"
+                            placeholder="例: 090-1234-5678"
+                            className={cn(inputClass, showErrors && !formData.phone && "border-red-400 focus:ring-red-500 focus:border-red-500")}
+                        />
+                        {showErrors && !formData.phone && (
+                            <p className="text-xs text-red-500 mt-1">電話番号を入力してください</p>
+                        )}
                     </div>
                 </div>
 
-                <div className="space-y-6">
-                    <h2 className="text-lg font-bold text-gray-900 border-l-4 border-emerald-500 pl-3">提出書類の確認・更新</h2>
+                {/* Email */}
+                <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                        メールアドレス
+                    </label>
+                    <input
+                        name="email"
+                        value={formData.email}
+                        type="email"
+                        readOnly
+                        className={inputClass + " bg-slate-50 text-slate-500 cursor-not-allowed"}
+                    />
+                    <p className="text-xs text-slate-400 mt-1">メールアドレスの変更はアカウント設定から行ってください</p>
+                </div>
 
-                    <div className="grid grid-cols-1 gap-8">
-                        {[
-                            { key: 'businessLicense', label: '1. 営業許可証' },
-                            { key: 'vehicleInspection', label: '2. 車検証' },
-                            { key: 'plInsurance', label: '3. PL保険' },
-                            { key: 'fireLayout', label: '4. 火器類配置図' },
-                        ].map((doc) => (
-                            <div key={doc.key} className="space-y-3">
-                                <label className="block text-sm font-bold text-gray-800">{doc.label}</label>
-                                <div className="relative border-2 border-dashed border-gray-200 rounded-xl p-4 hover:border-emerald-300 transition-colors bg-gray-50">
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={(e) => handleFileChange(e, doc.key)}
-                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                                    />
-                                    {previews[doc.key] ? (
-                                        <div className="space-y-4">
-                                            <div className="relative aspect-video w-full rounded-lg overflow-hidden border bg-white shadow-sm">
-                                                {/* #region agent log */}
-                                                {(() => {
-                                                    fetch('http://127.0.0.1:7243/ingest/24386baa-c201-40e8-8398-79c24751054d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'store/components/profile/ProfileForm.tsx:328',message:'Image preview render',data:{docKey:doc.key,hasPreview:!!previews[doc.key],previewUrl:previews[doc.key]?.substring(0,100)||null,isDataUrl:previews[doc.key]?.startsWith('data:'),isHttpUrl:previews[doc.key]?.startsWith('http')},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'G'})}).catch(()=>{});
-                                                    return null;
-                                                })()}
-                                                {/* #endregion */}
-                                                <img 
-                                                    src={previews[doc.key]} 
-                                                    alt="Preview" 
-                                                    className="w-full h-full object-contain"
-                                                    onError={(e) => {
-                                                        // #region agent log
-                                                        fetch('http://127.0.0.1:7243/ingest/24386baa-c201-40e8-8398-79c24751054d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'store/components/profile/ProfileForm.tsx:338',message:'Image load error',data:{docKey:doc.key,previewUrl:previews[doc.key]?.substring(0,100)||null},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'H'})}).catch(()=>{});
-                                                        // #endregion
-                                                    }}
-                                                />
-                                                <button
-                                                    type="button"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleFileChange(null, doc.key);
-                                                    }}
-                                                    className="absolute top-2 right-2 w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center shadow-lg hover:bg-red-600 transition-all z-20"
-                                                >
-                                                    <X className="w-5 h-5" />
-                                                </button>
-                                            </div>
-                                            {files[doc.key] && (
-                                                <div className="flex items-center gap-2 text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-2 rounded-lg border border-emerald-100">
-                                                    <Check className="w-4 h-4" /> アップロード準備完了: {files[doc.key]?.name}
-                                                </div>
-                                            )}
-                                        </div>
-                                    ) : (
-                                        <div className="py-8 text-center text-gray-400">
-                                            <Sparkles className="w-8 h-8 mx-auto mb-2 opacity-30" />
-                                            <p className="text-sm font-medium">クリックして画像を選択</p>
-                                        </div>
-                                    )}
-                                </div>
+                {/* Address (optional) */}
+                <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                        住所 <span className="text-slate-400 text-xs font-normal">（任意）</span>
+                    </label>
+                    <input
+                        name="address"
+                        value={formData.address}
+                        onChange={handleChange}
+                        placeholder="例: 東京都渋谷区..."
+                        className={inputClass}
+                    />
+                </div>
 
-                                {/* AI Analysis Result (only for new files) */}
-                                {aiResults[doc.key].status !== 'idle' && (
-                                    <div className={cn(
-                                        "rounded-xl p-4 border transition-all text-xs",
-                                        aiResults[doc.key].status === 'verifying' ? "bg-blue-50 border-blue-100" :
-                                            aiResults[doc.key].status === 'success' ? "bg-emerald-50 border-emerald-100" :
-                                                "bg-red-50 border-red-100"
-                                    )}>
-                                        <div className="flex items-center gap-2 mb-2">
-                                            {aiResults[doc.key].status === 'verifying' ? <Loader2 className="w-3 h-3 animate-spin text-blue-600" /> :
-                                                aiResults[doc.key].status === 'success' ? <Check className="w-3 h-3 text-emerald-600" /> :
-                                                    <AlertCircle className="w-3 h-3 text-red-600" />}
-                                            <span className="font-bold">AI解析: {aiResults[doc.key].message}</span>
-                                        </div>
-                                        {aiResults[doc.key].data && (
-                                            <div className="grid grid-cols-2 gap-2 bg-white/50 p-2 rounded-lg border border-white/50">
-                                                <div>
-                                                    <p className="opacity-60 mb-0.5">種別</p>
-                                                    <p className="font-bold">{aiResults[doc.key].data.documentType}</p>
-                                                </div>
-                                                <div>
-                                                    <p className="opacity-60 mb-0.5">有効期限</p>
-                                                    <p className="font-bold text-emerald-700">{aiResults[doc.key].data.expiryDate}</p>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
+                {/* Genre multi-select chips */}
+                <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">ジャンル <span className="text-slate-400 text-xs font-normal">（複数選択可）</span></label>
+                    <div className="flex flex-wrap gap-2">
+                        {GENRE_OPTIONS.map(genre => (
+                            <button
+                                key={genre}
+                                type="button"
+                                onClick={() => toggleChip("genres", genre)}
+                                className={cn(
+                                    "px-3.5 py-1.5 rounded-full text-sm font-medium border transition-colors",
+                                    formData.genres.includes(genre)
+                                        ? "bg-store-500 text-white border-store-500"
+                                        : "bg-white text-slate-700 border-slate-200 hover:border-slate-300"
                                 )}
-                            </div>
+                            >
+                                {genre}
+                            </button>
                         ))}
                     </div>
                 </div>
 
-                <div className="pt-6 border-t flex justify-end gap-3">
-                    <Link href="/">
-                        <Button variant="ghost" type="button">キャンセル</Button>
-                    </Link>
-                    <Button type="submit" disabled={isSaving} className="bg-emerald-600 hover:bg-emerald-700 px-8 shadow-lg shadow-emerald-100">
-                        {isSaving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
-                        {isSaving ? "保存中..." : "変更を保存する"}
+                {/* Business style multi-select chips */}
+                <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">営業形態 <span className="text-slate-400 text-xs font-normal">（任意・複数選択可）</span></label>
+                    <div className="flex flex-wrap gap-2">
+                        {STYLE_OPTIONS.map(style => (
+                            <button
+                                key={style}
+                                type="button"
+                                onClick={() => toggleChip("styles", style)}
+                                className={cn(
+                                    "px-3.5 py-1.5 rounded-full text-sm font-medium border transition-colors",
+                                    formData.styles.includes(style)
+                                        ? "bg-store-500 text-white border-store-500"
+                                        : "bg-white text-slate-700 border-slate-200 hover:border-slate-300"
+                                )}
+                            >
+                                {style}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Description textarea (optional) */}
+                <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                        店舗紹介 <span className="text-slate-400 text-xs font-normal">（任意）</span>
+                    </label>
+                    <textarea
+                        name="description"
+                        value={formData.description}
+                        onChange={handleChange}
+                        rows={4}
+                        maxLength={200}
+                        placeholder="お店の特徴やこだわりをアピールしましょう"
+                        className={cn(inputClass, "resize-none")}
+                    />
+                    <p className="text-xs text-slate-400 mt-1">200文字以内で記入してください</p>
+                </div>
+            </div>
+
+            {/* Save actions */}
+            <div className="flex items-center justify-between">
+                <p className="text-xs text-slate-400">
+                    最終更新: {initialProfile?.updated_at
+                        ? new Date(initialProfile.updated_at).toLocaleDateString("ja-JP")
+                        : "-"}
+                </p>
+                <div className="flex items-center gap-3">
+                    <Button variant="ghost" type="button" onClick={handleCancel} className="text-slate-600">
+                        キャンセル
+                    </Button>
+                    <Button
+                        type="submit"
+                        disabled={isSaving}
+                        className="bg-store-500 hover:bg-store-600 text-white rounded-xl px-6 disabled:opacity-50 disabled:pointer-events-none"
+                    >
+                        {isSaving ? (
+                            <>
+                                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                                保存中...
+                            </>
+                        ) : (
+                            "変更を保存"
+                        )}
                     </Button>
                 </div>
-            </form>
-        </div>
+            </div>
+        </form>
     );
 }

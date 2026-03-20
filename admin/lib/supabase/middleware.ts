@@ -8,9 +8,22 @@ export async function updateSession(request: NextRequest) {
         },
     })
 
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+        console.error('Missing Supabase environment variables in middleware');
+        if (!request.nextUrl.pathname.startsWith('/login')) {
+            const url = request.nextUrl.clone()
+            url.pathname = '/login'
+            return NextResponse.redirect(url)
+        }
+        return response;
+    }
+
     const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        supabaseUrl,
+        supabaseAnonKey,
         {
             cookies: {
                 get(name: string) {
@@ -57,28 +70,26 @@ export async function updateSession(request: NextRequest) {
         }
     )
 
-    const { data: { user } } = await supabase.auth.getUser()
+    try {
+        const { data: { user } } = await supabase.auth.getUser()
 
-    // ログインページ以外で未認証ならログインへ
-    if (!user && !request.nextUrl.pathname.startsWith('/login')) {
-        const url = request.nextUrl.clone()
-        url.pathname = '/login'
-        return NextResponse.redirect(url)
-    }
+        // ログインページ以外で未認証ならログインへ
+        if (!user && !request.nextUrl.pathname.startsWith('/login')) {
+            const url = request.nextUrl.clone()
+            url.pathname = '/login'
+            return NextResponse.redirect(url)
+        }
 
-    // ログイン済みの場合、管理者権限をチェック
-    if (user) {
-        // 管理者メールアドレスのチェック
-        const adminEmailsString = process.env.ADMIN_EMAILS || process.env.NEXT_PUBLIC_ADMIN_EMAILS || '';
-        const adminEmails = adminEmailsString
-            ? adminEmailsString.split(',').map(e => e.trim().toLowerCase())
-            : [];
+        // ログイン済みの場合、管理者権限をチェック
+        if (user && !request.nextUrl.pathname.startsWith('/login')) {
+            const adminEmailsString = process.env.ADMIN_EMAILS || '';
+            const adminEmails = adminEmailsString
+                .split(',')
+                .map(e => e.trim().toLowerCase())
+                .filter(e => e.length > 0);
 
-        // 管理者メールアドレスが設定されている場合、チェック
-        if (adminEmails.length > 0) {
             const userEmail = user.email?.toLowerCase();
-            if (!userEmail || !adminEmails.includes(userEmail)) {
-                // 管理者でない場合はログアウトしてログインページへ
+            if (adminEmails.length === 0 || !userEmail || !adminEmails.includes(userEmail)) {
                 await supabase.auth.signOut();
                 const url = request.nextUrl.clone()
                 url.pathname = '/login'
@@ -87,10 +98,16 @@ export async function updateSession(request: NextRequest) {
             }
         }
 
-        // ログイン済みでログインページにアクセスしようとしたらトップへ
-        if (request.nextUrl.pathname.startsWith('/login')) {
+        if (user && request.nextUrl.pathname.startsWith('/login')) {
             const url = request.nextUrl.clone()
             url.pathname = '/'
+            return NextResponse.redirect(url)
+        }
+    } catch (error) {
+        console.error('Admin middleware auth error:', error);
+        if (!request.nextUrl.pathname.startsWith('/login')) {
+            const url = request.nextUrl.clone()
+            url.pathname = '/login'
             return NextResponse.redirect(url)
         }
     }

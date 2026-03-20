@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Onboarding - Eventra Organizer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Noto Sans JP"', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="font-sans">
+    <div class="min-h-screen relative overflow-hidden flex items-center justify-center bg-gradient-to-br from-slate-50 via-orange-50 to-amber-50/20">
+        <!-- Background decorations -->
+        <div class="absolute -top-[120px] -left-[60px] w-[400px] h-[400px] rounded-full bg-orange-200 opacity-15"></div>
+        <div class="absolute -bottom-[100px] -right-[80px] w-[350px] h-[350px] rounded-full bg-orange-300 opacity-10"></div>
+        <div class="absolute top-[20%] right-[10%] w-[200px] h-[200px] rounded-full bg-amber-200 opacity-[0.08]"></div>
+        <div class="absolute bottom-[15%] left-[8%] w-[160px] h-[160px] rounded-full bg-pink-200 opacity-[0.08]"></div>
+
+        <!-- Floating dots -->
+        <div class="absolute top-[10%] left-[15%] w-3.5 h-3.5 rounded-full bg-orange-400 opacity-50"></div>
+        <div class="absolute top-[8%] right-[20%] w-2.5 h-2.5 rounded-full bg-pink-400 opacity-40"></div>
+        <div class="absolute bottom-[12%] left-[25%] w-4 h-4 rounded-full bg-orange-400 opacity-30"></div>
+        <div class="absolute bottom-[20%] right-[15%] w-3 h-3 rounded-full bg-purple-400 opacity-35"></div>
+        <div class="absolute top-[40%] left-[6%] w-2.5 h-2.5 rounded-full bg-amber-400 opacity-40"></div>
+        <div class="absolute top-[55%] right-[8%] w-3.5 h-3.5 rounded-full bg-orange-400 opacity-30"></div>
+
+        <!-- Card -->
+        <div class="relative z-10 w-[520px] max-w-lg bg-white rounded-3xl shadow-[0_4px_6px_rgba(0,0,0,0.02),0_12px_40px_rgba(0,0,0,0.06)] px-8 md:px-11 py-10">
+            <!-- Logo -->
+            <div class="flex items-center justify-center gap-3 mb-6">
+                <div class="w-11 h-11 bg-orange-500 rounded-xl flex items-center justify-center">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z" />
+                    </svg>
+                </div>
+                <span class="text-2xl font-bold text-slate-900">Eventra</span>
+                <span class="text-[10px] bg-orange-100 text-orange-700 px-2 rounded-full font-semibold inline-flex items-center justify-center h-5" style="line-height:1;">主催者</span>
+            </div>
+
+            <!-- Form -->
+            <div class="space-y-6">
+                <div class="text-center">
+                    <h2 class="text-[22px] font-bold text-slate-900">主催者情報の登録</h2>
+                    <p class="text-sm text-slate-500 mt-1.5">
+                        基本情報を入力して、アカウント設定を完了しましょう
+                    </p>
+                </div>
+
+                <div class="space-y-4">
+                    <!-- Company Name -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1.5">主催団体名 / 会社名</label>
+                        <div class="relative">
+                            <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-slate-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>
+                            <input
+                                type="text"
+                                value="株式会社イベントプロ"
+                                readonly
+                                class="w-full rounded-xl border border-slate-300 pl-10 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition placeholder:text-slate-400"
+                            />
+                        </div>
+                    </div>
+
+                    <!-- Representative Name -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1.5">代表者名 / 担当者名</label>
+                        <div class="relative">
+                            <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-slate-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            <input
+                                type="text"
+                                value="山田 太郎"
+                                readonly
+                                class="w-full rounded-xl border border-slate-300 pl-10 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition placeholder:text-slate-400"
+                            />
+                        </div>
+                    </div>
+
+                    <!-- Email & Phone (2-column grid) -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1.5">メールアドレス</label>
+                            <div class="relative">
+                                <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-slate-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                                <input
+                                    type="email"
+                                    value="yamada@eventpro.co.jp"
+                                    readonly
+                                    class="w-full rounded-xl border border-slate-300 pl-10 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition placeholder:text-slate-400"
+                                />
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1.5">電話番号</label>
+                            <div class="relative">
+                                <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-slate-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                                <input
+                                    type="tel"
+                                    value="03-1234-5678"
+                                    readonly
+                                    class="w-full rounded-xl border border-slate-300 pl-10 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition placeholder:text-slate-400"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Website URL -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1.5">ウェブサイト URL <span class="text-slate-400 font-normal">(任意)</span></label>
+                        <div class="relative">
+                            <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-slate-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+                            <input
+                                type="url"
+                                value="https://eventpro.co.jp"
+                                readonly
+                                class="w-full rounded-xl border border-slate-300 pl-10 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition placeholder:text-slate-400"
+                            />
+                        </div>
+                    </div>
+
+                    <!-- Address -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1.5">所在地 <span class="text-slate-400 font-normal">(任意)</span></label>
+                        <div class="relative">
+                            <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-slate-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                            <input
+                                type="text"
+                                value="東京都渋谷区神宮前1-2-3"
+                                readonly
+                                class="w-full rounded-xl border border-slate-300 pl-10 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition placeholder:text-slate-400"
+                            />
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1.5">自己紹介 / 団体概要 <span class="text-slate-400 font-normal">(任意)</span></label>
+                        <textarea
+                            rows="3"
+                            readonly
+                            class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition placeholder:text-slate-400 resize-none"
+                        >全国各地でフードフェスティバルやマルシェを主催しています。</textarea>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="pt-2">
+                    <button
+                        class="w-full h-12 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-semibold text-sm shadow-lg shadow-orange-500/25 transition inline-flex items-center justify-center gap-2"
+                    >
+                        登録してダッシュボードへ
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js"></script>
+</body>
+</html>

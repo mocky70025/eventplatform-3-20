@@ -1,68 +1,37 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/Button";
-import { Building2, User, Phone, MapPin, Globe, Loader2, Save, ArrowLeft } from "lucide-react";
+import { Loader2, Camera } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import Link from "next/link";
 
-export function ProfileForm() {
+interface ProfileFormProps {
+    initialProfile: any;
+}
+
+export function ProfileForm({ initialProfile }: ProfileFormProps) {
     const router = useRouter();
-    const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
+    const [isUploadingImage, setIsUploadingImage] = useState(false);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
+    const [avatarUrl, setAvatarUrl] = useState<string | null>(initialProfile?.avatar_url || null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const supabase = createClient();
 
-    const [formData, setFormData] = useState({
-        companyName: "",
-        repName: "",
-        email: "",
-        phone: "",
-        address: "",
-        website: "",
-        description: "",
-    });
+    const initialFormData = {
+        companyName: initialProfile?.company_name || "",
+        repName: initialProfile?.name || "",
+        email: initialProfile?.email || "",
+        phone: initialProfile?.phone_number || "",
+        address: initialProfile?.address || "",
+        website: initialProfile?.social_links?.website || "",
+        description: initialProfile?.description || "",
+    };
 
-    useEffect(() => {
-        const loadProfile = async () => {
-            try {
-                const { data: { user } } = await supabase.auth.getUser();
-                if (!user) {
-                    router.push("/login");
-                    return;
-                }
-
-                const { data: profile, error: profileError } = await supabase
-                    .from("organizers")
-                    .select("*")
-                    .eq("user_id", user.id)
-                    .single();
-
-                if (profileError) throw profileError;
-
-                if (profile) {
-                    setFormData({
-                        companyName: profile.company_name || "",
-                        repName: profile.name || "",
-                        email: profile.email || "",
-                        phone: profile.phone_number || "",
-                        address: profile.address || "",
-                        website: profile.social_links?.website || "",
-                        description: profile.description || "",
-                    });
-                }
-            } catch (err: any) {
-                console.error("Profile load error:", err);
-                setError("プロフィールの読み込みに失敗しました");
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        loadProfile();
-    }, [supabase, router]);
+    const [formData, setFormData] = useState(initialFormData);
+    const [showErrors, setShowErrors] = useState(false);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -70,8 +39,78 @@ export function ProfileForm() {
         setSuccess("");
     };
 
+    const handleCancel = () => {
+        setFormData(initialFormData);
+        setError("");
+        setSuccess("");
+    };
+
+    const handleImageClick = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (!file.type.startsWith("image/")) {
+            setError("画像ファイルを選択してください");
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+            setError("画像は5MB以内にしてください");
+            return;
+        }
+
+        setIsUploadingImage(true);
+        setError("");
+
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) throw new Error("セッションがありません");
+
+            const ext = file.name.split(".").pop();
+            const filePath = `${user.id}/avatar.${ext}`;
+
+            const { error: uploadError } = await supabase.storage
+                .from("organizer-avatars")
+                .upload(filePath, file, { upsert: true });
+
+            if (uploadError) throw uploadError;
+
+            const { data: urlData } = supabase.storage
+                .from("organizer-avatars")
+                .getPublicUrl(filePath);
+
+            const publicUrl = urlData.publicUrl;
+
+            const { error: updateError } = await supabase
+                .from("organizers")
+                .update({ avatar_url: publicUrl })
+                .eq("user_id", user.id);
+
+            if (updateError) throw updateError;
+
+            setAvatarUrl(publicUrl);
+            setSuccess("プロフィール画像を更新しました");
+            router.refresh();
+        } catch (err: any) {
+            console.error("Image upload error:", err);
+            setError(err.message || "画像のアップロードに失敗しました");
+        } finally {
+            setIsUploadingImage(false);
+            if (fileInputRef.current) fileInputRef.current.value = "";
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!formData.companyName || !formData.repName || !formData.phone) {
+            setShowErrors(true);
+            return;
+        }
+
         setIsSaving(true);
         setError("");
         setSuccess("");
@@ -79,6 +118,12 @@ export function ProfileForm() {
         try {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error("セッションがありません");
+
+            if (formData.companyName.length > 200) throw new Error("団体名は200文字以内で入力してください");
+            if (formData.repName.length > 100) throw new Error("代表者名は100文字以内で入力してください");
+            if (formData.phone.length > 20) throw new Error("電話番号の形式が正しくありません");
+            if (formData.description.length > 2000) throw new Error("自己紹介は2000文字以内で入力してください");
+            if (formData.address.length > 200) throw new Error("住所は200文字以内で入力してください");
 
             const { error: updateError } = await supabase
                 .from("organizers")
@@ -90,7 +135,6 @@ export function ProfileForm() {
                     address: formData.address,
                     social_links: formData.website ? { website: formData.website } : null,
                     description: formData.description,
-                    updated_at: new Date().toISOString(),
                 })
                 .eq("user_id", user.id);
 
@@ -106,144 +150,216 @@ export function ProfileForm() {
         }
     };
 
-    if (isLoading) {
-        return (
-            <div className="flex items-center justify-center py-20">
-                <Loader2 className="h-8 w-8 animate-spin text-orange-600" />
-            </div>
-        );
-    }
+    const initials = formData.companyName
+        ? formData.companyName.substring(0, 2)
+        : "主";
+
+    const inputClass = "w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500";
 
     return (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="bg-orange-600 px-8 py-6">
-                <h1 className="text-2xl font-bold text-white">主催者プロフィール設定</h1>
-                <p className="text-orange-100 mt-1">
-                    団体情報や連絡先を最新の状態に保ちましょう。
-                </p>
+        <form onSubmit={handleSubmit} className="space-y-6">
+            {error && (
+                <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm">
+                    {error}
+                </div>
+            )}
+            {success && (
+                <div className="bg-orange-50 border border-orange-200 text-orange-700 px-4 py-3 rounded-xl text-sm">
+                    {success}
+                </div>
+            )}
+
+            {/* Hidden file input */}
+            <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageChange}
+            />
+
+            {/* Profile header card */}
+            <div className="bg-white rounded-2xl border border-slate-200 p-6">
+                <div className="flex items-center gap-5">
+                    <div className="relative">
+                        {avatarUrl ? (
+                            <img
+                                src={avatarUrl}
+                                alt="プロフィール画像"
+                                className="w-20 h-20 rounded-2xl object-cover"
+                            />
+                        ) : (
+                            <div className="w-20 h-20 rounded-2xl bg-orange-100 flex items-center justify-center text-orange-700 text-xl font-bold">
+                                {initials}
+                            </div>
+                        )}
+                        <button
+                            type="button"
+                            onClick={handleImageClick}
+                            disabled={isUploadingImage}
+                            className="absolute -bottom-1 -right-1 w-7 h-7 rounded-lg bg-orange-500 flex items-center justify-center shadow-md disabled:opacity-50"
+                        >
+                            {isUploadingImage ? (
+                                <Loader2 className="w-3.5 h-3.5 text-white animate-spin" />
+                            ) : (
+                                <Camera className="w-3.5 h-3.5 text-white" />
+                            )}
+                        </button>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <h2 className="text-lg font-bold text-slate-900 truncate">
+                            {formData.companyName || "団体名未設定"}
+                        </h2>
+                        <p className="text-sm text-slate-500 mt-0.5 mb-2">
+                            @{formData.email ? formData.email.split("@")[0] : "handle"}
+                        </p>
+                        <div className="flex items-center gap-2">
+                            <span className="h-6 inline-flex items-center justify-center px-2.5 rounded-full bg-orange-100 text-orange-700 text-xs font-semibold" style={{ lineHeight: 1 }}>
+                                {initialProfile?.is_approved ? "認証済み" : "承認待ち"}
+                            </span>
+                            <span className="h-6 inline-flex items-center justify-center px-2.5 rounded-full bg-slate-100 text-slate-600 text-xs font-medium" style={{ lineHeight: 1 }}>
+                                主催者
+                            </span>
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={handleImageClick}
+                        disabled={isUploadingImage}
+                        className="text-sm font-semibold text-orange-600 hover:text-orange-800 bg-orange-50 px-4 py-2 rounded-xl disabled:opacity-50"
+                    >
+                        {isUploadingImage ? "アップロード中..." : "画像を変更"}
+                    </button>
+                </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-8 space-y-6">
-                {error && (
-                    <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
-                        {error}
-                    </div>
-                )}
-                {success && (
-                    <div className="bg-green-50 border border-green-200 text-green-600 px-4 py-3 rounded-lg text-sm">
-                        {success}
-                    </div>
-                )}
+            {/* Basic info form card */}
+            <div id="basic" className="bg-white rounded-2xl border border-slate-200 p-6 space-y-5">
+                <h3 className="text-base font-bold text-slate-900">基本情報</h3>
 
-                <div className="space-y-4">
+                <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">主催団体名 / 会社名 <span className="text-red-500">*</span></label>
+                    <input
+                        name="companyName"
+                        value={formData.companyName}
+                        onChange={handleChange}
+                        placeholder="例: 株式会社イベントプロ"
+                        className={showErrors && !formData.companyName ? inputClass + " border-red-400 focus:ring-red-500 focus:border-red-500" : inputClass}
+                    />
+                    {showErrors && !formData.companyName && (
+                        <p className="text-xs text-red-500 mt-1">団体名を入力してください</p>
+                    )}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">主催団体名 / 会社名 <span className="text-red-500">*</span></label>
-                        <div className="relative">
-                            <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                            <input
-                                name="companyName"
-                                value={formData.companyName}
-                                onChange={handleChange}
-                                required
-                                className="block w-full pl-10 rounded-lg border-gray-300 bg-gray-50 p-3 text-gray-900 focus:bg-white focus:ring-2 focus:ring-orange-200 focus:border-orange-500 transition-all font-medium"
-                            />
-                        </div>
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">代表者名 / 担当者名 <span className="text-red-500">*</span></label>
-                        <div className="relative">
-                            <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                            <input
-                                name="repName"
-                                value={formData.repName}
-                                onChange={handleChange}
-                                required
-                                className="block w-full pl-10 rounded-lg border-gray-300 bg-gray-50 p-3 text-gray-900 focus:bg-white focus:ring-2 focus:ring-orange-200 focus:border-orange-500 transition-all font-medium"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">メールアドレス <span className="text-red-500">*</span></label>
-                            <div className="relative">
-                                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                                <input
-                                    name="email"
-                                    value={formData.email}
-                                    onChange={handleChange}
-                                    type="email"
-                                    required
-                                    className="block w-full pl-10 rounded-lg border-gray-300 bg-gray-50 p-3 text-gray-900 focus:bg-white focus:ring-2 focus:ring-orange-200 focus:border-orange-500 transition-all font-medium"
-                                />
-                            </div>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">電話番号 <span className="text-red-500">*</span></label>
-                            <div className="relative">
-                                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                                <input
-                                    name="phone"
-                                    value={formData.phone}
-                                    onChange={handleChange}
-                                    type="tel"
-                                    required
-                                    className="block w-full pl-10 rounded-lg border-gray-300 bg-gray-50 p-3 text-gray-900 focus:bg-white focus:ring-2 focus:ring-orange-200 focus:border-orange-500 transition-all font-medium"
-                                />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">所在地</label>
-                        <div className="relative">
-                            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                            <input
-                                name="address"
-                                value={formData.address}
-                                onChange={handleChange}
-                                className="block w-full pl-10 rounded-lg border-gray-300 bg-gray-50 p-3 text-gray-900 focus:bg-white focus:ring-2 focus:ring-orange-200 focus:border-orange-500 transition-all font-medium"
-                            />
-                        </div>
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">ウェブサイト URL</label>
-                        <div className="relative">
-                            <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                            <input
-                                name="website"
-                                value={formData.website}
-                                onChange={handleChange}
-                                type="url"
-                                className="block w-full pl-10 rounded-lg border-gray-300 bg-gray-50 p-3 text-gray-900 focus:bg-white focus:ring-2 focus:ring-orange-200 focus:border-orange-500 transition-all font-medium"
-                            />
-                        </div>
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">自己紹介 / 団体概要</label>
-                        <textarea
-                            name="description"
-                            value={formData.description}
+                        <label className="block text-sm font-medium text-slate-700 mb-1.5">代表者名 / 担当者名 <span className="text-red-500">*</span></label>
+                        <input
+                            name="repName"
+                            value={formData.repName}
                             onChange={handleChange}
-                            rows={4}
-                            className="block w-full rounded-lg border-gray-300 bg-gray-50 p-3 text-gray-900 focus:bg-white focus:ring-2 focus:ring-orange-200 focus:border-orange-500 transition-all font-medium"
+                            placeholder="例: 山田 太郎"
+                            className={showErrors && !formData.repName ? inputClass + " border-red-400 focus:ring-red-500 focus:border-red-500" : inputClass}
                         />
+                        {showErrors && !formData.repName && (
+                            <p className="text-xs text-red-500 mt-1">代表者名を入力してください</p>
+                        )}
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-1.5">電話番号 <span className="text-red-500">*</span></label>
+                        <input
+                            name="phone"
+                            value={formData.phone}
+                            onChange={handleChange}
+                            type="tel"
+                            placeholder="例: 03-1234-5678"
+                            className={showErrors && !formData.phone ? inputClass + " border-red-400 focus:ring-red-500 focus:border-red-500" : inputClass}
+                        />
+                        {showErrors && !formData.phone && (
+                            <p className="text-xs text-red-500 mt-1">電話番号を入力してください</p>
+                        )}
                     </div>
                 </div>
 
-                <div className="pt-4 flex justify-end gap-3">
-                    <Link href="/">
-                        <Button variant="ghost" type="button">キャンセル</Button>
-                    </Link>
-                    <Button type="submit" disabled={isSaving} className="bg-orange-600 hover:bg-orange-700">
-                        {isSaving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
-                        保存する
+                <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">メールアドレス</label>
+                    <input
+                        name="email"
+                        value={formData.email}
+                        type="email"
+                        readOnly
+                        className={inputClass + " bg-slate-50 text-slate-500 cursor-not-allowed"}
+                    />
+                    <p className="text-xs text-slate-400 mt-1">メールアドレスの変更はアカウント設定から行ってください</p>
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">所在地</label>
+                    <input
+                        name="address"
+                        value={formData.address}
+                        onChange={handleChange}
+                        placeholder="例: 東京都渋谷区..."
+                        className={inputClass}
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                        ウェブサイト URL <span className="text-slate-400 text-xs font-normal">（任意）</span>
+                    </label>
+                    <input
+                        name="website"
+                        value={formData.website}
+                        onChange={handleChange}
+                        type="url"
+                        placeholder="https://..."
+                        className={inputClass}
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                        自己紹介 / 団体概要 <span className="text-slate-400 text-xs font-normal">（任意）</span>
+                    </label>
+                    <textarea
+                        name="description"
+                        value={formData.description}
+                        onChange={handleChange}
+                        rows={4}
+                        placeholder="どのようなイベントを主催しているか、簡単な説明を入力してください。"
+                        className={inputClass + " resize-none"}
+                    />
+                </div>
+            </div>
+
+            {/* Save actions */}
+            <div className="flex items-center justify-between">
+                <p className="text-xs text-slate-400">
+                    最終更新: {initialProfile?.updated_at
+                        ? new Date(initialProfile.updated_at).toLocaleDateString("ja-JP")
+                        : "-"}
+                </p>
+                <div className="flex items-center gap-3">
+                    <Button variant="ghost" type="button" onClick={handleCancel} className="text-slate-600">
+                        キャンセル
+                    </Button>
+                    <Button
+                        type="submit"
+                        disabled={isSaving}
+                        className="bg-orange-500 hover:bg-orange-600 text-white rounded-xl px-6 disabled:opacity-50 disabled:pointer-events-none"
+                    >
+                        {isSaving ? (
+                            <>
+                                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                                保存中...
+                            </>
+                        ) : (
+                            "変更を保存"
+                        )}
                     </Button>
                 </div>
-            </form>
-        </div>
+            </div>
+        </form>
     );
 }

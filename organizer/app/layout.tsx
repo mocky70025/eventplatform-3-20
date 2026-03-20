@@ -8,7 +8,7 @@ const notoSansJP = Noto_Sans_JP({
 });
 
 export const metadata: Metadata = {
-  title: "イベント出店管理プラットフォーム | 主催者",
+  title: "Eventra | 主催者",
   description: "イベント主催者とキッチンカーのマッチングプラットフォーム",
 };
 
@@ -19,8 +19,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja">
+      <head>
+        {/* eslint-disable-next-line @next/next/no-sync-scripts */}
+        <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+      </head>
       <body
-        className={`${notoSansJP.variable} antialiased bg-orange-50/30 text-gray-900 font-sans`}
+        className={`${notoSansJP.variable} antialiased bg-slate-50 text-slate-900 font-sans`}
       >
         {children}
       </body>

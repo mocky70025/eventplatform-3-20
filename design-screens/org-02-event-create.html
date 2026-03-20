@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1440">
+  <title>Eventra - イベント新規作成</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Noto Sans JP', 'sans-serif'] },
+          colors: {
+            store: { 50: '#ecfdf5', 100: '#d1fae5', 200: '#a7f3d0', 300: '#6ee7b7', 400: '#34d399', 500: '#10b981', 600: '#059669', 700: '#047857', 800: '#065f46', 900: '#064e3b' },
+            org: { 50: '#fff7ed', 100: '#ffedd5', 200: '#fed7aa', 300: '#fdba74', 400: '#fb923c', 500: '#f97316', 600: '#ea580c', 700: '#c2410c', 800: '#9a3412', 900: '#7c2d12' },
+            accent: { pink: '#ec4899', yellow: '#eab308', purple: '#8b5cf6', sky: '#0ea5e9' },
+            neutral: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1', 400: '#94a3b8', 500: '#64748b', 600: '#475569', 700: '#334155', 800: '#1e293b', 900: '#0f172a' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { font-family: 'Noto Sans JP', sans-serif; }
+    body { width: 1440px; margin: 0 auto; background: #f8fafc; }
+  </style>
+  <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="bg-white px-8 h-16 flex items-center justify-between border-b border-neutral-100 sticky top-0 z-50">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 bg-org-500 rounded-xl flex items-center justify-center">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"/></svg>
+      </div>
+      <span class="text-lg font-bold text-neutral-900">Eventra</span>
+      <span class="text-[10px] bg-org-100 text-org-700 px-2 rounded-full font-semibold inline-flex items-center justify-center h-5" style="line-height:1;">主催者</span>
+    </div>
+    <nav class="flex items-center gap-1">
+      <a class="text-sm font-medium text-neutral-500 hover:text-neutral-700 px-4 py-2 rounded-lg">ダッシュボード</a>
+      <a class="text-sm font-medium text-org-700 bg-org-50 px-4 py-2 rounded-lg">イベント管理</a>
+      <a class="text-sm font-medium text-neutral-500 hover:text-neutral-700 px-4 py-2 rounded-lg">出店者管理</a>
+      <a class="text-sm font-medium text-neutral-500 hover:text-neutral-700 px-4 py-2 rounded-lg">プロフィール</a>
+      <div class="w-px h-6 bg-neutral-200 mx-2"></div>
+      <button class="text-sm text-neutral-400 hover:text-red-500 px-3 py-2">ログアウト</button>
+    </nav>
+  </header>
+
+  <main class="max-w-4xl mx-auto py-8 px-6">
+
+    <!-- Breadcrumb -->
+    <nav class="flex items-center gap-2 text-sm mb-6">
+      <a class="text-org-600 hover:underline">ダッシュボード</a>
+      <span class="text-neutral-300">/</span>
+      <a class="text-org-600 hover:underline">イベント管理</a>
+      <span class="text-neutral-300">/</span>
+      <span class="text-neutral-700 font-medium">新規作成</span>
+    </nav>
+
+    <!-- Step Indicator -->
+    <div class="relative max-w-lg mx-auto mb-10">
+      <div class="absolute top-5 left-5 right-5 flex h-0.5">
+        <div class="flex-1 bg-neutral-200"></div>
+        <div class="flex-1 bg-neutral-200"></div>
+        <div class="flex-1 bg-neutral-200"></div>
+      </div>
+      <div class="relative z-10 flex justify-between">
+        <div class="flex flex-col items-center">
+          <div class="w-10 h-10 border-2 border-org-500 bg-white rounded-full flex items-center justify-center text-sm font-bold text-org-600">1</div>
+          <span class="text-xs text-org-700 font-semibold mt-1.5 whitespace-nowrap">基本情報</span>
+        </div>
+        <div class="flex flex-col items-center">
+          <div class="w-10 h-10 bg-neutral-200 rounded-full flex items-center justify-center text-sm font-medium text-neutral-400">2</div>
+          <span class="text-xs text-neutral-400 mt-1.5 whitespace-nowrap">詳細設定</span>
+        </div>
+        <div class="flex flex-col items-center">
+          <div class="w-10 h-10 bg-neutral-200 rounded-full flex items-center justify-center text-sm font-medium text-neutral-400">3</div>
+          <span class="text-xs text-neutral-400 mt-1.5 whitespace-nowrap">確認</span>
+        </div>
+        <div class="flex flex-col items-center">
+          <div class="w-10 h-10 bg-neutral-200 rounded-full flex items-center justify-center text-sm font-medium text-neutral-400">4</div>
+          <span class="text-xs text-neutral-400 mt-1.5 whitespace-nowrap">完了</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Card -->
+    <div class="bg-white rounded-2xl border border-neutral-200 p-8">
+      <h2 class="text-xl font-bold text-neutral-900 mb-6">基本情報</h2>
+
+      <form class="space-y-6">
+
+        <!-- Event Name -->
+        <div>
+          <label class="block text-sm font-medium text-neutral-700 mb-1.5">イベント名</label>
+          <input type="text" placeholder="イベント名を入力してください" class="w-full rounded-xl py-2.5 px-4 border border-neutral-200 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-org-500 focus:border-transparent">
+        </div>
+
+        <!-- Event Description -->
+        <div>
+          <label class="block text-sm font-medium text-neutral-700 mb-1.5">イベント概要</label>
+          <textarea rows="3" placeholder="イベントの概要を入力してください" class="w-full rounded-xl py-2.5 px-4 border border-neutral-200 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-org-500 focus:border-transparent resize-none"></textarea>
+          <div class="text-right text-xs text-neutral-400 mt-1">0/500</div>
+        </div>
+
+        <!-- Date Grid -->
+        <div class="grid grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-medium text-neutral-700 mb-1.5">開催開始日</label>
+            <input type="date" class="w-full rounded-xl py-2.5 px-4 border border-neutral-200 text-sm text-neutral-900 focus:outline-none focus:ring-2 focus:ring-org-500 focus:border-transparent">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-neutral-700 mb-1.5">開催終了日</label>
+            <input type="date" class="w-full rounded-xl py-2.5 px-4 border border-neutral-200 text-sm text-neutral-900 focus:outline-none focus:ring-2 focus:ring-org-500 focus:border-transparent">
+          </div>
+        </div>
+
+        <!-- Time Grid -->
+        <div class="grid grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-medium text-neutral-700 mb-1.5">開催時間（開始）</label>
+            <input type="time" class="w-full rounded-xl py-2.5 px-4 border border-neutral-200 text-sm text-neutral-900 focus:outline-none focus:ring-2 focus:ring-org-500 focus:border-transparent">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-neutral-700 mb-1.5">開催時間（終了）</label>
+            <input type="time" class="w-full rounded-xl py-2.5 px-4 border border-neutral-200 text-sm text-neutral-900 focus:outline-none focus:ring-2 focus:ring-org-500 focus:border-transparent">
+          </div>
+        </div>
+
+        <!-- Venue -->
+        <div>
+          <label class="block text-sm font-medium text-neutral-700 mb-1.5">会場名</label>
+          <input type="text" placeholder="会場名を入力してください" class="w-full rounded-xl py-2.5 px-4 border border-neutral-200 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-org-500 focus:border-transparent">
+        </div>
+
+        <!-- Address -->
+        <div>
+          <label class="block text-sm font-medium text-neutral-700 mb-1.5">住所</label>
+          <input type="text" placeholder="会場の住所を入力してください" class="w-full rounded-xl py-2.5 px-4 border border-neutral-200 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-org-500 focus:border-transparent">
+        </div>
+
+        <!-- Category -->
+        <div>
+          <label class="block text-sm font-medium text-neutral-700 mb-1.5">カテゴリ</label>
+          <select class="w-full rounded-xl py-2.5 px-4 border border-neutral-200 text-sm text-neutral-900 focus:outline-none focus:ring-2 focus:ring-org-500 focus:border-transparent appearance-none bg-no-repeat bg-[right_1rem_center] bg-[length:1rem]" style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 20 20%22 fill=%22%2394a3b8%22><path fill-rule=%22evenodd%22 d=%22M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z%22 clip-rule=%22evenodd%22/></svg>')">
+            <option value="" disabled selected>カテゴリを選択してください</option>
+            <option value="food">フードフェス</option>
+            <option value="music">音楽フェス</option>
+            <option value="market">マーケット</option>
+            <option value="festival">お祭り</option>
+            <option value="sports">スポーツ</option>
+            <option value="outdoor">アウトドア</option>
+          </select>
+        </div>
+
+        <!-- Cover Image -->
+        <div>
+          <label class="block text-sm font-medium text-neutral-700 mb-1.5">カバー画像</label>
+          <div class="border-2 border-dashed border-neutral-300 rounded-2xl p-8 flex flex-col items-center justify-center hover:border-org-400 transition-colors cursor-pointer">
+            <svg class="w-10 h-10 text-neutral-300 mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <path d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"/>
+            </svg>
+            <p class="text-sm text-neutral-500 mb-1">ここに画像をドラッグ&ドロップ</p>
+            <p class="text-xs text-neutral-400">または</p>
+            <button type="button" class="mt-2 text-sm text-org-600 font-medium hover:text-org-700">ファイルを選択</button>
+            <p class="text-xs text-neutral-400 mt-2">JPG, PNG, GIF (最大10MB)</p>
+          </div>
+        </div>
+
+      </form>
+    </div>
+
+    <!-- Bottom Action Bar -->
+    <div class="flex justify-between items-center mt-8 mb-12">
+      <button class="border-2 border-neutral-300 text-neutral-700 rounded-xl px-6 py-2.5 text-sm font-semibold hover:bg-neutral-50 transition-colors">キャンセル</button>
+      <button class="bg-org-500 text-white rounded-xl px-6 py-2.5 text-sm font-semibold hover:bg-org-600 transition-colors shadow-lg shadow-org-500/20">次へ進む</button>
+    </div>
+
+  </main>
+
+</body>
+</html>

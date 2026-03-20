@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1440">
+  <title>Eventra - 出店者管理</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Noto Sans JP', 'sans-serif'] },
+          colors: {
+            store: { 50: '#ecfdf5', 100: '#d1fae5', 200: '#a7f3d0', 300: '#6ee7b7', 400: '#34d399', 500: '#10b981', 600: '#059669', 700: '#047857', 800: '#065f46', 900: '#064e3b' },
+            org: { 50: '#fff7ed', 100: '#ffedd5', 200: '#fed7aa', 300: '#fdba74', 400: '#fb923c', 500: '#f97316', 600: '#ea580c', 700: '#c2410c', 800: '#9a3412', 900: '#7c2d12' },
+            accent: { pink: '#ec4899', yellow: '#eab308', purple: '#8b5cf6', sky: '#0ea5e9' },
+            neutral: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1', 400: '#94a3b8', 500: '#64748b', 600: '#475569', 700: '#334155', 800: '#1e293b', 900: '#0f172a' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { font-family: 'Noto Sans JP', sans-serif; }
+    body { width: 1440px; margin: 0 auto; background: #f8fafc; }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="bg-white px-8 h-16 flex items-center justify-between border-b border-neutral-100 sticky top-0 z-50">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 bg-org-500 rounded-xl flex items-center justify-center">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"/></svg>
+      </div>
+      <span class="text-lg font-bold text-neutral-900">Eventra</span>
+      <span class="text-[10px] bg-org-100 text-org-700 px-2 rounded-full font-semibold inline-flex items-center justify-center h-5" style="line-height:1;">主催者</span>
+    </div>
+    <nav class="flex items-center gap-1">
+      <a class="text-sm font-medium text-neutral-500 hover:text-neutral-700 px-4 py-2 rounded-lg">ダッシュボード</a>
+      <a class="text-sm font-medium text-neutral-500 hover:text-neutral-700 px-4 py-2 rounded-lg">イベント管理</a>
+      <a class="text-sm font-medium text-org-700 bg-org-50 px-4 py-2 rounded-lg">出店者管理</a>
+      <a class="text-sm font-medium text-neutral-500 hover:text-neutral-700 px-4 py-2 rounded-lg">プロフィール</a>
+      <div class="w-px h-6 bg-neutral-200 mx-2"></div>
+      <button class="text-sm text-neutral-400 hover:text-red-500 px-3 py-2">ログアウト</button>
+    </nav>
+  </header>
+
+  <main class="max-w-6xl mx-auto py-8 px-6">
+
+    <!-- Breadcrumb -->
+    <nav class="flex items-center gap-2 text-sm mb-6">
+      <a class="text-org-600 hover:underline">ダッシュボード</a>
+      <span class="text-neutral-300">/</span>
+      <span class="text-neutral-700 font-medium">出店者管理</span>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="flex justify-between items-center mb-6">
+      <div>
+        <h1 class="text-2xl font-bold text-neutral-900">出店者管理</h1>
+        <p class="text-sm text-neutral-500 mt-1">東京ストリートフードフェスティバル 2026</p>
+      </div>
+      <div class="relative">
+        <select class="appearance-none bg-white border border-neutral-200 rounded-xl px-4 py-2.5 pr-10 text-sm text-neutral-700 font-medium focus:outline-none focus:ring-2 focus:ring-org-500 focus:border-org-500">
+          <option>東京ストリートフードフェスティバル 2026</option>
+          <option>大阪グルメマーケット 2026</option>
+          <option>横浜クラフトフェア 2026</option>
+        </select>
+        <svg class="w-4 h-4 text-neutral-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+    </div>
+
+    <!-- Filter / Search Bar -->
+    <div class="flex items-center gap-4 mb-6">
+      <div class="relative">
+        <svg class="w-4 h-4 text-neutral-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="text" placeholder="出店者名で検索..." class="bg-white border border-neutral-200 rounded-xl pl-10 pr-4 py-2 text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-org-500 focus:border-org-500 w-64">
+      </div>
+      <div class="flex items-center gap-1 bg-white border border-neutral-200 rounded-xl p-1">
+        <button class="inline-flex items-center justify-center text-xs font-semibold text-org-700 bg-org-50 px-3 py-1.5 rounded-lg">すべて(48)</button>
+        <button class="inline-flex items-center justify-center text-xs font-semibold text-neutral-500 hover:text-neutral-700 px-3 py-1.5 rounded-lg">審査中(8)</button>
+        <button class="inline-flex items-center justify-center text-xs font-semibold text-neutral-500 hover:text-neutral-700 px-3 py-1.5 rounded-lg">承認済み(32)</button>
+        <button class="inline-flex items-center justify-center text-xs font-semibold text-neutral-500 hover:text-neutral-700 px-3 py-1.5 rounded-lg">不承認(3)</button>
+        <button class="inline-flex items-center justify-center text-xs font-semibold text-neutral-500 hover:text-neutral-700 px-3 py-1.5 rounded-lg">保留中(5)</button>
+      </div>
+    </div>
+
+    <!-- Vendor List Table -->
+    <div class="bg-white rounded-2xl border border-neutral-200 overflow-hidden">
+      <table class="w-full">
+        <thead>
+          <tr class="bg-neutral-50">
+            <th class="text-left text-[10px] font-bold text-neutral-400 uppercase tracking-wider px-6 py-3">出店者名</th>
+            <th class="text-left text-[10px] font-bold text-neutral-400 uppercase tracking-wider px-4 py-3">ジャンル</th>
+            <th class="text-left text-[10px] font-bold text-neutral-400 uppercase tracking-wider px-4 py-3">申込日</th>
+            <th class="text-left text-[10px] font-bold text-neutral-400 uppercase tracking-wider px-4 py-3">書類状況</th>
+            <th class="text-left text-[10px] font-bold text-neutral-400 uppercase tracking-wider px-4 py-3">ステータス</th>
+            <th class="text-left text-[10px] font-bold text-neutral-400 uppercase tracking-wider px-4 py-3">アクション</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Row 1: Pending review — with profile preview expanded -->
+          <tr class="border-b border-neutral-100 bg-org-50/30">
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-store-100 rounded-full flex items-center justify-center text-xs font-bold text-store-700">た</div>
+                <a class="text-sm font-medium text-org-600 hover:underline cursor-pointer">たこやき太郎</a>
+              </div>
+            </td>
+            <td class="px-4 py-4"><span class="h-6 inline-flex items-center justify-center px-2 rounded-full bg-store-100 text-store-700 text-[10px] font-medium" style="line-height:1;">和食</span></td>
+            <td class="px-4 py-4 text-sm text-neutral-500">2026/02/15</td>
+            <td class="px-4 py-4">
+              <span class="h-5 inline-flex items-center justify-center text-[10px] font-semibold rounded-full px-2.5 bg-green-50 text-green-700" style="line-height:1;">認証済み</span>
+            </td>
+            <td class="px-4 py-4">
+              <span class="h-5 inline-flex items-center justify-center text-[10px] font-semibold bg-yellow-50 text-yellow-700 rounded-full px-2.5" style="line-height:1;">審査中</span>
+            </td>
+            <td class="px-4 py-4">
+              <button class="text-xs font-semibold text-white bg-org-500 hover:bg-org-600 border border-org-500 rounded-xl px-3 py-1.5 transition-colors">審査する</button>
+            </td>
+          </tr>
+          <!-- Profile Preview Card (expanded for Row 1) -->
+          <tr class="border-b border-neutral-100 bg-org-50/20">
+            <td colspan="6" class="px-6 py-4">
+              <div class="bg-white rounded-xl border border-neutral-200 p-5 max-w-2xl">
+                <div class="flex gap-5">
+                  <div class="w-16 h-16 bg-store-100 rounded-xl flex items-center justify-center text-xl font-bold text-store-700 shrink-0">た</div>
+                  <div class="flex-1 min-w-0">
+                    <h4 class="text-base font-bold text-neutral-900">たこやき太郎</h4>
+                    <p class="text-xs text-neutral-500 mt-0.5">大阪府大阪市中央区難波 1-2-3</p>
+                    <div class="flex flex-wrap gap-x-6 gap-y-1 mt-3 text-xs">
+                      <div><span class="text-neutral-400">代表者</span><span class="ml-2 text-neutral-700 font-medium">山田太郎</span></div>
+                      <div><span class="text-neutral-400">電話</span><span class="ml-2 text-neutral-700 font-medium">06-1234-5678</span></div>
+                      <div><span class="text-neutral-400">メール</span><span class="ml-2 text-neutral-700 font-medium">yamada@takoyaki.jp</span></div>
+                    </div>
+                    <div class="flex flex-wrap gap-x-6 gap-y-1 mt-2 text-xs">
+                      <div><span class="text-neutral-400">出店実績</span><span class="ml-2 text-neutral-700 font-medium">12回</span></div>
+                      <div><span class="text-neutral-400">評価</span><span class="ml-2 text-neutral-700 font-medium">4.5 / 5.0</span></div>
+                      <div><span class="text-neutral-400">ジャンル</span><span class="ml-2 text-neutral-700 font-medium">和食 / たこ焼き</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+          <!-- Row 2: Approved -->
+          <tr class="border-b border-neutral-100 hover:bg-neutral-50 transition-colors">
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-accent-pink/10 rounded-full flex items-center justify-center text-xs font-bold text-accent-pink">ピ</div>
+                <a class="text-sm font-medium text-org-600 hover:underline cursor-pointer">ピザハウス ROMA</a>
+              </div>
+            </td>
+            <td class="px-4 py-4"><span class="h-6 inline-flex items-center justify-center px-2 rounded-full bg-org-100 text-org-700 text-[10px] font-medium" style="line-height:1;">洋食</span></td>
+            <td class="px-4 py-4 text-sm text-neutral-500">2026/02/10</td>
+            <td class="px-4 py-4">
+              <span class="h-5 inline-flex items-center justify-center text-[10px] font-semibold rounded-full px-2.5 bg-green-50 text-green-700" style="line-height:1;">認証済み</span>
+            </td>
+            <td class="px-4 py-4">
+              <span class="h-5 inline-flex items-center justify-center text-[10px] font-semibold bg-store-50 text-store-700 rounded-full px-2.5" style="line-height:1;">承認済み</span>
+            </td>
+            <td class="px-4 py-4">
+              <button class="text-xs font-medium text-neutral-600 border border-neutral-200 rounded-xl px-3 py-1.5 hover:bg-neutral-50 transition-colors">詳細</button>
+            </td>
+          </tr>
+          <!-- Row 3: Pending review -->
+          <tr class="border-b border-neutral-100 hover:bg-neutral-50 transition-colors">
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-accent-purple/10 rounded-full flex items-center justify-center text-xs font-bold text-accent-purple">龍</div>
+                <a class="text-sm font-medium text-org-600 hover:underline cursor-pointer">中華料理 龍門</a>
+              </div>
+            </td>
+            <td class="px-4 py-4"><span class="h-6 inline-flex items-center justify-center px-2 rounded-full bg-accent-pink/10 text-accent-pink text-[10px] font-medium" style="line-height:1;">中華</span></td>
+            <td class="px-4 py-4 text-sm text-neutral-500">2026/02/18</td>
+            <td class="px-4 py-4">
+              <span class="h-5 inline-flex items-center justify-center text-[10px] font-semibold rounded-full px-2.5 bg-yellow-50 text-yellow-700" style="line-height:1;">確認中</span>
+            </td>
+            <td class="px-4 py-4">
+              <span class="h-5 inline-flex items-center justify-center text-[10px] font-semibold bg-yellow-50 text-yellow-700 rounded-full px-2.5" style="line-height:1;">審査中</span>
+            </td>
+            <td class="px-4 py-4">
+              <button class="text-xs font-semibold text-white bg-org-500 hover:bg-org-600 border border-org-500 rounded-xl px-3 py-1.5 transition-colors">審査する</button>
+            </td>
+          </tr>
+          <!-- Row 4: Approved -->
+          <tr class="border-b border-neutral-100 hover:bg-neutral-50 transition-colors">
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-accent-sky/10 rounded-full flex items-center justify-center text-xs font-bold text-accent-sky">ク</div>
+                <a class="text-sm font-medium text-org-600 hover:underline cursor-pointer">クレープ工房</a>
+              </div>
+            </td>
+            <td class="px-4 py-4"><span class="h-6 inline-flex items-center justify-center px-2 rounded-full bg-accent-yellow/10 text-yellow-700 text-[10px] font-medium" style="line-height:1;">スイーツ</span></td>
+            <td class="px-4 py-4 text-sm text-neutral-500">2026/02/08</td>
+            <td class="px-4 py-4">
+              <span class="h-5 inline-flex items-center justify-center text-[10px] font-semibold rounded-full px-2.5 bg-green-50 text-green-700" style="line-height:1;">認証済み</span>
+            </td>
+            <td class="px-4 py-4">
+              <span class="h-5 inline-flex items-center justify-center text-[10px] font-semibold bg-store-50 text-store-700 rounded-full px-2.5" style="line-height:1;">承認済み</span>
+            </td>
+            <td class="px-4 py-4">
+              <button class="text-xs font-medium text-neutral-600 border border-neutral-200 rounded-xl px-3 py-1.5 hover:bg-neutral-50 transition-colors">詳細</button>
+            </td>
+          </tr>
+          <!-- Row 5: Rejected -->
+          <tr class="border-b border-neutral-100 hover:bg-neutral-50 transition-colors">
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center text-xs font-bold text-red-700">鳥</div>
+                <a class="text-sm font-medium text-org-600 hover:underline cursor-pointer">焼き鳥 鳥正</a>
+              </div>
+            </td>
+            <td class="px-4 py-4"><span class="h-6 inline-flex items-center justify-center px-2 rounded-full bg-store-100 text-store-700 text-[10px] font-medium" style="line-height:1;">和食</span></td>
+            <td class="px-4 py-4 text-sm text-neutral-500">2026/02/12</td>
+            <td class="px-4 py-4">
+              <span class="h-5 inline-flex items-center justify-center text-[10px] font-semibold rounded-full px-2.5 bg-red-50 text-red-700" style="line-height:1;">未提出</span>
+            </td>
+            <td class="px-4 py-4">
+              <span class="h-5 inline-flex items-center justify-center text-[10px] font-semibold bg-red-50 text-red-700 rounded-full px-2.5" style="line-height:1;">不承認</span>
+            </td>
+            <td class="px-4 py-4">
+              <button class="text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-3 py-1.5 hover:bg-amber-100 transition-colors">再審査</button>
+            </td>
+          </tr>
+          <!-- Row 6: Approved -->
+          <tr class="border-b border-neutral-100 hover:bg-neutral-50 transition-colors">
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center text-xs font-bold text-yellow-700">マ</div>
+                <a class="text-sm font-medium text-org-600 hover:underline cursor-pointer">カレーショップ マサラ</a>
+              </div>
+            </td>
+            <td class="px-4 py-4"><span class="h-6 inline-flex items-center justify-center px-2 rounded-full bg-org-100 text-org-700 text-[10px] font-medium" style="line-height:1;">洋食</span></td>
+            <td class="px-4 py-4 text-sm text-neutral-500">2026/02/05</td>
+            <td class="px-4 py-4">
+              <span class="h-5 inline-flex items-center justify-center text-[10px] font-semibold rounded-full px-2.5 bg-green-50 text-green-700" style="line-height:1;">認証済み</span>
+            </td>
+            <td class="px-4 py-4">
+              <span class="h-5 inline-flex items-center justify-center text-[10px] font-semibold bg-store-50 text-store-700 rounded-full px-2.5" style="line-height:1;">承認済み</span>
+            </td>
+            <td class="px-4 py-4">
+              <button class="text-xs font-medium text-neutral-600 border border-neutral-200 rounded-xl px-3 py-1.5 hover:bg-neutral-50 transition-colors">詳細</button>
+            </td>
+          </tr>
+          <!-- Row 7: Pending review -->
+          <tr class="border-b border-neutral-100 hover:bg-neutral-50 transition-colors">
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-accent-purple/10 rounded-full flex items-center justify-center text-xs font-bold text-accent-purple">ジ</div>
+                <a class="text-sm font-medium text-org-600 hover:underline cursor-pointer">ジェラート ソレント</a>
+              </div>
+            </td>
+            <td class="px-4 py-4"><span class="h-6 inline-flex items-center justify-center px-2 rounded-full bg-accent-yellow/10 text-yellow-700 text-[10px] font-medium" style="line-height:1;">スイーツ</span></td>
+            <td class="px-4 py-4 text-sm text-neutral-500">2026/02/20</td>
+            <td class="px-4 py-4">
+              <span class="h-5 inline-flex items-center justify-center text-[10px] font-semibold rounded-full px-2.5 bg-green-50 text-green-700" style="line-height:1;">認証済み</span>
+            </td>
+            <td class="px-4 py-4">
+              <span class="h-5 inline-flex items-center justify-center text-[10px] font-semibold bg-yellow-50 text-yellow-700 rounded-full px-2.5" style="line-height:1;">審査中</span>
+            </td>
+            <td class="px-4 py-4">
+              <button class="text-xs font-semibold text-white bg-org-500 hover:bg-org-600 border border-org-500 rounded-xl px-3 py-1.5 transition-colors">審査する</button>
+            </td>
+          </tr>
+          <!-- Row 8: Approved -->
+          <tr class="hover:bg-neutral-50 transition-colors">
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-org-100 rounded-full flex items-center justify-center text-xs font-bold text-org-700">大</div>
+                <a class="text-sm font-medium text-org-600 hover:underline cursor-pointer">串カツ 大阪屋</a>
+              </div>
+            </td>
+            <td class="px-4 py-4"><span class="h-6 inline-flex items-center justify-center px-2 rounded-full bg-store-100 text-store-700 text-[10px] font-medium" style="line-height:1;">和食</span></td>
+            <td class="px-4 py-4 text-sm text-neutral-500">2026/02/03</td>
+            <td class="px-4 py-4">
+              <span class="h-5 inline-flex items-center justify-center text-[10px] font-semibold rounded-full px-2.5 bg-green-50 text-green-700" style="line-height:1;">認証済み</span>
+            </td>
+            <td class="px-4 py-4">
+              <span class="h-5 inline-flex items-center justify-center text-[10px] font-semibold bg-store-50 text-store-700 rounded-full px-2.5" style="line-height:1;">承認済み</span>
+            </td>
+            <td class="px-4 py-4">
+              <button class="text-xs font-medium text-neutral-600 border border-neutral-200 rounded-xl px-3 py-1.5 hover:bg-neutral-50 transition-colors">詳細</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="flex flex-col items-center gap-2 mt-6">
+      <div class="flex items-center gap-1">
+        <button class="w-9 h-9 rounded-lg border border-neutral-200 text-neutral-400 flex items-center justify-center hover:bg-neutral-50">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
+        </button>
+        <button class="w-9 h-9 rounded-lg bg-org-500 text-white text-sm font-bold flex items-center justify-center">1</button>
+        <button class="w-9 h-9 rounded-lg border border-neutral-200 text-neutral-600 text-sm font-medium flex items-center justify-center hover:bg-neutral-50">2</button>
+        <button class="w-9 h-9 rounded-lg border border-neutral-200 text-neutral-600 text-sm font-medium flex items-center justify-center hover:bg-neutral-50">3</button>
+        <span class="w-9 h-9 flex items-center justify-center text-sm text-neutral-400">...</span>
+        <button class="w-9 h-9 rounded-lg border border-neutral-200 text-neutral-600 text-sm font-medium flex items-center justify-center hover:bg-neutral-50">6</button>
+        <button class="w-9 h-9 rounded-lg border border-neutral-200 text-neutral-400 flex items-center justify-center hover:bg-neutral-50">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+      <span class="text-xs text-neutral-400">48件中 1-8件を表示</span>
+    </div>
+
+  </main>
+
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js"></script>
+</body>
+</html>

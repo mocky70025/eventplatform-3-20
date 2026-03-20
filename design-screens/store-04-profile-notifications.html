@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1440">
+  <title>Eventra - 通知設定</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Noto Sans JP', 'sans-serif'] },
+          colors: {
+            store: { 50: '#ecfdf5', 100: '#d1fae5', 200: '#a7f3d0', 300: '#6ee7b7', 400: '#34d399', 500: '#10b981', 600: '#059669', 700: '#047857', 800: '#065f46', 900: '#064e3b' },
+            org: { 50: '#fff7ed', 100: '#ffedd5', 200: '#fed7aa', 300: '#fdba74', 400: '#fb923c', 500: '#f97316', 600: '#ea580c', 700: '#c2410c', 800: '#9a3412', 900: '#7c2d12' },
+            accent: { pink: '#ec4899', yellow: '#eab308', purple: '#8b5cf6', sky: '#0ea5e9' },
+            neutral: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1', 400: '#94a3b8', 500: '#64748b', 600: '#475569', 700: '#334155', 800: '#1e293b', 900: '#0f172a' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { font-family: 'Noto Sans JP', sans-serif; }
+    body { width: 1440px; margin: 0 auto; background: #ffffff; }
+    .toggle-checkbox:checked { background-color: #10b981; }
+    .toggle-checkbox:checked + .toggle-label { transform: translateX(100%); }
+    .toggle-bg { width: 44px; height: 24px; }
+  </style>
+  <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+</head>
+<body class="bg-neutral-50">
+
+  <!-- Header -->
+  <header class="bg-white px-8 h-16 flex items-center justify-between border-b border-neutral-100 sticky top-0 z-50">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 bg-store-500 rounded-xl flex items-center justify-center">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"/></svg>
+      </div>
+      <span class="text-lg font-bold text-neutral-900">Eventra</span>
+      <span class="text-[10px] bg-store-100 text-store-700 px-2 rounded-full font-semibold inline-flex items-center justify-center h-5" style="line-height:1;">出店者</span>
+    </div>
+    <nav class="flex items-center gap-1">
+      <a class="text-sm font-medium text-neutral-500 hover:text-neutral-700 px-4 py-2 rounded-lg">ホーム</a>
+      <a class="text-sm font-medium text-neutral-500 hover:text-neutral-700 px-4 py-2 rounded-lg">イベント検索</a>
+      <a class="text-sm font-medium text-neutral-500 hover:text-neutral-700 px-4 py-2 rounded-lg">申込管理</a>
+      <a class="text-sm font-medium text-store-700 bg-store-50 px-4 py-2 rounded-lg">プロフィール</a>
+      <div class="w-px h-6 bg-neutral-200 mx-2"></div>
+      <button class="text-sm text-neutral-400 hover:text-red-500 px-3 py-2">ログアウト</button>
+    </nav>
+  </header>
+
+  <main class="max-w-4xl mx-auto py-8 px-6">
+
+    <div class="mb-8">
+      <h1 class="text-2xl font-bold text-neutral-900 mb-1">プロフィール設定</h1>
+      <p class="text-sm text-neutral-500">出店者情報を管理します。イベント主催者に公開される情報です。</p>
+    </div>
+
+    <div class="flex gap-8">
+
+      <!-- Left: Sidebar Nav -->
+      <div class="w-56 shrink-0">
+        <nav class="bg-white rounded-2xl border border-neutral-200 p-2">
+          <a class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-neutral-500 hover:text-neutral-700 text-sm font-medium">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+            基本情報
+          </a>
+          <a class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-neutral-500 hover:text-neutral-700 text-sm font-medium">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+            評価
+          </a>
+          <a class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-neutral-500 hover:text-neutral-700 text-sm font-medium">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            写真・メディア
+          </a>
+          <a class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-neutral-500 hover:text-neutral-700 text-sm font-medium">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            書類・許可証
+          </a>
+          <a class="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-store-50 text-store-700 text-sm font-semibold">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+            通知設定
+          </a>
+        </nav>
+      </div>
+
+      <!-- Right: Content -->
+      <div class="flex-1">
+
+        <!-- Profile Header Card -->
+        <div class="bg-white rounded-2xl border border-neutral-200 p-6 mb-6">
+          <div class="flex items-center gap-5">
+            <div class="relative">
+              <div class="w-20 h-20 bg-store-100 rounded-2xl flex items-center justify-center text-2xl font-bold text-store-700">た</div>
+              <button class="absolute -bottom-1 -right-1 w-7 h-7 bg-store-500 rounded-lg flex items-center justify-center shadow-md">
+                <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+              </button>
+            </div>
+            <div class="flex-1">
+              <h2 class="text-lg font-bold text-neutral-900">たこ焼き本舗</h2>
+              <p class="text-sm text-neutral-500 mb-2">@takoyaki-honpo</p>
+              <div class="flex items-center gap-2">
+                <span class="inline-flex items-center justify-center text-xs font-semibold bg-store-100 text-store-700 h-6 px-2.5 rounded-full" style="line-height:1;">認証済み</span>
+                <span class="inline-flex items-center justify-center text-xs font-medium bg-neutral-100 text-neutral-600 h-6 px-2.5 rounded-full" style="line-height:1;">出店回数: 12回</span>
+              </div>
+            </div>
+            <button class="text-sm font-semibold text-store-600 hover:text-store-800 bg-store-50 px-4 py-2 rounded-xl">画像を変更</button>
+          </div>
+        </div>
+
+        <!-- Notification Settings -->
+        <div class="bg-white rounded-2xl border border-neutral-200 p-6 mb-6">
+          <h3 class="text-base font-bold text-neutral-900 mb-1">通知チャネル</h3>
+          <p class="text-xs text-neutral-400 mb-5">通知の受け取り方法を選択してください</p>
+
+          <div class="space-y-4">
+            <!-- Email toggle -->
+            <div class="flex items-center justify-between p-4 bg-neutral-50 rounded-xl">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-store-100 rounded-lg flex items-center justify-center">
+                  <svg class="w-[18px] h-[18px] text-store-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                </div>
+                <div>
+                  <p class="text-sm font-semibold text-neutral-900">メール通知</p>
+                  <p class="text-xs text-neutral-500">yamada@takoyaki-honpo.jp</p>
+                </div>
+              </div>
+              <div class="w-11 h-6 bg-store-500 rounded-full relative cursor-pointer">
+                <div class="w-5 h-5 bg-white rounded-full absolute top-0.5 right-0.5 shadow-sm"></div>
+              </div>
+            </div>
+
+            <!-- LINE toggle -->
+            <div class="flex items-center justify-between p-4 bg-neutral-50 rounded-xl">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-green-100 rounded-lg flex items-center justify-center">
+                  <svg class="w-[18px] h-[18px] text-green-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                </div>
+                <div>
+                  <p class="text-sm font-semibold text-neutral-900">LINE通知</p>
+                  <p class="text-xs text-neutral-500">連携済み</p>
+                </div>
+              </div>
+              <div class="w-11 h-6 bg-store-500 rounded-full relative cursor-pointer">
+                <div class="w-5 h-5 bg-white rounded-full absolute top-0.5 right-0.5 shadow-sm"></div>
+              </div>
+            </div>
+
+            <!-- Push toggle -->
+            <div class="flex items-center justify-between p-4 bg-neutral-50 rounded-xl">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-neutral-100 rounded-lg flex items-center justify-center">
+                  <svg class="w-[18px] h-[18px] text-neutral-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                </div>
+                <div>
+                  <p class="text-sm font-semibold text-neutral-900">プッシュ通知</p>
+                  <p class="text-xs text-neutral-500">ブラウザ通知</p>
+                </div>
+              </div>
+              <div class="w-11 h-6 bg-neutral-300 rounded-full relative cursor-pointer">
+                <div class="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 shadow-sm"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notification Types -->
+        <div class="bg-white rounded-2xl border border-neutral-200 p-6 mb-6">
+          <h3 class="text-base font-bold text-neutral-900 mb-1">通知タイプ</h3>
+          <p class="text-xs text-neutral-400 mb-5">受け取る通知の種類を選択してください</p>
+
+          <div class="space-y-0 divide-y divide-neutral-100">
+            <!-- Type 1 -->
+            <div class="flex items-center justify-between py-4">
+              <div>
+                <p class="text-sm font-medium text-neutral-900">申込ステータスの変更</p>
+                <p class="text-xs text-neutral-500">承認・却下・保留などの結果通知</p>
+              </div>
+              <div class="w-11 h-6 bg-store-500 rounded-full relative cursor-pointer">
+                <div class="w-5 h-5 bg-white rounded-full absolute top-0.5 right-0.5 shadow-sm"></div>
+              </div>
+            </div>
+
+            <!-- Type 2 -->
+            <div class="flex items-center justify-between py-4">
+              <div>
+                <p class="text-sm font-medium text-neutral-900">新着イベント</p>
+                <p class="text-xs text-neutral-500">お気に入りジャンルの新しいイベント</p>
+              </div>
+              <div class="w-11 h-6 bg-store-500 rounded-full relative cursor-pointer">
+                <div class="w-5 h-5 bg-white rounded-full absolute top-0.5 right-0.5 shadow-sm"></div>
+              </div>
+            </div>
+
+            <!-- Type 3 -->
+            <div class="flex items-center justify-between py-4">
+              <div>
+                <p class="text-sm font-medium text-neutral-900">主催者からのメッセージ</p>
+                <p class="text-xs text-neutral-500">イベントに関する連絡や質問</p>
+              </div>
+              <div class="w-11 h-6 bg-store-500 rounded-full relative cursor-pointer">
+                <div class="w-5 h-5 bg-white rounded-full absolute top-0.5 right-0.5 shadow-sm"></div>
+              </div>
+            </div>
+
+            <!-- Type 4 -->
+            <div class="flex items-center justify-between py-4">
+              <div>
+                <p class="text-sm font-medium text-neutral-900">書類の有効期限リマインダー</p>
+                <p class="text-xs text-neutral-500">期限の30日前・7日前に通知</p>
+              </div>
+              <div class="w-11 h-6 bg-store-500 rounded-full relative cursor-pointer">
+                <div class="w-5 h-5 bg-white rounded-full absolute top-0.5 right-0.5 shadow-sm"></div>
+              </div>
+            </div>
+
+            <!-- Type 5 -->
+            <div class="flex items-center justify-between py-4">
+              <div>
+                <p class="text-sm font-medium text-neutral-900">お知らせ・キャンペーン</p>
+                <p class="text-xs text-neutral-500">Eventraからのお得な情報</p>
+              </div>
+              <div class="w-11 h-6 bg-neutral-300 rounded-full relative cursor-pointer">
+                <div class="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 shadow-sm"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Save Actions -->
+        <div class="flex items-center justify-between">
+          <p class="text-xs text-neutral-400">最終更新: 2026/03/05 14:30</p>
+          <div class="flex items-center gap-3">
+            <button class="text-sm font-medium text-neutral-500 hover:text-neutral-700 px-5 py-2.5 rounded-xl border border-neutral-200">キャンセル</button>
+            <button class="text-sm font-semibold text-white bg-store-500 hover:bg-store-600 px-6 py-2.5 rounded-xl transition-colors">変更を保存</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+</body>
+</html>

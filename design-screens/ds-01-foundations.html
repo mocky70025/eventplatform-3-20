@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1440">
+  <title>Design System - Foundations</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Noto Sans JP', 'sans-serif'] },
+          colors: {
+            store: { 50: '#ecfdf5', 100: '#d1fae5', 200: '#a7f3d0', 300: '#6ee7b7', 400: '#34d399', 500: '#10b981', 600: '#059669', 700: '#047857', 800: '#065f46', 900: '#064e3b' },
+            org: { 50: '#fff7ed', 100: '#ffedd5', 200: '#fed7aa', 300: '#fdba74', 400: '#fb923c', 500: '#f97316', 600: '#ea580c', 700: '#c2410c', 800: '#9a3412', 900: '#7c2d12' },
+            accent: { pink: '#ec4899', yellow: '#eab308', purple: '#8b5cf6', sky: '#0ea5e9' },
+            neutral: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1', 400: '#94a3b8', 500: '#64748b', 600: '#475569', 700: '#334155', 800: '#1e293b', 900: '#0f172a' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { font-family: 'Noto Sans JP', sans-serif; }
+    body { width: 1440px; margin: 0 auto; background: #fff; }
+    .swatch { width: 100%; aspect-ratio: 1; border-radius: 8px; }
+    .section-label { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #94a3b8; margin-bottom: 16px; }
+  </style>
+  <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+</head>
+<body class="p-16">
+
+  <!-- DS Header -->
+  <div class="flex items-center justify-between mb-4 pb-6 border-b-2 border-neutral-900">
+    <div>
+      <h1 class="text-4xl font-black text-neutral-900 tracking-tight">Eventra Design System</h1>
+      <p class="text-sm text-neutral-500 mt-1">v1.0 -- Store (出店者) + Organizer (主催者) 共通定義</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 bg-store-500 rounded-xl flex items-center justify-center">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"/></svg>
+      </div>
+      <div class="w-10 h-10 bg-org-500 rounded-xl flex items-center justify-center">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 1. COLOR ==================== -->
+  <section class="mt-12 mb-16">
+    <h2 class="text-2xl font-bold text-neutral-900 mb-2">1. Color</h2>
+    <p class="text-sm text-neutral-500 mb-8">出店者=Green、主催者=Orangeをプライマリとし、Neutralとアクセントカラーを共有する。同一プラットフォームの一体感を保ちながら、ロールの区別を色で直感的に伝える。</p>
+
+    <!-- Store Green -->
+    <div class="mb-8">
+      <p class="section-label">Store Primary -- Green</p>
+      <p class="text-xs text-neutral-400 mb-3">意図: 安心感、自然、信頼。出店者が「安心してビジネスを任せられる」印象を与える。</p>
+      <div class="grid grid-cols-10 gap-2">
+        <div><div class="swatch bg-store-50"></div><p class="text-[9px] text-neutral-400 mt-1 text-center">50</p></div>
+        <div><div class="swatch bg-store-100"></div><p class="text-[9px] text-neutral-400 mt-1 text-center">100</p></div>
+        <div><div class="swatch bg-store-200"></div><p class="text-[9px] text-neutral-400 mt-1 text-center">200</p></div>
+        <div><div class="swatch bg-store-300"></div><p class="text-[9px] text-neutral-400 mt-1 text-center">300</p></div>
+        <div><div class="swatch bg-store-400"></div><p class="text-[9px] text-neutral-400 mt-1 text-center">400</p></div>
+        <div><div class="swatch bg-store-500 ring-2 ring-store-500 ring-offset-2"></div><p class="text-[9px] text-neutral-900 font-bold mt-1 text-center">500 *</p></div>
+        <div><div class="swatch bg-store-600"></div><p class="text-[9px] text-neutral-400 mt-1 text-center">600</p></div>
+        <div><div class="swatch bg-store-700"></div><p class="text-[9px] text-neutral-400 mt-1 text-center">700</p></div>
+        <div><div class="swatch bg-store-800"></div><p class="text-[9px] text-neutral-400 mt-1 text-center">800</p></div>
+        <div><div class="swatch bg-store-900"></div><p class="text-[9px] text-neutral-400 mt-1 text-center">900</p></div>
+      </div>
+      <div class="mt-2 flex gap-4 text-[10px] text-neutral-400">
+        <span>500 = CTA, Active state</span>
+        <span>600 = Hover</span>
+        <span>700 = Text on light bg</span>
+        <span>100 = Badge bg</span>
+        <span>50 = Page bg</span>
+      </div>
+    </div>
+
+    <!-- Organizer Orange -->
+    <div class="mb-8">
+      <p class="section-label">Organizer Primary -- Orange</p>
+      <p class="text-xs text-neutral-400 mb-3">意図: 活気、温かさ、行動力。主催者が「イベントを動かす人」として前向きなエネルギーを感じる。</p>
+      <div class="grid grid-cols-10 gap-2">
+        <div><div class="swatch bg-org-50"></div><p class="text-[9px] text-neutral-400 mt-1 text-center">50</p></div>
+        <div><div class="swatch bg-org-100"></div><p class="text-[9px] text-neutral-400 mt-1 text-center">100</p></div>
+        <div><div class="swatch bg-org-200"></div><p class="text-[9px] text-neutral-400 mt-1 text-center">200</p></div>
+        <div><div class="swatch bg-org-300"></div><p class="text-[9px] text-neutral-400 mt-1 text-center">300</p></div>
+        <div><div class="swatch bg-org-400"></div><p class="text-[9px] text-neutral-400 mt-1 text-center">400</p></div>
+        <div><div class="swatch bg-org-500 ring-2 ring-org-500 ring-offset-2"></div><p class="text-[9px] text-neutral-900 font-bold mt-1 text-center">500 *</p></div>
+        <div><div class="swatch bg-org-600"></div><p class="text-[9px] text-neutral-400 mt-1 text-center">600</p></div>
+        <div><div class="swatch bg-org-700"></div><p class="text-[9px] text-neutral-400 mt-1 text-center">700</p></div>
+        <div><div class="swatch bg-org-800"></div><p class="text-[9px] text-neutral-400 mt-1 text-center">800</p></div>
+        <div><div class="swatch bg-org-900"></div><p class="text-[9px] text-neutral-400 mt-1 text-center">900</p></div>
+      </div>
+      <div class="mt-2 flex gap-4 text-[10px] text-neutral-400">
+        <span>500 = CTA, Active state</span>
+        <span>600 = Hover</span>
+        <span>700 = Text on light bg</span>
+        <span>100 = Badge bg</span>
+        <span>50 = Page bg</span>
+      </div>
+    </div>
+
+    <!-- Neutral -->
+    <div class="mb-8">
+      <p class="section-label">Neutral -- Slate</p>
+      <p class="text-xs text-neutral-400 mb-3">意図: テキスト、ボーダー、背景に使用。色味を持たないことで、プライマリカラーとの対比を保つ。</p>
+      <div class="grid grid-cols-10 gap-2">
+        <div><div class="swatch bg-neutral-50 border border-neutral-200"></div><p class="text-[9px] text-neutral-400 mt-1 text-center">50</p></div>
+        <div><div class="swatch bg-neutral-100"></div><p class="text-[9px] text-neutral-400 mt-1 text-center">100</p></div>
+        <div><div class="swatch bg-neutral-200"></div><p class="text-[9px] text-neutral-400 mt-1 text-center">200</p></div>
+        <div><div class="swatch bg-neutral-300"></div><p class="text-[9px] text-neutral-400 mt-1 text-center">300</p></div>
+        <div><div class="swatch bg-neutral-400"></div><p class="text-[9px] text-neutral-400 mt-1 text-center">400</p></div>
+        <div><div class="swatch bg-neutral-500"></div><p class="text-[9px] text-neutral-400 mt-1 text-center">500</p></div>
+        <div><div class="swatch bg-neutral-600"></div><p class="text-[9px] text-neutral-400 mt-1 text-center">600</p></div>
+        <div><div class="swatch bg-neutral-700"></div><p class="text-[9px] text-neutral-400 mt-1 text-center">700</p></div>
+        <div><div class="swatch bg-neutral-800"></div><p class="text-[9px] text-neutral-400 mt-1 text-center">800</p></div>
+        <div><div class="swatch bg-neutral-900"></div><p class="text-[9px] text-neutral-400 mt-1 text-center">900</p></div>
+      </div>
+      <div class="mt-2 flex gap-4 text-[10px] text-neutral-400">
+        <span>900 = Heading</span>
+        <span>700 = Body text</span>
+        <span>500 = Secondary text</span>
+        <span>400 = Placeholder</span>
+        <span>200 = Border</span>
+        <span>100 = Subtle bg</span>
+        <span>50 = Page bg</span>
+      </div>
+    </div>
+
+    <!-- Semantic + Accent -->
+    <div class="grid grid-cols-2 gap-8">
+      <div>
+        <p class="section-label">Semantic</p>
+        <p class="text-xs text-neutral-400 mb-3">意図: ステータスやフィードバックを言語に頼らず色で即座に伝達する。</p>
+        <div class="flex gap-3">
+          <div class="text-center"><div class="w-14 h-14 bg-green-500 rounded-lg"></div><p class="text-[9px] text-neutral-400 mt-1">Success<br/>#22c55e</p></div>
+          <div class="text-center"><div class="w-14 h-14 bg-yellow-500 rounded-lg"></div><p class="text-[9px] text-neutral-400 mt-1">Warning<br/>#eab308</p></div>
+          <div class="text-center"><div class="w-14 h-14 bg-red-500 rounded-lg"></div><p class="text-[9px] text-neutral-400 mt-1">Error<br/>#ef4444</p></div>
+          <div class="text-center"><div class="w-14 h-14 bg-blue-500 rounded-lg"></div><p class="text-[9px] text-neutral-400 mt-1">Info<br/>#3b82f6</p></div>
+        </div>
+      </div>
+      <div>
+        <p class="section-label">Accent -- Category Tags</p>
+        <p class="text-xs text-neutral-400 mb-3">意図: イベントカテゴリの多様性を色で表現。プライマリと混同しない彩度に抑える。</p>
+        <div class="flex gap-3">
+          <div class="text-center"><div class="w-14 h-14 bg-accent-pink rounded-lg"></div><p class="text-[9px] text-neutral-400 mt-1">Pink<br/>#ec4899</p></div>
+          <div class="text-center"><div class="w-14 h-14 bg-accent-yellow rounded-lg"></div><p class="text-[9px] text-neutral-400 mt-1">Yellow<br/>#eab308</p></div>
+          <div class="text-center"><div class="w-14 h-14 bg-accent-purple rounded-lg"></div><p class="text-[9px] text-neutral-400 mt-1">Purple<br/>#8b5cf6</p></div>
+          <div class="text-center"><div class="w-14 h-14 bg-accent-sky rounded-lg"></div><p class="text-[9px] text-neutral-400 mt-1">Sky<br/>#0ea5e9</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="w-full h-px bg-neutral-200 my-8"></div>
+
+  <!-- ==================== 2. TYPOGRAPHY ==================== -->
+  <section class="mb-16">
+    <h2 class="text-2xl font-bold text-neutral-900 mb-2">2. Typography</h2>
+    <p class="text-sm text-neutral-500 mb-8">Noto Sans JP一本。ウェイトとサイズの組み合わせで階層を作る。日本語の可読性を最優先し、行間は1.6--1.8を基本とする。</p>
+
+    <table class="w-full text-left">
+      <thead>
+        <tr class="border-b border-neutral-200">
+          <th class="text-[10px] text-neutral-400 font-medium pb-2 w-32">Token</th>
+          <th class="text-[10px] text-neutral-400 font-medium pb-2 w-28">Size / Weight</th>
+          <th class="text-[10px] text-neutral-400 font-medium pb-2 w-24">Line Height</th>
+          <th class="text-[10px] text-neutral-400 font-medium pb-2">Sample</th>
+          <th class="text-[10px] text-neutral-400 font-medium pb-2 w-48">用途</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="border-b border-neutral-100">
+          <td class="py-4 text-xs text-neutral-500 font-mono">display</td>
+          <td class="py-4 text-xs text-neutral-500">48px / 900</td>
+          <td class="py-4 text-xs text-neutral-500">1.2</td>
+          <td class="py-4"><span class="text-5xl font-black text-neutral-900">楽しさを、ここから</span></td>
+          <td class="py-4 text-xs text-neutral-400">Hero見出し（1画面に1箇所のみ）</td>
+        </tr>
+        <tr class="border-b border-neutral-100">
+          <td class="py-3 text-xs text-neutral-500 font-mono">heading-1</td>
+          <td class="py-3 text-xs text-neutral-500">30px / 700</td>
+          <td class="py-3 text-xs text-neutral-500">1.3</td>
+          <td class="py-3"><span class="text-3xl font-bold text-neutral-900">注目のイベント</span></td>
+          <td class="py-3 text-xs text-neutral-400">ページタイトル</td>
+        </tr>
+        <tr class="border-b border-neutral-100">
+          <td class="py-3 text-xs text-neutral-500 font-mono">heading-2</td>
+          <td class="py-3 text-xs text-neutral-500">24px / 700</td>
+          <td class="py-3 text-xs text-neutral-500">1.4</td>
+          <td class="py-3"><span class="text-2xl font-bold text-neutral-900">イベント概要</span></td>
+          <td class="py-3 text-xs text-neutral-400">セクション見出し</td>
+        </tr>
+        <tr class="border-b border-neutral-100">
+          <td class="py-3 text-xs text-neutral-500 font-mono">heading-3</td>
+          <td class="py-3 text-xs text-neutral-500">18px / 600</td>
+          <td class="py-3 text-xs text-neutral-500">1.5</td>
+          <td class="py-3"><span class="text-lg font-semibold text-neutral-900">基本情報</span></td>
+          <td class="py-3 text-xs text-neutral-400">カード見出し、サブセクション</td>
+        </tr>
+        <tr class="border-b border-neutral-100">
+          <td class="py-3 text-xs text-neutral-500 font-mono">body</td>
+          <td class="py-3 text-xs text-neutral-500">15px / 400</td>
+          <td class="py-3 text-xs text-neutral-500">1.7</td>
+          <td class="py-3"><span class="text-[15px] text-neutral-700 leading-relaxed">全国のイベント情報を検索して、ワンクリックで出店申し込み。</span></td>
+          <td class="py-3 text-xs text-neutral-400">本文、説明テキスト</td>
+        </tr>
+        <tr class="border-b border-neutral-100">
+          <td class="py-3 text-xs text-neutral-500 font-mono">body-sm</td>
+          <td class="py-3 text-xs text-neutral-500">14px / 500</td>
+          <td class="py-3 text-xs text-neutral-500">1.6</td>
+          <td class="py-3"><span class="text-sm font-medium text-neutral-600">申込日: 2026年3月10日</span></td>
+          <td class="py-3 text-xs text-neutral-400">ラベル、メタ情報、ナビゲーション</td>
+        </tr>
+        <tr class="border-b border-neutral-100">
+          <td class="py-3 text-xs text-neutral-500 font-mono">caption</td>
+          <td class="py-3 text-xs text-neutral-500">12px / 400</td>
+          <td class="py-3 text-xs text-neutral-500">1.5</td>
+          <td class="py-3"><span class="text-xs text-neutral-500">残り12日 / JPG, PNG (最大10MB)</span></td>
+          <td class="py-3 text-xs text-neutral-400">補足、ヒント、バッジ内テキスト</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <div class="w-full h-px bg-neutral-200 my-8"></div>
+
+  <!-- ==================== 3. SPACING & RADIUS ==================== -->
+  <section class="mb-16">
+    <h2 class="text-2xl font-bold text-neutral-900 mb-2">3. Spacing & Radius</h2>
+    <p class="text-sm text-neutral-500 mb-8">4pxベースのスケール。余白が広いほどリラックスした印象になり、イベントの楽しさに合う。角丸は大きめに設定し、硬さを取り除く。</p>
+
+    <div class="grid grid-cols-2 gap-12">
+      <!-- Spacing -->
+      <div>
+        <p class="section-label">Spacing Scale (4px base)</p>
+        <div class="space-y-3">
+          <div class="flex items-center gap-4">
+            <div class="w-1 h-5 bg-store-400 rounded-sm"></div>
+            <span class="text-xs text-neutral-500 w-20 font-mono">4px</span>
+            <span class="text-xs text-neutral-400">inline要素間（アイコンとテキスト）</span>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="w-2 h-5 bg-store-400 rounded-sm"></div>
+            <span class="text-xs text-neutral-500 w-20 font-mono">8px</span>
+            <span class="text-xs text-neutral-400">タグ間、バッジ間</span>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="w-3 h-5 bg-store-400 rounded-sm"></div>
+            <span class="text-xs text-neutral-500 w-20 font-mono">12px</span>
+            <span class="text-xs text-neutral-400">フォームフィールド間</span>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="w-4 h-5 bg-store-400 rounded-sm"></div>
+            <span class="text-xs text-neutral-500 w-20 font-mono">16px</span>
+            <span class="text-xs text-neutral-400">カード内パディング（小）</span>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="w-5 h-5 bg-store-400 rounded-sm"></div>
+            <span class="text-xs text-neutral-500 w-20 font-mono">20px</span>
+            <span class="text-xs text-neutral-400">カード内パディング（標準）</span>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="w-6 h-5 bg-store-400 rounded-sm"></div>
+            <span class="text-xs text-neutral-500 w-20 font-mono">24px</span>
+            <span class="text-xs text-neutral-400">カード間ギャップ</span>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="w-8 h-5 bg-store-400 rounded-sm"></div>
+            <span class="text-xs text-neutral-500 w-20 font-mono">32px</span>
+            <span class="text-xs text-neutral-400">ページ左右パディング</span>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-5 bg-store-400 rounded-sm"></div>
+            <span class="text-xs text-neutral-500 w-20 font-mono">48px</span>
+            <span class="text-xs text-neutral-400">セクション上下マージン</span>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="w-16 h-5 bg-store-400 rounded-sm"></div>
+            <span class="text-xs text-neutral-500 w-20 font-mono">64px</span>
+            <span class="text-xs text-neutral-400">ページセクション間</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Radius -->
+      <div>
+        <p class="section-label">Border Radius</p>
+        <p class="text-xs text-neutral-400 mb-4">大きい角丸 = 親しみやすさ。角丸を統一することで「同じアプリ」である一貫性を担保する。</p>
+        <div class="flex items-end gap-6">
+          <div class="text-center">
+            <div class="w-16 h-16 bg-neutral-100 border border-neutral-300 rounded"></div>
+            <p class="text-[10px] text-neutral-500 mt-2 font-mono">4px</p>
+            <p class="text-[9px] text-neutral-400">使わない</p>
+          </div>
+          <div class="text-center">
+            <div class="w-16 h-16 bg-neutral-100 border border-neutral-300 rounded-lg"></div>
+            <p class="text-[10px] text-neutral-500 mt-2 font-mono">8px</p>
+            <p class="text-[9px] text-neutral-400">Select, 小Badge</p>
+          </div>
+          <div class="text-center">
+            <div class="w-16 h-16 bg-store-100 border-2 border-store-300 rounded-xl"></div>
+            <p class="text-[10px] text-neutral-900 font-bold mt-2 font-mono">12px *</p>
+            <p class="text-[9px] text-neutral-400">Button, Input</p>
+          </div>
+          <div class="text-center">
+            <div class="w-16 h-16 bg-store-100 border-2 border-store-300 rounded-2xl"></div>
+            <p class="text-[10px] text-neutral-900 font-bold mt-2 font-mono">16px *</p>
+            <p class="text-[9px] text-neutral-400">Card, Modal</p>
+          </div>
+          <div class="text-center">
+            <div class="w-16 h-16 bg-neutral-100 border border-neutral-300 rounded-full"></div>
+            <p class="text-[10px] text-neutral-500 mt-2 font-mono">full</p>
+            <p class="text-[9px] text-neutral-400">Avatar, Tag</p>
+          </div>
+        </div>
+
+        <div class="mt-8">
+          <p class="section-label">Shadow</p>
+          <div class="flex gap-6">
+            <div class="text-center">
+              <div class="w-20 h-20 bg-white rounded-2xl border border-neutral-100"></div>
+              <p class="text-[10px] text-neutral-500 mt-2">none (default)</p>
+            </div>
+            <div class="text-center">
+              <div class="w-20 h-20 bg-white rounded-2xl shadow-sm"></div>
+              <p class="text-[10px] text-neutral-500 mt-2">shadow-sm</p>
+              <p class="text-[9px] text-neutral-400">Card resting</p>
+            </div>
+            <div class="text-center">
+              <div class="w-20 h-20 bg-white rounded-2xl shadow-md"></div>
+              <p class="text-[10px] text-neutral-500 mt-2">shadow-md</p>
+              <p class="text-[9px] text-neutral-400">Card hover</p>
+            </div>
+            <div class="text-center">
+              <div class="w-20 h-20 bg-white rounded-2xl shadow-lg"></div>
+              <p class="text-[10px] text-neutral-500 mt-2">shadow-lg</p>
+              <p class="text-[9px] text-neutral-400">Dropdown, Modal</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="w-full h-px bg-neutral-200 my-8"></div>
+
+  <!-- ==================== 4. LAYOUT ==================== -->
+  <section class="mb-16">
+    <h2 class="text-2xl font-bold text-neutral-900 mb-2">4. Layout</h2>
+    <p class="text-sm text-neutral-500 mb-8">全画面1440px幅を基準とし、コンテンツ幅はmax-widthで制御。ページ種別ごとに適切な幅を使い分ける。</p>
+
+    <div class="space-y-4">
+      <div class="bg-neutral-50 rounded-2xl p-4 relative">
+        <div class="bg-white rounded-xl p-3 max-w-7xl mx-auto border-2 border-dashed border-store-300">
+          <div class="flex justify-between text-xs text-neutral-500">
+            <span class="font-mono">max-w-7xl (1280px)</span>
+            <span>ホーム、イベント一覧</span>
+          </div>
+        </div>
+      </div>
+      <div class="bg-neutral-50 rounded-2xl p-4">
+        <div class="bg-white rounded-xl p-3 max-w-5xl mx-auto border-2 border-dashed border-neutral-300">
+          <div class="flex justify-between text-xs text-neutral-500">
+            <span class="font-mono">max-w-5xl (1024px)</span>
+            <span>申込管理リスト、プロフィール</span>
+          </div>
+        </div>
+      </div>
+      <div class="bg-neutral-50 rounded-2xl p-4">
+        <div class="bg-white rounded-xl p-3 max-w-4xl mx-auto border-2 border-dashed border-neutral-300">
+          <div class="flex justify-between text-xs text-neutral-500">
+            <span class="font-mono">max-w-4xl (896px)</span>
+            <span>イベント詳細、主催者プロフィール</span>
+          </div>
+        </div>
+      </div>
+      <div class="bg-neutral-50 rounded-2xl p-4">
+        <div class="bg-white rounded-xl p-3 max-w-2xl mx-auto border-2 border-dashed border-neutral-300">
+          <div class="flex justify-between text-xs text-neutral-500">
+            <span class="font-mono">max-w-2xl (672px)</span>
+            <span>オンボーディング、出店申込、ログイン</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grid -->
+    <div class="mt-8">
+      <p class="section-label">Grid</p>
+      <div class="flex gap-4 text-xs text-neutral-500">
+        <div class="bg-neutral-50 rounded-lg p-3 flex-1 text-center border border-neutral-200">
+          <span class="font-semibold text-neutral-700">3 columns</span><br/>イベントカードグリッド<br/>gap: 24px
+        </div>
+        <div class="bg-neutral-50 rounded-lg p-3 flex-1 text-center border border-neutral-200">
+          <span class="font-semibold text-neutral-700">2 columns (60/40)</span><br/>詳細ページ（本文 + サイドバー）<br/>gap: 32px
+        </div>
+        <div class="bg-neutral-50 rounded-lg p-3 flex-1 text-center border border-neutral-200">
+          <span class="font-semibold text-neutral-700">2 columns (50/50)</span><br/>ログイン/サインアップ<br/>gap: 0
+        </div>
+        <div class="bg-neutral-50 rounded-lg p-3 flex-1 text-center border border-neutral-200">
+          <span class="font-semibold text-neutral-700">1 column centered</span><br/>オンボーディング、申込確認<br/>max-w-2xl
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="w-full h-px bg-neutral-200 my-8"></div>
+
+  <!-- ==================== 5. GRADIENTS ==================== -->
+  <section class="mb-16">
+    <h2 class="text-2xl font-bold text-neutral-900 mb-2">5. Gradients</h2>
+    <p class="text-sm text-neutral-500 mb-8">「楽しさ」を視覚的に伝える装飾グラデーション。使用箇所を限定し、乱用しない。</p>
+
+    <div class="grid grid-cols-4 gap-6">
+      <div>
+        <div class="h-28 rounded-2xl" style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 40%, #fef3c7 70%, #fce7f3 100%);"></div>
+        <p class="text-xs font-semibold text-neutral-700 mt-2">Fun Gradient (Store)</p>
+        <p class="text-[10px] text-neutral-400">用途: Hero背景、Auth左パネル<br/>Green → Yellow → Pink</p>
+      </div>
+      <div>
+        <div class="h-28 rounded-2xl" style="background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 40%, #fef3c7 70%, #fce7f3 100%);"></div>
+        <p class="text-xs font-semibold text-neutral-700 mt-2">Fun Gradient (Organizer)</p>
+        <p class="text-[10px] text-neutral-400">用途: Hero背景、Auth左パネル<br/>Orange → Yellow → Pink</p>
+      </div>
+      <div>
+        <div class="h-28 rounded-2xl bg-gradient-to-br from-store-500 to-store-700"></div>
+        <p class="text-xs font-semibold text-neutral-700 mt-2">Store Dark</p>
+        <p class="text-[10px] text-neutral-400">用途: 統計バー、フッター<br/>Green-500 → Green-700</p>
+      </div>
+      <div>
+        <div class="h-28 rounded-2xl bg-gradient-to-br from-org-500 to-org-700"></div>
+        <p class="text-xs font-semibold text-neutral-700 mt-2">Organizer Dark</p>
+        <p class="text-[10px] text-neutral-400">用途: 統計バー、フッター<br/>Orange-500 → Orange-700</p>
+      </div>
+    </div>
+
+    <!-- Image placeholder gradients -->
+    <div class="mt-6">
+      <p class="section-label">Image Placeholder Gradients</p>
+      <p class="text-xs text-neutral-400 mb-3">イベント画像が未設定の場合に使用。カテゴリごとに異なるグラデーションで視覚的な区別を提供。</p>
+      <div class="flex gap-3">
+        <div class="w-24 h-16 rounded-xl bg-gradient-to-br from-org-200 to-accent-pink/30"></div>
+        <div class="w-24 h-16 rounded-xl bg-gradient-to-br from-accent-purple/30 to-accent-sky/30"></div>
+        <div class="w-24 h-16 rounded-xl bg-gradient-to-br from-accent-yellow/30 to-org-200"></div>
+        <div class="w-24 h-16 rounded-xl bg-gradient-to-br from-store-200 to-accent-sky/30"></div>
+        <div class="w-24 h-16 rounded-xl bg-gradient-to-br from-accent-pink/30 to-accent-purple/30"></div>
+        <div class="w-24 h-16 rounded-xl bg-gradient-to-br from-accent-sky/30 to-store-200"></div>
+      </div>
+    </div>
+  </section>
+
+</body>
+</html>

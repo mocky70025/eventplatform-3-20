@@ -27,13 +27,13 @@ export function UserNav({ initialUser }: { initialUser?: any }) {
         router.push("/login");
     };
 
-    if (isLoading) return <div className="w-20 h-8 bg-gray-100 animate-pulse rounded-md" />;
+    if (isLoading) return <div className="w-20 h-8 bg-slate-100 animate-pulse rounded-lg" />;
 
     if (!user) return null;
 
     return (
         <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-50 px-3 py-1 rounded-full border border-gray-100">
+            <div className="flex items-center gap-2 text-sm text-slate-500 bg-slate-50 px-3 py-1 rounded-full border border-slate-100">
                 <Shield className="h-4 w-4" />
                 <span>管理者</span>
             </div>
@@ -41,7 +41,7 @@ export function UserNav({ initialUser }: { initialUser?: any }) {
                 variant="outline"
                 size="sm"
                 onClick={handleLogout}
-                className="h-8 gap-2 text-gray-600 hover:text-red-600 hover:border-red-200 hover:bg-red-50"
+                className="h-8 gap-2 text-slate-600 hover:text-red-600 hover:border-red-200 hover:bg-red-50"
             >
                 <LogOut className="h-4 w-4" />
                 ログアウト

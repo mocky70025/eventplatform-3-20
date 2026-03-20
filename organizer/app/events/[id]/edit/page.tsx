@@ -1,16 +1,45 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
     ChevronRight, ChevronLeft, Calendar, MapPin,
-    ImageIcon, FileText, CheckCircle2, Users, Upload, Clock, AlertCircle, Search, Trash2, Loader2
+    ImageIcon, FileText, CheckCircle2, Users, Upload, Clock, AlertCircle, Search, Trash2, Loader2,
+    Shield, Phone, Mail, User, Truck, ClipboardList, Plus, X, Lock
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
+
+// 出店者に求める情報のプリセット項目
+const PRESET_EXHIBITOR_FIELDS = [
+    { key: "menu_list", label: "出店メニュー・商品リスト", type: "textarea" as const, category: "基本情報" },
+    { key: "price_range", label: "販売価格帯", type: "text" as const, category: "基本情報" },
+    { key: "booth_description", label: "ブースの装飾・外観の説明", type: "textarea" as const, category: "基本情報" },
+    { key: "power_needed", label: "電源の要否・必要電力量", type: "text" as const, category: "設備・インフラ" },
+    { key: "water_needed", label: "水道の要否", type: "text" as const, category: "設備・インフラ" },
+    { key: "gas_usage", label: "ガス使用の有無", type: "text" as const, category: "設備・インフラ" },
+    { key: "tent_info", label: "テント持参の有無・サイズ", type: "text" as const, category: "設備・インフラ" },
+    { key: "space_size", label: "必要なスペースサイズ", type: "text" as const, category: "設備・インフラ" },
+    { key: "vehicle_entry", label: "車両乗り入れの有無・サイズ", type: "text" as const, category: "車両・搬入" },
+    { key: "loading_time_preference", label: "搬入希望時間帯", type: "text" as const, category: "車両・搬入" },
+    { key: "food_safety_cert", label: "食品衛生責任者証", type: "file" as const, category: "必要書類" },
+    { key: "business_license", label: "営業許可証（保健所）", type: "file" as const, category: "必要書類" },
+    { key: "pl_insurance", label: "PL保険証書", type: "file" as const, category: "必要書類" },
+    { key: "fire_equipment_layout", label: "火器類配置図", type: "file" as const, category: "必要書類" },
+    { key: "vehicle_inspection", label: "車検証", type: "file" as const, category: "必要書類" },
+    { key: "allergy_info", label: "アレルギー表示", type: "file" as const, category: "必要書類" },
+    { key: "staff_count", label: "当日のスタッフ人数", type: "text" as const, category: "その他" },
+    { key: "emergency_contact", label: "当日の緊急連絡先", type: "text" as const, category: "その他" },
+];
+
+type CustomField = {
+    id: string;
+    label: string;
+    type: "text" | "file";
+};
 
 export default function EditEventPage() {
     const params = useParams();
@@ -23,66 +52,119 @@ export default function EditEventPage() {
     const [isFetching, setIsFetching] = useState(true);
     const [error, setError] = useState("");
 
-    // Form State
+    // Form State — matches creation page
     const [formData, setFormData] = useState({
         eventName: "",
         genre: "",
-        leadText: "",
         description: "",
+        boothContent: "",
         startDate: "",
         endDate: "",
         startTime: "",
         endTime: "",
+        postponedType: "" as "" | "none" | "date",
+        postponedDate: "",
         appDeadline: "",
         venueName: "",
         zipCode: "",
         address: "",
         recruitCount: 10,
         fee: "",
-        requirements: "",
+        venueRules: "",
+        venueLayout: null as string | null,
+        termsCompliance: "",
+        boothQualification: "",
+        privacyPolicy: "",
+        cancelPolicy: "",
+        organizerName: "",
+        organizerEmail: "",
+        organizerPhone: "",
         mainImage: null as string | null,
-        images: [] as string[],
-        status: 'published'
+        loadingInfo: "",
+        selectedExhibitorFields: [] as string[],
+        status: "published",
     });
 
-    const [files, setFiles] = useState<{ main: File | null; gallery: File[] }>({
+    const [customFields, setCustomFields] = useState<CustomField[]>([]);
+
+    const [organizerProfile, setOrganizerProfile] = useState<{ id: string } | null>(null);
+    const [files, setFiles] = useState<{ main: File | null; layout: File | null }>({
         main: null,
-        gallery: [],
+        layout: null,
     });
 
     useEffect(() => {
         const fetchEvent = async () => {
             setIsFetching(true);
             try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) throw new Error("ログインセッションが見つかりません。");
+
+                const { data: profile } = await supabase
+                    .from("organizers")
+                    .select("id")
+                    .eq("user_id", user.id)
+                    .single();
+
+                if (!profile) throw new Error("主催者プロフィールが見つかりません。");
+                setOrganizerProfile(profile);
+
                 const { data, error } = await supabase
                     .from("events")
                     .select("*")
                     .eq("id", eventId)
+                    .eq("organizer_id", profile.id)
                     .single();
 
                 if (error) throw error;
                 if (data) {
                     const [startT, endT] = (data.event_time || " - ").split(" - ");
+
+                    // Parse exhibitor form fields
+                    let selectedFields: string[] = [];
+                    let parsedCustomFields: CustomField[] = [];
+                    if (data.exhibitor_form_fields) {
+                        try {
+                            const parsed = typeof data.exhibitor_form_fields === "string"
+                                ? JSON.parse(data.exhibitor_form_fields)
+                                : data.exhibitor_form_fields;
+                            selectedFields = parsed.preset || [];
+                            parsedCustomFields = parsed.custom || [];
+                        } catch {}
+                    }
+
                     setFormData({
                         eventName: data.event_name || "",
                         genre: data.genre || "",
-                        leadText: data.lead_text || "",
                         description: data.description || "",
+                        boothContent: data.booth_content || "",
                         startDate: data.event_start_date || "",
                         endDate: data.event_end_date || "",
-                        startTime: startT || "",
-                        endTime: endT || "",
+                        startTime: startT?.trim() || "",
+                        endTime: endT?.trim() || "",
+                        postponedType: data.postponed_date ? "date" : "none",
+                        postponedDate: data.postponed_date || "",
                         appDeadline: data.application_period_end || "",
                         venueName: data.venue_name || "",
-                        zipCode: "", // We don't necessarily store zip code separately in DB yet
+                        zipCode: "",
                         address: data.address || "",
                         recruitCount: data.recruit_count || 10,
                         fee: data.fee || "",
-                        requirements: data.requirements || "",
+                        venueRules: data.venue_rules || "",
+                        venueLayout: data.venue_layout_url || null,
+                        termsCompliance: data.terms_compliance || "",
+                        boothQualification: data.booth_qualification || "",
+                        privacyPolicy: data.privacy_policy || "",
+                        cancelPolicy: data.cancel_policy || "",
+                        organizerName: data.organizer_name || "",
+                        organizerEmail: data.organizer_email || "",
+                        organizerPhone: data.organizer_phone || "",
                         mainImage: data.main_image_url || null,
-                        images: data.gallery_images || [],
-                        status: data.status || 'published'
+                        loadingInfo: data.loading_info || "",
+                        selectedExhibitorFields: selectedFields,
+                        status: data.status || "published",
                     });
+                    setCustomFields(parsedCustomFields);
                 }
             } catch (err: any) {
                 console.error("Fetch error:", err);
@@ -101,22 +183,53 @@ export default function EditEventPage() {
         if (error) setError("");
     };
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, field: "main" | "layout") => {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
+            if (file.size > 10 * 1024 * 1024) {
+                setError("ファイルサイズは10MB以下にしてください。");
+                e.target.value = '';
+                return;
+            }
+            if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+                setError("対応していない画像形式です（JPEG, PNG, GIF, WebPのみ）");
+                e.target.value = '';
+                return;
+            }
+            setError("");
             const url = URL.createObjectURL(file);
-            setFormData(prev => ({ ...prev, mainImage: url }));
-            setFiles(prev => ({ ...prev, main: file }));
+            if (field === "main") {
+                setFormData(prev => ({ ...prev, mainImage: url }));
+                setFiles(prev => ({ ...prev, main: file }));
+            } else {
+                setFormData(prev => ({ ...prev, venueLayout: url }));
+                setFiles(prev => ({ ...prev, layout: file }));
+            }
         }
     };
 
-    const handleGalleryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files) {
-            const newFiles = Array.from(e.target.files);
-            const urls = newFiles.map(file => URL.createObjectURL(file));
-            setFormData(prev => ({ ...prev, images: [...prev.images, ...urls] }));
-            setFiles(prev => ({ ...prev, gallery: [...prev.gallery, ...newFiles] }));
-        }
+    const toggleExhibitorField = (key: string) => {
+        setFormData(prev => ({
+            ...prev,
+            selectedExhibitorFields: prev.selectedExhibitorFields.includes(key)
+                ? prev.selectedExhibitorFields.filter(k => k !== key)
+                : [...prev.selectedExhibitorFields, key],
+        }));
+    };
+
+    const addCustomField = (type: "text" | "file") => {
+        const id = `custom_${type}_${Date.now()}`;
+        setCustomFields(prev => [...prev, { id, label: type === "text" ? "テキスト" : "画像", type }]);
+    };
+
+    const removeCustomField = (id: string) => {
+        setCustomFields(prev => prev.filter(f => f.id !== id));
+    };
+
+    const updateCustomFieldLabel = (id: string, label: string) => {
+        setCustomFields(prev => prev.map(f => f.id === id ? { ...f, label } : f));
     };
 
     const handleNext = () => setStep(prev => prev + 1);
@@ -124,15 +237,15 @@ export default function EditEventPage() {
 
     const searchAddress = async () => {
         const cleanZip = formData.zipCode.replace(/[-\s]/g, "");
-        if (!cleanZip || cleanZip.length < 7) {
-            setError("正しい郵便番号を入力してください（7桁）");
+        if (!cleanZip || !/^\d{7}$/.test(cleanZip)) {
+            setError("正しい郵便番号を入力してください（数字7桁）");
             return;
         }
 
         setIsLoading(true);
         setError("");
         try {
-            const res = await fetch(`https://zipcloud.ibsnet.co.jp/api/search?zipcode=${cleanZip}`);
+            const res = await fetch(`/api/zipcode?zipcode=${cleanZip}`);
             const data = await res.json();
 
             if (data.results && data.results[0]) {
@@ -150,33 +263,24 @@ export default function EditEventPage() {
         }
     };
 
-    const uploadImages = async (userId: string) => {
-        let mainImageUrl = formData.mainImage || "";
-        const galleryUrls: string[] = [...formData.images.filter(img => img.startsWith('http'))];
+    const ALLOWED_IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
 
-        if (files.main) {
-            const fileExt = files.main.name.split('.').pop();
-            const fileName = `${userId}/main_${Math.random().toString(36).substring(2)}.${fileExt}`;
-            const { error: uploadError } = await supabase.storage
-                .from('event-images')
-                .upload(fileName, files.main);
-            if (uploadError) throw uploadError;
-            const { data: { publicUrl } } = supabase.storage.from('event-images').getPublicUrl(fileName);
-            mainImageUrl = publicUrl;
+    const uploadImage = async (userId: string, file: File, prefix: string) => {
+        const fileExt = (file.name.split('.').pop() || '').toLowerCase();
+        if (!ALLOWED_IMAGE_EXTENSIONS.includes(fileExt)) {
+            throw new Error(`対応していない画像形式です（${ALLOWED_IMAGE_EXTENSIONS.join(', ')}のみ）`);
         }
+        const fileName = `${userId}/${prefix}_${crypto.randomUUID()}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage
+            .from('event-images')
+            .upload(fileName, file);
 
-        for (const file of files.gallery) {
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${userId}/gallery_${Math.random().toString(36).substring(2)}.${fileExt}`;
-            const { error: uploadError } = await supabase.storage
-                .from('event-images')
-                .upload(fileName, file);
-            if (uploadError) throw uploadError;
-            const { data: { publicUrl } } = supabase.storage.from('event-images').getPublicUrl(fileName);
-            galleryUrls.push(publicUrl);
-        }
+        if (uploadError) throw uploadError;
 
-        return { mainImageUrl, galleryUrls };
+        const { data: { publicUrl } } = supabase.storage
+            .from('event-images')
+            .getPublicUrl(fileName);
+        return publicUrl;
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -188,28 +292,58 @@ export default function EditEventPage() {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error("ログインセッションが見つかりません。");
 
-            const { mainImageUrl, galleryUrls } = await uploadImages(user.id);
+            const { data: profile } = await supabase
+                .from("organizers")
+                .select("id")
+                .eq("user_id", user.id)
+                .single();
+
+            if (!profile) throw new Error("主催者プロフィールが見つかりません。");
+
+            let mainImageUrl = formData.mainImage || "";
+            let venueLayoutUrl = formData.venueLayout || "";
+
+            if (files.main) {
+                mainImageUrl = await uploadImage(user.id, files.main, "main");
+            }
+            if (files.layout) {
+                venueLayoutUrl = await uploadImage(user.id, files.layout, "layout");
+            }
 
             const { error: updateError } = await supabase
                 .from("events")
                 .update({
                     event_name: formData.eventName,
                     genre: formData.genre,
-                    lead_text: formData.leadText,
                     description: formData.description,
+                    booth_content: formData.boothContent,
                     event_start_date: formData.startDate,
                     event_end_date: formData.endDate || formData.startDate,
                     event_time: `${formData.startTime} - ${formData.endTime}`,
+                    postponed_date: formData.postponedType === "date" ? formData.postponedDate : null,
                     application_period_end: formData.appDeadline,
                     venue_name: formData.venueName,
                     address: formData.address,
                     recruit_count: formData.recruitCount,
                     fee: formData.fee,
-                    requirements: formData.requirements,
+                    venue_rules: formData.venueRules,
+                    venue_layout_url: venueLayoutUrl || null,
+                    terms_compliance: formData.termsCompliance,
+                    booth_qualification: formData.boothQualification,
+                    privacy_policy: formData.privacyPolicy,
+                    cancel_policy: formData.cancelPolicy,
+                    organizer_name: formData.organizerName,
+                    organizer_email: formData.organizerEmail,
+                    organizer_phone: formData.organizerPhone,
+                    loading_info: formData.loadingInfo || null,
                     main_image_url: mainImageUrl,
-                    gallery_images: galleryUrls,
+                    exhibitor_form_fields: JSON.stringify({
+                        preset: formData.selectedExhibitorFields,
+                        custom: customFields,
+                    }),
                 })
-                .eq("id", eventId);
+                .eq("id", eventId)
+                .eq("organizer_id", profile.id);
 
             if (updateError) throw updateError;
 
@@ -228,12 +362,27 @@ export default function EditEventPage() {
 
         setIsLoading(true);
         try {
-            const { error } = await supabase.from("events").delete().eq("id", eventId);
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) throw new Error("ログインセッションが見つかりません。");
+
+            const { data: profile } = await supabase
+                .from("organizers")
+                .select("id")
+                .eq("user_id", user.id)
+                .single();
+
+            if (!profile) throw new Error("主催者プロフィールが見つかりません。");
+
+            const { error } = await supabase
+                .from("events")
+                .update({ status: 'deleted' })
+                .eq("id", eventId)
+                .eq("organizer_id", profile.id);
             if (error) throw error;
             router.push("/");
             router.refresh();
         } catch (err: any) {
-            alert("削除に失敗しました: " + err.message);
+            alert("イベントの削除に失敗しました。時間をおいて再度お試しください。");
         } finally {
             setIsLoading(false);
         }
@@ -241,69 +390,98 @@ export default function EditEventPage() {
 
     if (isFetching) {
         return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+            <div className="min-h-screen bg-slate-50 flex items-center justify-center">
                 <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
             </div>
         );
     }
 
+    const TOTAL_STEPS = 3;
     const steps = [
-        { id: 1, title: "基本情報", icon: FileText },
-        { id: 2, title: "日時", icon: Calendar },
-        { id: 3, title: "場所", icon: MapPin },
-        { id: 4, title: "募集", icon: Users },
-        { id: 5, title: "画像", icon: ImageIcon },
-        { id: 6, title: "完了", icon: CheckCircle2 },
+        { id: 1, title: "イベント情報", icon: Calendar },
+        { id: 2, title: "規約・運営", icon: Shield },
+        { id: 3, title: "確認", icon: CheckCircle2 },
     ];
 
     const canProceed = () => {
         switch (step) {
-            case 1: return formData.eventName && formData.genre;
-            case 2: return formData.startDate && formData.startTime && formData.endTime && formData.appDeadline;
-            case 3: return formData.venueName && formData.address;
-            case 4: return formData.recruitCount && formData.fee;
+            case 1:
+                return formData.eventName && formData.genre && formData.description
+                    && formData.startDate && formData.startTime && formData.endTime && formData.appDeadline
+                    && formData.venueName && formData.address
+                    && formData.recruitCount && formData.fee;
+            case 2:
+                return formData.termsCompliance && formData.boothQualification && formData.privacyPolicy && formData.cancelPolicy
+                    && formData.organizerName && formData.organizerEmail && formData.organizerPhone;
             default: return true;
         }
     };
 
+    // ドラフト以外は「訂正可」フィールドのみ編集可能
+    const isLocked = formData.status !== "draft";
+
+    const inputClass = "block w-full rounded-lg border-slate-300 bg-slate-50 p-3.5 text-slate-900 outline-none focus:bg-white focus:ring-2 focus:ring-orange-200 focus:border-orange-500 transition-all font-medium shadow-sm";
+    const lockedInputClass = "block w-full rounded-lg border-slate-200 bg-slate-100 p-3.5 text-slate-500 outline-none cursor-not-allowed font-medium shadow-sm";
+    const textareaClass = "block w-full rounded-lg border-slate-300 bg-slate-50 p-3.5 text-slate-900 outline-none focus:bg-white focus:ring-2 focus:ring-orange-200 focus:border-orange-500 transition-all resize-none shadow-sm leading-relaxed";
+    const lockedTextareaClass = "block w-full rounded-lg border-slate-200 bg-slate-100 p-3.5 text-slate-500 outline-none cursor-not-allowed resize-none shadow-sm leading-relaxed";
+    const labelClass = "block text-sm font-bold text-slate-700 mb-2";
+    const sectionTitle = "text-lg font-bold text-slate-900 mb-4 flex items-center gap-2 border-b border-slate-200 pb-2";
+    const editableBadge = <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-green-50 text-green-600 border border-green-100">訂正可</span>;
+    const lockedBadge = <span className="ml-2 inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-400 border border-slate-200"><Lock className="w-2.5 h-2.5" />変更不可</span>;
+
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col">
-            <header className="px-6 h-16 bg-white border-b border-gray-100 flex items-center justify-between sticky top-0 z-50">
+        <div className="min-h-screen bg-slate-50 flex flex-col">
+            {/* Header */}
+            <header className="px-6 h-16 bg-white border-b border-slate-100 flex items-center justify-between sticky top-0 z-50">
                 <div className="flex items-center gap-4">
-                    <Link href={`/events/${eventId}`} className="text-gray-400 hover:text-gray-600 transition-colors">
+                    <Link href={`/events/${eventId}`} className="text-slate-400 hover:text-slate-600 transition-colors">
                         <ChevronLeft className="w-5 h-5" />
                     </Link>
-                    <h1 className="text-lg font-bold text-gray-900">イベントの編集</h1>
+                    <h1 className="text-lg font-bold text-slate-900">イベントの編集</h1>
                 </div>
                 <div className="flex items-center gap-3">
                     <Button variant="ghost" size="sm" className="text-red-500 hover:bg-red-50" onClick={handleDelete}>
                         <Trash2 className="w-4 h-4 mr-2" />
-                        イベントを削除
+                        削除
                     </Button>
-                    <div className="text-sm font-medium text-gray-500 px-3 border-l border-gray-100">
-                        Step {step} / 6
+                    <div className="text-sm font-medium text-slate-500 px-3 border-l border-slate-100">
+                        Step {step} / {TOTAL_STEPS}
                     </div>
                 </div>
             </header>
 
             <main className="flex-1 container mx-auto max-w-3xl px-4 py-8">
-                {/* Simplified Progress bar from new/page.tsx */}
+                {/* Progress Bar */}
                 <div className="mb-14 px-2">
-                    <div className="flex justify-between relative max-w-2xl mx-auto">
-                        <div className="absolute top-[28px] left-0 w-full h-1.5 bg-gray-100 -z-10 rounded-full"></div>
+                    <div className="flex justify-between relative max-w-md mx-auto">
+                        <div className="absolute top-[28px] left-0 w-full h-1.5 bg-slate-100 -z-10 rounded-full"></div>
                         <div
-                            className="absolute top-[28px] left-0 h-1.5 bg-orange-500 -z-10 rounded-full transition-all duration-500 ease-out"
+                            className="absolute top-[28px] left-0 h-1.5 bg-orange-500 -z-10 rounded-full transition-all duration-500 ease-out shadow-[0_0_10px_rgba(249,115,22,0.3)]"
                             style={{ width: `${((step - 1) / (steps.length - 1)) * 100}%` }}
                         ></div>
+
                         {steps.map((s) => (
                             <div key={s.id} className="flex flex-col items-center gap-3 relative">
                                 <div className={cn(
-                                    "w-14 h-14 rounded-full flex items-center justify-center border-4 transition-all duration-500 bg-white",
-                                    step >= s.id ? "border-orange-500 text-orange-600 shadow-md" : "border-gray-100 text-gray-300"
+                                    "w-14 h-14 rounded-full flex items-center justify-center border-4 transition-all duration-500 relative bg-white",
+                                    step >= s.id
+                                        ? "border-orange-500 text-orange-600 shadow-lg shadow-orange-100 scale-110 z-10"
+                                        : "border-slate-100 text-slate-300"
                                 )}>
-                                    <s.icon className="w-7 h-7" />
+                                    <s.icon className={cn(
+                                        "w-6 h-6 transition-transform duration-500",
+                                        step === s.id && "scale-110"
+                                    )} />
+                                    {step > s.id && (
+                                        <div className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 rounded-full border-2 border-white flex items-center justify-center animate-in zoom-in duration-300">
+                                            <CheckCircle2 className="w-3 h-3 text-white" />
+                                        </div>
+                                    )}
                                 </div>
-                                <span className={cn("text-[10px] font-bold absolute -bottom-6 w-20 text-center", step === s.id ? "text-orange-600" : "text-gray-300")}>
+                                <span className={cn(
+                                    "text-xs font-bold tracking-wider transition-all duration-500 absolute -bottom-8 w-24 text-center select-none",
+                                    step === s.id ? "text-orange-600 scale-110" : step > s.id ? "text-orange-400" : "text-slate-300"
+                                )}>
                                     {s.title}
                                 </span>
                             </div>
@@ -311,145 +489,574 @@ export default function EditEventPage() {
                     </div>
                 </div>
 
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 md:p-10 min-h-[400px]">
+                {/* Content Card */}
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-10">
+
+                    {isLocked && (
+                        <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-center gap-3 text-amber-700 text-sm">
+                            <Lock className="w-5 h-5 shrink-0" />
+                            <p className="font-medium">公開済みイベントのため、一部の項目は変更できません。<span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-green-50 text-green-600 border border-green-100 ml-1">訂正可</span> マークのある項目のみ編集できます。</p>
+                        </div>
+                    )}
+
                     {error && (
                         <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl flex items-center gap-3 text-red-600 text-sm">
-                            <AlertCircle className="w-5 h-5" />
-                            <p>{error}</p>
+                            <AlertCircle className="w-5 h-5 shrink-0" />
+                            <p className="font-medium">{error}</p>
                         </div>
                     )}
 
-                    {/* Step components would go here - for brevity, implementing the core form logic similar to new/page.tsx */}
-                    {/* (Reusing the same JSX structure as new/page.tsx for consistency) */}
-
+                    {/* ============ Step 1: イベント情報 ============ */}
                     {step === 1 && (
-                        <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
-                            <h2 className="text-2xl font-bold text-gray-900">基本情報の変更</h2>
-                            <div className="space-y-4">
-                                <div className="group">
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">イベント名</label>
-                                    <input name="eventName" value={formData.eventName} onChange={handleChange} className="block w-full rounded-lg border-gray-300 bg-gray-50 p-3.5" />
-                                </div>
-                                <div className="group">
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">ジャンル</label>
-                                    <select name="genre" value={formData.genre} onChange={handleChange} className="block w-full rounded-lg border-gray-300 bg-gray-50 p-3.5">
-                                        <option value="マルシェ">マルシェ</option>
-                                        <option value="音楽フェス">音楽フェス</option>
-                                        <option value="フードフェス">フードフェス</option>
-                                        <option value="地域のお祭り">地域のお祭り</option>
-                                        <option value="スポーツ">スポーツ</option>
-                                        <option value="その他">その他</option>
-                                    </select>
-                                </div>
-                                <div className="group">
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">詳細説明</label>
-                                    <textarea name="description" value={formData.description} onChange={handleChange} rows={6} className="block w-full rounded-lg border-gray-300 bg-gray-50 p-3.5" />
-                                </div>
-                            </div>
-                        </div>
-                    )}
+                        <div className="space-y-10 animate-in fade-in slide-in-from-right-4 duration-300">
 
-                    {step === 2 && (
-                        <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
-                            <h2 className="text-2xl font-bold text-gray-900">日時の変更</h2>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">開始日</label>
-                                    <input name="startDate" type="date" value={formData.startDate} onChange={handleChange} className="block w-full rounded-lg border-gray-300 bg-gray-50 p-3.5" />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">募集締切</label>
-                                    <input name="appDeadline" type="date" value={formData.appDeadline} onChange={handleChange} className="block w-full rounded-lg border-gray-300 bg-gray-50 p-3.5" />
-                                </div>
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">開始時間</label>
-                                    <input name="startTime" type="time" value={formData.startTime} onChange={handleChange} className="block w-full rounded-lg border-gray-300 bg-gray-50 p-3.5" />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">終了時間</label>
-                                    <input name="endTime" type="time" value={formData.endTime} onChange={handleChange} className="block w-full rounded-lg border-gray-300 bg-gray-50 p-3.5" />
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {step === 3 && (
-                        <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
-                            <h2 className="text-2xl font-bold text-gray-900">場所の変更</h2>
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">会場名</label>
-                                    <input name="venueName" value={formData.venueName} onChange={handleChange} className="block w-full rounded-lg border-gray-300 bg-gray-50 p-3.5" />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">郵便番号（検索用）</label>
-                                    <div className="flex gap-2">
-                                        <input name="zipCode" value={formData.zipCode} onChange={handleChange} placeholder="ハイフンなし" className="block flex-1 rounded-lg border-gray-300 bg-gray-50 p-3.5" />
-                                        <Button type="button" onClick={searchAddress} disabled={isLoading} className="bg-gray-100 text-gray-700">検索</Button>
+                            {/* 基本情報 */}
+                            <section>
+                                <h2 className={sectionTitle}><FileText className="w-5 h-5 text-orange-500" /> 基本情報 {isLocked && lockedBadge}</h2>
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className={labelClass}>イベント名 </label>
+                                        <input name="eventName" value={formData.eventName} onChange={handleChange} readOnly={isLocked} className={isLocked ? lockedInputClass : inputClass} placeholder="例： 第5回 東京サマーマルシェ" />
+                                    </div>
+                                    <div>
+                                        <label className={labelClass}>ジャンル </label>
+                                        <select name="genre" value={formData.genre} onChange={handleChange} disabled={isLocked} className={cn(isLocked ? lockedInputClass : inputClass, "appearance-none", isLocked ? "cursor-not-allowed" : "cursor-pointer")}>
+                                            <option value="">選択してください</option>
+                                            <option value="マルシェ">マルシェ</option>
+                                            <option value="音楽フェス">音楽フェス</option>
+                                            <option value="フードフェス">フードフェス</option>
+                                            <option value="地域のお祭り">地域のお祭り</option>
+                                            <option value="スポーツ">スポーツ</option>
+                                            <option value="その他">その他</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className={labelClass}>概要 </label>
+                                        <textarea name="description" value={formData.description} onChange={handleChange} readOnly={isLocked} rows={4} className={isLocked ? lockedTextareaClass : textareaClass} placeholder="イベントの趣旨、ターゲット層、過去の実績などを詳しく記入してください。" />
+                                    </div>
+                                    <div>
+                                        <label className={labelClass}>出店内容 </label>
+                                        <textarea name="boothContent" value={formData.boothContent} onChange={handleChange} readOnly={isLocked} rows={3} className={isLocked ? lockedTextareaClass : textareaClass} placeholder={"例：\n・飲食ブース（キッチンカー含む）\n・ハンドメイド雑貨\n・ワークショップ体験"} />
                                     </div>
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">住所</label>
-                                    <input name="address" value={formData.address} onChange={handleChange} className="block w-full rounded-lg border-gray-300 bg-gray-50 p-3.5" />
-                                </div>
-                            </div>
-                        </div>
-                    )}
+                            </section>
 
-                    {step === 4 && (
-                        <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
-                            <h2 className="text-2xl font-bold text-gray-900">条件の変更</h2>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">募集台数</label>
-                                    <input name="recruitCount" type="number" value={formData.recruitCount} onChange={handleChange} className="block w-full rounded-lg border-gray-300 bg-gray-50 p-3.5" />
+                            {/* 日時 */}
+                            <section>
+                                <h2 className={sectionTitle}><Calendar className="w-5 h-5 text-orange-500" /> 日時 {isLocked && lockedBadge}</h2>
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className={labelClass}>開催日 (開始) </label>
+                                            <input name="startDate" type="date" value={formData.startDate} onChange={handleChange} readOnly={isLocked} className={isLocked ? lockedInputClass : inputClass} />
+                                        </div>
+                                        <div>
+                                            <label className={labelClass}>開催日 (終了) <span className="text-slate-400 font-normal">（任意）</span></label>
+                                            <input name="endDate" type="date" value={formData.endDate} onChange={handleChange} readOnly={isLocked} className={isLocked ? lockedInputClass : inputClass} />
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className={labelClass}>開始時間 </label>
+                                            <div className="flex items-center gap-2">
+                                                <select value={formData.startTime.split(':')[0] || ""} onChange={(e) => { const mins = formData.startTime.split(':')[1] || "00"; setFormData(prev => ({ ...prev, startTime: `${e.target.value.padStart(2, '0')}:${mins}` })); }} disabled={isLocked} className={cn(isLocked ? lockedInputClass : inputClass, "appearance-none", isLocked ? "cursor-not-allowed" : "cursor-pointer")}>
+                                                    <option value="">時</option>
+                                                    {Array.from({ length: 24 }).map((_, i) => (<option key={i} value={i.toString().padStart(2, '0')}>{i}時</option>))}
+                                                </select>
+                                                <select value={formData.startTime.split(':')[1] || ""} onChange={(e) => { const hrs = formData.startTime.split(':')[0] || "00"; setFormData(prev => ({ ...prev, startTime: `${hrs.padStart(2, '0')}:${e.target.value}` })); }} disabled={isLocked} className={cn(isLocked ? lockedInputClass : inputClass, "appearance-none", isLocked ? "cursor-not-allowed" : "cursor-pointer")}>
+                                                    <option value="">分</option>
+                                                    {['00', '10', '20', '30', '40', '50'].map((m) => (<option key={m} value={m}>{m}分</option>))}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className={labelClass}>終了時間 </label>
+                                            <div className="flex items-center gap-2">
+                                                <select value={formData.endTime.split(':')[0] || ""} onChange={(e) => { const mins = formData.endTime.split(':')[1] || "00"; setFormData(prev => ({ ...prev, endTime: `${e.target.value.padStart(2, '0')}:${mins}` })); }} disabled={isLocked} className={cn(isLocked ? lockedInputClass : inputClass, "appearance-none", isLocked ? "cursor-not-allowed" : "cursor-pointer")}>
+                                                    <option value="">時</option>
+                                                    {Array.from({ length: 24 }).map((_, i) => (<option key={i} value={i.toString().padStart(2, '0')}>{i}時</option>))}
+                                                </select>
+                                                <select value={formData.endTime.split(':')[1] || ""} onChange={(e) => { const hrs = formData.endTime.split(':')[0] || "00"; setFormData(prev => ({ ...prev, endTime: `${hrs.padStart(2, '0')}:${e.target.value}` })); }} disabled={isLocked} className={cn(isLocked ? lockedInputClass : inputClass, "appearance-none", isLocked ? "cursor-not-allowed" : "cursor-pointer")}>
+                                                    <option value="">分</option>
+                                                    {['00', '10', '20', '30', '40', '50'].map((m) => (<option key={m} value={m}>{m}分</option>))}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className={labelClass}>延期時の仮日 </label>
+                                        <div className="flex gap-3 mb-3">
+                                            <button type="button" onClick={() => !isLocked && setFormData(prev => ({ ...prev, postponedType: "none", postponedDate: "" }))} disabled={isLocked} className={cn("flex-1 py-3 px-4 rounded-lg border-2 text-sm font-bold transition-all", isLocked ? "cursor-not-allowed opacity-60" : "", formData.postponedType === "none" ? "border-orange-500 bg-orange-50 text-orange-700" : "border-slate-200 bg-slate-50 text-slate-500 hover:border-slate-300")}>
+                                                延期なし
+                                            </button>
+                                            <button type="button" onClick={() => !isLocked && setFormData(prev => ({ ...prev, postponedType: "date" }))} disabled={isLocked} className={cn("flex-1 py-3 px-4 rounded-lg border-2 text-sm font-bold transition-all", isLocked ? "cursor-not-allowed opacity-60" : "", formData.postponedType === "date" ? "border-orange-500 bg-orange-50 text-orange-700" : "border-slate-200 bg-slate-50 text-slate-500 hover:border-slate-300")}>
+                                                仮日を設定する
+                                            </button>
+                                        </div>
+                                        {formData.postponedType === "date" && (
+                                            <input name="postponedDate" type="date" value={formData.postponedDate} onChange={handleChange} readOnly={isLocked} className={isLocked ? lockedInputClass : inputClass} />
+                                        )}
+                                        <p className="text-xs text-slate-400 mt-1">※ 雨天等で延期する場合の予備日を設定できます</p>
+                                    </div>
+                                    <div className={cn("p-4 border rounded-xl", isLocked ? "bg-slate-50 border-slate-200" : "bg-orange-50 border-orange-100")}>
+                                        <label className="block text-sm font-semibold text-slate-900 mb-2 flex items-center gap-2">
+                                            <AlertCircle className={cn("w-4 h-4", isLocked ? "text-slate-400" : "text-orange-500")} />
+                                            出店募集の締め切り</label>
+                                        <input name="appDeadline" type="date" value={formData.appDeadline} onChange={handleChange} readOnly={isLocked} className={isLocked ? lockedInputClass : "block w-full rounded-lg border-orange-200 bg-white p-3.5 text-slate-900 outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition-all font-bold shadow-sm"} />
+                                        {!isLocked && <p className="text-xs text-orange-600 mt-2">※ この日を過ぎると出店申し込みができなくなります。</p>}
+                                    </div>
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">出店料</label>
-                                    <input name="fee" value={formData.fee} onChange={handleChange} className="block w-full rounded-lg border-gray-300 bg-gray-50 p-3.5" />
-                                </div>
-                            </div>
-                        </div>
-                    )}
+                            </section>
 
-                    {step === 5 && (
-                        <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
-                            <h2 className="text-2xl font-bold text-gray-900">画像の変更</h2>
-                            <div className="space-y-4">
-                                <label className="block text-sm font-semibold text-gray-700">メイン画像</label>
-                                <div className="aspect-video relative rounded-xl border-2 border-dashed border-gray-300 overflow-hidden">
-                                    {formData.mainImage ? (
-                                        <img src={formData.mainImage} className="w-full h-full object-cover" />
-                                    ) : (
-                                        <div className="flex items-center justify-center h-full text-gray-300">No Image</div>
+                            {/* 場所 */}
+                            <section>
+                                <h2 className={sectionTitle}><MapPin className="w-5 h-5 text-orange-500" /> 場所 {isLocked && lockedBadge}</h2>
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className={labelClass}>会場名 </label>
+                                        <input name="venueName" value={formData.venueName} onChange={handleChange} readOnly={isLocked} className={isLocked ? lockedInputClass : inputClass} placeholder="例： 代々木公園 イベント広場" />
+                                    </div>
+                                    {!isLocked && (
+                                        <div>
+                                            <label className={labelClass}>郵便番号 <span className="text-slate-400 font-normal">（任意）</span></label>
+                                            <div className="flex gap-2">
+                                                <div className="relative flex-1">
+                                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                                        <span className="text-sm font-bold">〒</span>
+                                                    </div>
+                                                    <input name="zipCode" value={formData.zipCode} onChange={handleChange} className={cn(inputClass, "pl-10")} placeholder="例： 1500041" maxLength={7} />
+                                                </div>
+                                                <Button type="button" onClick={searchAddress} disabled={isLoading || formData.zipCode.length < 7} className="bg-slate-100 text-slate-700 hover:bg-slate-200 border-slate-200 shadow-none px-6 rounded-lg">
+                                                    <Search className="w-4 h-4 mr-2" /> 住所を検索
+                                                </Button>
+                                            </div>
+                                        </div>
                                     )}
-                                    <label className="absolute inset-0 cursor-pointer flex items-center justify-center bg-black/20 opacity-0 hover:opacity-100 transition-opacity text-white font-bold">
-                                        変更する
-                                        <input type="file" className="sr-only" onChange={handleFileChange} accept="image/*" />
-                                    </label>
+                                    <div>
+                                        <label className={labelClass}>住所 / 所在地 </label>
+                                        <input name="address" value={formData.address} onChange={handleChange} readOnly={isLocked} className={isLocked ? lockedInputClass : inputClass} placeholder="例： 東京都渋谷区神南2-3" />
+                                    </div>
+                                    {formData.address ? (
+                                        <div className="w-full h-48 rounded-xl overflow-hidden border border-slate-200 shadow-inner bg-slate-50">
+                                            <iframe width="100%" height="100%" style={{ border: 0 }} loading="lazy" allowFullScreen src={`https://maps.google.com/maps?q=${encodeURIComponent(formData.address)}&output=embed&z=15`} title="Venue Map"></iframe>
+                                        </div>
+                                    ) : (
+                                        <div className="h-32 bg-slate-50 rounded-xl flex items-center justify-center border-2 border-dashed border-slate-200 text-slate-400">
+                                            <div className="text-center">
+                                                <MapPin className="w-6 h-6 mx-auto mb-1 opacity-30" />
+                                                <p className="text-xs font-medium">住所を入力すると地図が表示されます</p>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
+                            </section>
+
+                            {/* 募集・会場 */}
+                            <section>
+                                <h2 className={sectionTitle}><Users className="w-5 h-5 text-orange-500" /> 募集・会場</h2>
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className={labelClass}>出店数 {isLocked && lockedBadge}</label>
+                                            <input name="recruitCount" type="number" value={formData.recruitCount} onChange={handleChange} readOnly={isLocked} className={isLocked ? lockedInputClass : inputClass} />
+                                        </div>
+                                        <div>
+                                            <label className={labelClass}>出店料 {isLocked && lockedBadge}</label>
+                                            <input name="fee" value={formData.fee} onChange={handleChange} readOnly={isLocked} className={isLocked ? lockedInputClass : inputClass} placeholder="例： 1日 5,000円 / 売上の10%" />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className={labelClass}>会場内ルール {isLocked && lockedBadge}</label>
+                                        <textarea name="venueRules" value={formData.venueRules} onChange={handleChange} readOnly={isLocked} rows={5} className={isLocked ? lockedTextareaClass : textareaClass} placeholder={"例：\n・火気の使用は禁止です\n・ゴミは各自持ち帰り\n・音量は80dB以下"} />
+                                    </div>
+                                    <div>
+                                        <label className={labelClass}>会場レイアウト <span className="text-slate-400 font-normal">（任意）</span>{editableBadge}</label>
+                                        <label htmlFor="layout-upload-edit" className="mt-2 flex justify-center rounded-xl border-2 border-dashed border-slate-300 px-6 py-6 hover:bg-slate-50 transition-colors relative overflow-hidden cursor-pointer">
+                                            {formData.venueLayout ? (
+                                                <div className="relative w-full aspect-video">
+                                                    <Image src={formData.venueLayout} alt="会場レイアウト" fill className="object-contain rounded-lg" />
+                                                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                                                        <span className="text-white font-bold border border-white px-4 py-2 rounded-full hover:bg-white/20">変更する</span>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="text-center">
+                                                    <Upload className="mx-auto h-8 w-8 text-slate-300" />
+                                                    <div className="mt-2 flex text-sm text-slate-600 justify-center">
+                                                        <span className="relative font-semibold text-orange-600">レイアウト画像をアップロード</span>
+                                                    </div>
+                                                    <p className="text-xs text-slate-400 mt-1">PNG, JPG, PDF（10MB以下）</p>
+                                                </div>
+                                            )}
+                                            <input id="layout-upload-edit" type="file" className="sr-only" accept="image/*" onChange={(e) => handleFileChange(e, "layout")} />
+                                        </label>
+                                        <p className="text-xs text-green-600 mt-1">※ 後から訂正できます</p>
+                                    </div>
+                                </div>
+                            </section>
+
+                            {/* メイン画像 */}
+                            <section>
+                                <h2 className={sectionTitle}><ImageIcon className="w-5 h-5 text-orange-500" /> メイン画像 <span className="text-slate-400 font-normal text-sm">（任意）</span> {isLocked && lockedBadge}</h2>
+                                {isLocked ? (
+                                    formData.mainImage ? (
+                                        <div className="relative w-full aspect-video rounded-xl overflow-hidden border border-slate-200">
+                                            <Image src={formData.mainImage} alt="Preview" fill className="object-cover" />
+                                        </div>
+                                    ) : (
+                                        <div className="h-32 bg-slate-100 rounded-xl flex items-center justify-center border border-slate-200 text-slate-400">
+                                            <p className="text-sm">画像なし</p>
+                                        </div>
+                                    )
+                                ) : (
+                                    <label htmlFor="file-upload-edit" className="mt-2 flex justify-center rounded-xl border-2 border-dashed border-slate-300 px-6 py-10 hover:bg-slate-50 transition-colors relative overflow-hidden cursor-pointer">
+                                        {formData.mainImage ? (
+                                            <div className="relative w-full aspect-video">
+                                                <Image src={formData.mainImage} alt="Preview" fill className="object-cover rounded-lg" />
+                                                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                                                    <span className="text-white font-bold border border-white px-4 py-2 rounded-full hover:bg-white/20">変更する</span>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="text-center">
+                                                <ImageIcon className="mx-auto h-12 w-12 text-slate-300" />
+                                                <div className="mt-4 flex text-sm leading-6 text-slate-600 justify-center">
+                                                    <span className="relative font-semibold text-orange-600">画像をアップロード</span>
+                                                    <p className="pl-1">またはドラッグ＆ドロップ</p>
+                                                </div>
+                                                <p className="text-xs leading-5 text-slate-600">PNG, JPG, GIF（10MB以下）</p>
+                                            </div>
+                                        )}
+                                        <input id="file-upload-edit" type="file" className="sr-only" accept="image/*" onChange={(e) => handleFileChange(e, "main")} />
+                                    </label>
+                                )}
+                            </section>
+                        </div>
+                    )}
+
+                    {/* ============ Step 2: 規約・運営 ============ */}
+                    {step === 2 && (
+                        <div className="space-y-10 animate-in fade-in slide-in-from-right-4 duration-300">
+
+                            {/* 出店規約 */}
+                            <section>
+                                <h2 className={sectionTitle}><Shield className="w-5 h-5 text-orange-500" /> 出店規約 {isLocked && lockedBadge}</h2>
+                                <p className="text-sm text-slate-500 mb-4">出店者に同意していただく規約内容を設定してください。</p>
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className={labelClass}>規約の履行 </label>
+                                        <textarea name="termsCompliance" value={formData.termsCompliance} onChange={handleChange} readOnly={isLocked} rows={3} className={isLocked ? lockedTextareaClass : textareaClass} placeholder="例： 出店者は本規約の全条項を遵守するものとします。" />
+                                    </div>
+                                    <div>
+                                        <label className={labelClass}>出店資格 </label>
+                                        <textarea name="boothQualification" value={formData.boothQualification} onChange={handleChange} readOnly={isLocked} rows={3} className={isLocked ? lockedTextareaClass : textareaClass} placeholder={"例：\n・食品衛生責任者の資格を有すること\n・営業許可証を取得していること"} />
+                                    </div>
+                                    <div>
+                                        <label className={labelClass}>肖像権・個人情報の取り扱い </label>
+                                        <textarea name="privacyPolicy" value={formData.privacyPolicy} onChange={handleChange} readOnly={isLocked} rows={3} className={isLocked ? lockedTextareaClass : textareaClass} placeholder="例： イベント会場内では撮影を行う場合があります。" />
+                                    </div>
+                                    <div>
+                                        <label className={labelClass}>キャンセルポリシー </label>
+                                        <textarea name="cancelPolicy" value={formData.cancelPolicy} onChange={handleChange} readOnly={isLocked} rows={3} className={isLocked ? lockedTextareaClass : textareaClass} placeholder={"例：\n・開催日30日前まで：全額返金\n・14日前まで：50%返金\n・7日前以降：返金不可"} />
+                                    </div>
+                                </div>
+                            </section>
+
+                            {/* 主催者情報 */}
+                            <section>
+                                <h2 className={sectionTitle}><User className="w-5 h-5 text-orange-500" /> 主催者情報 {isLocked && lockedBadge}</h2>
+                                <p className="text-sm text-slate-500 mb-4">出店者に公開される連絡先情報です。</p>
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className={labelClass}><span className="flex items-center gap-2"><User className="w-4 h-4 text-slate-400" /> 主催者名 </span></label>
+                                        <input name="organizerName" value={formData.organizerName} onChange={handleChange} readOnly={isLocked} className={isLocked ? lockedInputClass : inputClass} placeholder="例： 株式会社イベントプランニング / 田中太郎" />
+                                    </div>
+                                    <div>
+                                        <label className={labelClass}><span className="flex items-center gap-2"><Mail className="w-4 h-4 text-slate-400" /> メールアドレス </span></label>
+                                        <input name="organizerEmail" type="email" value={formData.organizerEmail} onChange={handleChange} readOnly={isLocked} className={isLocked ? lockedInputClass : inputClass} placeholder="例： event@example.com" />
+                                    </div>
+                                    <div>
+                                        <label className={labelClass}><span className="flex items-center gap-2"><Phone className="w-4 h-4 text-slate-400" /> 電話番号 </span></label>
+                                        <input name="organizerPhone" type="tel" value={formData.organizerPhone} onChange={handleChange} readOnly={isLocked} className={isLocked ? lockedInputClass : inputClass} placeholder="例： 03-1234-5678" />
+                                    </div>
+                                </div>
+                            </section>
+
+                            {/* 搬出入 */}
+                            <section>
+                                <h2 className={sectionTitle}><Truck className="w-5 h-5 text-orange-500" /> 搬出入について <span className="text-slate-400 font-normal text-sm">（任意）</span>{editableBadge}</h2>
+                                <textarea name="loadingInfo" value={formData.loadingInfo} onChange={handleChange} rows={5} className={textareaClass} placeholder={"例：\n・搬入時間：開催日前日 14:00〜17:00、当日 7:00〜9:00\n・搬出時間：イベント終了後〜19:00\n・搬入口：会場北側ゲートから進入"} />
+                                <p className="text-xs text-green-600 mt-1">※ 後から追加・訂正できます</p>
+                            </section>
+
+                            {/* 出店者への質問項目 */}
+                            <section>
+                                <h2 className={sectionTitle}><ClipboardList className="w-5 h-5 text-orange-500" /> 出店者への質問項目 <span className="text-slate-400 font-normal text-sm">（任意）</span> {isLocked && lockedBadge}</h2>
+                                {isLocked ? (
+                                    /* ロック時は読み取り専用リスト表示 */
+                                    <div className="space-y-2">
+                                        {formData.selectedExhibitorFields.length === 0 && customFields.length === 0 ? (
+                                            <p className="text-sm text-slate-400">質問項目は設定されていません。</p>
+                                        ) : (
+                                            <div className="bg-slate-50 rounded-xl border border-slate-200 p-4 space-y-2">
+                                                {formData.selectedExhibitorFields.map(key => {
+                                                    const field = PRESET_EXHIBITOR_FIELDS.find(f => f.key === key);
+                                                    return field ? (
+                                                        <div key={key} className="flex items-center gap-2 text-sm">
+                                                            <CheckCircle2 className="w-3.5 h-3.5 text-orange-500 shrink-0" />
+                                                            <span className="font-medium text-slate-700">{field.label}</span>
+                                                            <span className={cn("text-[10px] font-bold px-1.5 py-0.5 rounded", field.type === "file" ? "bg-blue-50 text-blue-600" : "bg-slate-100 text-slate-500")}>{field.type === "file" ? "画像" : "テキスト"}</span>
+                                                        </div>
+                                                    ) : null;
+                                                })}
+                                                {customFields.map(field => (
+                                                    <div key={field.id} className="flex items-center gap-2 text-sm">
+                                                        <CheckCircle2 className="w-3.5 h-3.5 text-orange-500 shrink-0" />
+                                                        <span className="font-medium text-slate-700">{field.label}</span>
+                                                        <span className={cn("text-[10px] font-bold px-1.5 py-0.5 rounded", field.type === "file" ? "bg-blue-50 text-blue-600" : "bg-slate-100 text-slate-500")}>{field.type === "file" ? "画像" : "テキスト"}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                ) : (
+                                    /* ドラフト時は編集可能 */
+                                    <>
+                                        <p className="text-sm text-slate-500 mb-4">
+                                            承認した出店者に自動送信されるフォームの項目を選択してください。
+                                        </p>
+
+                                        {(() => {
+                                            const categories = [...new Set(PRESET_EXHIBITOR_FIELDS.map(f => f.category))];
+                                            return categories.map(category => (
+                                                <div key={category} className="space-y-2 mb-4">
+                                                    <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                                                        <span className="w-1.5 h-1.5 bg-orange-500 rounded-full"></span>
+                                                        {category}
+                                                    </h3>
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                                        {PRESET_EXHIBITOR_FIELDS.filter(f => f.category === category).map(field => (
+                                                            <label key={field.key} className={cn("flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all", formData.selectedExhibitorFields.includes(field.key) ? "border-orange-500 bg-orange-50" : "border-slate-100 bg-slate-50 hover:border-slate-200")}>
+                                                                <input type="checkbox" checked={formData.selectedExhibitorFields.includes(field.key)} onChange={() => toggleExhibitorField(field.key)} className="w-4 h-4 rounded border-slate-300 text-orange-500 focus:ring-orange-500" />
+                                                                <div className="flex-1 min-w-0">
+                                                                    <span className="text-sm font-medium text-slate-900">{field.label}</span>
+                                                                    <span className={cn("ml-2 text-[10px] font-bold px-1.5 py-0.5 rounded", field.type === "file" ? "bg-blue-50 text-blue-600" : "bg-slate-100 text-slate-500")}>
+                                                                        {field.type === "file" ? "画像" : "テキスト"}
+                                                                    </span>
+                                                                </div>
+                                                            </label>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            ));
+                                        })()}
+
+                                        {/* カスタム質問 */}
+                                        <div className="border-t border-slate-200 pt-6 space-y-4">
+                                            <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                                                <span className="w-1.5 h-1.5 bg-orange-500 rounded-full"></span>
+                                                カスタム質問
+                                            </h3>
+                                            <p className="text-xs text-slate-400">独自の質問項目を追加できます。</p>
+
+                                            {customFields.map(field => (
+                                                <div key={field.id} className="flex items-center gap-3 p-3 rounded-lg border-2 border-slate-100 bg-slate-50">
+                                                    <span className={cn("shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded", field.type === "file" ? "bg-blue-50 text-blue-600" : "bg-slate-200 text-slate-500")}>
+                                                        {field.type === "file" ? "画像" : "テキスト"}
+                                                    </span>
+                                                    <input value={field.label} onChange={(e) => updateCustomFieldLabel(field.id, e.target.value)} className="flex-1 bg-white rounded-md border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-900 outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-500" placeholder="質問項目名を入力" />
+                                                    <button type="button" onClick={() => removeCustomField(field.id)} className="p-1 text-slate-400 hover:text-red-500 transition-colors">
+                                                        <X className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            ))}
+
+                                            <div className="flex gap-2">
+                                                <button type="button" onClick={() => addCustomField("text")} className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-dashed border-slate-300 text-sm font-medium text-slate-500 hover:border-orange-300 hover:text-orange-600 transition-all">
+                                                    <Plus className="w-4 h-4" /> テキスト項目を追加
+                                                </button>
+                                                <button type="button" onClick={() => addCustomField("file")} className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-dashed border-slate-300 text-sm font-medium text-slate-500 hover:border-blue-300 hover:text-blue-600 transition-all">
+                                                    <Plus className="w-4 h-4" /> 画像項目を追加
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        {/* プレビュー */}
+                                        {(formData.selectedExhibitorFields.length > 0 || customFields.length > 0) && (
+                                            <div className="border-t border-slate-200 pt-6">
+                                                <h3 className="text-sm font-bold text-slate-800 mb-3">出店者に届くフォームのプレビュー</h3>
+                                                <div className="bg-slate-50 rounded-xl border border-slate-200 p-4 space-y-3">
+                                                    {formData.selectedExhibitorFields.map(key => {
+                                                        const field = PRESET_EXHIBITOR_FIELDS.find(f => f.key === key);
+                                                        if (!field) return null;
+                                                        return (
+                                                            <div key={key} className="space-y-1">
+                                                                <label className="text-xs font-bold text-slate-600">{field.label}</label>
+                                                                {field.type === "file" ? (
+                                                                    <div className="h-10 bg-white rounded-lg border border-dashed border-slate-300 flex items-center justify-center text-xs text-slate-400">ファイルアップロード欄</div>
+                                                                ) : (
+                                                                    <div className="h-10 bg-white rounded-lg border border-slate-200"></div>
+                                                                )}
+                                                            </div>
+                                                        );
+                                                    })}
+                                                    {customFields.map(field => (
+                                                        <div key={field.id} className="space-y-1">
+                                                            <label className="text-xs font-bold text-slate-600">{field.label || "(未入力)"}</label>
+                                                            {field.type === "file" ? (
+                                                                <div className="h-10 bg-white rounded-lg border border-dashed border-slate-300 flex items-center justify-center text-xs text-slate-400">ファイルアップロード欄</div>
+                                                            ) : (
+                                                                <div className="h-10 bg-white rounded-lg border border-slate-200"></div>
+                                                            )}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </>
+                                )}
+                            </section>
+                        </div>
+                    )}
+
+                    {/* ============ Step 3: 確認 ============ */}
+                    {step === 3 && (
+                        <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
+                            <div className="text-center">
+                                <div className="w-16 h-16 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <CheckCircle2 className="h-8 w-8" />
+                                </div>
+                                <h2 className="text-2xl font-bold text-slate-900">変更内容の確認</h2>
+                                <p className="text-slate-500 mt-2">以下の内容でイベントを更新してよろしいですか？</p>
+                            </div>
+
+                            <div className="bg-slate-50 rounded-2xl p-6 space-y-6 text-sm border border-slate-100">
+                                {/* 基本情報 */}
+                                <section>
+                                    <h3 className="font-bold text-slate-900 mb-2 border-b border-slate-200 pb-1">基本情報</h3>
+                                    <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+                                        <div><dt className="text-slate-500 text-xs">イベント名</dt><dd className="font-semibold text-slate-900">{formData.eventName}</dd></div>
+                                        <div><dt className="text-slate-500 text-xs">ジャンル</dt><dd className="font-semibold text-slate-900">{formData.genre}</dd></div>
+                                        <div className="col-span-2"><dt className="text-slate-500 text-xs">概要</dt><dd className="font-semibold text-slate-900 whitespace-pre-wrap">{formData.description}</dd></div>
+                                        {formData.boothContent && (
+                                            <div className="col-span-2"><dt className="text-slate-500 text-xs">出店内容</dt><dd className="font-semibold text-slate-900 whitespace-pre-wrap">{formData.boothContent}</dd></div>
+                                        )}
+                                    </dl>
+                                </section>
+
+                                {/* 日時 */}
+                                <section>
+                                    <h3 className="font-bold text-slate-900 mb-2 border-b border-slate-200 pb-1">日時</h3>
+                                    <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+                                        <div><dt className="text-slate-500 text-xs">開催日</dt><dd className="font-semibold text-slate-900">{formData.startDate}{formData.endDate && ` ～ ${formData.endDate}`}</dd></div>
+                                        <div><dt className="text-slate-500 text-xs">時間</dt><dd className="font-semibold text-slate-900">{formData.startTime} - {formData.endTime}</dd></div>
+                                        <div><dt className="text-slate-500 text-xs">延期時の仮日</dt><dd className="font-semibold text-slate-900">{formData.postponedType === "none" ? "延期なし" : formData.postponedDate}</dd></div>
+                                        <div><dt className="text-slate-500 text-xs">募集締切</dt><dd className="font-semibold text-orange-600">{formData.appDeadline} まで</dd></div>
+                                    </dl>
+                                </section>
+
+                                {/* 場所 */}
+                                <section>
+                                    <h3 className="font-bold text-slate-900 mb-2 border-b border-slate-200 pb-1">場所</h3>
+                                    <dl className="mt-2">
+                                        <div><dt className="text-slate-500 text-xs">会場</dt><dd className="font-semibold text-slate-900">{formData.venueName} <span className="text-xs font-normal text-slate-500">({formData.address})</span></dd></div>
+                                    </dl>
+                                </section>
+
+                                {/* 募集・会場 */}
+                                <section>
+                                    <h3 className="font-bold text-slate-900 mb-2 border-b border-slate-200 pb-1">募集・会場</h3>
+                                    <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+                                        <div><dt className="text-slate-500 text-xs">出店数</dt><dd className="font-semibold text-slate-900">{formData.recruitCount}店舗</dd></div>
+                                        <div><dt className="text-slate-500 text-xs">出店料</dt><dd className="font-semibold text-slate-900">{formData.fee}</dd></div>
+                                        {formData.venueRules && (
+                                            <div className="col-span-2"><dt className="text-slate-500 text-xs">会場内ルール</dt><dd className="font-semibold text-slate-900 whitespace-pre-wrap">{formData.venueRules}</dd></div>
+                                        )}
+                                        {formData.venueLayout && (
+                                            <div className="col-span-2"><dt className="text-slate-500 text-xs mb-1">会場レイアウト</dt><dd className="relative w-full h-40"><Image src={formData.venueLayout} alt="会場レイアウト" fill className="object-contain rounded-lg" /></dd></div>
+                                        )}
+                                    </dl>
+                                </section>
+
+                                {/* 出店規約 */}
+                                <section>
+                                    <h3 className="font-bold text-slate-900 mb-2 border-b border-slate-200 pb-1">出店規約</h3>
+                                    <dl className="space-y-3 mt-2">
+                                        <div><dt className="text-slate-500 text-xs">規約の履行</dt><dd className="font-semibold text-slate-900 whitespace-pre-wrap">{formData.termsCompliance}</dd></div>
+                                        <div><dt className="text-slate-500 text-xs">出店資格</dt><dd className="font-semibold text-slate-900 whitespace-pre-wrap">{formData.boothQualification}</dd></div>
+                                        <div><dt className="text-slate-500 text-xs">肖像権・個人情報の取り扱い</dt><dd className="font-semibold text-slate-900 whitespace-pre-wrap">{formData.privacyPolicy}</dd></div>
+                                        <div><dt className="text-slate-500 text-xs">キャンセルポリシー</dt><dd className="font-semibold text-slate-900 whitespace-pre-wrap">{formData.cancelPolicy}</dd></div>
+                                    </dl>
+                                </section>
+
+                                {/* 主催者情報 */}
+                                <section>
+                                    <h3 className="font-bold text-slate-900 mb-2 border-b border-slate-200 pb-1">主催者情報</h3>
+                                    <dl className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-2">
+                                        <div><dt className="text-slate-500 text-xs">主催者</dt><dd className="font-semibold text-slate-900">{formData.organizerName}</dd></div>
+                                        <div><dt className="text-slate-500 text-xs">メール</dt><dd className="font-semibold text-slate-900">{formData.organizerEmail}</dd></div>
+                                        <div><dt className="text-slate-500 text-xs">電話</dt><dd className="font-semibold text-slate-900">{formData.organizerPhone}</dd></div>
+                                    </dl>
+                                </section>
+
+                                {/* 搬出入 */}
+                                {formData.loadingInfo && (
+                                    <section>
+                                        <h3 className="font-bold text-slate-900 mb-2 border-b border-slate-200 pb-1">搬出入について</h3>
+                                        <dd className="font-semibold text-slate-900 whitespace-pre-wrap mt-2">{formData.loadingInfo}</dd>
+                                    </section>
+                                )}
+
+                                {/* メイン画像 */}
+                                {formData.mainImage && (
+                                    <section>
+                                        <h3 className="font-bold text-slate-900 mb-2 border-b border-slate-200 pb-1">メイン画像</h3>
+                                        <div className="relative w-full h-48 mt-2">
+                                            <Image src={formData.mainImage} alt="メイン画像" fill className="object-cover rounded-lg" />
+                                        </div>
+                                    </section>
+                                )}
+
+                                {/* 出店者への質問項目 */}
+                                {(formData.selectedExhibitorFields.length > 0 || customFields.length > 0) && (
+                                    <section>
+                                        <h3 className="font-bold text-slate-900 mb-2 border-b border-slate-200 pb-1">出店者への質問項目</h3>
+                                        <div className="mt-2 space-y-1">
+                                            {formData.selectedExhibitorFields.map(key => {
+                                                const field = PRESET_EXHIBITOR_FIELDS.find(f => f.key === key);
+                                                return field ? (
+                                                    <div key={key} className="flex items-center gap-2 text-sm">
+                                                        <CheckCircle2 className="w-3.5 h-3.5 text-orange-500 shrink-0" />
+                                                        <span className="font-semibold text-slate-900">{field.label}</span>
+                                                        <span className={cn("text-[10px] font-bold px-1.5 py-0.5 rounded", field.type === "file" ? "bg-blue-50 text-blue-600" : "bg-slate-100 text-slate-500")}>{field.type === "file" ? "画像" : "テキスト"}</span>
+                                                    </div>
+                                                ) : null;
+                                            })}
+                                            {customFields.map(field => (
+                                                <div key={field.id} className="flex items-center gap-2 text-sm">
+                                                    <CheckCircle2 className="w-3.5 h-3.5 text-orange-500 shrink-0" />
+                                                    <span className="font-semibold text-slate-900">{field.label}</span>
+                                                    <span className={cn("text-[10px] font-bold px-1.5 py-0.5 rounded", field.type === "file" ? "bg-blue-50 text-blue-600" : "bg-slate-100 text-slate-500")}>{field.type === "file" ? "画像" : "テキスト"}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </section>
+                                )}
                             </div>
                         </div>
                     )}
 
-                    {step === 6 && (
-                        <div className="space-y-6 text-center animate-in zoom-in-95 duration-300">
-                            <div className="w-20 h-20 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                                <CheckCircle2 className="w-10 h-10" />
-                            </div>
-                            <h2 className="text-2xl font-bold text-gray-900">準備が整いました</h2>
-                            <p className="text-gray-500">変更内容を保存して、最新の情報を公開しましょう。</p>
-                        </div>
-                    )}
-
-                    <div className="mt-10 pt-6 border-t border-gray-100 flex justify-between items-center">
-                        <Button variant="ghost" onClick={handleBack} disabled={step === 1 || isLoading} className={cn(step === 1 && "invisible")}>戻る</Button>
-                        {step < 6 ? (
-                            <Button onClick={handleNext} disabled={!canProceed()} className="bg-orange-500 text-white rounded-full px-8">次へ</Button>
+                    {/* Navigation */}
+                    <div className="mt-10 pt-6 border-t border-slate-100 flex justify-between items-center">
+                        <Button variant="ghost" onClick={handleBack} disabled={step === 1 || isLoading} className={cn(step === 1 && "invisible")}>
+                            <ChevronLeft className="w-4 h-4 mr-1" /> 戻る
+                        </Button>
+                        {step < TOTAL_STEPS ? (
+                            <Button onClick={handleNext} disabled={!canProceed()} className="bg-orange-500 hover:bg-orange-600 text-white rounded-full px-8 h-12 font-bold shadow-lg shadow-orange-200">
+                                次へ <ChevronRight className="w-4 h-4 ml-1" />
+                            </Button>
                         ) : (
-                            <Button onClick={handleSubmit} disabled={isLoading} className="bg-gray-900 text-white rounded-full px-10 h-12">
+                            <Button onClick={handleSubmit} disabled={isLoading} className="bg-slate-900 hover:bg-slate-800 text-white rounded-full px-10 h-12 font-bold shadow-lg">
                                 {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "変更を保存する"}
                             </Button>
                         )}

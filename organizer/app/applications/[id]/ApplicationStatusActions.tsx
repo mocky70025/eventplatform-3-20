@@ -18,26 +18,55 @@ export default function ApplicationStatusActions({
 }) {
     const [status, setStatus] = useState(initialStatus);
     const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState("");
     const supabase = createClient();
     const router = useRouter();
 
     const updateStatus = async (newStatus: "approved" | "rejected") => {
         if (!confirm(`${newStatus === 'approved' ? '承認' : '却下'}してよろしいですか？`)) return;
+        if (!eventId) {
+            setError("イベント情報が不足しています。ページを再読み込みしてください。");
+            return;
+        }
 
         setIsLoading(true);
+        setError("");
         try {
+            // Ownership check: ensure the event belongs to the current organizer
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) throw new Error("ログインセッションが見つかりません。");
+
+            const { data: profile } = await supabase
+                .from("organizers")
+                .select("id")
+                .eq("user_id", user.id)
+                .single();
+
+            if (!profile) throw new Error("主催者プロフィールが見つかりません。");
+
+            // Verify the event belongs to this organizer before updating the application
+            const { data: event } = await supabase
+                .from("events")
+                .select("id")
+                .eq("id", eventId)
+                .eq("organizer_id", profile.id)
+                .single();
+
+            if (!event) throw new Error("このイベントの操作権限がありません。");
+
             const { error } = await supabase
                 .from("event_applications")
                 .update({ status: newStatus })
-                .eq("id", applicationId);
+                .eq("id", applicationId)
+                .eq("event_id", eventId);
 
             if (error) throw error;
 
             setStatus(newStatus);
             router.refresh();
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error updating application status:", error);
-            alert("エラーが発生しました。");
+            setError(error.message || "不明なエラーが発生しました");
         } finally {
             setIsLoading(false);
         }
@@ -62,7 +91,11 @@ export default function ApplicationStatusActions({
     }
 
     return (
-        <div className="flex items-center gap-3">
+        <div className="space-y-3">
+            {error && (
+                <div className="rounded-xl bg-red-50 border border-red-200 p-3 text-sm text-red-600">{error}</div>
+            )}
+            <div className="flex items-center gap-3">
             <Button
                 variant="outline"
                 onClick={() => updateStatus('rejected')}
@@ -84,6 +117,7 @@ export default function ApplicationStatusActions({
                 )}
                 承認する
             </Button>
+            </div>
         </div>
     );
 }

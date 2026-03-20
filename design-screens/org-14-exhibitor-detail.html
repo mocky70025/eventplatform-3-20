@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1440">
+  <title>Eventra - 出店者詳細</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Noto Sans JP', 'sans-serif'] },
+          colors: {
+            store: { 50: '#ecfdf5', 100: '#d1fae5', 200: '#a7f3d0', 300: '#6ee7b7', 400: '#34d399', 500: '#10b981', 600: '#059669', 700: '#047857', 800: '#065f46', 900: '#064e3b' },
+            org: { 50: '#fff7ed', 100: '#ffedd5', 200: '#fed7aa', 300: '#fdba74', 400: '#fb923c', 500: '#f97316', 600: '#ea580c', 700: '#c2410c', 800: '#9a3412', 900: '#7c2d12' },
+            accent: { pink: '#ec4899', yellow: '#eab308', purple: '#8b5cf6', sky: '#0ea5e9' },
+            neutral: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1', 400: '#94a3b8', 500: '#64748b', 600: '#475569', 700: '#334155', 800: '#1e293b', 900: '#0f172a' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { font-family: 'Noto Sans JP', sans-serif; }
+    body { width: 1440px; margin: 0 auto; background: #fff7ed20; }
+  </style>
+  <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+</head>
+<body class="bg-orange-50/20">
+
+  <!-- Header -->
+  <header class="bg-white px-8 h-16 flex items-center justify-between border-b border-neutral-100 sticky top-0 z-50">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 bg-org-500 rounded-xl flex items-center justify-center">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"/></svg>
+      </div>
+      <span class="text-lg font-bold text-neutral-900">Eventra</span>
+      <span class="text-[10px] bg-org-100 text-org-700 px-2 rounded-full font-semibold inline-flex items-center justify-center h-5" style="line-height:1;">主催者</span>
+    </div>
+    <nav class="flex items-center gap-1">
+      <a class="text-sm font-medium text-neutral-500 hover:text-neutral-700 px-4 py-2 rounded-lg">ダッシュボード</a>
+      <a class="text-sm font-medium text-neutral-500 hover:text-neutral-700 px-4 py-2 rounded-lg">イベント管理</a>
+      <a class="text-sm font-medium text-org-700 bg-org-50 px-4 py-2 rounded-lg">出店者管理</a>
+      <a class="text-sm font-medium text-neutral-500 hover:text-neutral-700 px-4 py-2 rounded-lg">プロフィール</a>
+      <div class="w-px h-6 bg-neutral-200 mx-2"></div>
+      <button class="text-sm text-neutral-400 hover:text-red-500 px-3 py-2">ログアウト</button>
+    </nav>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 py-8">
+
+    <!-- Back + Title -->
+    <div class="mb-8">
+      <a class="flex items-center text-sm font-medium text-neutral-500 hover:text-org-600 transition-colors mb-4 group cursor-pointer">
+        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
+        出店者管理へ戻る
+      </a>
+      <h1 class="text-3xl font-bold text-neutral-900">出店者詳細</h1>
+    </div>
+
+    <!-- 3 Column Layout: Left(2/3) + Right(1/3) -->
+    <div class="grid grid-cols-3 gap-8">
+
+      <!-- Left Column (2/3) -->
+      <div class="col-span-2 space-y-8">
+
+        <!-- Exhibitor Profile Card -->
+        <section class="bg-white rounded-2xl p-8 shadow-sm border border-neutral-100">
+          <h2 class="text-xl font-bold text-neutral-900 mb-6 flex items-center gap-2">
+            <svg class="w-6 h-6 text-org-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            出店者プロフィール
+          </h2>
+          <div class="space-y-6">
+            <!-- Avatar + Name -->
+            <div class="flex items-start gap-4">
+              <div class="w-16 h-16 rounded-2xl bg-org-50 flex items-center justify-center text-org-600 border border-org-100 shrink-0 text-2xl font-bold">彩</div>
+              <div>
+                <h3 class="text-2xl font-bold text-neutral-900">彩りスイーツ工房</h3>
+                <p class="text-neutral-500 font-medium">田中 彩花</p>
+                <span class="inline-flex items-center justify-center mt-2 h-6 px-2.5 rounded-full bg-emerald-100 text-emerald-700 text-xs font-medium" style="line-height:1;">スイーツ</span>
+              </div>
+            </div>
+            <!-- Description -->
+            <div class="bg-neutral-50 rounded-xl p-4">
+              <p class="text-sm text-neutral-600 leading-relaxed">手作りの焼き菓子と季節のタルトを中心に、地元産の素材にこだわったスイーツを製造・販売しています。マカロン・クッキー・フィナンシェなど常時10種類以上ご用意しています。</p>
+            </div>
+            <!-- Contact Info -->
+            <div class="grid grid-cols-2 gap-4">
+              <div class="p-4 rounded-xl border border-neutral-100 flex items-center gap-3">
+                <svg class="w-5 h-5 text-neutral-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                <div class="text-sm min-w-0">
+                  <p class="text-neutral-400 font-medium leading-none mb-1">メール</p>
+                  <p class="text-neutral-900 font-bold truncate">ayaka.tanaka@example.com</p>
+                </div>
+              </div>
+              <div class="p-4 rounded-xl border border-neutral-100 flex items-center gap-3">
+                <svg class="w-5 h-5 text-neutral-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 10.5 19.79 19.79 0 0 1 1.58 2.18 2 2 0 0 1 3.54 0h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 7.91a16 16 0 0 0 6.07 6.07l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                <div class="text-sm">
+                  <p class="text-neutral-400 font-medium leading-none mb-1">電話番号</p>
+                  <p class="text-neutral-900 font-bold">090-1234-5678</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Application History -->
+        <section class="bg-white rounded-2xl p-8 shadow-sm border border-neutral-100">
+          <h2 class="text-xl font-bold text-neutral-900 mb-6">応募履歴</h2>
+          <div class="divide-y divide-neutral-50">
+            <div class="flex items-center justify-between py-3">
+              <div>
+                <p class="text-sm font-semibold text-neutral-900">春の手作りマーケット 2026</p>
+                <p class="text-xs text-neutral-400 mt-0.5">2026年4月12日</p>
+              </div>
+              <span class="h-6 inline-flex items-center justify-center px-2.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-700" style="line-height:1;">承認済み</span>
+            </div>
+            <div class="flex items-center justify-between py-3">
+              <div>
+                <p class="text-sm font-semibold text-neutral-900">冬のぬくもりマルシェ 2025</p>
+                <p class="text-xs text-neutral-400 mt-0.5">2025年12月20日</p>
+              </div>
+              <span class="h-6 inline-flex items-center justify-center px-2.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-700" style="line-height:1;">承認済み</span>
+            </div>
+            <div class="flex items-center justify-between py-3">
+              <div>
+                <p class="text-sm font-semibold text-neutral-900">秋のクラフトフェア 2025</p>
+                <p class="text-xs text-neutral-400 mt-0.5">2025年10月5日</p>
+              </div>
+              <span class="h-6 inline-flex items-center justify-center px-2.5 rounded-full text-[10px] font-semibold bg-red-100 text-red-700" style="line-height:1;">却下</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Documents Section -->
+        <section class="bg-white rounded-2xl p-8 shadow-sm border border-neutral-100">
+          <h2 class="text-xl font-bold text-neutral-900 mb-6 flex items-center gap-2">
+            <svg class="w-6 h-6 text-org-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            提出書類
+          </h2>
+          <div class="grid grid-cols-2 gap-4">
+            <!-- Document: submitted -->
+            <div class="border border-neutral-200 rounded-xl overflow-hidden">
+              <div class="bg-neutral-50 h-36 flex items-center justify-center">
+                <div class="text-center">
+                  <svg class="w-10 h-10 text-org-400 mx-auto mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                  <p class="text-xs text-org-600 font-medium">表示する</p>
+                </div>
+              </div>
+              <div class="px-3 py-2 flex items-center justify-between">
+                <span class="text-xs font-medium text-neutral-700">営業許可証 <span class="text-red-500">*</span></span>
+                <span class="h-4 inline-flex items-center justify-center px-1.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-semibold" style="line-height:1;">提出済</span>
+              </div>
+            </div>
+            <!-- Document: submitted -->
+            <div class="border border-neutral-200 rounded-xl overflow-hidden">
+              <div class="bg-neutral-50 h-36 flex items-center justify-center">
+                <div class="text-center">
+                  <svg class="w-10 h-10 text-org-400 mx-auto mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                  <p class="text-xs text-org-600 font-medium">表示する</p>
+                </div>
+              </div>
+              <div class="px-3 py-2 flex items-center justify-between">
+                <span class="text-xs font-medium text-neutral-700">PL保険</span>
+                <span class="h-4 inline-flex items-center justify-center px-1.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-semibold" style="line-height:1;">提出済</span>
+              </div>
+            </div>
+            <!-- Document: not submitted -->
+            <div class="border border-neutral-200 rounded-xl overflow-hidden opacity-60">
+              <div class="bg-neutral-50 h-36 flex items-center justify-center">
+                <div class="text-center">
+                  <svg class="w-10 h-10 text-neutral-300 mx-auto mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                  <p class="text-xs text-neutral-400">未提出</p>
+                </div>
+              </div>
+              <div class="px-3 py-2 flex items-center justify-between">
+                <span class="text-xs font-medium text-neutral-700">車検証</span>
+                <span class="h-4 inline-flex items-center justify-center px-1.5 rounded-full bg-neutral-100 text-neutral-500 text-[10px] font-semibold" style="line-height:1;">未提出</span>
+              </div>
+            </div>
+            <!-- Document: not submitted -->
+            <div class="border border-neutral-200 rounded-xl overflow-hidden opacity-60">
+              <div class="bg-neutral-50 h-36 flex items-center justify-center">
+                <div class="text-center">
+                  <svg class="w-10 h-10 text-neutral-300 mx-auto mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                  <p class="text-xs text-neutral-400">未提出</p>
+                </div>
+              </div>
+              <div class="px-3 py-2 flex items-center justify-between">
+                <span class="text-xs font-medium text-neutral-700">火器類配置図</span>
+                <span class="h-4 inline-flex items-center justify-center px-1.5 rounded-full bg-neutral-100 text-neutral-500 text-[10px] font-semibold" style="line-height:1;">未提出</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- Right Column (1/3) -->
+      <div class="col-span-1 space-y-6">
+
+        <!-- Review Panel -->
+        <section class="bg-white rounded-2xl p-6 shadow-sm border border-org-100 sticky top-24">
+          <h3 class="text-lg font-bold text-neutral-900 mb-1 flex items-center gap-2">
+            <svg class="w-5 h-5 text-amber-400 fill-amber-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+            レビューを書く
+          </h3>
+          <p class="text-xs text-neutral-400 mb-5">終了したイベントについて出店者を評価できます</p>
+
+          <!-- Review Form -->
+          <div class="space-y-4">
+            <div>
+              <label class="text-xs font-semibold text-neutral-700 block mb-2">イベントを選択</label>
+              <select class="w-full border border-neutral-200 rounded-xl px-3 py-2 text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-org-500 bg-white">
+                <option>冬のぬくもりマルシェ 2025</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-xs font-semibold text-neutral-700 block mb-2">評価</label>
+              <div class="flex items-center gap-1">
+                <svg class="w-7 h-7 text-amber-400 fill-amber-400 cursor-pointer" fill="currentColor" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg class="w-7 h-7 text-amber-400 fill-amber-400 cursor-pointer" fill="currentColor" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg class="w-7 h-7 text-amber-400 fill-amber-400 cursor-pointer" fill="currentColor" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg class="w-7 h-7 text-amber-400 fill-amber-400 cursor-pointer" fill="currentColor" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg class="w-7 h-7 text-neutral-200 fill-neutral-200 cursor-pointer" fill="currentColor" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+              </div>
+            </div>
+            <div>
+              <label class="text-xs font-semibold text-neutral-700 block mb-2">コメント（任意）</label>
+              <textarea rows="3" class="w-full border border-neutral-200 rounded-xl px-3 py-2 text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-org-500 resize-none" placeholder="出店者へのコメントを入力...">とても丁寧な対応で、ブースの設営も素晴らしかったです。</textarea>
+            </div>
+            <button class="w-full bg-org-500 hover:bg-org-600 text-white font-semibold rounded-xl py-2.5 text-sm transition-colors">レビューを送信</button>
+          </div>
+        </section>
+
+        <!-- Actions -->
+        <section class="bg-white rounded-2xl p-6 shadow-sm border border-neutral-100">
+          <h3 class="text-lg font-bold text-neutral-900 mb-4">アクション</h3>
+          <div class="space-y-3">
+            <a href="#" class="w-full inline-flex items-center justify-center gap-2 border border-org-200 text-org-600 hover:bg-org-50 py-2.5 rounded-xl text-sm font-medium transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              メールを送る
+            </a>
+            <button class="w-full inline-flex items-center justify-center gap-2 border border-neutral-200 text-neutral-600 hover:bg-neutral-50 py-2.5 rounded-xl text-sm font-medium transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
+              出店者管理に戻る
+            </button>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </main>
+
+</body>
+</html>
