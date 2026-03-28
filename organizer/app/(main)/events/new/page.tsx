@@ -759,32 +759,37 @@ export default function CreateEventPage() {
 
                                 {/* カスタム質問 */}
                                 <div className="border-t border-slate-200 pt-6 space-y-4">
-                                    <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
-                                        <span className="w-1.5 h-1.5 bg-orange-500 rounded-full"></span>
-                                        カスタム質問
-                                    </h3>
-                                    <p className="text-xs text-slate-400">独自の質問項目を追加できます。</p>
-
-                                    {customFields.map(field => (
-                                        <div key={field.id} className="flex items-center gap-3 p-3 rounded-lg border-2 border-slate-100 bg-slate-50">
-                                            <span className={cn("shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded", field.type === "file" ? "bg-blue-50 text-blue-600" : "bg-slate-200 text-slate-500")}>
-                                                {field.type === "file" ? "画像" : "テキスト"}
-                                            </span>
-                                            <input value={field.label} onChange={(e) => updateCustomFieldLabel(field.id, e.target.value)} className="flex-1 bg-white rounded-md border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-900 outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-500" placeholder="質問項目名を入力" />
-                                            <button type="button" onClick={() => removeCustomField(field.id)} className="p-1 text-slate-400 hover:text-red-500 transition-colors">
-                                                <X className="w-4 h-4" />
-                                            </button>
-                                        </div>
-                                    ))}
-
-                                    <div className="flex gap-2">
-                                        <button type="button" onClick={() => addCustomField("text")} className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-dashed border-slate-300 text-sm font-medium text-slate-500 hover:border-orange-300 hover:text-orange-600 transition-all">
-                                            <Plus className="w-4 h-4" /> テキスト項目を追加
+                                    {customFields.length > 0 ? (
+                                        <>
+                                            <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                                                <span className="w-1.5 h-1.5 bg-orange-500 rounded-full"></span>
+                                                カスタム質問
+                                            </h3>
+                                            {customFields.map(field => (
+                                                <div key={field.id} className="flex items-center gap-3 p-3 rounded-lg border-2 border-slate-100 bg-slate-50">
+                                                    <span className={cn("shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded", field.type === "file" ? "bg-blue-50 text-blue-600" : "bg-slate-200 text-slate-500")}>
+                                                        {field.type === "file" ? "画像" : "テキスト"}
+                                                    </span>
+                                                    <input value={field.label} onChange={(e) => updateCustomFieldLabel(field.id, e.target.value)} className="flex-1 bg-white rounded-md border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-900 outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-500" placeholder="質問項目名を入力" />
+                                                    <button type="button" onClick={() => removeCustomField(field.id)} className="p-1 text-slate-400 hover:text-red-500 transition-colors">
+                                                        <X className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                            <div className="flex gap-2">
+                                                <button type="button" onClick={() => addCustomField("text")} className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-dashed border-slate-300 text-sm font-medium text-slate-500 hover:border-orange-300 hover:text-orange-600 transition-all">
+                                                    <Plus className="w-4 h-4" /> テキスト項目を追加
+                                                </button>
+                                                <button type="button" onClick={() => addCustomField("file")} className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-dashed border-slate-300 text-sm font-medium text-slate-500 hover:border-blue-300 hover:text-blue-600 transition-all">
+                                                    <Plus className="w-4 h-4" /> 画像項目を追加
+                                                </button>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <button type="button" onClick={() => addCustomField("text")} className="flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-orange-600 transition-colors">
+                                            <Plus className="w-4 h-4" /> カスタム質問を追加
                                         </button>
-                                        <button type="button" onClick={() => addCustomField("file")} className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-dashed border-slate-300 text-sm font-medium text-slate-500 hover:border-blue-300 hover:text-blue-600 transition-all">
-                                            <Plus className="w-4 h-4" /> 画像項目を追加
-                                        </button>
-                                    </div>
+                                    )}
                                 </div>
 
                                 {/* プレビュー */}
