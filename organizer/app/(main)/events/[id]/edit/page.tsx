@@ -374,16 +374,22 @@ export default function EditEventPage() {
 
             if (!profile) throw new Error("主催者プロフィールが見つかりません。");
 
-            const { error } = await supabase
+            const { error, count } = await supabase
                 .from("events")
-                .delete()
+                .delete({ count: "exact" })
                 .eq("id", eventId)
                 .eq("organizer_id", profile.id);
+
+            console.log("Delete result:", { error, count, eventId, organizerId: profile.id });
+
             if (error) throw error;
+            if (count === 0) throw new Error("削除対象が見つかりませんでした。RLSポリシーを確認してください。");
+
             router.push("/");
             router.refresh();
         } catch (err: any) {
-            alert("イベントの削除に失敗しました。時間をおいて再度お試しください。");
+            console.error("Event delete error:", err);
+            alert(`イベントの削除に失敗しました: ${err.message || JSON.stringify(err)}`);
         } finally {
             setIsLoading(false);
         }
