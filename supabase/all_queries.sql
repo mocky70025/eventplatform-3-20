@@ -231,14 +231,14 @@ CREATE POLICY "Approved organizers can create events" ON events
 CREATE POLICY "Organizers can update their own events" ON events
   FOR UPDATE USING (
     organizer_id IN (
-      SELECT id FROM organizers WHERE user_id = auth.uid() AND is_approved = true
+      SELECT id FROM organizers WHERE user_id = auth.uid()
     )
   );
 
 CREATE POLICY "Organizers can delete their own events" ON events
   FOR DELETE USING (
     organizer_id IN (
-      SELECT id FROM organizers WHERE user_id = auth.uid() AND is_approved = true
+      SELECT id FROM organizers WHERE user_id = auth.uid()
     )
   );
 

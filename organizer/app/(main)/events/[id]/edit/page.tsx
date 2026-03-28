@@ -313,6 +313,7 @@ export default function EditEventPage() {
             const { error: updateError } = await supabase
                 .from("events")
                 .update({
+                    status: "pending",
                     event_name: formData.eventName,
                     genre: formData.genre,
                     description: formData.description,
