@@ -129,7 +129,7 @@ export default async function EventSearchPage({ searchParams }: PageProps) {
   }
 
   if (error) {
-    console.error("Error fetching events:", error);
+    // ignore
   }
 
   const totalCount = count ?? 0;

@@ -28,7 +28,6 @@ export async function updateSession(request: NextRequest) {
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
     if (!supabaseUrl || !supabaseAnonKey) {
-        console.error('Missing Supabase environment variables in middleware');
         if (!isPublicRoute(request.nextUrl.pathname)) {
             const url = request.nextUrl.clone()
             url.pathname = '/login'
@@ -106,7 +105,6 @@ export async function updateSession(request: NextRequest) {
             return NextResponse.redirect(url)
         }
     } catch (error) {
-        console.error('Middleware auth error:', error)
         // On auth error, allow public routes but block protected ones
         if (!isPublicRoute(request.nextUrl.pathname)) {
             const url = request.nextUrl.clone()

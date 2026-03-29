@@ -16,18 +16,12 @@ export function UserNav() {
     setMounted(true);
     supabase.auth.getUser().then(({ data: { user: u }, error }) => {
       if (error) {
-        if (error.name !== 'AuthSessionMissingError' && error.message !== 'Auth session missing!') {
-          console.error('getUser error:', error);
-        }
         setUser(null);
       } else {
         setUser(u ?? null);
       }
       setIsLoading(false);
     }).catch((err) => {
-      if (err?.name !== 'AuthSessionMissingError' && err?.message !== 'Auth session missing!') {
-        console.error('getUser exception:', err);
-      }
       setUser(null);
       setIsLoading(false);
     });

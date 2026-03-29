@@ -31,9 +31,7 @@ export default async function ApplicationsPage({ searchParams }: PageProps) {
             user = data.user;
         }
     } catch (error: any) {
-        if (error?.name !== 'AuthSessionMissingError' && error?.message !== 'Auth session missing!') {
-            console.error("Auth error:", error);
-        }
+        // ignore
     }
 
     if (!user) {
@@ -51,35 +49,27 @@ export default async function ApplicationsPage({ searchParams }: PageProps) {
         redirect("/onboarding");
     }
 
-    // Fetch all applications for counting
-    const { data: allApplications } = await supabase
-        .from("event_applications")
-        .select(`
-            id,
-            status,
-            exhibitors(shop_name)
-        `)
-        .eq("events.organizer_id", profile.id)
-        .select(`
-            id,
-            status,
-            events!inner(organizer_id),
-            exhibitors(shop_name)
-        `);
+    // Fetch counts in parallel (head: true = no row data, just counts)
+    const [totalResult, pendingResult, approvedResult, rejectedResult] = await Promise.all([
+        supabase.from("event_applications").select("id, events!inner(organizer_id)", { count: "exact", head: true }).eq("events.organizer_id", profile.id),
+        supabase.from("event_applications").select("id, events!inner(organizer_id)", { count: "exact", head: true }).eq("events.organizer_id", profile.id).eq("status", "pending"),
+        supabase.from("event_applications").select("id, events!inner(organizer_id)", { count: "exact", head: true }).eq("events.organizer_id", profile.id).eq("status", "approved"),
+        supabase.from("event_applications").select("id, events!inner(organizer_id)", { count: "exact", head: true }).eq("events.organizer_id", profile.id).eq("status", "rejected"),
+    ]);
 
-    const totalCount = allApplications?.length ?? 0;
-    const pendingCount = allApplications?.filter(a => a.status === "pending").length ?? 0;
-    const approvedCount = allApplications?.filter(a => a.status === "approved").length ?? 0;
-    const rejectedCount = allApplications?.filter(a => a.status === "rejected").length ?? 0;
+    const totalCount = totalResult.count ?? 0;
+    const pendingCount = pendingResult.count ?? 0;
+    const approvedCount = approvedResult.count ?? 0;
+    const rejectedCount = rejectedResult.count ?? 0;
 
-    // Build filtered query
+    // Build filtered + paginated query
     let query = supabase
         .from("event_applications")
         .select(`
             *,
             events!inner(*),
             exhibitors(*)
-        `)
+        `, { count: "exact" })
         .eq("events.organizer_id", profile.id)
         .order("created_at", { ascending: false });
 
@@ -88,9 +78,9 @@ export default async function ApplicationsPage({ searchParams }: PageProps) {
         query = query.eq("status", statusFilter);
     }
 
-    const { data: filteredAll } = await query;
+    const { data: filteredAll, count: filteredCount } = await query;
 
-    // Apply search filter post-query (search by exhibitor name)
+    // Apply search filter post-query (Supabase PostgREST ilike on joined tables is unreliable)
     let filtered = filteredAll || [];
     if (q) {
         const searchLower = q.toLowerCase();
@@ -101,8 +91,8 @@ export default async function ApplicationsPage({ searchParams }: PageProps) {
     }
 
     // Paginate
-    const filteredCount = filtered.length;
-    const totalPages = Math.ceil(filteredCount / ITEMS_PER_PAGE);
+    const actualFilteredCount = q ? filtered.length : (filteredCount ?? filtered.length);
+    const totalPages = Math.ceil(actualFilteredCount / ITEMS_PER_PAGE);
     const from = (currentPage - 1) * ITEMS_PER_PAGE;
     const applications = filtered.slice(from, from + ITEMS_PER_PAGE);
 
@@ -228,6 +218,7 @@ export default async function ApplicationsPage({ searchParams }: PageProps) {
                             <thead>
                                 <tr className="bg-slate-50">
                                     <th className="text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider px-6 py-3">出店者名</th>
+                                    <th className="text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider px-4 py-3">イベント</th>
                                     <th className="text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider px-4 py-3">ジャンル</th>
                                     <th className="text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider px-4 py-3">申込日</th>
                                     <th className="text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider px-4 py-3">ステータス</th>
@@ -261,6 +252,11 @@ export default async function ApplicationsPage({ searchParams }: PageProps) {
                                                         {shopName}
                                                     </Link>
                                                 </div>
+                                            </td>
+                                            <td className="px-4 py-4">
+                                                <span className="text-sm text-slate-700 font-medium truncate max-w-[200px] block">
+                                                    {app.events?.event_name || "-"}
+                                                </span>
                                             </td>
                                             <td className="px-4 py-4">
                                                 {genre && (
@@ -394,7 +390,7 @@ export default async function ApplicationsPage({ searchParams }: PageProps) {
                             )}
                         </div>
                         <span className="text-xs text-slate-400">
-                            {filteredCount}件中 {from + 1}-{Math.min(from + ITEMS_PER_PAGE, filteredCount)}件を表示
+                            {actualFilteredCount}件中 {from + 1}-{Math.min(from + ITEMS_PER_PAGE, actualFilteredCount)}件を表示
                         </span>
                     </div>
                 )}

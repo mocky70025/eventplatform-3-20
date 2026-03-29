@@ -144,12 +144,7 @@ export default async function NotificationsPage({ searchParams }: PageProps) {
             user = data.user;
         }
     } catch (error: any) {
-        if (
-            error?.name !== "AuthSessionMissingError" &&
-            error?.message !== "Auth session missing!"
-        ) {
-            console.error("Auth error:", error);
-        }
+        // ignore
     }
 
     if (!user) {

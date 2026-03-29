@@ -95,7 +95,6 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
             setSuccess("プロフィール画像を更新しました");
             router.refresh();
         } catch (err: any) {
-            console.error("Image upload error:", err);
             setError(err.message || "画像のアップロードに失敗しました");
         } finally {
             setIsUploadingImage(false);
@@ -143,7 +142,6 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
             setSuccess("プロフィールを更新しました");
             router.refresh();
         } catch (err: any) {
-            console.error("Profile update error:", err);
             setError(err.message || "更新に失敗しました");
         } finally {
             setIsSaving(false);

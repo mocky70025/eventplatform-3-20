@@ -37,7 +37,6 @@ export default function DocumentCard({ label, imageUrl, required = false }: { la
                             alt={label} 
                             className="w-full h-full object-cover"
                             onError={() => {
-                                console.error(`Failed to load image for ${label}:`, imageUrl);
                                 setImageError(true);
                             }}
                         />

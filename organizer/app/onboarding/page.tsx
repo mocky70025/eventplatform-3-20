@@ -78,7 +78,6 @@ export default function OnboardingPage() {
 
             router.push("/");
         } catch (error: any) {
-            console.error("Onboarding error:", error);
             setError(error.message || "プロフィール登録に失敗しました");
         } finally {
             setIsLoading(false);

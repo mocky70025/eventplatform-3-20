@@ -48,6 +48,7 @@ export default function CreateEventPage() {
     const [error, setError] = useState("");
     const [isApproved, setIsApproved] = useState<boolean | null>(null);
     const [isCheckingApproval, setIsCheckingApproval] = useState(true);
+    const [agreedToTerms, setAgreedToTerms] = useState(false);
     const supabase = createClient();
 
     useEffect(() => {
@@ -72,7 +73,6 @@ export default function CreateEventPage() {
                     router.push("/onboarding");
                 }
             } catch (err) {
-                console.error("Error checking approval:", err);
                 setError("承認状態の確認に失敗しました");
             } finally {
                 setIsCheckingApproval(false);
@@ -179,8 +179,37 @@ export default function CreateEventPage() {
         setCustomFields(prev => prev.map(f => f.id === id ? { ...f, label } : f));
     };
 
-    const handleNext = () => setStep(prev => prev + 1);
-    const handleBack = () => setStep(prev => prev - 1);
+    const [showErrors, setShowErrors] = useState(false);
+    const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+    const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    const isValidPhone = (phone: string) => /^[0-9\-]{10,13}$/.test(phone);
+
+    const validateField = (name: string, value: string) => {
+        if (name === "organizerEmail" && value && !isValidEmail(value)) {
+            setFieldErrors(prev => ({ ...prev, [name]: "正しいメールアドレスを入力してください" }));
+        } else if (name === "organizerPhone" && value && !isValidPhone(value)) {
+            setFieldErrors(prev => ({ ...prev, [name]: "正しい電話番号を入力してください（半角数字・ハイフン、10〜13桁）" }));
+        } else {
+            setFieldErrors(prev => { const next = { ...prev }; delete next[name]; return next; });
+        }
+    };
+
+    const handleNext = () => {
+        if (!canProceed()) {
+            setShowErrors(true);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+        }
+        setShowErrors(false);
+        setStep(prev => prev + 1);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+    const handleBack = () => {
+        setShowErrors(false);
+        setStep(prev => prev - 1);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
 
     const searchAddress = async () => {
         const cleanZip = formData.zipCode.replace(/[-\s]/g, "");
@@ -204,7 +233,6 @@ export default function CreateEventPage() {
                 setError(data.message || "住所が見つかりませんでした。");
             }
         } catch (err) {
-            console.error("Zip code search error:", err);
             setError("住所の検索に失敗しました。");
         } finally {
             setIsLoading(false);
@@ -329,7 +357,6 @@ export default function CreateEventPage() {
             router.push("/");
             router.refresh();
         } catch (err: any) {
-            console.error("Event creation error:", err);
             setError(err.message || "イベントの作成に失敗しました。");
         } finally {
             setIsLoading(false);
@@ -359,9 +386,13 @@ export default function CreateEventPage() {
         }
     };
 
+    const errorBorder = "border-red-400 ring-2 ring-red-100";
     const inputClass = "block w-full rounded-lg border-slate-300 bg-slate-50 p-3.5 text-slate-900 outline-none focus:bg-white focus:ring-2 focus:ring-orange-200 focus:border-orange-500 transition-all font-medium shadow-sm";
     const textareaClass = "block w-full rounded-lg border-slate-300 bg-slate-50 p-3.5 text-slate-900 outline-none focus:bg-white focus:ring-2 focus:ring-orange-200 focus:border-orange-500 transition-all resize-none shadow-sm leading-relaxed";
     const labelClass = "block text-sm font-bold text-slate-700 mb-2";
+    const fieldError = (name: string) => showErrors && !formData[name as keyof typeof formData] ? errorBorder : "";
+    const fieldErrorMsg = (name: string) => showErrors && !formData[name as keyof typeof formData] ? <p className="text-xs text-red-500 mt-1">この項目は必須です</p> : null;
+    const inlineError = (name: string) => fieldErrors[name] ? <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p> : null;
     const sectionTitle = "text-lg font-bold text-slate-900 mb-4 flex items-center gap-2 border-b border-slate-200 pb-2";
     const editableBadge = <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-green-50 text-green-600 border border-green-100">訂正可</span>;
 
@@ -408,20 +439,22 @@ export default function CreateEventPage() {
                 ) : null}
 
                 {/* Progress Bar */}
-                <div className="mb-14 px-2">
-                    <div className="flex justify-between relative max-w-md mx-auto">
-                        <div className="absolute top-[28px] left-0 w-full h-1.5 bg-slate-100 -z-10 rounded-full"></div>
+                <div className="mb-10 px-2">
+                    <div className="flex justify-between relative max-w-lg mx-auto">
+                        {/* Background line */}
+                        <div className="absolute top-7 left-[calc(100%/(2*3))] right-[calc(100%/(2*3))] h-1.5 bg-slate-100 rounded-full"></div>
+                        {/* Active line */}
                         <div
-                            className="absolute top-[28px] left-0 h-1.5 bg-orange-500 -z-10 rounded-full transition-all duration-500 ease-out shadow-[0_0_10px_rgba(249,115,22,0.3)]"
-                            style={{ width: `${((step - 1) / (steps.length - 1)) * 100}%` }}
+                            className="absolute top-7 left-[calc(100%/(2*3))] h-1.5 bg-orange-500 rounded-full transition-all duration-500 ease-out shadow-[0_0_10px_rgba(249,115,22,0.3)]"
+                            style={{ width: `${((step - 1) / (steps.length - 1)) * (100 - 100 / steps.length)}%` }}
                         ></div>
 
                         {steps.map((s) => (
-                            <div key={s.id} className="flex flex-col items-center gap-3 relative">
+                            <div key={s.id} className="flex flex-col items-center gap-2 z-10">
                                 <div className={cn(
                                     "w-14 h-14 rounded-full flex items-center justify-center border-4 transition-all duration-500 relative bg-white",
                                     step >= s.id
-                                        ? "border-orange-500 text-orange-600 shadow-lg shadow-orange-100 scale-110 z-10"
+                                        ? "border-orange-500 text-orange-600 shadow-lg shadow-orange-100 scale-110"
                                         : "border-slate-100 text-slate-300"
                                 )}>
                                     <s.icon className={cn(
@@ -435,8 +468,8 @@ export default function CreateEventPage() {
                                     )}
                                 </div>
                                 <span className={cn(
-                                    "text-xs font-bold tracking-wider transition-all duration-500 absolute -bottom-8 w-24 text-center select-none",
-                                    step === s.id ? "text-orange-600 scale-110" : step > s.id ? "text-orange-400" : "text-slate-300"
+                                    "text-xs font-bold tracking-wider transition-all duration-500 select-none",
+                                    step === s.id ? "text-orange-600" : step > s.id ? "text-orange-400" : "text-slate-300"
                                 )}>
                                     {s.title}
                                 </span>
@@ -458,11 +491,12 @@ export default function CreateEventPage() {
                                 <div className="space-y-4">
                                     <div>
                                         <label className={labelClass}>イベント名 </label>
-                                        <input name="eventName" value={formData.eventName} onChange={handleChange} className={inputClass} placeholder="例： 第5回 東京サマーマルシェ" autoFocus />
+                                        <input name="eventName" value={formData.eventName} onChange={handleChange} className={cn(inputClass, fieldError("eventName"))} placeholder="例： 第5回 東京サマーマルシェ" autoFocus />
+                                        {fieldErrorMsg("eventName")}
                                     </div>
                                     <div>
                                         <label className={labelClass}>ジャンル </label>
-                                        <select name="genre" value={formData.genre} onChange={handleChange} className={cn(inputClass, "appearance-none cursor-pointer")}>
+                                        <select name="genre" value={formData.genre} onChange={handleChange} className={cn(inputClass, "appearance-none cursor-pointer", fieldError("genre"))}>
                                             <option value="">選択してください</option>
                                             <option value="マルシェ">マルシェ</option>
                                             <option value="音楽フェス">音楽フェス</option>
@@ -474,11 +508,13 @@ export default function CreateEventPage() {
                                     </div>
                                     <div>
                                         <label className={labelClass}>概要 </label>
-                                        <textarea name="description" value={formData.description} onChange={handleChange} rows={4} className={textareaClass} placeholder="イベントの趣旨、ターゲット層、過去の実績などを詳しく記入してください。" />
+                                        <textarea name="description" value={formData.description} onChange={handleChange} rows={4} className={cn(textareaClass, fieldError("description"))} placeholder="イベントの趣旨、ターゲット層、過去の実績などを詳しく記入してください。" />
+                                        {fieldErrorMsg("description")}
                                     </div>
                                     <div>
                                         <label className={labelClass}>出店内容 </label>
-                                        <textarea name="boothContent" value={formData.boothContent} onChange={handleChange} rows={3} className={textareaClass} placeholder={"例：\n・飲食ブース（キッチンカー含む）\n・ハンドメイド雑貨\n・ワークショップ体験"} />
+                                        <textarea name="boothContent" value={formData.boothContent} onChange={handleChange} rows={3} className={cn(textareaClass, fieldError("boothContent"))} placeholder={"例：\n・飲食ブース（キッチンカー含む）\n・ハンドメイド雑貨\n・ワークショップ体験"} />
+                                        {fieldErrorMsg("boothContent")}
                                     </div>
                                 </div>
                             </section>
@@ -490,7 +526,7 @@ export default function CreateEventPage() {
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
                                             <label className={labelClass}>開催日 (開始) </label>
-                                            <input name="startDate" type="date" value={formData.startDate} onChange={handleChange} className={inputClass} />
+                                            <input name="startDate" type="date" value={formData.startDate} onChange={handleChange} className={cn(inputClass, fieldError("startDate"))} />
                                         </div>
                                         <div>
                                             <label className={labelClass}>開催日 (終了) <span className="text-slate-400 font-normal">（任意）</span></label>
@@ -564,7 +600,8 @@ export default function CreateEventPage() {
                                 <div className="space-y-4">
                                     <div>
                                         <label className={labelClass}>会場名 </label>
-                                        <input name="venueName" value={formData.venueName} onChange={handleChange} className={inputClass} placeholder="例： 代々木公園 イベント広場" />
+                                        <input name="venueName" value={formData.venueName} onChange={handleChange} className={cn(inputClass, fieldError("venueName"))} placeholder="例： 代々木公園 イベント広場" />
+                                        {fieldErrorMsg("venueName")}
                                     </div>
                                     <div>
                                         <label className={labelClass}>郵便番号 <span className="text-slate-400 font-normal">（任意）</span></label>
@@ -582,7 +619,8 @@ export default function CreateEventPage() {
                                     </div>
                                     <div>
                                         <label className={labelClass}>住所 / 所在地 </label>
-                                        <input name="address" value={formData.address} onChange={handleChange} className={inputClass} placeholder="例： 東京都渋谷区神南2-3" />
+                                        <input name="address" value={formData.address} onChange={handleChange} className={cn(inputClass, fieldError("address"))} placeholder="例： 東京都渋谷区神南2-3" />
+                                        {fieldErrorMsg("address")}
                                     </div>
                                     {formData.address ? (
                                         <div className="w-full h-48 rounded-xl overflow-hidden border border-slate-200 shadow-inner bg-slate-50">
@@ -606,16 +644,17 @@ export default function CreateEventPage() {
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
                                             <label className={labelClass}>出店数 </label>
-                                            <input name="recruitCount" type="number" value={formData.recruitCount} onChange={handleChange} className={inputClass} />
+                                            <input name="recruitCount" type="number" value={formData.recruitCount} onChange={handleChange} className={cn(inputClass, fieldError("recruitCount"))} />
                                         </div>
                                         <div>
                                             <label className={labelClass}>出店料 </label>
-                                            <input name="fee" value={formData.fee} onChange={handleChange} className={inputClass} placeholder="例： 1日 5,000円 / 売上の10%" />
+                                            <input name="fee" value={formData.fee} onChange={handleChange} className={cn(inputClass, fieldError("fee"))} placeholder="例： 1日 5,000円 / 売上の10%" />
                                         </div>
                                     </div>
                                     <div>
                                         <label className={labelClass}>会場内ルール </label>
-                                        <textarea name="venueRules" value={formData.venueRules} onChange={handleChange} rows={5} className={textareaClass} placeholder={"例：\n・火気の使用は禁止です\n・ゴミは各自持ち帰り\n・音量は80dB以下"} />
+                                        <textarea name="venueRules" value={formData.venueRules} onChange={handleChange} rows={5} className={cn(textareaClass, fieldError("venueRules"))} placeholder={"例：\n・火気の使用は禁止です\n・ゴミは各自持ち帰り\n・音量は80dB以下"} />
+                                        {fieldErrorMsg("venueRules")}
                                     </div>
                                     <div>
                                         <label className={labelClass}>会場レイアウト <span className="text-slate-400 font-normal">（任意）</span>{editableBadge}</label>
@@ -681,19 +720,23 @@ export default function CreateEventPage() {
                                 <div className="space-y-4">
                                     <div>
                                         <label className={labelClass}>規約の履行 </label>
-                                        <textarea name="termsCompliance" value={formData.termsCompliance} onChange={handleChange} rows={3} className={textareaClass} placeholder="例： 出店者は本規約の全条項を遵守するものとします。" />
+                                        <textarea name="termsCompliance" value={formData.termsCompliance} onChange={handleChange} rows={3} className={cn(textareaClass, fieldError("termsCompliance"))} placeholder="例： 出店者は本規約の全条項を遵守するものとします。" />
+                                        {fieldErrorMsg("termsCompliance")}
                                     </div>
                                     <div>
                                         <label className={labelClass}>出店資格 </label>
-                                        <textarea name="boothQualification" value={formData.boothQualification} onChange={handleChange} rows={3} className={textareaClass} placeholder={"例：\n・食品衛生責任者の資格を有すること\n・営業許可証を取得していること"} />
+                                        <textarea name="boothQualification" value={formData.boothQualification} onChange={handleChange} rows={3} className={cn(textareaClass, fieldError("boothQualification"))} placeholder={"例：\n・食品衛生責任者の資格を有すること\n・営業許可証を取得していること"} />
+                                        {fieldErrorMsg("boothQualification")}
                                     </div>
                                     <div>
                                         <label className={labelClass}>肖像権・個人情報の取り扱い </label>
-                                        <textarea name="privacyPolicy" value={formData.privacyPolicy} onChange={handleChange} rows={3} className={textareaClass} placeholder="例： イベント会場内では撮影を行う場合があります。" />
+                                        <textarea name="privacyPolicy" value={formData.privacyPolicy} onChange={handleChange} rows={3} className={cn(textareaClass, fieldError("privacyPolicy"))} placeholder="例： イベント会場内では撮影を行う場合があります。" />
+                                        {fieldErrorMsg("privacyPolicy")}
                                     </div>
                                     <div>
                                         <label className={labelClass}>キャンセルポリシー </label>
-                                        <textarea name="cancelPolicy" value={formData.cancelPolicy} onChange={handleChange} rows={3} className={textareaClass} placeholder={"例：\n・開催日30日前まで：全額返金\n・14日前まで：50%返金\n・7日前以降：返金不可"} />
+                                        <textarea name="cancelPolicy" value={formData.cancelPolicy} onChange={handleChange} rows={3} className={cn(textareaClass, fieldError("cancelPolicy"))} placeholder={"例：\n・開催日30日前まで：全額返金\n・14日前まで：50%返金\n・7日前以降：返金不可"} />
+                                        {fieldErrorMsg("cancelPolicy")}
                                     </div>
                                 </div>
                             </section>
@@ -705,15 +748,20 @@ export default function CreateEventPage() {
                                 <div className="space-y-4">
                                     <div>
                                         <label className={labelClass}><span className="flex items-center gap-2"><User className="w-4 h-4 text-slate-400" /> 主催者名 </span></label>
-                                        <input name="organizerName" value={formData.organizerName} onChange={handleChange} className={inputClass} placeholder="例： 株式会社イベントプランニング / 田中太郎" />
+                                        <input name="organizerName" value={formData.organizerName} onChange={handleChange} className={cn(inputClass, fieldError("organizerName"))} placeholder="例： 株式会社イベントプランニング / 田中太郎" />
+                                        {fieldErrorMsg("organizerName")}
                                     </div>
                                     <div>
                                         <label className={labelClass}><span className="flex items-center gap-2"><Mail className="w-4 h-4 text-slate-400" /> メールアドレス </span></label>
-                                        <input name="organizerEmail" type="email" value={formData.organizerEmail} onChange={handleChange} className={inputClass} placeholder="例： event@example.com" />
+                                        <input name="organizerEmail" type="email" value={formData.organizerEmail} onChange={handleChange} onBlur={(e) => validateField("organizerEmail", e.target.value)} className={cn(inputClass, fieldError("organizerEmail"), fieldErrors.organizerEmail && errorBorder)} placeholder="例： event@example.com" />
+                                        {fieldErrorMsg("organizerEmail")}
+                                        {inlineError("organizerEmail")}
                                     </div>
                                     <div>
                                         <label className={labelClass}><span className="flex items-center gap-2"><Phone className="w-4 h-4 text-slate-400" /> 電話番号 </span></label>
-                                        <input name="organizerPhone" type="tel" value={formData.organizerPhone} onChange={handleChange} className={inputClass} placeholder="例： 03-1234-5678" />
+                                        <input name="organizerPhone" type="tel" value={formData.organizerPhone} onChange={handleChange} onBlur={(e) => validateField("organizerPhone", e.target.value)} className={cn(inputClass, fieldError("organizerPhone"), fieldErrors.organizerPhone && errorBorder)} placeholder="例： 03-1234-5678" />
+                                        {fieldErrorMsg("organizerPhone")}
+                                        {inlineError("organizerPhone")}
                                     </div>
                                 </div>
                             </section>
@@ -950,6 +998,19 @@ export default function CreateEventPage() {
                                 )}
                             </div>
 
+                            {/* 利用規約同意 */}
+                            <label className="flex items-start gap-3 cursor-pointer bg-orange-50/50 border border-orange-100 rounded-xl p-4">
+                                <input
+                                    type="checkbox"
+                                    checked={agreedToTerms}
+                                    onChange={(e) => setAgreedToTerms(e.target.checked)}
+                                    className="mt-0.5 w-4 h-4 rounded border-slate-300 text-orange-600 focus:ring-orange-500"
+                                />
+                                <span className="text-sm text-slate-700">
+                                    上記の内容を確認し、<a href="/terms" target="_blank" className="text-orange-600 underline hover:text-orange-700">利用規約</a>に同意してイベントを作成します
+                                </span>
+                            </label>
+
                             {error && (
                                 <div className="p-4 bg-red-50 border border-red-100 rounded-xl text-red-600 text-sm flex items-start gap-3">
                                     <AlertCircle className="w-5 h-5 shrink-0" />
@@ -973,7 +1034,6 @@ export default function CreateEventPage() {
                         {step < TOTAL_STEPS ? (
                             <Button
                                 onClick={handleNext}
-                                disabled={!canProceed()}
                                 className="bg-orange-500 hover:bg-orange-600 text-white rounded-full px-8 shadow-md shadow-orange-200"
                             >
                                 次へ進む <ChevronRight className="w-4 h-4 ml-2" />
@@ -981,9 +1041,9 @@ export default function CreateEventPage() {
                         ) : (
                             <Button
                                 onClick={handleSubmit}
-                                disabled={isLoading || isApproved === false}
+                                disabled={isLoading || isApproved === false || !agreedToTerms}
                                 className="bg-slate-900 hover:bg-black text-white rounded-full px-10 shadow-lg h-12 text-base disabled:opacity-50 disabled:cursor-not-allowed"
-                                title={isApproved === false ? "管理者の承認が必要です" : undefined}
+                                title={isApproved === false ? "管理者の承認が必要です" : !agreedToTerms ? "利用規約への同意が必要です" : undefined}
                             >
                                 {isLoading ? "作成中..." : "イベントを作成する"}
                             </Button>

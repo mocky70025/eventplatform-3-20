@@ -26,7 +26,6 @@ export async function getSignedUrl(
         .createSignedUrl(path, expiresIn);
 
     if (error) {
-        console.error(`Failed to create signed URL for ${bucket}/${path}:`, error.message);
         return null;
     }
 

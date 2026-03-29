@@ -20,24 +20,17 @@ export default async function Home({ searchParams }: PageProps) {
     }
   } catch (error) {
     // Silently handle auth errors - user will be null
-    console.error("Home page auth error:", error);
   }
 
-  // Fetch events from Supabase
-  let query = supabase
+  // Build events query
+  let eventsQuery = supabase
     .from("events")
     .select("*, organizers(company_name)")
     .eq("status", "published")
     .order("created_at", { ascending: false });
 
   if (q) {
-    query = query.ilike("event_name", `%${q}%`);
-  }
-
-  const { data: events, error } = await query;
-
-  if (error) {
-    console.error("Error fetching events:", error);
+    eventsQuery = eventsQuery.ilike("event_name", `%${q}%`);
   }
 
   // Fetch user-specific data if logged in
@@ -57,16 +50,22 @@ export default async function Home({ searchParams }: PageProps) {
   let approvedCount = 0;
   let pendingCount = 0;
   let totalParticipations = 0;
+  let events: any[] | null = null;
 
+  // Run events query in parallel with exhibitor query
   if (user) {
-    const { data: exhibitorRows } = await supabase
-      .from("exhibitors")
-      .select("id, shop_name")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false })
-      .limit(1);
+    const [eventsResult, exhibitorResult] = await Promise.all([
+      eventsQuery,
+      supabase
+        .from("exhibitors")
+        .select("id, shop_name")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(1),
+    ]);
 
-    exhibitor = exhibitorRows?.[0] || null;
+    events = eventsResult.data;
+    exhibitor = exhibitorResult.data?.[0] || null;
 
     if (exhibitor) {
       const { data: appData } = await supabase
@@ -94,6 +93,8 @@ export default async function Home({ searchParams }: PageProps) {
         totalParticipations = approvedCount;
       }
     }
+  } else {
+    events = (await eventsQuery).data;
   }
 
   // Helper: compute days remaining until application_period_end

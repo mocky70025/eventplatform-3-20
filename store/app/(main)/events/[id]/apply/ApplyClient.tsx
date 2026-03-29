@@ -4,17 +4,81 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import {
     CheckCircle2, AlertCircle, Loader2, ArrowLeft,
-    Store, User, Mail, Phone, Calendar, Info, Pencil, Save, X
+    Store, User, Mail, Phone, Calendar, Info, Pencil, Save, X, Upload
 } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
+
+const PRESET_EXHIBITOR_FIELDS: Record<string, { label: string; type: string }> = {
+    menu_list: { label: "出店メニュー・商品リスト", type: "textarea" },
+    price_range: { label: "販売価格帯", type: "text" },
+    booth_description: { label: "ブースの装飾・外観の説明", type: "textarea" },
+    power_needed: { label: "電源の要否・必要電力量", type: "text" },
+    water_needed: { label: "水道の要否", type: "text" },
+    gas_usage: { label: "ガス使用の有無", type: "text" },
+    tent_info: { label: "テント持参の有無・サイズ", type: "text" },
+    space_size: { label: "必要なスペースサイズ", type: "text" },
+    vehicle_entry: { label: "車両乗り入れの有無・サイズ", type: "text" },
+    loading_time_preference: { label: "搬入希望時間帯", type: "text" },
+    food_safety_cert: { label: "食品衛生責任者証", type: "file" },
+    business_license: { label: "営業許可証（保健所）", type: "file" },
+    pl_insurance: { label: "PL保険証書", type: "file" },
+    fire_equipment_layout: { label: "火器類配置図", type: "file" },
+    vehicle_inspection: { label: "車検証", type: "file" },
+    allergy_info: { label: "アレルギー表示", type: "file" },
+    staff_count: { label: "当日のスタッフ人数", type: "text" },
+    emergency_contact: { label: "当日の緊急連絡先", type: "text" },
+};
+
+interface FormField {
+    key: string;
+    label: string;
+    type: string;
+}
+
+function parseExhibitorFormFields(event: any): FormField[] {
+    const fields: FormField[] = [];
+    try {
+        const raw = typeof event.exhibitor_form_fields === 'string'
+            ? JSON.parse(event.exhibitor_form_fields)
+            : event.exhibitor_form_fields;
+        if (!raw) return fields;
+
+        // Preset fields
+        if (Array.isArray(raw.preset)) {
+            for (const key of raw.preset) {
+                const preset = PRESET_EXHIBITOR_FIELDS[key];
+                if (preset) {
+                    fields.push({ key, label: preset.label, type: preset.type });
+                }
+            }
+        }
+
+        // Custom fields
+        if (Array.isArray(raw.custom)) {
+            for (const custom of raw.custom) {
+                if (custom.label) {
+                    fields.push({ key: custom.id || custom.label, label: custom.label, type: custom.type || "text" });
+                }
+            }
+        }
+    } catch {
+        // Invalid JSON, skip
+    }
+    return fields;
+}
 
 export default function ApplyClient({ event, exhibitor }: { event: any, exhibitor: any }) {
     const [isLoading, setIsLoading] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
     const [error, setError] = useState("");
     const [message, setMessage] = useState("");
+    const [formAnswers, setFormAnswers] = useState<Record<string, string>>({});
+    const [fileUploading, setFileUploading] = useState<Record<string, boolean>>({});
+    const [agreedToTerms, setAgreedToTerms] = useState(false);
+
+    const formFields = parseExhibitorFormFields(event);
     const [isEditing, setIsEditing] = useState(false);
     const [isSavingProfile, setIsSavingProfile] = useState(false);
     const [profileSaved, setProfileSaved] = useState(false);
@@ -57,6 +121,28 @@ export default function ApplyClient({ event, exhibitor }: { event: any, exhibito
         }
     };
 
+    const handleFileUpload = async (fieldKey: string, file: File) => {
+        setFileUploading(prev => ({ ...prev, [fieldKey]: true }));
+        try {
+            const ext = file.name.split('.').pop();
+            const filePath = `${exhibitor.id}/${fieldKey}_${Date.now()}.${ext}`;
+            const { error: uploadError } = await supabase.storage
+                .from("exhibitor-documents")
+                .upload(filePath, file);
+            if (uploadError) throw uploadError;
+
+            const { data: { publicUrl } } = supabase.storage
+                .from("exhibitor-documents")
+                .getPublicUrl(filePath);
+
+            setFormAnswers(prev => ({ ...prev, [fieldKey]: publicUrl }));
+        } catch (err: any) {
+            setError(err.message || "ファイルのアップロードに失敗しました");
+        } finally {
+            setFileUploading(prev => ({ ...prev, [fieldKey]: false }));
+        }
+    };
+
     const handleApply = async () => {
         setIsLoading(true);
         setError("");
@@ -68,6 +154,7 @@ export default function ApplyClient({ event, exhibitor }: { event: any, exhibito
                     event_id: event.id,
                     exhibitor_id: exhibitor.id,
                     message: message,
+                    form_answers: formFields.length > 0 ? formAnswers : null,
                     status: 'pending'
                 });
 
@@ -84,7 +171,6 @@ export default function ApplyClient({ event, exhibitor }: { event: any, exhibito
                 router.refresh();
             }, 3000);
         } catch (err: any) {
-            console.error("Application error:", err);
             setError(err.message || "申し込みに失敗しました。時間をおいて再度お試しください。");
         } finally {
             setIsLoading(false);
@@ -257,6 +343,76 @@ export default function ApplyClient({ event, exhibitor }: { event: any, exhibito
                 />
             </section>
 
+            {/* Exhibitor Form Fields */}
+            {formFields.length > 0 && (
+                <section className="bg-white rounded-2xl p-8 border border-slate-100 shadow-sm">
+                    <h3 className="text-lg font-bold text-slate-900 mb-2 flex items-center gap-2">
+                        <Info className="w-5 h-5 text-store-600" /> 追加質問
+                    </h3>
+                    <p className="text-sm text-slate-500 mb-6">主催者が設定した質問項目に回答してください。</p>
+                    <div className="space-y-5">
+                        {formFields.map(field => (
+                            <div key={field.key}>
+                                <label className="block text-sm font-bold text-slate-700 mb-1.5">{field.label}</label>
+                                {field.type === "file" ? (
+                                    <div>
+                                        {formAnswers[field.key] ? (
+                                            <div className="flex items-center gap-2 text-sm text-store-600">
+                                                <CheckCircle2 className="w-4 h-4" />
+                                                <span>アップロード済み</span>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setFormAnswers(prev => {
+                                                        const next = { ...prev };
+                                                        delete next[field.key];
+                                                        return next;
+                                                    })}
+                                                    className="text-xs text-slate-400 hover:text-red-500 ml-2"
+                                                >
+                                                    削除
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <label className="flex items-center gap-2 cursor-pointer text-sm text-slate-600 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 hover:border-store-300 transition-colors">
+                                                {fileUploading[field.key] ? (
+                                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                                ) : (
+                                                    <Upload className="w-4 h-4" />
+                                                )}
+                                                <span>{fileUploading[field.key] ? "アップロード中..." : "ファイルを選択"}</span>
+                                                <input
+                                                    type="file"
+                                                    accept="image/*,.pdf"
+                                                    className="hidden"
+                                                    onChange={(e) => {
+                                                        const file = e.target.files?.[0];
+                                                        if (file) handleFileUpload(field.key, file);
+                                                    }}
+                                                />
+                                            </label>
+                                        )}
+                                    </div>
+                                ) : field.type === "textarea" ? (
+                                    <textarea
+                                        value={formAnswers[field.key] || ""}
+                                        onChange={(e) => setFormAnswers(prev => ({ ...prev, [field.key]: e.target.value }))}
+                                        rows={3}
+                                        className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 text-slate-900 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm"
+                                    />
+                                ) : (
+                                    <input
+                                        type="text"
+                                        value={formAnswers[field.key] || ""}
+                                        onChange={(e) => setFormAnswers(prev => ({ ...prev, [field.key]: e.target.value }))}
+                                        className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-slate-900 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm"
+                                    />
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </section>
+            )}
+
             {/* Error Display */}
             {error && (
                 <div className="p-4 bg-red-50 border border-red-100 rounded-2xl text-red-600 text-sm flex items-start gap-3">
@@ -265,11 +421,24 @@ export default function ApplyClient({ event, exhibitor }: { event: any, exhibito
                 </div>
             )}
 
+            {/* 規約同意 */}
+            <label className="flex items-start gap-3 cursor-pointer bg-store-50/50 border border-store-100 rounded-xl p-4">
+                <input
+                    type="checkbox"
+                    checked={agreedToTerms}
+                    onChange={(e) => setAgreedToTerms(e.target.checked)}
+                    className="mt-0.5 w-4 h-4 rounded border-slate-300 text-store-600 focus:ring-store-500"
+                />
+                <span className="text-sm text-slate-700">
+                    イベントの出店規約・キャンセルポリシーを確認し、同意のうえ申し込みます
+                </span>
+            </label>
+
             {/* Apply Button */}
             <div className="pt-4">
                 <Button
                     onClick={handleApply}
-                    disabled={isLoading}
+                    disabled={isLoading || !agreedToTerms}
                     className="w-full h-14 rounded-2xl text-lg font-extrabold shadow-lg shadow-primary/20"
                 >
                     {isLoading ? (

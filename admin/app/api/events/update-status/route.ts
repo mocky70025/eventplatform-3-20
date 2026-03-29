@@ -48,7 +48,6 @@ export async function POST(request: NextRequest) {
         .filter(e => e.length > 0);
 
     if (adminEmails.length === 0) {
-        console.error('[admin/events/update-status] ADMIN_EMAILS is not configured');
         return NextResponse.json({ error: 'アクセスが拒否されました' }, { status: 403 });
     }
 
@@ -90,7 +89,6 @@ export async function POST(request: NextRequest) {
                 .single();
 
             if (error) {
-                console.error('[admin/events/update-status] soft-delete error', error);
                 return NextResponse.json({ error: 'イベントの削除に失敗しました' }, { status: 500 });
             }
 
@@ -102,7 +100,6 @@ export async function POST(request: NextRequest) {
                 target_id: eventId,
                 details: { previous_status: currentEvent.status, new_status: 'deleted' },
             });
-            if (logErr) console.error('[admin/audit] log insert error', logErr);
 
             return NextResponse.json({
                 event: data,
@@ -132,7 +129,6 @@ export async function POST(request: NextRequest) {
             .single();
 
         if (error) {
-            console.error('[admin/events/update-status] update error', error);
             return NextResponse.json({ error: 'ステータスの更新に失敗しました' }, { status: 500 });
         }
 
@@ -143,14 +139,12 @@ export async function POST(request: NextRequest) {
             target_id: eventId,
             details: { previous_status: currentEvent.status, new_status: action },
         });
-        if (logErr) console.error('[admin/audit] log insert error', logErr);
 
         return NextResponse.json({
             event: data,
             ...(logErr ? { warning: '監査ログの記録に失敗しました' } : {}),
         });
     } catch (error: any) {
-        console.error('[admin/events/update-status] request error', error);
         return NextResponse.json({ error: 'サーバーエラーが発生しました' }, { status: 500 });
     }
 }

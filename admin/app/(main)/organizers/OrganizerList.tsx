@@ -64,7 +64,6 @@ export function OrganizerRow({ organizer: initialOrganizer }: { organizer: Organ
             router.refresh();
             setTimeout(() => setIsStaleGuard(false), 1500);
         } catch (err: any) {
-            console.error("Approval update error:", err);
             setErrorMessage(err.message || "不明なエラー");
             // Revert on error
             setOrganizer(prev => ({ ...prev, is_approved: previousState }));

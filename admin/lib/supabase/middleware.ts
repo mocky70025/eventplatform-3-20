@@ -12,7 +12,6 @@ export async function updateSession(request: NextRequest) {
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
     if (!supabaseUrl || !supabaseAnonKey) {
-        console.error('Missing Supabase environment variables in middleware');
         if (!request.nextUrl.pathname.startsWith('/login')) {
             const url = request.nextUrl.clone()
             url.pathname = '/login'
@@ -104,7 +103,6 @@ export async function updateSession(request: NextRequest) {
             return NextResponse.redirect(url)
         }
     } catch (error) {
-        console.error('Admin middleware auth error:', error);
         if (!request.nextUrl.pathname.startsWith('/login')) {
             const url = request.nextUrl.clone()
             url.pathname = '/login'

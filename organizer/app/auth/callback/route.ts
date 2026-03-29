@@ -24,7 +24,6 @@ export async function GET(request: Request) {
     const error_description = searchParams.get('error_description');
 
     if (error) {
-        console.error('Auth error:', error, error_description);
         return NextResponse.redirect(`${origin}/login?error=${encodeURIComponent(error)}&error_description=${encodeURIComponent(error_description || '')}`);
     }
 
@@ -36,7 +35,6 @@ export async function GET(request: Request) {
     const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
 
     if (exchangeError || !data?.user) {
-        console.error('Exchange error:', exchangeError);
         return NextResponse.redirect(`${origin}/login?error=auth-code-error`);
     }
 

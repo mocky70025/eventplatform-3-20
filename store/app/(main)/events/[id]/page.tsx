@@ -37,7 +37,6 @@ export default async function EventDetailPage({ params }: PageProps) {
         }
     } catch (error) {
         // Silently handle auth errors - user will be null
-        console.error("Event detail page auth error:", error);
     }
 
     // 3. If logged in, check if already applied
@@ -75,7 +74,10 @@ export default async function EventDetailPage({ params }: PageProps) {
 
     const venueRulesRaw = (event as Record<string, unknown>).venue_rules as string | string[] | null ?? null;
     const venueRules = Array.isArray(venueRulesRaw) ? venueRulesRaw : venueRulesRaw ? venueRulesRaw.split("\n").filter(Boolean) : null;
-    const cancellationPolicy = (event as Record<string, unknown>).cancellation_policy as string | null ?? null;
+    const cancelPolicy = (event as Record<string, unknown>).cancel_policy as string | null ?? null;
+    const termsCompliance = (event as Record<string, unknown>).terms_compliance as string | null ?? null;
+    const boothQualification = (event as Record<string, unknown>).booth_qualification as string | null ?? null;
+    const privacyPolicy = (event as Record<string, unknown>).privacy_policy as string | null ?? null;
     const postponeDate = (event as Record<string, unknown>).postpone_date as string | null ?? null;
     const boothCount = (event as Record<string, unknown>).booth_count as number | null ?? recruitCount;
 
@@ -240,18 +242,21 @@ export default async function EventDetailPage({ params }: PageProps) {
                         )}
 
                         {/* 会場レイアウト section */}
-                        <div className="bg-white rounded-xl border border-slate-200 p-6">
-                            <h2 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-                                <span className="w-1 h-5 bg-store-500 rounded-full"></span>
-                                会場レイアウト
-                            </h2>
-                            <div className="bg-slate-50 rounded-lg border-2 border-dashed border-slate-200 h-48 flex items-center justify-center">
-                                <div className="text-center">
-                                    <MapPin className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-                                    <p className="text-sm text-slate-400">レイアウト図は準備中です</p>
+                        {(event as Record<string, unknown>).venue_layout_url ? (
+                            <div className="bg-white rounded-xl border border-slate-200 p-6">
+                                <h2 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                                    <span className="w-1 h-5 bg-store-500 rounded-full"></span>
+                                    会場レイアウト
+                                </h2>
+                                <div className="rounded-lg overflow-hidden border border-slate-200">
+                                    <img
+                                        src={(event as Record<string, unknown>).venue_layout_url as string}
+                                        alt="会場レイアウト"
+                                        className="w-full h-auto"
+                                    />
                                 </div>
                             </div>
-                        </div>
+                        ) : null}
 
                         {/* 出店規約 section */}
                         <div className="bg-white rounded-xl border border-slate-200 p-6">
@@ -266,8 +271,8 @@ export default async function EventDetailPage({ params }: PageProps) {
                                         <FileText className="w-4 h-4 text-store-500" />
                                         規約の履行
                                     </h3>
-                                    <p className="text-sm text-slate-600 leading-relaxed pl-6">
-                                        出店者は本規約に同意の上、申し込むものとします。規約に違反した場合、出店許可の取り消し及び今後のイベントへの参加をお断りする場合があります。
+                                    <p className="text-sm text-slate-600 leading-relaxed pl-6 whitespace-pre-wrap">
+                                        {termsCompliance || "出店者は本規約に同意の上、申し込むものとします。規約に違反した場合、出店許可の取り消し及び今後のイベントへの参加をお断りする場合があります。"}
                                     </p>
                                 </div>
                                 {/* 出店資格 */}
@@ -276,18 +281,18 @@ export default async function EventDetailPage({ params }: PageProps) {
                                         <Shield className="w-4 h-4 text-store-500" />
                                         出店資格
                                     </h3>
-                                    <p className="text-sm text-slate-600 leading-relaxed pl-6">
-                                        食品を取り扱う場合は、保健所の営業許可証が必要です。その他関連する許認可をお持ちの方に限ります。
+                                    <p className="text-sm text-slate-600 leading-relaxed pl-6 whitespace-pre-wrap">
+                                        {boothQualification || "食品を取り扱う場合は、保健所の営業許可証が必要です。その他関連する許認可をお持ちの方に限ります。"}
                                     </p>
                                 </div>
-                                {/* 肖像権 */}
+                                {/* 肖像権・個人情報 */}
                                 <div>
                                     <h3 className="flex items-center gap-2 text-sm font-bold text-slate-800 mb-2">
                                         <Camera className="w-4 h-4 text-store-500" />
-                                        肖像権
+                                        肖像権・個人情報の取り扱い
                                     </h3>
-                                    <p className="text-sm text-slate-600 leading-relaxed pl-6">
-                                        イベント中に撮影した写真・動画は、主催者のSNS・Webサイト等で使用する場合があります。予めご了承ください。
+                                    <p className="text-sm text-slate-600 leading-relaxed pl-6 whitespace-pre-wrap">
+                                        {privacyPolicy || "イベント中に撮影した写真・動画は、主催者のSNS・Webサイト等で使用する場合があります。予めご了承ください。"}
                                     </p>
                                 </div>
                                 {/* キャンセルポリシー */}
@@ -296,8 +301,8 @@ export default async function EventDetailPage({ params }: PageProps) {
                                         <XCircle className="w-4 h-4 text-store-500" />
                                         キャンセルポリシー
                                     </h3>
-                                    {cancellationPolicy ? (
-                                        <p className="text-sm text-slate-600 leading-relaxed pl-6 whitespace-pre-wrap">{cancellationPolicy}</p>
+                                    {cancelPolicy ? (
+                                        <p className="text-sm text-slate-600 leading-relaxed pl-6 whitespace-pre-wrap">{cancelPolicy}</p>
                                     ) : (
                                         <div className="pl-6">
                                             <p className="text-sm text-slate-600 leading-relaxed mb-3">
@@ -353,12 +358,24 @@ export default async function EventDetailPage({ params }: PageProps) {
                                     <p className="text-sm text-slate-500 mt-1">{event.address}</p>
                                 )}
                             </div>
-                            <div className="bg-slate-50 rounded-lg border-2 border-dashed border-slate-200 h-48 flex items-center justify-center">
-                                <div className="text-center">
-                                    <MapPin className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-                                    <p className="text-sm text-slate-400">地図は準備中です</p>
+                            {event.address ? (
+                                <div className="rounded-lg overflow-hidden border border-slate-200 aspect-video">
+                                    <iframe
+                                        src={`https://maps.google.com/maps?q=${encodeURIComponent(event.address)}&output=embed&z=15`}
+                                        className="w-full h-full border-0"
+                                        loading="lazy"
+                                        referrerPolicy="no-referrer-when-downgrade"
+                                        title="会場の地図"
+                                    />
                                 </div>
-                            </div>
+                            ) : (
+                                <div className="bg-slate-50 rounded-lg border-2 border-dashed border-slate-200 h-48 flex items-center justify-center">
+                                    <div className="text-center">
+                                        <MapPin className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+                                        <p className="text-sm text-slate-400">住所が設定されていません</p>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -456,6 +473,15 @@ export default async function EventDetailPage({ params }: PageProps) {
                                         </div>
                                     )}
                                 </div>
+                                {event.organizers?.email && (
+                                    <a
+                                        href={`mailto:${event.organizers.email}?subject=${encodeURIComponent(`【${event.event_name}】に関するお問い合わせ`)}`}
+                                        className="mt-4 w-full inline-flex items-center justify-center gap-2 h-10 rounded-xl border border-store-200 text-store-700 hover:bg-store-50 text-sm font-medium transition"
+                                    >
+                                        <Mail className="w-4 h-4" />
+                                        お問い合わせ
+                                    </a>
+                                )}
                             </div>
 
                             {/* Share & Bookmark buttons */}

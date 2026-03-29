@@ -167,7 +167,6 @@ export default function EditEventPage() {
                     setCustomFields(parsedCustomFields);
                 }
             } catch (err: any) {
-                console.error("Fetch error:", err);
                 setError("イベントの取得に失敗しました。");
             } finally {
                 setIsFetching(false);
@@ -232,8 +231,37 @@ export default function EditEventPage() {
         setCustomFields(prev => prev.map(f => f.id === id ? { ...f, label } : f));
     };
 
-    const handleNext = () => setStep(prev => prev + 1);
-    const handleBack = () => setStep(prev => prev - 1);
+    const [showErrors, setShowErrors] = useState(false);
+    const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+    const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    const isValidPhone = (phone: string) => /^[0-9\-]{10,13}$/.test(phone);
+
+    const validateField = (name: string, value: string) => {
+        if (name === "organizerEmail" && value && !isValidEmail(value)) {
+            setFieldErrors(prev => ({ ...prev, [name]: "正しいメールアドレスを入力してください" }));
+        } else if (name === "organizerPhone" && value && !isValidPhone(value)) {
+            setFieldErrors(prev => ({ ...prev, [name]: "正しい電話番号を入力してください（半角数字・ハイフン、10〜13桁）" }));
+        } else {
+            setFieldErrors(prev => { const next = { ...prev }; delete next[name]; return next; });
+        }
+    };
+
+    const handleNext = () => {
+        if (!canProceed()) {
+            setShowErrors(true);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+        }
+        setShowErrors(false);
+        setStep(prev => prev + 1);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+    const handleBack = () => {
+        setShowErrors(false);
+        setStep(prev => prev - 1);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
 
     const searchAddress = async () => {
         const cleanZip = formData.zipCode.replace(/[-\s]/g, "");
@@ -351,7 +379,6 @@ export default function EditEventPage() {
             router.push(`/events/${eventId}`);
             router.refresh();
         } catch (err: any) {
-            console.error("Event update error:", err);
             setError(err.message || "イベントの更新に失敗しました。");
         } finally {
             setIsLoading(false);
@@ -380,15 +407,12 @@ export default function EditEventPage() {
                 .eq("id", eventId)
                 .eq("organizer_id", profile.id);
 
-            console.log("Delete result:", { error, count, eventId, organizerId: profile.id });
-
             if (error) throw error;
             if (count === 0) throw new Error("削除対象が見つかりませんでした。RLSポリシーを確認してください。");
 
             router.push("/");
             router.refresh();
         } catch (err: any) {
-            console.error("Event delete error:", err);
             alert(`イベントの削除に失敗しました: ${err.message || JSON.stringify(err)}`);
         } finally {
             setIsLoading(false);
@@ -427,11 +451,15 @@ export default function EditEventPage() {
     // ドラフト以外は「訂正可」フィールドのみ編集可能
     const isLocked = formData.status !== "draft";
 
+    const errorBorder = "border-red-400 ring-2 ring-red-100";
     const inputClass = "block w-full rounded-lg border-slate-300 bg-slate-50 p-3.5 text-slate-900 outline-none focus:bg-white focus:ring-2 focus:ring-orange-200 focus:border-orange-500 transition-all font-medium shadow-sm";
     const lockedInputClass = "block w-full rounded-lg border-slate-200 bg-slate-100 p-3.5 text-slate-500 outline-none cursor-not-allowed font-medium shadow-sm";
     const textareaClass = "block w-full rounded-lg border-slate-300 bg-slate-50 p-3.5 text-slate-900 outline-none focus:bg-white focus:ring-2 focus:ring-orange-200 focus:border-orange-500 transition-all resize-none shadow-sm leading-relaxed";
     const lockedTextareaClass = "block w-full rounded-lg border-slate-200 bg-slate-100 p-3.5 text-slate-500 outline-none cursor-not-allowed resize-none shadow-sm leading-relaxed";
     const labelClass = "block text-sm font-bold text-slate-700 mb-2";
+    const fieldError = (name: string) => showErrors && !formData[name as keyof typeof formData] ? errorBorder : "";
+    const fieldErrorMsg = (name: string) => showErrors && !formData[name as keyof typeof formData] ? <p className="text-xs text-red-500 mt-1">この項目は必須です</p> : null;
+    const inlineError = (name: string) => fieldErrors[name] ? <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p> : null;
     const sectionTitle = "text-lg font-bold text-slate-900 mb-4 flex items-center gap-2 border-b border-slate-200 pb-2";
     const editableBadge = <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-green-50 text-green-600 border border-green-100">訂正可</span>;
     const lockedBadge = <span className="ml-2 inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-400 border border-slate-200"><Lock className="w-2.5 h-2.5" />変更不可</span>;
@@ -459,20 +487,22 @@ export default function EditEventPage() {
 
             <main className="flex-1 container mx-auto max-w-3xl px-4 py-8">
                 {/* Progress Bar */}
-                <div className="mb-14 px-2">
-                    <div className="flex justify-between relative max-w-md mx-auto">
-                        <div className="absolute top-[28px] left-0 w-full h-1.5 bg-slate-100 -z-10 rounded-full"></div>
+                <div className="mb-10 px-2">
+                    <div className="flex justify-between relative max-w-lg mx-auto">
+                        {/* Background line */}
+                        <div className="absolute top-7 left-[calc(100%/(2*3))] right-[calc(100%/(2*3))] h-1.5 bg-slate-100 rounded-full"></div>
+                        {/* Active line */}
                         <div
-                            className="absolute top-[28px] left-0 h-1.5 bg-orange-500 -z-10 rounded-full transition-all duration-500 ease-out shadow-[0_0_10px_rgba(249,115,22,0.3)]"
-                            style={{ width: `${((step - 1) / (steps.length - 1)) * 100}%` }}
+                            className="absolute top-7 left-[calc(100%/(2*3))] h-1.5 bg-orange-500 rounded-full transition-all duration-500 ease-out shadow-[0_0_10px_rgba(249,115,22,0.3)]"
+                            style={{ width: `${((step - 1) / (steps.length - 1)) * (100 - 100 / steps.length)}%` }}
                         ></div>
 
                         {steps.map((s) => (
-                            <div key={s.id} className="flex flex-col items-center gap-3 relative">
+                            <div key={s.id} className="flex flex-col items-center gap-2 z-10">
                                 <div className={cn(
                                     "w-14 h-14 rounded-full flex items-center justify-center border-4 transition-all duration-500 relative bg-white",
                                     step >= s.id
-                                        ? "border-orange-500 text-orange-600 shadow-lg shadow-orange-100 scale-110 z-10"
+                                        ? "border-orange-500 text-orange-600 shadow-lg shadow-orange-100 scale-110"
                                         : "border-slate-100 text-slate-300"
                                 )}>
                                     <s.icon className={cn(
@@ -486,8 +516,8 @@ export default function EditEventPage() {
                                     )}
                                 </div>
                                 <span className={cn(
-                                    "text-xs font-bold tracking-wider transition-all duration-500 absolute -bottom-8 w-24 text-center select-none",
-                                    step === s.id ? "text-orange-600 scale-110" : step > s.id ? "text-orange-400" : "text-slate-300"
+                                    "text-xs font-bold tracking-wider transition-all duration-500 select-none",
+                                    step === s.id ? "text-orange-600" : step > s.id ? "text-orange-400" : "text-slate-300"
                                 )}>
                                     {s.title}
                                 </span>
@@ -523,7 +553,8 @@ export default function EditEventPage() {
                                 <div className="space-y-4">
                                     <div>
                                         <label className={labelClass}>イベント名 </label>
-                                        <input name="eventName" value={formData.eventName} onChange={handleChange} readOnly={isLocked} className={isLocked ? lockedInputClass : inputClass} placeholder="例： 第5回 東京サマーマルシェ" />
+                                        <input name="eventName" value={formData.eventName} onChange={handleChange} readOnly={isLocked} className={cn(isLocked ? lockedInputClass : inputClass, !isLocked && fieldError("eventName"))} placeholder="例： 第5回 東京サマーマルシェ" />
+                                        {fieldErrorMsg("eventName")}
                                     </div>
                                     <div>
                                         <label className={labelClass}>ジャンル </label>
@@ -539,11 +570,13 @@ export default function EditEventPage() {
                                     </div>
                                     <div>
                                         <label className={labelClass}>概要 </label>
-                                        <textarea name="description" value={formData.description} onChange={handleChange} readOnly={isLocked} rows={4} className={isLocked ? lockedTextareaClass : textareaClass} placeholder="イベントの趣旨、ターゲット層、過去の実績などを詳しく記入してください。" />
+                                        <textarea name="description" value={formData.description} onChange={handleChange} readOnly={isLocked} rows={4} className={cn(isLocked ? lockedTextareaClass : textareaClass, !isLocked && fieldError("description"))} placeholder="イベントの趣旨、ターゲット層、過去の実績などを詳しく記入してください。" />
+                                        {fieldErrorMsg("description")}
                                     </div>
                                     <div>
                                         <label className={labelClass}>出店内容 </label>
-                                        <textarea name="boothContent" value={formData.boothContent} onChange={handleChange} readOnly={isLocked} rows={3} className={isLocked ? lockedTextareaClass : textareaClass} placeholder={"例：\n・飲食ブース（キッチンカー含む）\n・ハンドメイド雑貨\n・ワークショップ体験"} />
+                                        <textarea name="boothContent" value={formData.boothContent} onChange={handleChange} readOnly={isLocked} rows={3} className={cn(isLocked ? lockedTextareaClass : textareaClass, !isLocked && fieldError("boothContent"))} placeholder={"例：\n・飲食ブース（キッチンカー含む）\n・ハンドメイド雑貨\n・ワークショップ体験"} />
+                                        {fieldErrorMsg("boothContent")}
                                     </div>
                                 </div>
                             </section>
@@ -621,7 +654,8 @@ export default function EditEventPage() {
                                 <div className="space-y-4">
                                     <div>
                                         <label className={labelClass}>会場名 </label>
-                                        <input name="venueName" value={formData.venueName} onChange={handleChange} readOnly={isLocked} className={isLocked ? lockedInputClass : inputClass} placeholder="例： 代々木公園 イベント広場" />
+                                        <input name="venueName" value={formData.venueName} onChange={handleChange} readOnly={isLocked} className={cn(isLocked ? lockedInputClass : inputClass, !isLocked && fieldError("venueName"))} placeholder="例： 代々木公園 イベント広場" />
+                                        {fieldErrorMsg("venueName")}
                                     </div>
                                     {!isLocked && (
                                         <div>
@@ -641,7 +675,8 @@ export default function EditEventPage() {
                                     )}
                                     <div>
                                         <label className={labelClass}>住所 / 所在地 </label>
-                                        <input name="address" value={formData.address} onChange={handleChange} readOnly={isLocked} className={isLocked ? lockedInputClass : inputClass} placeholder="例： 東京都渋谷区神南2-3" />
+                                        <input name="address" value={formData.address} onChange={handleChange} readOnly={isLocked} className={cn(isLocked ? lockedInputClass : inputClass, !isLocked && fieldError("address"))} placeholder="例： 東京都渋谷区神南2-3" />
+                                        {fieldErrorMsg("address")}
                                     </div>
                                     {formData.address ? (
                                         <div className="w-full h-48 rounded-xl overflow-hidden border border-slate-200 shadow-inner bg-slate-50">
@@ -665,16 +700,17 @@ export default function EditEventPage() {
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
                                             <label className={labelClass}>出店数 {isLocked && lockedBadge}</label>
-                                            <input name="recruitCount" type="number" value={formData.recruitCount} onChange={handleChange} readOnly={isLocked} className={isLocked ? lockedInputClass : inputClass} />
+                                            <input name="recruitCount" type="number" value={formData.recruitCount} onChange={handleChange} readOnly={isLocked} className={cn(isLocked ? lockedInputClass : inputClass, !isLocked && fieldError("recruitCount"))} />
                                         </div>
                                         <div>
                                             <label className={labelClass}>出店料 {isLocked && lockedBadge}</label>
-                                            <input name="fee" value={formData.fee} onChange={handleChange} readOnly={isLocked} className={isLocked ? lockedInputClass : inputClass} placeholder="例： 1日 5,000円 / 売上の10%" />
+                                            <input name="fee" value={formData.fee} onChange={handleChange} readOnly={isLocked} className={cn(isLocked ? lockedInputClass : inputClass, !isLocked && fieldError("fee"))} placeholder="例： 1日 5,000円 / 売上の10%" />
                                         </div>
                                     </div>
                                     <div>
                                         <label className={labelClass}>会場内ルール {isLocked && lockedBadge}</label>
-                                        <textarea name="venueRules" value={formData.venueRules} onChange={handleChange} readOnly={isLocked} rows={5} className={isLocked ? lockedTextareaClass : textareaClass} placeholder={"例：\n・火気の使用は禁止です\n・ゴミは各自持ち帰り\n・音量は80dB以下"} />
+                                        <textarea name="venueRules" value={formData.venueRules} onChange={handleChange} readOnly={isLocked} rows={5} className={cn(isLocked ? lockedTextareaClass : textareaClass, !isLocked && fieldError("venueRules"))} placeholder={"例：\n・火気の使用は禁止です\n・ゴミは各自持ち帰り\n・音量は80dB以下"} />
+                                        {fieldErrorMsg("venueRules")}
                                     </div>
                                     <div>
                                         <label className={labelClass}>会場レイアウト <span className="text-slate-400 font-normal">（任意）</span>{editableBadge}</label>
@@ -752,19 +788,23 @@ export default function EditEventPage() {
                                 <div className="space-y-4">
                                     <div>
                                         <label className={labelClass}>規約の履行 </label>
-                                        <textarea name="termsCompliance" value={formData.termsCompliance} onChange={handleChange} readOnly={isLocked} rows={3} className={isLocked ? lockedTextareaClass : textareaClass} placeholder="例： 出店者は本規約の全条項を遵守するものとします。" />
+                                        <textarea name="termsCompliance" value={formData.termsCompliance} onChange={handleChange} readOnly={isLocked} rows={3} className={cn(isLocked ? lockedTextareaClass : textareaClass, !isLocked && fieldError("termsCompliance"))} placeholder="例： 出店者は本規約の全条項を遵守するものとします。" />
+                                        {fieldErrorMsg("termsCompliance")}
                                     </div>
                                     <div>
                                         <label className={labelClass}>出店資格 </label>
-                                        <textarea name="boothQualification" value={formData.boothQualification} onChange={handleChange} readOnly={isLocked} rows={3} className={isLocked ? lockedTextareaClass : textareaClass} placeholder={"例：\n・食品衛生責任者の資格を有すること\n・営業許可証を取得していること"} />
+                                        <textarea name="boothQualification" value={formData.boothQualification} onChange={handleChange} readOnly={isLocked} rows={3} className={cn(isLocked ? lockedTextareaClass : textareaClass, !isLocked && fieldError("boothQualification"))} placeholder={"例：\n・食品衛生責任者の資格を有すること\n・営業許可証を取得していること"} />
+                                        {fieldErrorMsg("boothQualification")}
                                     </div>
                                     <div>
                                         <label className={labelClass}>肖像権・個人情報の取り扱い </label>
-                                        <textarea name="privacyPolicy" value={formData.privacyPolicy} onChange={handleChange} readOnly={isLocked} rows={3} className={isLocked ? lockedTextareaClass : textareaClass} placeholder="例： イベント会場内では撮影を行う場合があります。" />
+                                        <textarea name="privacyPolicy" value={formData.privacyPolicy} onChange={handleChange} readOnly={isLocked} rows={3} className={cn(isLocked ? lockedTextareaClass : textareaClass, !isLocked && fieldError("privacyPolicy"))} placeholder="例： イベント会場内では撮影を行う場合があります。" />
+                                        {fieldErrorMsg("privacyPolicy")}
                                     </div>
                                     <div>
                                         <label className={labelClass}>キャンセルポリシー </label>
-                                        <textarea name="cancelPolicy" value={formData.cancelPolicy} onChange={handleChange} readOnly={isLocked} rows={3} className={isLocked ? lockedTextareaClass : textareaClass} placeholder={"例：\n・開催日30日前まで：全額返金\n・14日前まで：50%返金\n・7日前以降：返金不可"} />
+                                        <textarea name="cancelPolicy" value={formData.cancelPolicy} onChange={handleChange} readOnly={isLocked} rows={3} className={cn(isLocked ? lockedTextareaClass : textareaClass, !isLocked && fieldError("cancelPolicy"))} placeholder={"例：\n・開催日30日前まで：全額返金\n・14日前まで：50%返金\n・7日前以降：返金不可"} />
+                                        {fieldErrorMsg("cancelPolicy")}
                                     </div>
                                 </div>
                             </section>
@@ -776,15 +816,20 @@ export default function EditEventPage() {
                                 <div className="space-y-4">
                                     <div>
                                         <label className={labelClass}><span className="flex items-center gap-2"><User className="w-4 h-4 text-slate-400" /> 主催者名 </span></label>
-                                        <input name="organizerName" value={formData.organizerName} onChange={handleChange} readOnly={isLocked} className={isLocked ? lockedInputClass : inputClass} placeholder="例： 株式会社イベントプランニング / 田中太郎" />
+                                        <input name="organizerName" value={formData.organizerName} onChange={handleChange} readOnly={isLocked} className={cn(isLocked ? lockedInputClass : inputClass, !isLocked && fieldError("organizerName"))} placeholder="例： 株式会社イベントプランニング / 田中太郎" />
+                                        {fieldErrorMsg("organizerName")}
                                     </div>
                                     <div>
                                         <label className={labelClass}><span className="flex items-center gap-2"><Mail className="w-4 h-4 text-slate-400" /> メールアドレス </span></label>
-                                        <input name="organizerEmail" type="email" value={formData.organizerEmail} onChange={handleChange} readOnly={isLocked} className={isLocked ? lockedInputClass : inputClass} placeholder="例： event@example.com" />
+                                        <input name="organizerEmail" type="email" value={formData.organizerEmail} onChange={handleChange} onBlur={(e) => !isLocked && validateField("organizerEmail", e.target.value)} readOnly={isLocked} className={cn(isLocked ? lockedInputClass : inputClass, !isLocked && fieldError("organizerEmail"), !isLocked && fieldErrors.organizerEmail && errorBorder)} placeholder="例： event@example.com" />
+                                        {fieldErrorMsg("organizerEmail")}
+                                        {inlineError("organizerEmail")}
                                     </div>
                                     <div>
                                         <label className={labelClass}><span className="flex items-center gap-2"><Phone className="w-4 h-4 text-slate-400" /> 電話番号 </span></label>
-                                        <input name="organizerPhone" type="tel" value={formData.organizerPhone} onChange={handleChange} readOnly={isLocked} className={isLocked ? lockedInputClass : inputClass} placeholder="例： 03-1234-5678" />
+                                        <input name="organizerPhone" type="tel" value={formData.organizerPhone} onChange={handleChange} onBlur={(e) => !isLocked && validateField("organizerPhone", e.target.value)} readOnly={isLocked} className={cn(isLocked ? lockedInputClass : inputClass, !isLocked && fieldError("organizerPhone"), !isLocked && fieldErrors.organizerPhone && errorBorder)} placeholder="例： 03-1234-5678" />
+                                        {fieldErrorMsg("organizerPhone")}
+                                        {inlineError("organizerPhone")}
                                     </div>
                                 </div>
                             </section>
@@ -1064,7 +1109,7 @@ export default function EditEventPage() {
                             <ChevronLeft className="w-4 h-4 mr-1" /> 戻る
                         </Button>
                         {step < TOTAL_STEPS ? (
-                            <Button onClick={handleNext} disabled={!canProceed()} className="bg-orange-500 hover:bg-orange-600 text-white rounded-full px-8 h-12 font-bold shadow-lg shadow-orange-200">
+                            <Button onClick={handleNext} className="bg-orange-500 hover:bg-orange-600 text-white rounded-full px-8 h-12 font-bold shadow-lg shadow-orange-200">
                                 次へ <ChevronRight className="w-4 h-4 ml-1" />
                             </Button>
                         ) : (

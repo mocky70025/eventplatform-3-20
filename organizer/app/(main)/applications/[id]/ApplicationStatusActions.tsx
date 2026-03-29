@@ -65,7 +65,6 @@ export default function ApplicationStatusActions({
             setStatus(newStatus);
             router.refresh();
         } catch (error: any) {
-            console.error("Error updating application status:", error);
             setError(error.message || "不明なエラーが発生しました");
         } finally {
             setIsLoading(false);

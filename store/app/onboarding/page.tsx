@@ -147,7 +147,6 @@ export default function OnboardingPage() {
             router.push("/");
             router.refresh();
         } catch (error: any) {
-            console.error("Onboarding error:", error);
             setError(error.message || "登録に失敗しました");
         } finally {
             setIsLoading(false);

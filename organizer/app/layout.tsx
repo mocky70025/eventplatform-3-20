@@ -7,6 +7,7 @@ import "./globals.css";
 const notoSansJP = Noto_Sans_JP({
   subsets: ["latin"],
   variable: "--font-noto-sans-jp",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -21,10 +22,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja">
-      <head>
-        {/* eslint-disable-next-line @next/next/no-sync-scripts */}
-        <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
-      </head>
       <body
         className={`${notoSansJP.variable} antialiased bg-slate-50 text-slate-900 font-sans`}
       >

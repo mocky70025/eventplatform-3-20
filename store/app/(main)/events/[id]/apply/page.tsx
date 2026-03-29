@@ -18,7 +18,6 @@ export default async function ApplyPage({ params }: PageProps) {
             user = data.user;
         }
     } catch (error) {
-        console.error("Apply page auth error:", error);
         redirect("/login");
     }
     if (!user) redirect("/login");

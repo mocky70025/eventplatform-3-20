@@ -21,10 +21,7 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
             user = data.user;
         }
     } catch (error: any) {
-        // Ignore AuthSessionMissingError - it's expected when not logged in
-        if (error?.name !== 'AuthSessionMissingError' && error?.message !== 'Auth session missing!') {
-            console.error("Auth error:", error);
-        }
+        // ignore
     }
 
     if (!user) {

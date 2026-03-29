@@ -16,9 +16,7 @@ export default async function ExhibitorDetailPage({ params }: { params: Promise<
             user = data.user;
         }
     } catch (error: any) {
-        if (error?.name !== 'AuthSessionMissingError' && error?.message !== 'Auth session missing!') {
-            console.error("Auth error:", error);
-        }
+        // ignore
     }
 
     if (!user) {

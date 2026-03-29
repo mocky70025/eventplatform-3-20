@@ -32,7 +32,6 @@ export default function DocumentCard({ label, imageUrl, required = false }: {
                 sizes="(max-width: 768px) 100vw, 400px"
                 className="object-cover"
                 onError={() => {
-                    console.error(`Failed to load image for ${label}:`, imageUrl);
                     setImageError(true);
                 }}
             />

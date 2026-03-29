@@ -6,7 +6,7 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!supabaseUrl || !serviceRoleKey) {
-    console.error('[admin/update-approval] Missing Supabase environment variables');
+    // ignore
 }
 
 const supabaseAdmin = supabaseUrl && serviceRoleKey
@@ -46,7 +46,6 @@ export async function POST(request: NextRequest) {
         : [];
 
     if (adminEmails.length === 0) {
-        console.error('[admin/update-approval] ADMIN_EMAILS is not configured');
         return NextResponse.json(
             { error: 'アクセスが拒否されました' },
             { status: 403 }
@@ -88,7 +87,6 @@ export async function POST(request: NextRequest) {
             .single();
 
         if (error) {
-            console.error('[admin/update-approval] update error', error);
             return NextResponse.json(
                 { error: '主催者の更新に失敗しました' },
                 { status: 500 }
@@ -103,14 +101,12 @@ export async function POST(request: NextRequest) {
             target_id: organizerId,
             details: { is_approved: isApproved },
         });
-        if (logErr) console.error('[admin/audit] log insert error', logErr);
 
         return NextResponse.json({
             organizer: data,
             ...(logErr ? { warning: '監査ログの記録に失敗しました' } : {}),
         });
     } catch (error: any) {
-        console.error('[admin/update-approval] request error', error);
         return NextResponse.json(
             { error: 'サーバーエラーが発生しました' },
             { status: 500 }

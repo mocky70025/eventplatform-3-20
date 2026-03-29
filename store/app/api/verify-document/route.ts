@@ -13,7 +13,6 @@ const RATE_WINDOW_SECONDS = 60; // 1 minute
 export async function POST(req: Request) {
     try {
         if (!openai) {
-            console.error("OpenAI API key is missing.");
             return NextResponse.json({ error: "AIサービスの初期化に失敗しました" }, { status: 500 });
         }
 
@@ -32,7 +31,6 @@ export async function POST(req: Request) {
             p_window_seconds: RATE_WINDOW_SECONDS,
         });
         if (rlError) {
-            console.error("Rate limit check error:", rlError.message);
             return NextResponse.json({ error: "サーバーエラーが発生しました" }, { status: 500 });
         }
         if (!allowed) {
@@ -108,7 +106,6 @@ export async function POST(req: Request) {
         try {
             result = JSON.parse(content);
         } catch {
-            console.error("AI response was not valid JSON:", content);
             return NextResponse.json({ error: "AIからの応答を解析できませんでした" }, { status: 500 });
         }
 
@@ -144,7 +141,6 @@ export async function POST(req: Request) {
         });
 
     } catch (error: any) {
-        console.error("AI verify error:", error);
         return NextResponse.json({ error: "AIチェック中にエラーが発生しました" }, { status: 500 });
     }
 }

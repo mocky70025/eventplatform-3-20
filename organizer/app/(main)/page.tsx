@@ -20,55 +20,40 @@ export default async function Home() {
     .eq("user_id", user.id)
     .maybeSingle();
 
-  if (profileError) {
-    console.error("Error fetching organizer profile:", profileError);
-  }
+  // profileError is handled by the !profile redirect below
 
   // If no profile, redirect to onboarding
   if (!profile) {
     redirect("/onboarding");
   }
 
-  // Fetch real events
-  const { data: events, error: eventsError } = await supabase
-    .from("events")
-    .select("*, event_applications(count)")
-    .eq("organizer_id", profile.id)
-    .order("created_at", { ascending: false });
+  // Fetch events + application counts in parallel
+  const [eventsResult, pendingResult, totalResult, approvedResult] = await Promise.all([
+    supabase
+      .from("events")
+      .select("*, event_applications(count)")
+      .eq("organizer_id", profile.id)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("event_applications")
+      .select("id, events!inner(id, organizer_id)", { count: "exact", head: true })
+      .eq("events.organizer_id", profile.id)
+      .eq("status", "pending"),
+    supabase
+      .from("event_applications")
+      .select("id, events!inner(id, organizer_id)", { count: "exact", head: true })
+      .eq("events.organizer_id", profile.id),
+    supabase
+      .from("event_applications")
+      .select("id, events!inner(id, organizer_id)", { count: "exact", head: true })
+      .eq("events.organizer_id", profile.id)
+      .eq("status", "approved"),
+  ]);
 
-  if (eventsError) {
-    console.error("Error fetching events:", eventsError);
-  }
-
-  // Ensure events is always an array to prevent hydration issues
-  const safeEvents = events || [];
-
-  // Fetch real pending applications count
-  // Use the same method as applications/page.tsx - join with events to filter by organizer_id
-  // Fetch pending applications
-  let pendingApplications = 0;
-  const { data: pendingApps, error: pendingError } = await supabase
-    .from("event_applications")
-    .select(`id, status, events!inner(id, organizer_id)`)
-    .eq("events.organizer_id", profile.id)
-    .eq("status", "pending");
-
-  if (!pendingError && pendingApps) {
-    pendingApplications = pendingApps.length;
-  }
-
-  // Fetch total and approved applications
-  let totalApplications = 0;
-  let approvedApplications = 0;
-  const { data: allApps, error: allAppsError } = await supabase
-    .from("event_applications")
-    .select(`id, status, events!inner(id, organizer_id)`)
-    .eq("events.organizer_id", profile.id);
-
-  if (!allAppsError && allApps) {
-    totalApplications = allApps.length;
-    approvedApplications = allApps.filter((a: any) => a.status === "approved").length;
-  }
+  const safeEvents = eventsResult.data || [];
+  const pendingApplications = pendingResult.count ?? 0;
+  const totalApplications = totalResult.count ?? 0;
+  const approvedApplications = approvedResult.count ?? 0;
 
   // Derive stats
   const publishedEventsCount = safeEvents.filter(e => e.status === 'published').length;
@@ -203,13 +188,13 @@ export default async function Home() {
                             </h3>
                             <span className={cn(
                               "h-5 inline-flex items-center justify-center text-xs font-semibold px-2.5 rounded-full",
-                              event?.status === 'published'
-                                ? "bg-orange-100 text-orange-700"
-                                : event?.status === 'draft'
-                                ? "bg-slate-100 text-slate-600"
+                              event?.status === 'published' ? "bg-orange-100 text-orange-700"
+                                : event?.status === 'pending' ? "bg-amber-100 text-amber-700"
+                                : event?.status === 'rejected' ? "bg-red-100 text-red-700"
+                                : event?.status === 'draft' ? "bg-slate-100 text-slate-600"
                                 : "bg-slate-100 text-slate-600"
                             )} style={{ lineHeight: 1 }}>
-                              {event?.status === 'published' ? '募集中' : event?.status === 'draft' ? '下書き' : '募集終了'}
+                              {event?.status === 'published' ? '募集中' : event?.status === 'pending' ? '審査中' : event?.status === 'rejected' ? '却下' : event?.status === 'draft' ? '下書き' : '募集終了'}
                             </span>
                           </div>
                           <div className="flex items-center gap-4 text-sm text-slate-500">

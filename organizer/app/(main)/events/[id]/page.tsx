@@ -112,7 +112,6 @@ export default function EventDetailPage() {
             setApplications(normalized as unknown as Application[]);
 
         } catch (err: any) {
-            console.error("Fetch error:", err);
             setError(err.message || "データの取得に失敗しました");
         } finally {
             setIsLoading(false);
@@ -154,13 +153,15 @@ export default function EventDetailPage() {
             if (!org) throw new Error("主催者プロフィールが見つかりません");
 
             // Delete with ownership check
-            const { error } = await supabase
+            const { error, count } = await supabase
                 .from("events")
-                .delete()
+                .delete({ count: "exact" })
                 .eq("id", eventId)
                 .eq("organizer_id", org.id);
             if (error) throw error;
+            if (count === 0) throw new Error("削除対象が見つかりませんでした。権限を確認してください。");
             router.push("/");
+            router.refresh();
         } catch (err: any) {
             setActionMessage({ type: "error", text: "削除に失敗しました: " + (err.message || "不明なエラー") });
         }
@@ -278,7 +279,16 @@ export default function EventDetailPage() {
     const pendingCount = applications.filter(a => a.status === 'pending').length;
     const rejectedCount = applications.filter(a => a.status === 'rejected').length;
 
-    const statusLabel = event.status === 'published' ? "募集中" : event.status === 'closed' ? "募集終了" : "非公開";
+    const statusMap: Record<string, { label: string; className: string }> = {
+        published: { label: "募集中", className: "bg-orange-100/90 text-orange-700" },
+        pending: { label: "審査中", className: "bg-amber-100/90 text-amber-700" },
+        draft: { label: "下書き", className: "bg-slate-100/90 text-slate-600" },
+        closed: { label: "募集終了", className: "bg-slate-100/90 text-slate-600" },
+        ended: { label: "終了", className: "bg-slate-100/90 text-slate-500" },
+        rejected: { label: "却下", className: "bg-red-100/90 text-red-700" },
+    };
+    const statusInfo = statusMap[event.status] || statusMap.draft;
+    const statusLabel = statusInfo.label;
 
     const bgColors = ['bg-emerald-100', 'bg-pink-100', 'bg-purple-100', 'bg-sky-100', 'bg-amber-100', 'bg-rose-100'];
     const textColors = ['text-emerald-700', 'text-pink-700', 'text-purple-700', 'text-sky-700', 'text-amber-700', 'text-rose-700'];
@@ -356,7 +366,7 @@ export default function EventDetailPage() {
                             </div>
                         )}
                         <div className="absolute top-4 right-4 flex gap-2">
-                            <span className="h-7 inline-flex items-center justify-center px-3 rounded-full bg-white/90 backdrop-blur text-orange-700 text-xs font-bold shadow-sm" style={{ lineHeight: 1 }}>
+                            <span className={cn("h-7 inline-flex items-center justify-center px-3 rounded-full backdrop-blur text-xs font-bold shadow-sm", statusInfo.className)} style={{ lineHeight: 1 }}>
                                 {statusLabel}
                             </span>
                         </div>
