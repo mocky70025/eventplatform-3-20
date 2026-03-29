@@ -32,13 +32,14 @@ export function CancelApplicationButton({ applicationId }: { applicationId: stri
             const exhibitor = exhibitors?.[0];
             if (!exhibitor) throw new Error("出展者情報が見つかりません");
 
-            const { error } = await supabase
+            const { error, count } = await supabase
                 .from("event_applications")
-                .delete()
+                .delete({ count: "exact" })
                 .eq("id", applicationId)
                 .eq("exhibitor_id", exhibitor.id);
 
             if (error) throw error;
+            if (count === 0) throw new Error("取り消し対象が見つかりませんでした。ページを再読み込みしてお試しください。");
 
             router.push("/applications");
             router.refresh();
