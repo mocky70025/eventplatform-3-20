@@ -262,9 +262,10 @@ export function DocumentsSection({ initialProfile }: DocumentsSectionProps) {
                                         </>
                                     ) : (
                                         <Button
+                                            variant="outline"
                                             type="button"
                                             onClick={() => fileInputRefs.current[doc.key]?.click()}
-                                            className="text-sm text-store-600 border border-store-200 hover:bg-store-50 rounded-lg px-3 py-1.5 h-auto"
+                                            className="text-sm text-store-600 border-store-200 hover:bg-store-50 rounded-lg px-3 py-1.5 h-auto"
                                         >
                                             アップロード
                                         </Button>
