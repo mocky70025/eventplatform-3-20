@@ -6,11 +6,12 @@ const supabaseHostname = process.env.NEXT_PUBLIC_SUPABASE_URL
 
 const cspDirectives = [
   "default-src 'self'",
-  `connect-src 'self' ${supabaseHostname ? `https://${supabaseHostname}` : ""} https://api.line.me https://mcp.figma.com`,
+  `connect-src 'self' ${supabaseHostname ? `https://${supabaseHostname}` : ""} https://mcp.figma.com`,
   `img-src 'self' data: blob: ${supabaseHostname ? `https://${supabaseHostname}` : ""}`,
   "script-src 'self' 'unsafe-inline' https://mcp.figma.com",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com",
+  "frame-src 'self' https://maps.google.com https://www.google.com",
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",

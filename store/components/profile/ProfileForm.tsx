@@ -369,7 +369,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
                         name="storeName"
                         value={formData.storeName}
                         onChange={handleChange}
-                        placeholder="例: やきとり太郎"
+                        placeholder="やきとり太郎"
                         className={cn(inputClass, showErrors && !formData.storeName && "border-red-400 focus:ring-red-500 focus:border-red-500")}
                     />
                     {showErrors && !formData.storeName && (
@@ -387,7 +387,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
                             name="repName"
                             value={formData.repName}
                             onChange={handleChange}
-                            placeholder="例: 山田 太郎"
+                            placeholder="山田 太郎"
                             className={cn(inputClass, showErrors && !formData.repName && "border-red-400 focus:ring-red-500 focus:border-red-500")}
                         />
                         {showErrors && !formData.repName && (
@@ -403,7 +403,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
                             value={formData.phone}
                             onChange={handleChange}
                             type="tel"
-                            placeholder="例: 090-1234-5678"
+                            placeholder="090-1234-5678"
                             className={cn(inputClass, showErrors && !formData.phone && "border-red-400 focus:ring-red-500 focus:border-red-500")}
                         />
                         {showErrors && !formData.phone && (
@@ -436,7 +436,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
                         name="address"
                         value={formData.address}
                         onChange={handleChange}
-                        placeholder="例: 東京都渋谷区..."
+                        placeholder="東京都渋谷区..."
                         className={inputClass}
                     />
                 </div>

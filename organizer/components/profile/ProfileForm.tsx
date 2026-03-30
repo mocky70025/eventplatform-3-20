@@ -241,7 +241,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
                         name="companyName"
                         value={formData.companyName}
                         onChange={handleChange}
-                        placeholder="例: 株式会社イベントプロ"
+                        placeholder="株式会社イベントプロ"
                         className={showErrors && !formData.companyName ? inputClass + " border-red-400 focus:ring-red-500 focus:border-red-500" : inputClass}
                     />
                     {showErrors && !formData.companyName && (
@@ -256,7 +256,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
                             name="repName"
                             value={formData.repName}
                             onChange={handleChange}
-                            placeholder="例: 山田 太郎"
+                            placeholder="山田 太郎"
                             className={showErrors && !formData.repName ? inputClass + " border-red-400 focus:ring-red-500 focus:border-red-500" : inputClass}
                         />
                         {showErrors && !formData.repName && (
@@ -270,7 +270,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
                             value={formData.phone}
                             onChange={handleChange}
                             type="tel"
-                            placeholder="例: 03-1234-5678"
+                            placeholder="03-1234-5678"
                             className={showErrors && !formData.phone ? inputClass + " border-red-400 focus:ring-red-500 focus:border-red-500" : inputClass}
                         />
                         {showErrors && !formData.phone && (
@@ -297,7 +297,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
                         name="address"
                         value={formData.address}
                         onChange={handleChange}
-                        placeholder="例: 東京都渋谷区..."
+                        placeholder="東京都渋谷区..."
                         className={inputClass}
                     />
                 </div>

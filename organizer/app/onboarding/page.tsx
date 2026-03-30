@@ -50,8 +50,21 @@ export default function OnboardingPage() {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
+    const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    const isValidPhone = (phone: string) => /^[\d\-+() ]{10,15}$/.test(phone.replace(/\s/g, ''));
+
     const handleSubmit = async () => {
         if (isLoading) return;
+
+        if (!isValidEmail(formData.email)) {
+            setError("有効なメールアドレスを入力してください");
+            return;
+        }
+        if (!isValidPhone(formData.phone)) {
+            setError("有効な電話番号を入力してください（10〜15桁の数字）");
+            return;
+        }
+
         setIsLoading(true);
         setError("");
 
@@ -88,7 +101,7 @@ export default function OnboardingPage() {
     const inputClassNameNoIcon = "w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition placeholder:text-slate-400";
 
     return (
-        <div className="min-h-screen relative overflow-hidden flex items-center justify-center bg-gradient-to-br from-slate-50 via-orange-50 to-amber-50/20">
+        <div className="min-h-screen relative overflow-hidden flex items-center justify-center py-12 bg-gradient-to-br from-slate-50 via-orange-50 to-amber-50/20">
             {/* Background decorations */}
             <div className="absolute -top-[120px] -left-[60px] w-[400px] h-[400px] rounded-full bg-orange-200 opacity-15" />
             <div className="absolute -bottom-[100px] -right-[80px] w-[350px] h-[350px] rounded-full bg-orange-300 opacity-10" />
@@ -142,7 +155,7 @@ export default function OnboardingPage() {
                                     value={formData.companyName}
                                     onChange={handleChange}
                                     className={inputClassName}
-                                    placeholder="例: 株式会社イベントプロ"
+                                    placeholder="株式会社イベントプロ"
                                 />
                             </div>
                         </div>
@@ -156,7 +169,7 @@ export default function OnboardingPage() {
                                     value={formData.repName}
                                     onChange={handleChange}
                                     className={inputClassName}
-                                    placeholder="例: 山田 太郎"
+                                    placeholder="山田 太郎"
                                 />
                             </div>
                         </div>

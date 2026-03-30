@@ -6,7 +6,7 @@ const supabaseHostname = process.env.NEXT_PUBLIC_SUPABASE_URL
 
 const cspDirectives = [
   "default-src 'self'",
-  `connect-src 'self' ${supabaseHostname ? `https://${supabaseHostname}` : ""} https://api.line.me`,
+  `connect-src 'self' ${supabaseHostname ? `https://${supabaseHostname}` : ""}`,
   `img-src 'self' data: blob: ${supabaseHostname ? `https://${supabaseHostname}` : ""}`,
   "script-src 'self' 'unsafe-inline'",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
