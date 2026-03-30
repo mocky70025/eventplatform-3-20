@@ -9,6 +9,7 @@ export default function OnboardingPage() {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
+    const [showErrors, setShowErrors] = useState(false);
     const [sessionMissing, setSessionMissing] = useState(false);
     const supabase = createClient();
 
@@ -117,12 +118,12 @@ export default function OnboardingPage() {
     const handleSubmit = async () => {
         if (isLoading) return;
 
-        if (!isValidEmail(formData.email)) {
-            setError("有効なメールアドレスを入力してください");
-            return;
-        }
-        if (!isValidPhone(formData.phone)) {
-            setError("有効な電話番号を入力してください（10〜15桁の数字）");
+        const missingRequired = !formData.storeName || !formData.repName || !formData.email || !formData.phone || !formData.address || !formData.description;
+        const emailInvalid = formData.email && !isValidEmail(formData.email);
+        const phoneInvalid = formData.phone && !isValidPhone(formData.phone);
+
+        if (missingRequired || emailInvalid || phoneInvalid) {
+            setShowErrors(true);
             return;
         }
 
@@ -166,8 +167,27 @@ export default function OnboardingPage() {
         }
     };
 
-    const inputClassName = "w-full rounded-xl border border-slate-300 pl-10 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-store-500 focus:border-store-500 transition placeholder:text-slate-400";
-    const inputClassNameNoIcon = "w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-store-500 focus:border-store-500 transition placeholder:text-slate-400";
+    const inputBase = "w-full rounded-xl border pl-10 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 transition placeholder:text-slate-400";
+    const inputBaseNoIcon = "w-full rounded-xl border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 transition placeholder:text-slate-400";
+    const normalBorder = "border-slate-300 focus:ring-store-500 focus:border-store-500";
+    const errorBorder = "border-red-400 focus:ring-red-500 focus:border-red-500";
+    const fieldHasError = (name: string) => showErrors && !formData[name as keyof typeof formData];
+    const fieldFormatError = (name: string) => {
+        if (!showErrors || !formData[name as keyof typeof formData]) return false;
+        if (name === "email") return !isValidEmail(formData.email);
+        if (name === "phone") return !isValidPhone(formData.phone);
+        return false;
+    };
+    const inputClassName = (name: string) => `${inputBase} ${fieldHasError(name) || fieldFormatError(name) ? errorBorder : normalBorder}`;
+    const inputClassNameNoIcon = (name: string) => `${inputBaseNoIcon} ${fieldHasError(name) || fieldFormatError(name) ? errorBorder : normalBorder}`;
+    const fieldErrorMsg = (name: string, label: string) => {
+        if (fieldHasError(name)) return <p className="text-xs text-red-500 mb-1">{label}を入力してください</p>;
+        if (fieldFormatError(name)) {
+            if (name === "email") return <p className="text-xs text-red-500 mb-1">有効なメールアドレスを入力してください</p>;
+            if (name === "phone") return <p className="text-xs text-red-500 mb-1">有効な電話番号を入力してください</p>;
+        }
+        return null;
+    };
 
     return (
         <div className="min-h-screen relative overflow-hidden flex items-center justify-center py-12 bg-gradient-to-br from-slate-50 via-store-50 to-amber-50/20">
@@ -217,13 +237,14 @@ export default function OnboardingPage() {
                     <div className="space-y-4">
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1.5">店舗名 / 屋号</label>
+                            {fieldErrorMsg("storeName", "店舗名")}
                             <div className="relative">
                                 <Store className="absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" />
                                 <input
                                     name="storeName"
                                     value={formData.storeName}
                                     onChange={handleChange}
-                                    className={inputClassName}
+                                    className={inputClassName("storeName")}
                                     placeholder="たこ焼き太郎"
                                 />
                             </div>
@@ -231,13 +252,14 @@ export default function OnboardingPage() {
 
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1.5">代表者名</label>
+                            {fieldErrorMsg("repName", "代表者名")}
                             <div className="relative">
                                 <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" />
                                 <input
                                     name="repName"
                                     value={formData.repName}
                                     onChange={handleChange}
-                                    className={inputClassName}
+                                    className={inputClassName("repName")}
                                     placeholder="田中 太郎"
                                 />
                             </div>
@@ -245,6 +267,7 @@ export default function OnboardingPage() {
 
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1.5">メールアドレス</label>
+                            {fieldErrorMsg("email", "メールアドレス")}
                             <div className="relative">
                                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" />
                                 <input
@@ -252,7 +275,7 @@ export default function OnboardingPage() {
                                     value={formData.email}
                                     onChange={handleChange}
                                     type="email"
-                                    className={inputClassName}
+                                    className={inputClassName("email")}
                                     placeholder="you@example.com"
                                 />
                             </div>
@@ -260,6 +283,7 @@ export default function OnboardingPage() {
 
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1.5">電話番号</label>
+                            {fieldErrorMsg("phone", "電話番号")}
                             <div className="relative">
                                 <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" />
                                 <input
@@ -267,7 +291,7 @@ export default function OnboardingPage() {
                                     value={formData.phone}
                                     onChange={handleChange}
                                     type="tel"
-                                    className={inputClassName}
+                                    className={inputClassName("phone")}
                                     placeholder="090-1234-5678"
                                 />
                             </div>
@@ -275,13 +299,14 @@ export default function OnboardingPage() {
 
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1.5">住所</label>
+                            {fieldErrorMsg("address", "住所")}
                             <div className="relative">
                                 <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" />
                                 <input
                                     name="address"
                                     value={formData.address}
                                     onChange={handleChange}
-                                    className={inputClassName}
+                                    className={inputClassName("address")}
                                     placeholder="東京都..."
                                 />
                             </div>
@@ -296,7 +321,7 @@ export default function OnboardingPage() {
                                     value={formData.website}
                                     onChange={handleChange}
                                     type="url"
-                                    className={inputClassName}
+                                    className={inputClassName("website")}
                                     placeholder="https://..."
                                 />
                             </div>
@@ -304,12 +329,13 @@ export default function OnboardingPage() {
 
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1.5">お店の紹介</label>
+                            {fieldErrorMsg("description", "お店の紹介")}
                             <textarea
                                 name="description"
                                 value={formData.description}
                                 onChange={handleChange}
                                 rows={3}
-                                className={inputClassNameNoIcon + " resize-none"}
+                                className={inputClassNameNoIcon("description") + " resize-none"}
                                 placeholder="お店の特徴やメニューの紹介を入力してください"
                             />
                         </div>

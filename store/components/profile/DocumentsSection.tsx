@@ -248,12 +248,13 @@ export function DocumentsSection({ initialProfile }: DocumentsSectionProps) {
                                                 )}
                                             </Button>
                                             <Button
+                                                variant="outline"
                                                 type="button"
                                                 onClick={() => fileInputRefs.current[doc.key]?.click()}
                                                 className={`text-sm rounded-lg px-3 py-1.5 h-auto ${
                                                     status === "expiring"
-                                                        ? "bg-amber-500 hover:bg-amber-600 text-white"
-                                                        : "border border-slate-200 text-slate-600 hover:bg-slate-50"
+                                                        ? "bg-amber-500 hover:bg-amber-600 text-white border-amber-500"
+                                                        : "border-slate-200 text-slate-700 hover:bg-slate-50"
                                                 }`}
                                             >
                                                 更新
