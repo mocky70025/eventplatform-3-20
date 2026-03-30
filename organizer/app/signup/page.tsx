@@ -67,7 +67,8 @@ export default function SignupPage() {
                 }
             }
         } catch (error: any) {
-            setError("アカウント作成に失敗しました。入力内容を確認してください。");
+            console.error("Signup error:", error);
+            setError(error.message || "アカウント作成に失敗しました。入力内容を確認してください。");
         } finally {
             setIsLoading(false);
         }
