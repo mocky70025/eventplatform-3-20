@@ -1,4 +1,4 @@
-# Eventra - Event Platform
+# Wacca - Event Platform
 
 イベント主催者とキッチンカー・屋台出店者をマッチングするWebプラットフォーム。
 

@@ -28,12 +28,30 @@ const gradients = [
 // Category tag color mapping
 function getCategoryColor(genre: string | null | undefined): { bg: string; text: string } {
   switch (genre) {
-    case "フードフェス":
-      return { bg: "bg-orange-100", text: "text-orange-700" };
     case "音楽フェス":
       return { bg: "bg-purple-100", text: "text-purple-700" };
-    case "マーケット":
+    case "ライブ":
+      return { bg: "bg-violet-100", text: "text-violet-700" };
+    case "マルシェ":
       return { bg: "bg-pink-100", text: "text-pink-700" };
+    case "フリーマーケット":
+      return { bg: "bg-rose-100", text: "text-rose-700" };
+    case "地域おこし":
+      return { bg: "bg-amber-100", text: "text-amber-700" };
+    case "祭り":
+      return { bg: "bg-red-100", text: "text-red-700" };
+    case "食フェス":
+      return { bg: "bg-orange-100", text: "text-orange-700" };
+    case "グルメイベント":
+      return { bg: "bg-yellow-100", text: "text-yellow-700" };
+    case "スポーツ":
+      return { bg: "bg-emerald-100", text: "text-emerald-700" };
+    case "アウトドア":
+      return { bg: "bg-teal-100", text: "text-teal-700" };
+    case "企業":
+      return { bg: "bg-blue-100", text: "text-blue-700" };
+    case "展示会":
+      return { bg: "bg-indigo-100", text: "text-indigo-700" };
     default:
       return { bg: "bg-sky-100", text: "text-sky-700" };
   }
@@ -62,6 +80,7 @@ export default async function EventSearchPage({ searchParams }: PageProps) {
     .from("events")
     .select("*, organizers(company_name)", { count: "exact" })
     .eq("status", "published")
+    .or("visibility.eq.public,visibility.is.null")
     .order("created_at", { ascending: false });
 
   if (q) {
@@ -265,9 +284,19 @@ export default async function EventSearchPage({ searchParams }: PageProps) {
               className="rounded-xl py-2.5 px-4 border border-slate-200 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-store-500 bg-white"
             >
               <option>すべて</option>
-              <option>フードフェス</option>
               <option>音楽フェス</option>
-              <option>マーケット</option>
+              <option>ライブ</option>
+              <option>マルシェ</option>
+              <option>フリーマーケット</option>
+              <option>地域おこし</option>
+              <option>祭り</option>
+              <option>食フェス</option>
+              <option>グルメイベント</option>
+              <option>スポーツ</option>
+              <option>アウトドア</option>
+              <option>企業</option>
+              <option>展示会</option>
+              <option>その他</option>
             </select>
 
             {/* Period */}

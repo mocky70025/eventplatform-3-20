@@ -1,5 +1,5 @@
 -- =====================================================================
--- Eventra - 完全データベーススキーマ (ゼロから構築用)
+-- Wacca - 完全データベーススキーマ (ゼロから構築用)
 -- Supabase SQL Editor で上から順にすべて実行してください
 -- =====================================================================
 
@@ -73,7 +73,7 @@ CREATE TABLE events (
   organizer_id UUID REFERENCES organizers(id) ON DELETE CASCADE,
   event_name VARCHAR(100) NOT NULL,
   event_name_furigana VARCHAR(100),
-  genre VARCHAR(50) CHECK (genre IN ('フード', 'ドリンク', '物販', 'ワークショップ', '音楽', 'アート', 'スポーツ', 'その他')),
+  genre VARCHAR(50) CHECK (genre IN ('音楽フェス', 'ライブ', 'マルシェ', 'フリーマーケット', '地域おこし', '祭り', '食フェス', 'グルメイベント', 'スポーツ', 'アウトドア', '企業', '展示会', 'その他')),
   lead_text VARCHAR(200),
   description TEXT,
   event_start_date DATE,

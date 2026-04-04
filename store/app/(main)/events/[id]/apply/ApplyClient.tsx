@@ -77,8 +77,19 @@ export default function ApplyClient({ event, exhibitor }: { event: any, exhibito
     const [formAnswers, setFormAnswers] = useState<Record<string, string>>({});
     const [fileUploading, setFileUploading] = useState<Record<string, boolean>>({});
     const [agreedToTerms, setAgreedToTerms] = useState(false);
+    const [selectedDays, setSelectedDays] = useState<string[]>([]);
 
     const formFields = parseExhibitorFormFields(event);
+
+    // Parse day settings for multi-day events
+    const daySettings = (() => {
+        const raw = event.event_day_settings;
+        if (!raw) return null;
+        try {
+            const parsed = typeof raw === "string" ? JSON.parse(raw) : raw;
+            return Array.isArray(parsed) && parsed.length > 0 ? parsed : null;
+        } catch { return null; }
+    })();
     const [isEditing, setIsEditing] = useState(false);
     const [isSavingProfile, setIsSavingProfile] = useState(false);
     const [profileSaved, setProfileSaved] = useState(false);
@@ -148,13 +159,18 @@ export default function ApplyClient({ event, exhibitor }: { event: any, exhibito
         setError("");
 
         try {
+            const answers = formFields.length > 0 ? { ...formAnswers } : {};
+            if (daySettings && selectedDays.length > 0) {
+                (answers as Record<string, any>).selected_days = selectedDays;
+            }
+
             const { error: insertError } = await supabase
                 .from("event_applications")
                 .insert({
                     event_id: event.id,
                     exhibitor_id: exhibitor.id,
                     message: message,
-                    form_answers: formFields.length > 0 ? formAnswers : null,
+                    form_answers: Object.keys(answers).length > 0 ? answers : null,
                     status: 'pending'
                 });
 
@@ -163,6 +179,27 @@ export default function ApplyClient({ event, exhibitor }: { event: any, exhibito
                     throw new Error("このイベントには既に申し込み済みです。");
                 }
                 throw insertError;
+            }
+
+            // 主催者に通知を作成（失敗しても申し込み自体はブロックしない）
+            try {
+                const organizerUserId = event.organizers?.user_id;
+                if (organizerUserId) {
+                    await fetch("/api/notifications", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            user_id: organizerUserId,
+                            user_type: "organizer",
+                            type: "new_application",
+                            title: "新しい出店申し込みがありました",
+                            message: `「${event.event_name}」に${exhibitor.shop_name || "出店者"}から申し込みがありました。`,
+                            related_event_id: event.id,
+                        }),
+                    });
+                }
+            } catch (notifErr) {
+                console.error("通知作成に失敗:", notifErr);
             }
 
             setIsSuccess(true);
@@ -418,6 +455,40 @@ export default function ApplyClient({ event, exhibitor }: { event: any, exhibito
                 <div className="p-4 bg-red-50 border border-red-100 rounded-2xl text-red-600 text-sm flex items-start gap-3">
                     <AlertCircle className="w-5 h-5 shrink-0" />
                     <p className="font-medium">{error}</p>
+                </div>
+            )}
+
+            {/* 出店希望日（日別条件がある場合） */}
+            {daySettings && (
+                <div className="bg-white rounded-xl border border-slate-200 p-5">
+                    <h3 className="text-sm font-bold text-slate-900 mb-3">出店希望日を選択してください</h3>
+                    <div className="space-y-2">
+                        {daySettings.map((day: { date: string; recruit_count: number; fee: string; notes: string }) => (
+                            <label key={day.date} className="flex items-center gap-3 p-3 rounded-lg border border-slate-200 hover:bg-store-50/30 cursor-pointer transition-colors">
+                                <input
+                                    type="checkbox"
+                                    checked={selectedDays.includes(day.date)}
+                                    onChange={(e) => {
+                                        setSelectedDays(prev =>
+                                            e.target.checked
+                                                ? [...prev, day.date]
+                                                : prev.filter(d => d !== day.date)
+                                        );
+                                    }}
+                                    className="w-4 h-4 rounded border-slate-300 text-store-600 focus:ring-store-500"
+                                />
+                                <div className="flex-1">
+                                    <span className="text-sm font-medium text-slate-900">
+                                        {new Date(day.date).toLocaleDateString("ja-JP", { month: "long", day: "numeric", weekday: "short" })}
+                                    </span>
+                                    <span className="text-xs text-slate-500 ml-2">
+                                        {day.recruit_count}区画 / {day.fee || "未定"}
+                                    </span>
+                                    {day.notes && <p className="text-xs text-slate-400 mt-0.5">{day.notes}</p>}
+                                </div>
+                            </label>
+                        ))}
+                    </div>
                 </div>
             )}
 

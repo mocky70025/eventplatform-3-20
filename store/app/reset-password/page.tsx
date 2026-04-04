@@ -98,7 +98,7 @@ export default function ResetPasswordPage() {
                             <path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z" />
                         </svg>
                     </div>
-                    <span className="text-2xl font-bold text-slate-900">Eventra</span>
+                    <span className="text-2xl font-bold text-slate-900">Wacca</span>
                 </div>
 
                 <h2 className="text-center text-[22px] font-bold text-slate-900 mb-1.5">新しいパスワードの設定</h2>

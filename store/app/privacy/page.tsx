@@ -13,7 +13,7 @@ export default function PrivacyPage() {
                 <path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z" />
               </svg>
             </div>
-            <span className="text-lg font-bold text-slate-900">Eventra</span>
+            <span className="text-lg font-bold text-slate-900">Wacca</span>
           </Link>
           <BackButton />
         </div>
@@ -28,7 +28,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-lg font-bold text-slate-900 mb-3">1. はじめに</h2>
             <p>
-              Eventra（以下「当サービス」）は、ユーザーの個人情報の保護を重要視しています。
+              Wacca（以下「当サービス」）は、ユーザーの個人情報の保護を重要視しています。
               本プライバシーポリシーは、当サービスがどのように個人情報を収集、使用、保護するかについて説明します。
             </p>
           </section>
@@ -143,15 +143,15 @@ export default function PrivacyPage() {
               本ポリシーに関するお問い合わせは、当サービスのお問い合わせフォームまたは以下の連絡先までお願いいたします。
             </p>
             <div className="mt-4 p-4 bg-slate-50 rounded-xl text-sm text-slate-600">
-              <p className="font-medium text-slate-700">Eventra サポート</p>
-              <p className="mt-1">メール: support@eventra.jp</p>
+              <p className="font-medium text-slate-700">Wacca サポート</p>
+              <p className="mt-1">メール: support@wacca.jp</p>
             </div>
           </section>
         </div>
 
         {/* Footer */}
         <div className="mt-16 pt-8 border-t border-slate-100 flex items-center justify-between text-sm text-slate-400">
-          <p>Eventra</p>
+          <p>Wacca</p>
           <Link href="/terms" className="hover:text-slate-600 transition">
             利用規約
           </Link>

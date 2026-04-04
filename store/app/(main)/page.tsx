@@ -27,6 +27,7 @@ export default async function Home({ searchParams }: PageProps) {
     .from("events")
     .select("*, organizers(company_name)")
     .eq("status", "published")
+    .or("visibility.eq.public,visibility.is.null")
     .order("created_at", { ascending: false });
 
   if (q) {
@@ -442,10 +443,10 @@ export default async function Home({ searchParams }: PageProps) {
         {/* Footer */}
         <footer className="text-center py-8 border-t border-slate-100">
           <p className="text-xs text-slate-400">
-            Eventra - イベント出店プラットフォーム
+            Wacca - イベント出店プラットフォーム
           </p>
           <p className="text-xs text-slate-300 mt-1">
-            Copyright 2026 Eventra. All rights reserved.
+            Copyright 2026 Wacca. All rights reserved.
           </p>
         </footer>
       </main>

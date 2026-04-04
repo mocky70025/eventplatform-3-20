@@ -35,7 +35,7 @@ export default async function ApplyPage({ params }: PageProps) {
     // 2. Refresh Event Details
     const { data: event, error: eventError } = await supabase
         .from("events")
-        .select("*, organizers(company_name)")
+        .select("*, organizers(company_name, user_id)")
         .eq("id", id)
         .single();
 

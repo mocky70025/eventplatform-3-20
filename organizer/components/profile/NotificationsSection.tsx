@@ -25,11 +25,14 @@ export function NotificationsSection({ initialProfile }: NotificationsSectionPro
     };
 
     const initialTypes = {
+        eventReview: defaultSettings.eventReview ?? true,
+        eventPublished: defaultSettings.eventPublished ?? true,
         newApplication: defaultSettings.newApplication ?? true,
-        chatMessage: defaultSettings.chatMessage ?? true,
-        accountApproval: defaultSettings.accountApproval ?? true,
-        eventReminder: defaultSettings.eventReminder ?? true,
-        campaign: defaultSettings.campaign ?? false,
+        confirmed: defaultSettings.confirmed ?? true,
+        full: defaultSettings.full ?? true,
+        cancelled: defaultSettings.cancelled ?? true,
+        remind: defaultSettings.remind ?? true,
+        reviewRequest: defaultSettings.reviewRequest ?? true,
     };
 
     const [channels, setChannels] = useState(initialChannels);
@@ -91,11 +94,14 @@ export function NotificationsSection({ initialProfile }: NotificationsSectionPro
     ];
 
     const typeItems = [
-        { key: "newApplication" as const, label: "新規出店申込", desc: "出店者からの新しい申込を受け取った時" },
-        { key: "chatMessage" as const, label: "出店者からのメッセージ", desc: "チャットで新しいメッセージが届いた時" },
-        { key: "accountApproval" as const, label: "アカウント承認", desc: "管理者からの承認・却下通知" },
-        { key: "eventReminder" as const, label: "イベントリマインダー", desc: "イベント開催日前のリマインダー" },
-        { key: "campaign" as const, label: "お知らせ・キャンペーン", desc: "Eventraからのお得な情報" },
+        { key: "eventReview" as const, label: "イベント審査中", desc: "イベント申請時の審査ステータス通知" },
+        { key: "eventPublished" as const, label: "イベント公開完了", desc: "公開時にSNS用URLが発行されます" },
+        { key: "newApplication" as const, label: "新規申し込み", desc: "出店者からの新しい申し込み通知" },
+        { key: "confirmed" as const, label: "出店成立", desc: "承認時に出店者の連絡先が開示されます" },
+        { key: "full" as const, label: "募集枠到達", desc: "募集枠が満員になった時の自動締め切り通知" },
+        { key: "cancelled" as const, label: "キャンセル通知", desc: "出店者がキャンセルした時の再募集確認" },
+        { key: "remind" as const, label: "リマインド", desc: "開催7日前・前日に準備確認の通知" },
+        { key: "reviewRequest" as const, label: "評価依頼", desc: "イベント終了翌日に出店者への評価依頼" },
     ];
 
     return (

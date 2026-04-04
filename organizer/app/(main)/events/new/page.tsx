@@ -112,6 +112,11 @@ export default function CreateEventPage() {
         mainImage: null as string | null,
         loadingInfo: "",
         selectedExhibitorFields: [] as string[],
+        visibility: "public" as "public" | "private",
+        usePerDaySchedule: false,
+        eventSchedule: [] as Array<{ date: string; start_time: string; end_time: string }>,
+        usePerDaySettings: false,
+        eventDaySettings: [] as Array<{ date: string; recruit_count: number; fee: string; notes: string }>,
     });
 
     const [customFields, setCustomFields] = useState<CustomField[]>([]);
@@ -125,6 +130,47 @@ export default function CreateEventPage() {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
         if (error) setError("");
+    };
+
+    // 日付範囲から日付リストを生成
+    const getDateRange = (start: string, end: string): string[] => {
+        if (!start || !end || start === end) return [];
+        const dates: string[] = [];
+        const current = new Date(start);
+        const last = new Date(end);
+        while (current <= last) {
+            dates.push(current.toISOString().split("T")[0]);
+            current.setDate(current.getDate() + 1);
+        }
+        return dates;
+    };
+
+    const isMultiDay = formData.startDate && formData.endDate && formData.startDate !== formData.endDate;
+    const dateRange = isMultiDay ? getDateRange(formData.startDate, formData.endDate) : [];
+
+    const initPerDaySchedule = () => {
+        setFormData(prev => ({
+            ...prev,
+            usePerDaySchedule: true,
+            eventSchedule: dateRange.map(d => ({
+                date: d,
+                start_time: prev.startTime || "10:00",
+                end_time: prev.endTime || "18:00",
+            })),
+        }));
+    };
+
+    const initPerDaySettings = () => {
+        setFormData(prev => ({
+            ...prev,
+            usePerDaySettings: true,
+            eventDaySettings: dateRange.map(d => ({
+                date: d,
+                recruit_count: prev.recruitCount || 10,
+                fee: prev.fee || "",
+                notes: "",
+            })),
+        }));
     };
 
     const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
@@ -357,6 +403,11 @@ export default function CreateEventPage() {
                         custom: customFields,
                     }),
                     status: 'pending',
+                    visibility: formData.visibility,
+                    event_schedule: formData.usePerDaySchedule && formData.eventSchedule.length > 0
+                        ? JSON.stringify(formData.eventSchedule) : null,
+                    event_day_settings: formData.usePerDaySettings && formData.eventDaySettings.length > 0
+                        ? JSON.stringify(formData.eventDaySettings) : null,
                 });
 
             if (insertError) throw insertError;
@@ -505,13 +556,39 @@ export default function CreateEventPage() {
                                         <label className={labelClass}>ジャンル </label>
                                         <select name="genre" value={formData.genre} onChange={handleChange} className={cn(inputClass, "appearance-none cursor-pointer", fieldError("genre"))}>
                                             <option value="">選択してください</option>
-                                            <option value="マルシェ">マルシェ</option>
                                             <option value="音楽フェス">音楽フェス</option>
-                                            <option value="フードフェス">フードフェス</option>
-                                            <option value="地域のお祭り">地域のお祭り</option>
+                                            <option value="ライブ">ライブ</option>
+                                            <option value="マルシェ">マルシェ</option>
+                                            <option value="フリーマーケット">フリーマーケット</option>
+                                            <option value="地域おこし">地域おこし</option>
+                                            <option value="祭り">祭り</option>
+                                            <option value="食フェス">食フェス</option>
+                                            <option value="グルメイベント">グルメイベント</option>
                                             <option value="スポーツ">スポーツ</option>
+                                            <option value="アウトドア">アウトドア</option>
+                                            <option value="企業">企業</option>
+                                            <option value="展示会">展示会</option>
                                             <option value="その他">その他</option>
                                         </select>
+                                    </div>
+                                    <div>
+                                        <label className={labelClass}>公開設定</label>
+                                        <div className="flex gap-3">
+                                            <label className={cn("flex-1 flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors", formData.visibility === "public" ? "border-orange-400 bg-orange-50" : "border-slate-200 hover:border-slate-300")}>
+                                                <input type="radio" name="visibility" value="public" checked={formData.visibility === "public"} onChange={handleChange} className="accent-orange-500" />
+                                                <div>
+                                                    <span className="text-sm font-medium text-slate-900">一般公開</span>
+                                                    <p className="text-xs text-slate-500 mt-0.5">検索結果に表示され、誰でも閲覧できます</p>
+                                                </div>
+                                            </label>
+                                            <label className={cn("flex-1 flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors", formData.visibility === "private" ? "border-orange-400 bg-orange-50" : "border-slate-200 hover:border-slate-300")}>
+                                                <input type="radio" name="visibility" value="private" checked={formData.visibility === "private"} onChange={handleChange} className="accent-orange-500" />
+                                                <div>
+                                                    <span className="text-sm font-medium text-slate-900">限定公開</span>
+                                                    <p className="text-xs text-slate-500 mt-0.5">招待リンクを知っている人のみ閲覧できます</p>
+                                                </div>
+                                            </label>
+                                        </div>
                                     </div>
                                     <div>
                                         <label className={labelClass}>概要 </label>
@@ -568,6 +645,41 @@ export default function CreateEventPage() {
                                             </div>
                                         </div>
                                     </div>
+
+                                    {/* 日別スケジュール */}
+                                    {isMultiDay && dateRange.length > 0 && (
+                                        <div className="mt-2">
+                                            {!formData.usePerDaySchedule ? (
+                                                <button type="button" onClick={initPerDaySchedule} className="text-sm text-orange-600 font-medium hover:underline">
+                                                    日ごとに時間を設定する
+                                                </button>
+                                            ) : (
+                                                <div className="space-y-3 p-4 bg-orange-50/50 rounded-xl border border-orange-100">
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="text-sm font-semibold text-slate-700">日別スケジュール</span>
+                                                        <button type="button" onClick={() => setFormData(prev => ({ ...prev, usePerDaySchedule: false, eventSchedule: [] }))} className="text-xs text-slate-400 hover:text-red-500">解除</button>
+                                                    </div>
+                                                    {formData.eventSchedule.map((day, idx) => (
+                                                        <div key={day.date} className="flex items-center gap-3 bg-white rounded-lg p-3 border border-slate-200">
+                                                            <span className="text-sm font-medium text-slate-700 min-w-[90px]">{new Date(day.date).toLocaleDateString("ja-JP", { month: "short", day: "numeric", weekday: "short" })}</span>
+                                                            <input type="time" value={day.start_time} onChange={(e) => {
+                                                                const updated = [...formData.eventSchedule];
+                                                                updated[idx] = { ...updated[idx], start_time: e.target.value };
+                                                                setFormData(prev => ({ ...prev, eventSchedule: updated }));
+                                                            }} className="text-sm border border-slate-200 rounded-lg px-2 py-1.5" />
+                                                            <span className="text-slate-400">〜</span>
+                                                            <input type="time" value={day.end_time} onChange={(e) => {
+                                                                const updated = [...formData.eventSchedule];
+                                                                updated[idx] = { ...updated[idx], end_time: e.target.value };
+                                                                setFormData(prev => ({ ...prev, eventSchedule: updated }));
+                                                            }} className="text-sm border border-slate-200 rounded-lg px-2 py-1.5" />
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+
                                     <div>
                                         <label className={labelClass}>延期時の仮日 </label>
                                         <div className="flex gap-3 mb-3">
@@ -658,6 +770,56 @@ export default function CreateEventPage() {
                                             <input name="fee" value={formData.fee} onChange={handleChange} className={cn(inputClass, fieldError("fee"))} placeholder="1日 5,000円 / 売上の10%" />
                                         </div>
                                     </div>
+
+                                    {/* 日別条件 */}
+                                    {isMultiDay && dateRange.length > 0 && (
+                                        <div>
+                                            {!formData.usePerDaySettings ? (
+                                                <button type="button" onClick={initPerDaySettings} className="text-sm text-orange-600 font-medium hover:underline">
+                                                    日ごとに募集条件を設定する
+                                                </button>
+                                            ) : (
+                                                <div className="space-y-3 p-4 bg-orange-50/50 rounded-xl border border-orange-100">
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="text-sm font-semibold text-slate-700">日別の募集条件</span>
+                                                        <button type="button" onClick={() => setFormData(prev => ({ ...prev, usePerDaySettings: false, eventDaySettings: [] }))} className="text-xs text-slate-400 hover:text-red-500">解除</button>
+                                                    </div>
+                                                    {formData.eventDaySettings.map((day, idx) => (
+                                                        <div key={day.date} className="bg-white rounded-lg p-3 border border-slate-200 space-y-2">
+                                                            <span className="text-sm font-medium text-slate-700">{new Date(day.date).toLocaleDateString("ja-JP", { month: "short", day: "numeric", weekday: "short" })}</span>
+                                                            <div className="grid grid-cols-2 gap-3">
+                                                                <div>
+                                                                    <label className="text-xs text-slate-500">募集数</label>
+                                                                    <input type="number" value={day.recruit_count} onChange={(e) => {
+                                                                        const updated = [...formData.eventDaySettings];
+                                                                        updated[idx] = { ...updated[idx], recruit_count: parseInt(e.target.value) || 0 };
+                                                                        setFormData(prev => ({ ...prev, eventDaySettings: updated }));
+                                                                    }} className="w-full text-sm border border-slate-200 rounded-lg px-2 py-1.5" />
+                                                                </div>
+                                                                <div>
+                                                                    <label className="text-xs text-slate-500">出店料</label>
+                                                                    <input value={day.fee} onChange={(e) => {
+                                                                        const updated = [...formData.eventDaySettings];
+                                                                        updated[idx] = { ...updated[idx], fee: e.target.value };
+                                                                        setFormData(prev => ({ ...prev, eventDaySettings: updated }));
+                                                                    }} className="w-full text-sm border border-slate-200 rounded-lg px-2 py-1.5" placeholder="5,000円" />
+                                                                </div>
+                                                            </div>
+                                                            <div>
+                                                                <label className="text-xs text-slate-500">備考</label>
+                                                                <input value={day.notes} onChange={(e) => {
+                                                                    const updated = [...formData.eventDaySettings];
+                                                                    updated[idx] = { ...updated[idx], notes: e.target.value };
+                                                                    setFormData(prev => ({ ...prev, eventDaySettings: updated }));
+                                                                }} className="w-full text-sm border border-slate-200 rounded-lg px-2 py-1.5" placeholder="この日のみキッチンカー優先 等" />
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+
                                     <div>
                                         <label className={labelClass}>会場内ルール </label>
                                         <textarea name="venueRules" value={formData.venueRules} onChange={handleChange} rows={5} className={cn(textareaClass, fieldError("venueRules"))} placeholder={"・火気の使用は禁止です\n・ゴミは各自持ち帰り\n・音量は80dB以下"} />

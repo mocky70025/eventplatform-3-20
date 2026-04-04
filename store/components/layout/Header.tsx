@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { UserNav } from "./UserNav";
+import { NotificationBadge } from "./NotificationBadge";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -31,7 +32,7 @@ export function Header() {
               <path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z" />
             </svg>
           </div>
-          <span className="text-lg font-bold text-slate-900">Eventra</span>
+          <span className="text-lg font-bold text-slate-900">Wacca</span>
         </Link>
         <span className="text-[10px] bg-store-100 text-store-700 px-2 rounded-full font-semibold inline-flex items-center justify-center h-5" style={{ lineHeight: 1 }}>
           出店者
@@ -43,13 +44,14 @@ export function Header() {
             key={item.href}
             href={item.href}
             className={cn(
-              "text-sm font-medium px-4 py-2 rounded-lg transition-colors",
+              "text-sm font-medium px-4 py-2 rounded-lg transition-colors relative",
               isActive(item.href)
                 ? "text-store-700 bg-store-50"
                 : "text-slate-500 hover:text-slate-700"
             )}
           >
             {item.label}
+            {item.href === "/notifications" && <NotificationBadge />}
           </Link>
         ))}
         <UserNav />

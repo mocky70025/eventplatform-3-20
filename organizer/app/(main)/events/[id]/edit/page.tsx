@@ -83,6 +83,7 @@ export default function EditEventPage() {
         loadingInfo: "",
         selectedExhibitorFields: [] as string[],
         status: "published",
+        visibility: "public" as "public" | "private",
     });
 
     const [customFields, setCustomFields] = useState<CustomField[]>([]);
@@ -163,6 +164,7 @@ export default function EditEventPage() {
                         loadingInfo: data.loading_info || "",
                         selectedExhibitorFields: selectedFields,
                         status: data.status || "published",
+                        visibility: data.visibility || "public",
                     });
                     setCustomFields(parsedCustomFields);
                 }
@@ -380,6 +382,7 @@ export default function EditEventPage() {
                         preset: formData.selectedExhibitorFields,
                         custom: customFields,
                     }),
+                    visibility: formData.visibility,
                 })
                 .eq("id", eventId)
                 .eq("organizer_id", profile.id);
@@ -570,13 +573,39 @@ export default function EditEventPage() {
                                         <label className={labelClass}>ジャンル </label>
                                         <select name="genre" value={formData.genre} onChange={handleChange} disabled={isLocked} className={cn(isLocked ? lockedInputClass : inputClass, "appearance-none", isLocked ? "cursor-not-allowed" : "cursor-pointer")}>
                                             <option value="">選択してください</option>
-                                            <option value="マルシェ">マルシェ</option>
                                             <option value="音楽フェス">音楽フェス</option>
-                                            <option value="フードフェス">フードフェス</option>
-                                            <option value="地域のお祭り">地域のお祭り</option>
+                                            <option value="ライブ">ライブ</option>
+                                            <option value="マルシェ">マルシェ</option>
+                                            <option value="フリーマーケット">フリーマーケット</option>
+                                            <option value="地域おこし">地域おこし</option>
+                                            <option value="祭り">祭り</option>
+                                            <option value="食フェス">食フェス</option>
+                                            <option value="グルメイベント">グルメイベント</option>
                                             <option value="スポーツ">スポーツ</option>
+                                            <option value="アウトドア">アウトドア</option>
+                                            <option value="企業">企業</option>
+                                            <option value="展示会">展示会</option>
                                             <option value="その他">その他</option>
                                         </select>
+                                    </div>
+                                    <div>
+                                        <label className={labelClass}>公開設定</label>
+                                        <div className="flex gap-3">
+                                            <label className={cn("flex-1 flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors", formData.visibility === "public" ? "border-orange-400 bg-orange-50" : "border-slate-200 hover:border-slate-300")}>
+                                                <input type="radio" name="visibility" value="public" checked={formData.visibility === "public"} onChange={handleChange} className="accent-orange-500" />
+                                                <div>
+                                                    <span className="text-sm font-medium text-slate-900">一般公開</span>
+                                                    <p className="text-xs text-slate-500 mt-0.5">検索結果に表示され、誰でも閲覧できます</p>
+                                                </div>
+                                            </label>
+                                            <label className={cn("flex-1 flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors", formData.visibility === "private" ? "border-orange-400 bg-orange-50" : "border-slate-200 hover:border-slate-300")}>
+                                                <input type="radio" name="visibility" value="private" checked={formData.visibility === "private"} onChange={handleChange} className="accent-orange-500" />
+                                                <div>
+                                                    <span className="text-sm font-medium text-slate-900">限定公開</span>
+                                                    <p className="text-xs text-slate-500 mt-0.5">招待リンクを知っている人のみ閲覧できます</p>
+                                                </div>
+                                            </label>
+                                        </div>
                                     </div>
                                     <div>
                                         <label className={labelClass}>概要 </label>

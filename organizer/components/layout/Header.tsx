@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { UserNav } from "./UserNav";
+import { NotificationBadge } from "./NotificationBadge";
 import { cn } from "@/lib/utils";
 
 export function Header() {
@@ -30,7 +31,7 @@ export function Header() {
                         <div className="w-9 h-9 bg-orange-500 rounded-xl flex items-center justify-center">
                             <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"/></svg>
                         </div>
-                        <span className="text-lg font-bold text-slate-900">Eventra</span>
+                        <span className="text-lg font-bold text-slate-900">Wacca</span>
                     </Link>
                     <span className="text-[10px] bg-orange-100 text-orange-700 px-2 rounded-full font-semibold inline-flex items-center justify-center h-5" style={{ lineHeight: 1 }}>主催者</span>
                 </div>
@@ -41,13 +42,14 @@ export function Header() {
                             key={item.href}
                             href={item.href}
                             className={cn(
-                                "text-sm font-medium px-4 py-2 rounded-lg transition-colors",
+                                "text-sm font-medium px-4 py-2 rounded-lg transition-colors relative",
                                 isActive(item)
                                     ? "text-orange-700 bg-orange-50"
                                     : "text-slate-500 hover:text-slate-700"
                             )}
                         >
                             {item.label}
+                            {item.href === "/notifications" && <NotificationBadge />}
                         </Link>
                     ))}
                     <div className="w-px h-6 bg-slate-200 mx-2" />

@@ -14,7 +14,7 @@ export async function Header() {
                         <div className="w-9 h-9 bg-slate-800 rounded-xl flex items-center justify-center">
                             <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"/></svg>
                         </div>
-                        <span className="text-lg font-bold text-slate-900">Eventra</span>
+                        <span className="text-lg font-bold text-slate-900">Wacca</span>
                     </Link>
                     <span className="text-[10px] bg-slate-100 text-slate-600 px-2 rounded-full font-semibold inline-flex items-center justify-center h-5" style={{ lineHeight: 1 }}>管理者</span>
                 </div>

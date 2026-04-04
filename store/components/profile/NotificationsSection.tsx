@@ -25,11 +25,9 @@ export function NotificationsSection({ initialProfile }: NotificationsSectionPro
     };
 
     const initialTypes = {
-        applicationStatus: defaultSettings.applicationStatus ?? true,
-        newEvent: defaultSettings.newEvent ?? true,
-        organizerMessage: defaultSettings.organizerMessage ?? true,
-        documentReminder: defaultSettings.documentReminder ?? true,
-        campaign: defaultSettings.campaign ?? false,
+        confirmed: defaultSettings.confirmed ?? true,
+        remind: defaultSettings.remind ?? true,
+        reviewRequest: defaultSettings.reviewRequest ?? true,
     };
 
     const [channels, setChannels] = useState(initialChannels);
@@ -91,11 +89,9 @@ export function NotificationsSection({ initialProfile }: NotificationsSectionPro
     ];
 
     const typeItems = [
-        { key: "applicationStatus" as const, label: "申込ステータスの変更", desc: "承認・却下・保留などの結果通知" },
-        { key: "newEvent" as const, label: "新着イベント", desc: "お気に入りジャンルの新しいイベント" },
-        { key: "organizerMessage" as const, label: "主催者からのメッセージ", desc: "イベントに関する連絡や質問" },
-        { key: "documentReminder" as const, label: "書類の有効期限リマインダー", desc: "期限の30日前・7日前に通知" },
-        { key: "campaign" as const, label: "お知らせ・キャンペーン", desc: "Eventraからのお得な情報" },
+        { key: "confirmed" as const, label: "出店確定通知", desc: "出店承認時に主催者連絡先が開示されます" },
+        { key: "remind" as const, label: "リマインド", desc: "開催7日前・前日に準備確認の通知" },
+        { key: "reviewRequest" as const, label: "評価依頼", desc: "イベント終了翌日に主催者への評価依頼" },
     ];
 
     return (

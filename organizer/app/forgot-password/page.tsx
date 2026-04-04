@@ -65,7 +65,7 @@ export default function ForgotPasswordPage() {
                             <path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z" />
                         </svg>
                     </div>
-                    <span className="text-2xl font-bold text-slate-900">Eventra</span>
+                    <span className="text-2xl font-bold text-slate-900">Wacca</span>
                     <span className="text-[10px] bg-orange-100 text-orange-700 px-2 rounded-full font-semibold inline-flex items-center justify-center h-5" style={{ lineHeight: 1 }}>主催者</span>
                 </div>
 

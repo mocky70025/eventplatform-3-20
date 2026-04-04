@@ -257,6 +257,14 @@ export default async function ApplicationsPage({ searchParams }: PageProps) {
                                                 <span className="text-sm text-slate-700 font-medium truncate max-w-[200px] block">
                                                     {app.events?.event_name || "-"}
                                                 </span>
+                                                {app.events?.event_start_date && (
+                                                    <span className="text-xs text-slate-400 block mt-0.5">
+                                                        {new Date(app.events.event_start_date).toLocaleDateString('ja-JP')}
+                                                        {app.events.event_end_date && app.events.event_end_date !== app.events.event_start_date && (
+                                                            <> 〜 {new Date(app.events.event_end_date).toLocaleDateString('ja-JP')}</>
+                                                        )}
+                                                    </span>
+                                                )}
                                             </td>
                                             <td className="px-4 py-4">
                                                 {genre && (

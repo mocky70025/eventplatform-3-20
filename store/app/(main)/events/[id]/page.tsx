@@ -94,6 +94,19 @@ export default async function EventDetailPage({ params }: PageProps) {
                     イベント検索に戻る
                 </Link>
 
+                {/* Private event banner */}
+                {event.visibility === "private" && (
+                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 flex items-center gap-3">
+                        <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center shrink-0">
+                            <svg className="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                        </div>
+                        <div>
+                            <p className="text-sm font-medium text-amber-800">限定公開イベント</p>
+                            <p className="text-xs text-amber-600">招待リンクからアクセスしています。このイベントは検索結果には表示されません。</p>
+                        </div>
+                    </div>
+                )}
+
                 {/* Hero Image */}
                 <div className="relative w-full h-72 rounded-2xl overflow-hidden bg-slate-200 mb-8">
                     {event.main_image_url ? (
@@ -150,12 +163,32 @@ export default async function EventDetailPage({ params }: PageProps) {
                                     <div className="w-10 h-10 rounded-lg bg-store-100 flex items-center justify-center shrink-0">
                                         <Calendar className="w-5 h-5 text-store-600" />
                                     </div>
-                                    <div>
+                                    <div className="flex-1">
                                         <p className="text-xs font-medium text-slate-400 mb-1">開催日時</p>
-                                        <p className="font-bold text-slate-900 text-sm">{event.event_start_date}</p>
-                                        {event.event_time && (
-                                            <p className="text-sm text-slate-500 mt-0.5">{event.event_time}</p>
-                                        )}
+                                        {(() => {
+                                            const schedule = event.event_schedule;
+                                            const parsed = schedule ? (typeof schedule === "string" ? JSON.parse(schedule) : schedule) : null;
+                                            if (Array.isArray(parsed) && parsed.length > 0) {
+                                                return (
+                                                    <div className="space-y-1">
+                                                        {parsed.map((day: { date: string; start_time: string; end_time: string }) => (
+                                                            <div key={day.date} className="flex items-center gap-2 text-sm">
+                                                                <span className="font-bold text-slate-900">{new Date(day.date).toLocaleDateString("ja-JP", { month: "short", day: "numeric", weekday: "short" })}</span>
+                                                                <span className="text-slate-500">{day.start_time} 〜 {day.end_time}</span>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                );
+                                            }
+                                            return (
+                                                <>
+                                                    <p className="font-bold text-slate-900 text-sm">{event.event_start_date}</p>
+                                                    {event.event_time && (
+                                                        <p className="text-sm text-slate-500 mt-0.5">{event.event_time}</p>
+                                                    )}
+                                                </>
+                                            );
+                                        })()}
                                     </div>
                                 </div>
                             </div>
@@ -219,6 +252,28 @@ export default async function EventDetailPage({ params }: PageProps) {
                                     <p className="text-lg font-bold text-slate-900">{fee}</p>
                                 </div>
                             </div>
+
+                            {/* 日別条件 */}
+                            {(() => {
+                                const daySettings = event.event_day_settings;
+                                const parsed = daySettings ? (typeof daySettings === "string" ? JSON.parse(daySettings) : daySettings) : null;
+                                if (!Array.isArray(parsed) || parsed.length === 0) return null;
+                                return (
+                                    <div className="mt-4">
+                                        <p className="text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider">日別の条件</p>
+                                        <div className="space-y-2">
+                                            {parsed.map((day: { date: string; recruit_count: number; fee: string; notes: string }) => (
+                                                <div key={day.date} className="flex items-center gap-4 bg-slate-50 rounded-lg p-3 text-sm">
+                                                    <span className="font-bold text-slate-700 min-w-[80px]">{new Date(day.date).toLocaleDateString("ja-JP", { month: "short", day: "numeric", weekday: "short" })}</span>
+                                                    <span className="text-slate-600">{day.recruit_count}区画</span>
+                                                    <span className="text-slate-600">{day.fee || fee}</span>
+                                                    {day.notes && <span className="text-slate-400 text-xs">{day.notes}</span>}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                );
+                            })()}
                         </div>
 
                         {/* 会場内ルール section */}

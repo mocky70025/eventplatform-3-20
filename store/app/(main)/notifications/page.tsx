@@ -2,17 +2,18 @@ import { createClient } from "@/lib/supabase/server";
 import {
     Bell,
     CheckCircle2,
-    XCircle,
-    Send,
     Star,
     ChevronLeft,
     ChevronRight,
+    CalendarClock,
+    XCircle,
 } from "lucide-react";
 import { redirect } from "next/navigation";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import NotificationActions from "./NotificationActions";
 
-type NotificationType = "approved" | "rejected" | "submitted" | "review";
+type NotificationType = "confirmed" | "remind" | "reviewRequest" | "application_approved" | "application_rejected" | "new_application";
 
 interface Notification {
     id: string;
@@ -23,6 +24,8 @@ interface Notification {
     actionLabel: string;
     actionHref: string;
     isRecent: boolean;
+    isRead: boolean;
+    isDbNotification: boolean;
 }
 
 const ITEMS_PER_PAGE = 10;
@@ -43,30 +46,37 @@ function timeAgo(dateStr: string): string {
     return new Date(dateStr).toLocaleDateString("ja-JP");
 }
 
-function NotificationIcon({ type }: { type: NotificationType }) {
+function getNotificationIcon(type: NotificationType) {
     switch (type) {
-        case "approved":
+        case "confirmed":
+        case "application_approved":
             return (
                 <div className="w-10 h-10 rounded-full bg-store-100 flex items-center justify-center shrink-0">
                     <CheckCircle2 className="w-5 h-5 text-store-600" />
                 </div>
             );
-        case "rejected":
+        case "application_rejected":
             return (
                 <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center shrink-0">
-                    <XCircle className="w-5 h-5 text-red-400" />
+                    <XCircle className="w-5 h-5 text-red-500" />
                 </div>
             );
-        case "submitted":
-            return (
-                <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
-                    <Send className="w-5 h-5 text-slate-400" />
-                </div>
-            );
-        case "review":
+        case "remind":
             return (
                 <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center shrink-0">
-                    <Star className="w-5 h-5 text-amber-500 fill-amber-500" />
+                    <CalendarClock className="w-5 h-5 text-amber-600" />
+                </div>
+            );
+        case "reviewRequest":
+            return (
+                <div className="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center shrink-0">
+                    <Star className="w-5 h-5 text-purple-500" />
+                </div>
+            );
+        default:
+            return (
+                <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
+                    <Bell className="w-5 h-5 text-slate-500" />
                 </div>
             );
     }
@@ -74,18 +84,14 @@ function NotificationIcon({ type }: { type: NotificationType }) {
 
 function NotificationItem({ n }: { n: Notification }) {
     return (
-        <div className={cn("flex gap-4 p-5", n.isRecent && "bg-store-50/50")}>
-            <NotificationIcon type={n.type} />
+        <div className={cn("flex gap-4 p-5", !n.isRead && "bg-store-50/50")}>
+            {getNotificationIcon(n.type)}
             <div className="flex-1 min-w-0">
-                {n.isRecent ? (
-                    <div className="flex items-center gap-2 mb-1">
-                        <span className="w-2 h-2 rounded-full bg-store-500 shrink-0" />
-                        <h4 className="text-sm font-bold text-slate-900">{n.title}</h4>
-                    </div>
-                ) : (
-                    <h4 className="text-sm font-medium text-slate-700 mb-1">{n.title}</h4>
-                )}
-                <p className={cn("text-sm leading-relaxed", n.isRecent ? "text-slate-600" : "text-slate-500")}>
+                <div className="flex items-center gap-2 mb-1">
+                    {!n.isRead && <span className="w-2 h-2 rounded-full bg-store-500 shrink-0" />}
+                    <h4 className={cn("text-sm", !n.isRead ? "font-bold text-slate-900" : "font-medium text-slate-700")}>{n.title}</h4>
+                </div>
+                <p className={cn("text-sm leading-relaxed", !n.isRead ? "text-slate-600" : "text-slate-500")}>
                     {n.description}
                 </p>
                 <div className="flex items-center gap-4 mt-2">
@@ -94,11 +100,14 @@ function NotificationItem({ n }: { n: Notification }) {
                         href={n.actionHref}
                         className={cn(
                             "text-xs font-medium hover:underline",
-                            n.isRecent ? "text-store-600" : "text-slate-500"
+                            !n.isRead ? "text-store-600" : "text-slate-500"
                         )}
                     >
                         {n.actionLabel}
                     </Link>
+                    {n.isDbNotification && !n.isRead && (
+                        <NotificationActions notificationId={n.id} />
+                    )}
                 </div>
             </div>
         </div>
@@ -107,8 +116,9 @@ function NotificationItem({ n }: { n: Notification }) {
 
 const filterTabs = [
     { label: "すべて", value: "all" },
-    { label: "応募関連", value: "application" },
-    { label: "評価・レビュー", value: "review" },
+    { label: "出店関連", value: "application" },
+    { label: "リマインド", value: "remind" },
+    { label: "評価依頼", value: "reviewRequest" },
 ];
 
 interface PageProps {
@@ -132,116 +142,126 @@ export default async function NotificationsPage({ searchParams }: PageProps) {
     const exhibitor = exhibitors?.[0];
     if (!exhibitor) redirect("/onboarding");
 
-    // 応募データをnotificationとして派生
-    const { data: apps } = await supabase
-        .from("event_applications")
-        .select(`
-            id,
-            status,
-            created_at,
-            updated_at,
-            events(id, event_name)
-        `)
-        .eq("exhibitor_id", exhibitor.id)
-        .order("updated_at", { ascending: false })
+    const now = new Date();
+
+    // --- DBベースの通知を取得 ---
+    const { data: dbNotifications } = await supabase
+        .from("notifications")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
         .limit(100);
 
-    // 受信したレビューデータ
-    const { data: reviews } = await supabase
-        .from("event_reviews")
-        .select(`
-            id,
-            rating,
-            created_at,
-            events(id, event_name),
-            organizers:reviewer_id(company_name, name)
-        `)
-        .eq("reviewee_id", user.id)
-        .eq("reviewee_type", "exhibitor")
-        .order("created_at", { ascending: false })
-        .limit(50);
+    const dbItems: Notification[] = (dbNotifications || []).map((n: any) => {
+        const isRecent = (now.getTime() - new Date(n.created_at).getTime()) < 24 * 60 * 60 * 1000;
+        let actionHref = "/notifications";
+        if (n.related_application_id) actionHref = `/applications/${n.related_application_id}`;
+        else if (n.related_event_id) actionHref = `/events/${n.related_event_id}`;
 
-    const now = new Date();
-    const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-
-    const appNotifications: Notification[] = (apps || []).map((app: any) => {
-        const eventName = app.events?.event_name || "イベント";
-        const updatedAt = app.updated_at || app.created_at;
-        const isRecent = new Date(updatedAt) > oneDayAgo;
-
-        if (app.status === "approved") {
-            return {
-                id: `approved-${app.id}`,
-                type: "approved" as NotificationType,
-                title: "出店が承認されました",
-                description: `「${eventName}」への出店申請が承認されました。イベント詳細を確認し、出店準備を進めてください。`,
-                timestamp: timeAgo(updatedAt),
-                actionLabel: "詳細を見る",
-                actionHref: `/applications/${app.id}`,
-                isRecent,
-            };
-        }
-        if (app.status === "rejected") {
-            return {
-                id: `rejected-${app.id}`,
-                type: "rejected" as NotificationType,
-                title: "出店が見送りになりました",
-                description: `「${eventName}」の出店申請は今回見送りとなりました。`,
-                timestamp: timeAgo(updatedAt),
-                actionLabel: "詳細を見る",
-                actionHref: `/applications/${app.id}`,
-                isRecent,
-            };
-        }
         return {
-            id: `submitted-${app.id}`,
-            type: "submitted" as NotificationType,
-            title: "応募を送信しました",
-            description: `「${eventName}」への出店申請を送信しました。審査結果をお待ちください。`,
-            timestamp: timeAgo(app.created_at),
+            id: n.id,
+            type: n.type as NotificationType,
+            title: n.title,
+            description: n.message,
+            timestamp: timeAgo(n.created_at),
             actionLabel: "詳細を見る",
-            actionHref: `/applications/${app.id}`,
-            isRecent: new Date(app.created_at) > oneDayAgo,
-        };
-    });
-
-    const reviewNotifications: Notification[] = (reviews || []).map((r: any) => {
-        const eventName = r.events?.event_name || "イベント";
-        const organizerName = (r.organizers as any)?.company_name || (r.organizers as any)?.name || "主催者";
-        const isRecent = new Date(r.created_at) > oneDayAgo;
-        return {
-            id: `review-${r.id}`,
-            type: "review" as NotificationType,
-            title: "新しい評価が届きました",
-            description: `${organizerName}から「${eventName}」の評価を受け取りました。星${r.rating}つの評価が投稿されています。`,
-            timestamp: timeAgo(r.created_at),
-            actionLabel: "評価を見る",
-            actionHref: `/profile?tab=reviews`,
+            actionHref,
             isRecent,
+            isRead: n.is_read,
+            isDbNotification: true,
         };
     });
 
-    // 時系列でマージ（isRecentを優先してソート）
+    // --- リマインド: 承認済みイベントで開催7日前 or 前日 (オンザフライ) ---
+    const { data: upcomingApps } = await supabase
+        .from("event_applications")
+        .select("id, events(id, event_name, event_start_date, organizer_name)")
+        .eq("exhibitor_id", exhibitor.id)
+        .eq("status", "approved")
+        .limit(100);
+
+    const remindNotifications: Notification[] = [];
+    for (const app of (upcomingApps || []) as any[]) {
+        if (!app.events?.event_start_date) continue;
+        const startDate = new Date(app.events.event_start_date);
+        const diffDays = Math.ceil((startDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+        const eventName = app.events?.event_name || "イベント";
+        const orgName = app.events?.organizer_name || "主催者";
+
+        if (diffDays === 7 || diffDays === 1) {
+            const label = diffDays === 1 ? "明日" : "7日後";
+            remindNotifications.push({
+                id: `remind-${app.id}-${diffDays}d`,
+                type: "remind",
+                title: `開催${label}のリマインド`,
+                description: `「${eventName}」の開催が${label}に迫っています。主催者（${orgName}）と直接連絡を取り、当日の準備を確認してください。`,
+                timestamp: "本日",
+                actionLabel: "イベント詳細",
+                actionHref: `/applications/${app.id}`,
+                isRecent: true,
+                isRead: false,
+                isDbNotification: false,
+            });
+        }
+    }
+
+    // --- 評価依頼: 終了翌日のイベント (オンザフライ) ---
+    const yesterday = new Date(now);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().split("T")[0];
+
+    const { data: endedApps } = await supabase
+        .from("event_applications")
+        .select("id, events(id, event_name, event_end_date)")
+        .eq("exhibitor_id", exhibitor.id)
+        .eq("status", "approved")
+        .limit(100);
+
+    const reviewRequestNotifications: Notification[] = [];
+    for (const app of (endedApps || []) as any[]) {
+        const endDate = app.events?.event_end_date;
+        if (!endDate) continue;
+        if (endDate === yesterdayStr) {
+            reviewRequestNotifications.push({
+                id: `review-req-${app.id}`,
+                type: "reviewRequest",
+                title: "主催者の評価をお願いします",
+                description: `「${app.events?.event_name || "イベント"}」が終了しました。主催者への評価を投稿してください。`,
+                timestamp: "本日",
+                actionLabel: "評価する",
+                actionHref: `/applications/${app.id}`,
+                isRecent: true,
+                isRead: false,
+                isDbNotification: false,
+            });
+        }
+    }
+
+    // マージ（未読→既読、新しい順）
     const allNotifications: Notification[] = [
-        ...appNotifications,
-        ...reviewNotifications,
+        ...remindNotifications,
+        ...reviewRequestNotifications,
+        ...dbItems,
     ].sort((a, b) => {
-        if (a.isRecent !== b.isRecent) return a.isRecent ? -1 : 1;
+        if (a.isRead !== b.isRead) return a.isRead ? 1 : -1;
         return 0;
     });
 
     // フィルター適用
+    const applicationTypes = ["application_approved", "application_rejected", "confirmed", "new_application"];
     const filtered =
         activeFilter === "all"
             ? allNotifications
-            : activeFilter === "review"
-            ? allNotifications.filter((n) => n.type === "review")
-            : allNotifications.filter((n) => n.type !== "review");
+            : activeFilter === "application"
+                ? allNotifications.filter((n) => applicationTypes.includes(n.type))
+                : allNotifications.filter((n) => n.type === activeFilter);
 
     const totalFiltered = filtered.length;
     const totalPages = Math.ceil(totalFiltered / ITEMS_PER_PAGE);
     const from = (currentPage - 1) * ITEMS_PER_PAGE;
     const notifications = filtered.slice(from, from + ITEMS_PER_PAGE);
+
+    const unreadCount = allNotifications.filter(n => !n.isRead).length;
 
     function buildParams(overrides: Record<string, string>): string {
         const params = new URLSearchParams();
@@ -255,16 +275,18 @@ export default async function NotificationsPage({ searchParams }: PageProps) {
 
     return (
         <div className="min-h-screen bg-slate-50">
-
             <main className="max-w-4xl mx-auto py-8 px-6">
                 {/* Page Header */}
                 <div className="flex items-center justify-between mb-6">
                     <div>
                         <h1 className="text-2xl font-bold text-slate-900">通知</h1>
                         <p className="text-sm text-slate-500 mt-1">
-                            イベントの応募状況や主催者からのお知らせを確認できます。
+                            出店確定やリマインドなど、重要なお知らせを確認できます。
                         </p>
                     </div>
+                    {unreadCount > 0 && (
+                        <NotificationActions markAll />
+                    )}
                 </div>
 
                 {/* Filter Tabs */}
@@ -299,7 +321,7 @@ export default async function NotificationsPage({ searchParams }: PageProps) {
                         </div>
                         <h3 className="text-lg font-bold text-slate-900 mb-2">通知はありません</h3>
                         <p className="text-sm text-slate-500">
-                            イベントへの応募や評価が届くとここに表示されます。
+                            出店確定やリマインドが届くとここに表示されます。
                         </p>
                     </div>
                 )}
@@ -328,9 +350,7 @@ export default async function NotificationsPage({ searchParams }: PageProps) {
                             }, [])
                             .map((item, i) =>
                                 item === "dots" ? (
-                                    <span key={`dots-${i}`} className="w-9 h-9 flex items-center justify-center text-sm text-slate-400">
-                                        ...
-                                    </span>
+                                    <span key={`dots-${i}`} className="w-9 h-9 flex items-center justify-center text-sm text-slate-400">...</span>
                                 ) : (
                                     <Link
                                         key={item}

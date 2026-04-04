@@ -398,7 +398,7 @@ export default async function ApplicationDetailPage({ params }: PageProps) {
                                 </div>
                                 {organizer.email && (
                                     <a
-                                        href={`mailto:${organizer.email}?subject=${encodeURIComponent(`【Eventra】${event?.event_name || "イベント"}についてのお問い合わせ`)}`}
+                                        href={`mailto:${organizer.email}?subject=${encodeURIComponent(`【Wacca】${event?.event_name || "イベント"}についてのお問い合わせ`)}`}
                                         className="w-full mt-4 text-xs font-medium text-store-600 hover:text-store-800 py-2.5 rounded-xl border border-store-200 text-center flex items-center justify-center gap-1.5"
                                     >
                                         <MessageCircle className="w-4 h-4" />

@@ -46,7 +46,7 @@ export function BookmarkButton({ eventId }: { eventId: string }) {
     const [saved, setSaved] = useState(() => {
         if (typeof window === "undefined") return false;
         try {
-            const bookmarks = JSON.parse(localStorage.getItem("eventra_bookmarks") || "[]");
+            const bookmarks = JSON.parse(localStorage.getItem("wacca_bookmarks") || "[]");
             return bookmarks.includes(eventId);
         } catch {
             return false;
@@ -55,14 +55,14 @@ export function BookmarkButton({ eventId }: { eventId: string }) {
 
     const toggleBookmark = () => {
         try {
-            const bookmarks: string[] = JSON.parse(localStorage.getItem("eventra_bookmarks") || "[]");
+            const bookmarks: string[] = JSON.parse(localStorage.getItem("wacca_bookmarks") || "[]");
             let updated: string[];
             if (bookmarks.includes(eventId)) {
                 updated = bookmarks.filter((id) => id !== eventId);
             } else {
                 updated = [...bookmarks, eventId];
             }
-            localStorage.setItem("eventra_bookmarks", JSON.stringify(updated));
+            localStorage.setItem("wacca_bookmarks", JSON.stringify(updated));
             setSaved(!saved);
         } catch {
             // Ignore storage errors
@@ -84,7 +84,7 @@ export function HeroBookmarkButton({ eventId }: { eventId: string }) {
     const [saved, setSaved] = useState(() => {
         if (typeof window === "undefined") return false;
         try {
-            const bookmarks = JSON.parse(localStorage.getItem("eventra_bookmarks") || "[]");
+            const bookmarks = JSON.parse(localStorage.getItem("wacca_bookmarks") || "[]");
             return bookmarks.includes(eventId);
         } catch {
             return false;
@@ -93,14 +93,14 @@ export function HeroBookmarkButton({ eventId }: { eventId: string }) {
 
     const toggleBookmark = () => {
         try {
-            const bookmarks: string[] = JSON.parse(localStorage.getItem("eventra_bookmarks") || "[]");
+            const bookmarks: string[] = JSON.parse(localStorage.getItem("wacca_bookmarks") || "[]");
             let updated: string[];
             if (bookmarks.includes(eventId)) {
                 updated = bookmarks.filter((id) => id !== eventId);
             } else {
                 updated = [...bookmarks, eventId];
             }
-            localStorage.setItem("eventra_bookmarks", JSON.stringify(updated));
+            localStorage.setItem("wacca_bookmarks", JSON.stringify(updated));
             setSaved(!saved);
         } catch {
             // Ignore storage errors

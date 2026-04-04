@@ -22,6 +22,7 @@ export default function OnboardingPage() {
         website: "",
         description: "",
     });
+    const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
     const [licenseFile, setLicenseFile] = useState<File | null>(null);
     const [licensePreview, setLicensePreview] = useState("");
@@ -114,6 +115,16 @@ export default function OnboardingPage() {
 
     const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     const isValidPhone = (phone: string) => /^[\d\-+() ]{10,15}$/.test(phone.replace(/\s/g, ''));
+
+    const validateField = (name: string, value: string) => {
+        if (name === "email" && value && !isValidEmail(value)) {
+            setFieldErrors(prev => ({ ...prev, [name]: "有効なメールアドレスを入力してください" }));
+        } else if (name === "phone" && value && !isValidPhone(value)) {
+            setFieldErrors(prev => ({ ...prev, [name]: "有効な電話番号を入力してください（半角数字・ハイフン、10〜15桁）" }));
+        } else {
+            setFieldErrors(prev => { const next = { ...prev }; delete next[name]; return next; });
+        }
+    };
 
     const handleSubmit = async () => {
         if (isLoading) return;
@@ -214,7 +225,7 @@ export default function OnboardingPage() {
                             <path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z" />
                         </svg>
                     </div>
-                    <span className="text-2xl font-bold text-slate-900">Eventra</span>
+                    <span className="text-2xl font-bold text-slate-900">Wacca</span>
                     <span className="text-[10px] bg-store-100 text-store-700 px-2 rounded-full font-semibold inline-flex items-center justify-center h-5" style={{ lineHeight: 1 }}>出店者</span>
                 </div>
 
@@ -268,14 +279,16 @@ export default function OnboardingPage() {
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1.5">メールアドレス</label>
                             {fieldErrorMsg("email", "メールアドレス")}
+                            {fieldErrors.email && <p className="text-xs text-red-500 mb-1">{fieldErrors.email}</p>}
                             <div className="relative">
                                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" />
                                 <input
                                     name="email"
                                     value={formData.email}
                                     onChange={handleChange}
+                                    onBlur={(e) => validateField("email", e.target.value)}
                                     type="email"
-                                    className={inputClassName("email")}
+                                    className={`${inputBase} ${fieldHasError("email") || fieldFormatError("email") || fieldErrors.email ? errorBorder : normalBorder}`}
                                     placeholder="you@example.com"
                                 />
                             </div>
@@ -284,14 +297,16 @@ export default function OnboardingPage() {
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1.5">電話番号</label>
                             {fieldErrorMsg("phone", "電話番号")}
+                            {fieldErrors.phone && <p className="text-xs text-red-500 mb-1">{fieldErrors.phone}</p>}
                             <div className="relative">
                                 <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" />
                                 <input
                                     name="phone"
                                     value={formData.phone}
                                     onChange={handleChange}
+                                    onBlur={(e) => validateField("phone", e.target.value)}
                                     type="tel"
-                                    className={inputClassName("phone")}
+                                    className={`${inputBase} ${fieldHasError("phone") || fieldFormatError("phone") || fieldErrors.phone ? errorBorder : normalBorder}`}
                                     placeholder="090-1234-5678"
                                 />
                             </div>

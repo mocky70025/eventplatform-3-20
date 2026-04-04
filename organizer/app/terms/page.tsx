@@ -13,7 +13,7 @@ export default function TermsPage() {
                 <path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z" />
               </svg>
             </div>
-            <span className="text-lg font-bold text-slate-900">Eventra</span>
+            <span className="text-lg font-bold text-slate-900">Wacca</span>
           </Link>
           <BackButton />
         </div>
@@ -28,7 +28,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-lg font-bold text-slate-900 mb-3">第1条（適用）</h2>
             <p>
-              本規約は、Eventra（以下「当サービス」）が提供するすべてのサービスの利用条件を定めるものです。
+              本規約は、Wacca（以下「当サービス」）が提供するすべてのサービスの利用条件を定めるものです。
               登録ユーザーの皆さま（以下「ユーザー」）には、本規約に従って当サービスをご利用いただきます。
             </p>
           </section>
@@ -128,7 +128,7 @@ export default function TermsPage() {
 
         {/* Footer */}
         <div className="mt-16 pt-8 border-t border-slate-100 flex items-center justify-between text-sm text-slate-400">
-          <p>Eventra</p>
+          <p>Wacca</p>
           <Link href="/privacy" className="hover:text-slate-600 transition">
             プライバシーポリシー
           </Link>

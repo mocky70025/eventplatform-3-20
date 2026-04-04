@@ -62,6 +62,45 @@ export default function ApplicationStatusActions({
 
             if (error) throw error;
 
+            // 通知を作成（失敗してもステータス更新はブロックしない）
+            try {
+                const { data: appData } = await supabase
+                    .from("event_applications")
+                    .select("exhibitor_id, events(event_name)")
+                    .eq("id", applicationId)
+                    .single();
+
+                if (appData?.exhibitor_id) {
+                    const { data: exhibitor } = await supabase
+                        .from("exhibitors")
+                        .select("user_id")
+                        .eq("id", appData.exhibitor_id)
+                        .single();
+
+                    if (exhibitor?.user_id) {
+                        const eventName = (appData.events as any)?.event_name || "イベント";
+                        const isApproved = newStatus === "approved";
+                        await fetch("/api/notifications", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                user_id: exhibitor.user_id,
+                                user_type: "exhibitor",
+                                type: isApproved ? "application_approved" : "application_rejected",
+                                title: isApproved ? "出店が承認されました" : "出店申請が見送りになりました",
+                                message: isApproved
+                                    ? `「${eventName}」への出店が承認されました。イベント詳細をご確認ください。`
+                                    : `「${eventName}」への出店申請は見送りとなりました。`,
+                                related_event_id: eventId,
+                                related_application_id: applicationId,
+                            }),
+                        });
+                    }
+                }
+            } catch (notifErr) {
+                console.error("通知作成に失敗:", notifErr);
+            }
+
             setStatus(newStatus);
             router.refresh();
         } catch (error: any) {
