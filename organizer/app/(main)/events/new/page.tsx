@@ -617,34 +617,36 @@ export default function CreateEventPage() {
                                             <input name="endDate" type="date" value={formData.endDate} onChange={handleChange} className={inputClass} />
                                         </div>
                                     </div>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label className={labelClass}>開始時間 </label>
-                                            <div className="flex items-center gap-2">
-                                                <select value={formData.startTime.split(':')[0] || ""} onChange={(e) => { const mins = formData.startTime.split(':')[1] || "00"; setFormData(prev => ({ ...prev, startTime: `${e.target.value.padStart(2, '0')}:${mins}` })); }} className={cn(inputClass, "appearance-none cursor-pointer")}>
-                                                    <option value="">時</option>
-                                                    {Array.from({ length: 24 }).map((_, i) => (<option key={i} value={i.toString().padStart(2, '0')}>{i}時</option>))}
-                                                </select>
-                                                <select value={formData.startTime.split(':')[1] || ""} onChange={(e) => { const hrs = formData.startTime.split(':')[0] || "00"; setFormData(prev => ({ ...prev, startTime: `${hrs.padStart(2, '0')}:${e.target.value}` })); }} className={cn(inputClass, "appearance-none cursor-pointer")}>
-                                                    <option value="">分</option>
-                                                    {['00', '10', '20', '30', '40', '50'].map((m) => (<option key={m} value={m}>{m}分</option>))}
-                                                </select>
+                                    {!formData.usePerDaySchedule && (
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className={labelClass}>開始時間 </label>
+                                                <div className="flex items-center gap-2">
+                                                    <select value={formData.startTime.split(':')[0] || ""} onChange={(e) => { const mins = formData.startTime.split(':')[1] || "00"; setFormData(prev => ({ ...prev, startTime: `${e.target.value.padStart(2, '0')}:${mins}` })); }} className={cn(inputClass, "appearance-none cursor-pointer")}>
+                                                        <option value="">時</option>
+                                                        {Array.from({ length: 24 }).map((_, i) => (<option key={i} value={i.toString().padStart(2, '0')}>{i}時</option>))}
+                                                    </select>
+                                                    <select value={formData.startTime.split(':')[1] || ""} onChange={(e) => { const hrs = formData.startTime.split(':')[0] || "00"; setFormData(prev => ({ ...prev, startTime: `${hrs.padStart(2, '0')}:${e.target.value}` })); }} className={cn(inputClass, "appearance-none cursor-pointer")}>
+                                                        <option value="">分</option>
+                                                        {['00', '10', '20', '30', '40', '50'].map((m) => (<option key={m} value={m}>{m}分</option>))}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label className={labelClass}>終了時間 </label>
+                                                <div className="flex items-center gap-2">
+                                                    <select value={formData.endTime.split(':')[0] || ""} onChange={(e) => { const mins = formData.endTime.split(':')[1] || "00"; setFormData(prev => ({ ...prev, endTime: `${e.target.value.padStart(2, '0')}:${mins}` })); }} className={cn(inputClass, "appearance-none cursor-pointer")}>
+                                                        <option value="">時</option>
+                                                        {Array.from({ length: 24 }).map((_, i) => (<option key={i} value={i.toString().padStart(2, '0')}>{i}時</option>))}
+                                                    </select>
+                                                    <select value={formData.endTime.split(':')[1] || ""} onChange={(e) => { const hrs = formData.endTime.split(':')[0] || "00"; setFormData(prev => ({ ...prev, endTime: `${hrs.padStart(2, '0')}:${e.target.value}` })); }} className={cn(inputClass, "appearance-none cursor-pointer")}>
+                                                        <option value="">分</option>
+                                                        {['00', '10', '20', '30', '40', '50'].map((m) => (<option key={m} value={m}>{m}分</option>))}
+                                                    </select>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div>
-                                            <label className={labelClass}>終了時間 </label>
-                                            <div className="flex items-center gap-2">
-                                                <select value={formData.endTime.split(':')[0] || ""} onChange={(e) => { const mins = formData.endTime.split(':')[1] || "00"; setFormData(prev => ({ ...prev, endTime: `${e.target.value.padStart(2, '0')}:${mins}` })); }} className={cn(inputClass, "appearance-none cursor-pointer")}>
-                                                    <option value="">時</option>
-                                                    {Array.from({ length: 24 }).map((_, i) => (<option key={i} value={i.toString().padStart(2, '0')}>{i}時</option>))}
-                                                </select>
-                                                <select value={formData.endTime.split(':')[1] || ""} onChange={(e) => { const hrs = formData.endTime.split(':')[0] || "00"; setFormData(prev => ({ ...prev, endTime: `${hrs.padStart(2, '0')}:${e.target.value}` })); }} className={cn(inputClass, "appearance-none cursor-pointer")}>
-                                                    <option value="">分</option>
-                                                    {['00', '10', '20', '30', '40', '50'].map((m) => (<option key={m} value={m}>{m}分</option>))}
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    )}
 
                                     {/* 日別スケジュール */}
                                     {isMultiDay && dateRange.length > 0 && (
