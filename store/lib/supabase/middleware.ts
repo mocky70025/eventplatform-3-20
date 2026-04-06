@@ -34,7 +34,7 @@ export async function updateSession(request: NextRequest) {
     if (!supabaseUrl || !supabaseAnonKey) {
         if (!isPublicRoute(request.nextUrl.pathname)) {
             const url = request.nextUrl.clone()
-            url.pathname = '/login'
+            url.pathname = '/signup'
             return NextResponse.redirect(url)
         }
         return response;
@@ -94,10 +94,10 @@ export async function updateSession(request: NextRequest) {
 
         const pathname = request.nextUrl.pathname
 
-        // Redirect unauthenticated users from protected routes to login
+        // Redirect unauthenticated users from protected routes to signup
         if (!user && !isPublicRoute(pathname)) {
             const url = request.nextUrl.clone()
-            url.pathname = '/login'
+            url.pathname = '/signup'
             url.searchParams.set('next', pathname)
             return NextResponse.redirect(url)
         }
@@ -112,7 +112,7 @@ export async function updateSession(request: NextRequest) {
         // On auth error, allow public routes but block protected ones
         if (!isPublicRoute(request.nextUrl.pathname)) {
             const url = request.nextUrl.clone()
-            url.pathname = '/login'
+            url.pathname = '/signup'
             return NextResponse.redirect(url)
         }
     }

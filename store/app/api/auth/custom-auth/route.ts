@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { sendNotificationEmail } from "@/lib/email";
-import { confirmationEmail } from "@/lib/email-templates";
 import { pbkdf2Sync, randomBytes } from "crypto";
 
 const APP_PASSWORD_KEY = "store_password_hash";
@@ -29,34 +27,80 @@ export async function POST(request: Request) {
         const admin = createAdminClient();
 
         if (action === "signup") {
-            const redirectTo = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3001"}/auth/callback`;
+            // Check if user already exists
+            const { data: existingUserId } = await admin.rpc("get_user_id_by_email", { user_email: email });
 
-            // Try to create user and generate confirmation link (does NOT send Supabase's email)
+            if (existingUserId) {
+                // User exists — try to login with provided password
+                const { data: { user }, error: getUserError } = await admin.auth.admin.getUserById(existingUserId);
+                if (getUserError || !user) {
+                    return NextResponse.json({ error: "認証に失敗しました" }, { status: 401 });
+                }
+
+                // Try app-specific password
+                const storedHash = user.app_metadata?.[APP_PASSWORD_KEY];
+                if (storedHash && verifyPassword(password, storedHash)) {
+                    // Password matches — login
+                    const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
+                        type: "magiclink",
+                        email,
+                    });
+                    if (linkError || !linkData) {
+                        return NextResponse.json({ error: "認証に失敗しました" }, { status: 500 });
+                    }
+                    return NextResponse.json({ action: "login", token_hash: linkData.properties.hashed_token });
+                }
+
+                // Try Supabase native password (sign in test)
+                // If no app-specific hash, this might be a cross-app user or wrong password
+                if (!storedHash) {
+                    // Cross-app user: store password and login
+                    const passwordHash = hashPassword(password);
+                    await admin.auth.admin.updateUserById(existingUserId, {
+                        app_metadata: {
+                            ...user.app_metadata,
+                            [APP_PASSWORD_KEY]: passwordHash,
+                        },
+                    });
+                    const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
+                        type: "magiclink",
+                        email,
+                    });
+                    if (linkError || !linkData) {
+                        return NextResponse.json({ error: "認証に失敗しました" }, { status: 500 });
+                    }
+                    return NextResponse.json({ action: "login", token_hash: linkData.properties.hashed_token });
+                }
+
+                return NextResponse.json({ error: "メールアドレスまたはパスワードが正しくありません" }, { status: 401 });
+            }
+
+            // New user — create and auto-confirm (no email verification needed)
             const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
                 type: "signup",
                 email,
                 password,
-                options: { redirectTo },
             });
 
             if (linkError) {
-                // Check if user already exists (cross-app case)
-                const { data: foundUserId } = await admin.rpc("get_user_id_by_email", { user_email: email });
-                if (foundUserId) {
-                    return NextResponse.json({ error: "exists", userId: foundUserId }, { status: 409 });
-                }
                 return NextResponse.json({ error: linkError.message || "登録に失敗しました" }, { status: 400 });
             }
 
-            // Send confirmation email via Resend
-            const actionLink = linkData.properties.action_link;
-            await sendNotificationEmail({
-                to: email,
-                subject: "Wacca - メールアドレスの確認",
-                html: confirmationEmail(actionLink),
+            // Store app-specific password hash
+            const newUser = linkData.user;
+            const passwordHash = hashPassword(password);
+            await admin.auth.admin.updateUserById(newUser.id, {
+                app_metadata: {
+                    ...newUser.app_metadata,
+                    [APP_PASSWORD_KEY]: passwordHash,
+                },
             });
 
-            return NextResponse.json({ success: true });
+            // Return hashed_token so client can verify and create session immediately
+            return NextResponse.json({
+                action: "signup",
+                token_hash: linkData.properties.hashed_token,
+            });
         }
 
         if (action === "cross-signup") {
@@ -64,13 +108,11 @@ export async function POST(request: Request) {
                 return NextResponse.json({ error: "ユーザーIDが不足しています" }, { status: 400 });
             }
 
-            // Verify the userId matches the email
             const { data: { user }, error: getUserError } = await admin.auth.admin.getUserById(userId);
             if (getUserError || !user || user.email !== email) {
                 return NextResponse.json({ error: "ユーザー認証に失敗しました" }, { status: 400 });
             }
 
-            // Hash password and store in app_metadata
             const passwordHash = hashPassword(password);
             const { error: updateError } = await admin.auth.admin.updateUserById(userId, {
                 app_metadata: {
@@ -83,7 +125,6 @@ export async function POST(request: Request) {
                 return NextResponse.json({ error: "パスワードの保存に失敗しました" }, { status: 500 });
             }
 
-            // Generate magic link token to create a session (no email sent)
             const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
                 type: "magiclink",
                 email,
@@ -97,7 +138,6 @@ export async function POST(request: Request) {
         }
 
         if (action === "login") {
-            // Find user by email via DB function
             const { data: foundUserId, error: rpcError } = await admin.rpc("get_user_id_by_email", {
                 user_email: email,
             });
@@ -111,13 +151,11 @@ export async function POST(request: Request) {
                 return NextResponse.json({ error: "認証に失敗しました" }, { status: 401 });
             }
 
-            // Verify against app-specific password hash
             const storedHash = user.app_metadata?.[APP_PASSWORD_KEY];
             if (!storedHash || !verifyPassword(password, storedHash)) {
                 return NextResponse.json({ error: "認証に失敗しました" }, { status: 401 });
             }
 
-            // Generate magic link token
             const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
                 type: "magiclink",
                 email,
