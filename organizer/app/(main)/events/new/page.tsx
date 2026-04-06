@@ -94,6 +94,8 @@ export default function CreateEventPage() {
         endTime: "",
         postponedType: "" as "" | "none" | "date",
         postponedDate: "",
+        postponedDates: [] as Array<{ date: string; postponed_to: string }>,
+        postponedNote: "",
         appDeadline: "",
         venueName: "",
         zipCode: "",
@@ -381,7 +383,10 @@ export default function CreateEventPage() {
                     event_start_date: formData.startDate,
                     event_end_date: formData.endDate || formData.startDate,
                     event_time: `${formData.startTime} - ${formData.endTime}`,
-                    postponed_date: formData.postponedType === "date" ? formData.postponedDate : null,
+                    postponed_date: formData.postponedType === "date" && !isMultiDay ? formData.postponedDate : null,
+                    postponed_dates: formData.postponedType === "date" && isMultiDay && formData.postponedDates.length > 0
+                        ? JSON.stringify(formData.postponedDates) : null,
+                    postponed_note: formData.postponedType === "date" && formData.postponedNote ? formData.postponedNote : null,
                     application_period_end: formData.appDeadline,
                     venue_name: formData.venueName,
                     address: formData.address,
@@ -431,11 +436,16 @@ export default function CreateEventPage() {
     const canProceed = () => {
         switch (step) {
             case 1:
+                const timeValid = formData.usePerDaySchedule || (formData.startTime && formData.endTime);
+                const postponedValid = formData.postponedType === "none"
+                    || (formData.postponedType === "date" && !isMultiDay && formData.postponedDate)
+                    || (formData.postponedType === "date" && isMultiDay && formData.postponedDates.every(d => d.postponed_to));
+                const recruitValid = formData.usePerDaySettings || (formData.recruitCount && formData.fee);
                 return formData.eventName && formData.genre && formData.description && formData.boothContent
-                    && formData.startDate && formData.startTime && formData.endTime && formData.postponedType && formData.appDeadline
-                    && (formData.postponedType === "none" || formData.postponedDate)
+                    && formData.startDate && timeValid && formData.postponedType && formData.appDeadline
+                    && postponedValid
                     && formData.venueName && formData.address
-                    && formData.recruitCount && formData.fee && formData.venueRules
+                    && recruitValid && formData.venueRules
                     && !!formData.mainImage;
             case 2:
                 return formData.termsCompliance && formData.boothQualification && formData.privacyPolicy && formData.cancelPolicy
@@ -685,15 +695,45 @@ export default function CreateEventPage() {
                                     <div>
                                         <label className={labelClass}>延期時の仮日 </label>
                                         <div className="flex gap-3 mb-3">
-                                            <button type="button" onClick={() => setFormData(prev => ({ ...prev, postponedType: "none", postponedDate: "" }))} className={cn("flex-1 py-3 px-4 rounded-lg border-2 text-sm font-bold transition-all", formData.postponedType === "none" ? "border-orange-500 bg-orange-50 text-orange-700" : "border-slate-200 bg-slate-50 text-slate-500 hover:border-slate-300")}>
+                                            <button type="button" onClick={() => setFormData(prev => ({ ...prev, postponedType: "none", postponedDate: "", postponedDates: [], postponedNote: "" }))} className={cn("flex-1 py-3 px-4 rounded-lg border-2 text-sm font-bold transition-all", formData.postponedType === "none" ? "border-orange-500 bg-orange-50 text-orange-700" : "border-slate-200 bg-slate-50 text-slate-500 hover:border-slate-300")}>
                                                 延期なし
                                             </button>
-                                            <button type="button" onClick={() => setFormData(prev => ({ ...prev, postponedType: "date" }))} className={cn("flex-1 py-3 px-4 rounded-lg border-2 text-sm font-bold transition-all", formData.postponedType === "date" ? "border-orange-500 bg-orange-50 text-orange-700" : "border-slate-200 bg-slate-50 text-slate-500 hover:border-slate-300")}>
+                                            <button type="button" onClick={() => {
+                                                if (isMultiDay && dateRange.length > 0) {
+                                                    setFormData(prev => ({
+                                                        ...prev,
+                                                        postponedType: "date",
+                                                        postponedDates: dateRange.map(d => ({ date: d, postponed_to: "" })),
+                                                    }));
+                                                } else {
+                                                    setFormData(prev => ({ ...prev, postponedType: "date" }));
+                                                }
+                                            }} className={cn("flex-1 py-3 px-4 rounded-lg border-2 text-sm font-bold transition-all", formData.postponedType === "date" ? "border-orange-500 bg-orange-50 text-orange-700" : "border-slate-200 bg-slate-50 text-slate-500 hover:border-slate-300")}>
                                                 仮日を設定する
                                             </button>
                                         </div>
                                         {formData.postponedType === "date" && (
-                                            <input name="postponedDate" type="date" value={formData.postponedDate} onChange={handleChange} className={inputClass} />
+                                            <div className="space-y-3">
+                                                {isMultiDay && formData.postponedDates.length > 0 ? (
+                                                    <div className="space-y-3 p-4 bg-orange-50/50 rounded-xl border border-orange-100">
+                                                        <span className="text-sm font-semibold text-slate-700">日別の延期先</span>
+                                                        {formData.postponedDates.map((day, idx) => (
+                                                            <div key={day.date} className="flex items-center gap-3 bg-white rounded-lg p-3 border border-slate-200">
+                                                                <span className="text-sm font-medium text-slate-700 min-w-[90px]">{new Date(day.date).toLocaleDateString("ja-JP", { month: "short", day: "numeric", weekday: "short" })}</span>
+                                                                <span className="text-slate-400 text-sm">→</span>
+                                                                <input type="date" value={day.postponed_to} onChange={(e) => {
+                                                                    const updated = [...formData.postponedDates];
+                                                                    updated[idx] = { ...updated[idx], postponed_to: e.target.value };
+                                                                    setFormData(prev => ({ ...prev, postponedDates: updated }));
+                                                                }} className="flex-1 text-sm border border-slate-200 rounded-lg px-2 py-1.5" />
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                ) : (
+                                                    <input name="postponedDate" type="date" value={formData.postponedDate} onChange={handleChange} className={inputClass} />
+                                                )}
+                                                <input name="postponedNote" value={formData.postponedNote} onChange={handleChange} className={inputClass} placeholder="雨天延期 / 荒天時は翌週に延期 など" />
+                                            </div>
                                         )}
                                         <p className="text-xs text-slate-400 mt-1">※ 雨天等で延期する場合の予備日を設定できます</p>
                                     </div>
@@ -762,16 +802,18 @@ export default function CreateEventPage() {
                             <section>
                                 <h2 className={sectionTitle}><Users className="w-5 h-5 text-orange-500" /> 募集・会場</h2>
                                 <div className="space-y-4">
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label className={labelClass}>出店数 </label>
-                                            <input name="recruitCount" type="number" value={formData.recruitCount} onChange={handleChange} className={cn(inputClass, fieldError("recruitCount"))} />
+                                    {!formData.usePerDaySettings && (
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className={labelClass}>出店数 </label>
+                                                <input name="recruitCount" type="number" value={formData.recruitCount} onChange={handleChange} className={cn(inputClass, fieldError("recruitCount"))} />
+                                            </div>
+                                            <div>
+                                                <label className={labelClass}>出店料 </label>
+                                                <input name="fee" value={formData.fee} onChange={handleChange} className={cn(inputClass, fieldError("fee"))} placeholder="1日 5,000円 / 売上の10%" />
+                                            </div>
                                         </div>
-                                        <div>
-                                            <label className={labelClass}>出店料 </label>
-                                            <input name="fee" value={formData.fee} onChange={handleChange} className={cn(inputClass, fieldError("fee"))} placeholder="1日 5,000円 / 売上の10%" />
-                                        </div>
-                                    </div>
+                                    )}
 
                                     {/* 日別条件 */}
                                     {isMultiDay && dateRange.length > 0 && (
@@ -1076,7 +1118,7 @@ export default function CreateEventPage() {
                                     <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
                                         <div><dt className="text-slate-500 text-xs">開催日</dt><dd className="font-semibold text-slate-900">{formData.startDate}{formData.endDate && ` ～ ${formData.endDate}`}</dd></div>
                                         <div><dt className="text-slate-500 text-xs">時間</dt><dd className="font-semibold text-slate-900">{formData.startTime} - {formData.endTime}</dd></div>
-                                        <div><dt className="text-slate-500 text-xs">延期時の仮日</dt><dd className="font-semibold text-slate-900">{formData.postponedType === "none" ? "延期なし" : formData.postponedDate}</dd></div>
+                                        <div><dt className="text-slate-500 text-xs">延期時の仮日</dt><dd className="font-semibold text-slate-900">{formData.postponedType === "none" ? "延期なし" : isMultiDay && formData.postponedDates.length > 0 ? formData.postponedDates.map(d => `${new Date(d.date).toLocaleDateString("ja-JP", { month: "short", day: "numeric" })} → ${d.postponed_to}`).join("、") : formData.postponedDate}{formData.postponedNote && ` (${formData.postponedNote})`}</dd></div>
                                         <div><dt className="text-slate-500 text-xs">募集締切</dt><dd className="font-semibold text-orange-600">{formData.appDeadline} まで</dd></div>
                                     </dl>
                                 </section>
