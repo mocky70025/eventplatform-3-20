@@ -2,7 +2,7 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const FROM_ADDRESS = process.env.EMAIL_FROM || "Wacca <onboarding@resend.dev>";
+const FROM_ADDRESS = process.env.EMAIL_FROM || "Wacca <noreply@wacca.xyz>";
 
 export async function sendNotificationEmail(params: {
     to: string;
