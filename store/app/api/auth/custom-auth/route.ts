@@ -37,6 +37,11 @@ export async function POST(request: Request) {
                     return NextResponse.json({ error: "認証に失敗しました" }, { status: 401 });
                 }
 
+                // Ensure email is confirmed (fix users created before email_confirm was added)
+                if (!user.email_confirmed_at) {
+                    await admin.auth.admin.updateUserById(existingUserId, { email_confirm: true });
+                }
+
                 // Try app-specific password
                 const storedHash = user.app_metadata?.[APP_PASSWORD_KEY];
                 if (storedHash && verifyPassword(password, storedHash)) {
@@ -51,10 +56,8 @@ export async function POST(request: Request) {
                     return NextResponse.json({ action: "login", token_hash: linkData.properties.hashed_token });
                 }
 
-                // Try Supabase native password (sign in test)
-                // If no app-specific hash, this might be a cross-app user or wrong password
+                // No app-specific hash — cross-app user or first time: store password and login
                 if (!storedHash) {
-                    // Cross-app user: store password and login
                     const passwordHash = hashPassword(password);
                     await admin.auth.admin.updateUserById(existingUserId, {
                         app_metadata: {
@@ -152,6 +155,11 @@ export async function POST(request: Request) {
             const { data: { user }, error: getUserError } = await admin.auth.admin.getUserById(foundUserId);
             if (getUserError || !user) {
                 return NextResponse.json({ error: "認証に失敗しました" }, { status: 401 });
+            }
+
+            // Ensure email is confirmed
+            if (!user.email_confirmed_at) {
+                await admin.auth.admin.updateUserById(foundUserId, { email_confirm: true });
             }
 
             const storedHash = user.app_metadata?.[APP_PASSWORD_KEY];
