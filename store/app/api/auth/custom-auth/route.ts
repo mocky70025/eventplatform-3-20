@@ -75,30 +75,33 @@ export async function POST(request: Request) {
                 return NextResponse.json({ error: "メールアドレスまたはパスワードが正しくありません" }, { status: 401 });
             }
 
-            // New user — create and auto-confirm (no email verification needed)
-            const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
-                type: "signup",
+            // New user — create with email auto-confirmed (skip email verification)
+            const passwordHash = hashPassword(password);
+            const { data: newUser, error: createError } = await admin.auth.admin.createUser({
                 email,
                 password,
-            });
-
-            if (linkError) {
-                return NextResponse.json({ error: linkError.message || "登録に失敗しました" }, { status: 400 });
-            }
-
-            // Store app-specific password hash
-            const newUser = linkData.user;
-            const passwordHash = hashPassword(password);
-            await admin.auth.admin.updateUserById(newUser.id, {
+                email_confirm: true,
                 app_metadata: {
-                    ...newUser.app_metadata,
                     [APP_PASSWORD_KEY]: passwordHash,
                 },
             });
 
-            // Return hashed_token so client can verify and create session immediately
+            if (createError) {
+                return NextResponse.json({ error: createError.message || "登録に失敗しました" }, { status: 400 });
+            }
+
+            // Generate magiclink token to create session
+            const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
+                type: "magiclink",
+                email,
+            });
+
+            if (linkError || !linkData) {
+                return NextResponse.json({ error: "認証に失敗しました" }, { status: 500 });
+            }
+
             return NextResponse.json({
-                action: "signup",
+                action: "login",
                 token_hash: linkData.properties.hashed_token,
             });
         }

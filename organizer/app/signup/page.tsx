@@ -35,11 +35,10 @@ export default function SignupPage() {
                 return;
             }
 
-            // Both signup and login return token_hash — verify OTP to create session
-            const otpType = result.action === "login" ? "magiclink" : "signup";
+            // Verify OTP to create session (always magiclink type)
             const { data: otpData, error: verifyError } = await supabase.auth.verifyOtp({
                 token_hash: result.token_hash,
-                type: otpType as any,
+                type: "magiclink",
             });
 
             if (verifyError || !otpData.user) {
