@@ -23,31 +23,35 @@ export default function SignupPage() {
         const password = formData.get("password") as string;
 
         try {
-            const { data, error } = await supabase.auth.signUp({
-                email,
-                password,
-                options: {
-                    emailRedirectTo: `${window.location.origin}/auth/callback`,
-                },
+            // Call server API to create user and send confirmation email via Resend
+            const res = await fetch("/api/auth/custom-auth", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ action: "signup", email, password }),
             });
 
-            if (error) throw error;
+            const result = await res.json();
 
-            // Supabase returns empty identities when user already exists (email confirmation enabled)
-            if (data.user && data.user.identities?.length === 0) {
-                // Cross-app signup: register with app-specific password
-                const res = await fetch("/api/auth/custom-auth", {
+            if (res.ok) {
+                // New user created, confirmation email sent via Resend
+                setIsEmailSent(true);
+                return;
+            }
+
+            // User already exists in another app → cross-app signup
+            if (res.status === 409 && result.userId) {
+                const crossRes = await fetch("/api/auth/custom-auth", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ action: "cross-signup", email, password, userId: data.user.id }),
+                    body: JSON.stringify({ action: "cross-signup", email, password, userId: result.userId }),
                 });
 
-                if (!res.ok) {
+                if (!crossRes.ok) {
                     setError("登録に失敗しました。しばらくしてからお試しください。");
                     return;
                 }
 
-                const { token_hash } = await res.json();
+                const { token_hash } = await crossRes.json();
                 const { error: verifyError } = await supabase.auth.verifyOtp({ token_hash, type: "magiclink" });
 
                 if (verifyError) {
@@ -59,16 +63,10 @@ export default function SignupPage() {
                 return;
             }
 
-            if (data.user) {
-                if (!data.session) {
-                    setIsEmailSent(true);
-                } else {
-                    router.push("/onboarding");
-                }
-            }
+            setError(result.error || "アカウント作成に失敗しました。入力内容を確認してください。");
         } catch (error: any) {
             console.error("Signup error:", error);
-            setError(error.message || "アカウント作成に失敗しました。入力内容を確認してください。");
+            setError("アカウント作成に失敗しました。入力内容を確認してください。");
         } finally {
             setIsLoading(false);
         }

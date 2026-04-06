@@ -20,6 +20,22 @@ function baseTemplate(content: string): string {
 </html>`;
 }
 
+export function confirmationEmail(actionLink: string): string {
+    return baseTemplate(`
+    <h2 style="margin:0 0 16px;font-size:18px;color:#0f172a;">メールアドレスの確認</h2>
+    <p style="margin:0 0 16px;font-size:14px;color:#475569;line-height:1.7;">
+      Wacca にご登録いただきありがとうございます。<br>
+      以下のボタンをクリックして、メールアドレスを確認してください。
+    </p>
+    <a href="${actionLink}" style="display:inline-block;padding:12px 24px;background:#f97316;color:#fff;text-decoration:none;border-radius:12px;font-size:14px;font-weight:600;">
+      メールアドレスを確認する
+    </a>
+    <p style="margin:24px 0 0;font-size:12px;color:#94a3b8;line-height:1.6;">
+      このメールに心当たりがない場合は、無視していただいて問題ありません。
+    </p>
+  `);
+}
+
 export function newApplicationEmail(exhibitorName: string, eventName: string): string {
     return baseTemplate(`
     <h2 style="margin:0 0 16px;font-size:18px;color:#0f172a;">新しい出店申し込みがありました</h2>

@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { sendNotificationEmail } from "@/lib/email";
+import { confirmationEmail } from "@/lib/email-templates";
 import { pbkdf2Sync, randomBytes } from "crypto";
 
 const APP_PASSWORD_KEY = "organizer_password_hash";
@@ -25,6 +27,37 @@ export async function POST(request: Request) {
         }
 
         const admin = createAdminClient();
+
+        if (action === "signup") {
+            const redirectTo = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3002"}/auth/callback`;
+
+            // Try to create user and generate confirmation link (does NOT send Supabase's email)
+            const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
+                type: "signup",
+                email,
+                password,
+                options: { redirectTo },
+            });
+
+            if (linkError) {
+                // Check if user already exists (cross-app case)
+                const { data: foundUserId } = await admin.rpc("get_user_id_by_email", { user_email: email });
+                if (foundUserId) {
+                    return NextResponse.json({ error: "exists", userId: foundUserId }, { status: 409 });
+                }
+                return NextResponse.json({ error: linkError.message || "登録に失敗しました" }, { status: 400 });
+            }
+
+            // Send confirmation email via Resend
+            const actionLink = linkData.properties.action_link;
+            await sendNotificationEmail({
+                to: email,
+                subject: "Wacca - メールアドレスの確認",
+                html: confirmationEmail(actionLink),
+            });
+
+            return NextResponse.json({ success: true });
+        }
 
         if (action === "cross-signup") {
             if (!userId) {
