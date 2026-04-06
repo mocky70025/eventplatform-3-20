@@ -84,6 +84,8 @@ export default function OnboardingPage() {
                     name: formData.repName,
                     email: formData.email,
                     phone_number: formData.phone,
+                    address: formData.address || null,
+                    description: formData.description || null,
                     social_links: formData.website ? { website: formData.website } : null,
                     is_approved: false,
                 });

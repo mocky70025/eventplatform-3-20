@@ -165,7 +165,7 @@ export default function OnboardingPage() {
                 phone_number: formData.phone,
                 address: formData.address,
                 description: formData.description,
-                business_license_image_url: licenseUrl,
+                business_permit_image_url: licenseUrl,
             });
 
             if (insertError) throw insertError;
