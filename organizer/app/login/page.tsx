@@ -39,7 +39,7 @@ export default function LoginPage() {
                 return;
             }
 
-            // Fallback: try app-specific password (cross-app registration)
+            // Fallback: try app-specific password (syncs Supabase native password)
             const res = await fetch("/api/auth/custom-auth", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -48,18 +48,18 @@ export default function LoginPage() {
 
             if (!res.ok) throw new Error("login failed");
 
-            const { token_hash } = await res.json();
-            const { data: otpData, error: verifyError } = await supabase.auth.verifyOtp({
-                token_hash,
-                type: "magiclink",
+            // API synced the password — now sign in normally
+            const { data: retryData, error: retryError } = await supabase.auth.signInWithPassword({
+                email,
+                password,
             });
 
-            if (verifyError || !otpData.user) throw new Error("verify failed");
+            if (retryError || !retryData.user) throw new Error("login failed");
 
             const { data: profile } = await supabase
                 .from("organizers")
                 .select("id")
-                .eq("user_id", otpData.user.id)
+                .eq("user_id", retryData.user.id)
                 .single();
 
             router.push(!profile ? "/onboarding" : "/");

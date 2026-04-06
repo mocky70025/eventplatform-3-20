@@ -35,13 +35,13 @@ export default function SignupPage() {
                 return;
             }
 
-            // Verify OTP to create session (always magiclink type)
-            const { data: otpData, error: verifyError } = await supabase.auth.verifyOtp({
-                token_hash: result.token_hash,
-                type: "magiclink",
+            // API succeeded — now sign in with password to create session
+            const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+                email,
+                password,
             });
 
-            if (verifyError || !otpData.user) {
+            if (signInError || !signInData.user) {
                 setError("認証に失敗しました。しばらくしてからお試しください。");
                 return;
             }
@@ -50,7 +50,7 @@ export default function SignupPage() {
             const { data: profiles } = await supabase
                 .from("organizers")
                 .select("id")
-                .eq("user_id", otpData.user.id)
+                .eq("user_id", signInData.user.id)
                 .limit(1);
 
             router.push(!profiles?.length ? "/onboarding" : "/");
