@@ -92,7 +92,7 @@ export default function CreateEventPage() {
         endDate: "",
         startTime: "",
         endTime: "",
-        postponedType: "" as "" | "none" | "date",
+        postponedType: "none" as "none" | "date",
         postponedDate: "",
         postponedDates: [] as Array<{ date: string; postponed_to: string }>,
         postponedNote: "",
@@ -243,7 +243,15 @@ export default function CreateEventPage() {
     const handleNext = () => {
         if (!canProceed()) {
             setShowErrors(true);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            // Scroll to the first error field
+            setTimeout(() => {
+                const errorEl = document.querySelector('.text-red-500, .border-red-400');
+                if (errorEl) {
+                    errorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } else {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            }, 100);
             return;
         }
         setShowErrors(false);
