@@ -9,9 +9,10 @@ export default async function EventsPage() {
         .from("events")
         .select(`
             id, event_name, status, genre, description, booth_content,
-            event_start_date, event_end_date, event_time, postponed_date, application_period_end,
+            event_start_date, event_end_date, event_time, postponed_date, postponed_dates, postponed_note, application_period_end,
             venue_name, address, recruit_count, fee, venue_rules, loading_info,
             main_image_url, venue_layout_url,
+            event_schedule, event_day_settings, visibility,
             terms_compliance, booth_qualification, privacy_policy, cancel_policy,
             organizer_name, organizer_email, organizer_phone,
             created_at, organizer_id,

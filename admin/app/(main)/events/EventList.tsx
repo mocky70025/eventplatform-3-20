@@ -240,13 +240,33 @@ export function EventRow({ event }: { event: Event }) {
                                                     ? `${event.event_start_date} ~ ${event.event_end_date}`
                                                     : event.event_start_date
                                             } />
-                                            <InfoItem label="予備日（雨天時等）" value={event.postponed_date} />
+                                            <InfoItem label="予備日（雨天時等）" value={(() => {
+                                                const pd = event.postponed_dates;
+                                                const parsed = pd ? (typeof pd === 'string' ? JSON.parse(pd) : pd) : null;
+                                                if (parsed && Array.isArray(parsed) && parsed.length > 0) {
+                                                    return parsed.map((d: any) => `${new Date(d.date).toLocaleDateString("ja-JP", { month: "short", day: "numeric" })}→${d.postponed_to}`).join("、");
+                                                }
+                                                return event.postponed_date;
+                                            })()} />
+                                            {event.postponed_note && <InfoItem label="延期備考" value={event.postponed_note} />}
                                             <InfoItem label="応募締切" value={event.application_period_end} />
                                             <InfoItem label="申請日" value={event.created_at ? new Date(event.created_at).toLocaleDateString("ja-JP") : null} />
                                             <InfoItem label="会場名" value={event.venue_name} />
                                             <InfoItem label="募集出店数" value={event.recruit_count ? `${event.recruit_count} 店舗` : null} />
                                             <InfoItem label="住所" value={event.address} full />
                                             <InfoItem label="出店料" value={event.fee} full />
+                                            {(() => {
+                                                const schedule = event.event_schedule;
+                                                const parsed = schedule ? (typeof schedule === 'string' ? JSON.parse(schedule) : schedule) : null;
+                                                if (!parsed || !Array.isArray(parsed) || parsed.length === 0) return null;
+                                                return <InfoItem label="日別スケジュール" value={parsed.map((d: any) => `${new Date(d.date).toLocaleDateString("ja-JP", { month: "short", day: "numeric" })} ${d.start_time}〜${d.end_time}`).join("、")} full />;
+                                            })()}
+                                            {(() => {
+                                                const settings = event.event_day_settings;
+                                                const parsed = settings ? (typeof settings === 'string' ? JSON.parse(settings) : settings) : null;
+                                                if (!parsed || !Array.isArray(parsed) || parsed.length === 0) return null;
+                                                return <InfoItem label="日別募集条件" value={parsed.map((d: any) => `${new Date(d.date).toLocaleDateString("ja-JP", { month: "short", day: "numeric" })} ${d.recruit_count}店/${d.fee}`).join("、")} full />;
+                                            })()}
                                         </InfoGrid>
                                     </div>
 

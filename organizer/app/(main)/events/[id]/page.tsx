@@ -465,6 +465,50 @@ export default function EventDetailPage() {
                                     <span className="text-slate-400 font-medium">開催時間</span>
                                     <span className="text-slate-900 font-semibold">{event.event_time || "-"}</span>
                                 </div>
+                                {(() => {
+                                    const schedule = (event as any).event_schedule;
+                                    const parsed = schedule ? (typeof schedule === 'string' ? JSON.parse(schedule) : schedule) : null;
+                                    if (!parsed || !Array.isArray(parsed) || parsed.length === 0) return null;
+                                    return (
+                                        <div className="py-2.5 border-b border-slate-50">
+                                            <span className="text-slate-400 font-medium text-sm">日別スケジュール</span>
+                                            <div className="mt-2 space-y-1">
+                                                {parsed.map((d: any) => (
+                                                    <div key={d.date} className="flex justify-between text-sm">
+                                                        <span className="text-slate-500">{new Date(d.date).toLocaleDateString("ja-JP", { month: "short", day: "numeric", weekday: "short" })}</span>
+                                                        <span className="text-slate-900 font-semibold">{d.start_time} 〜 {d.end_time}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    );
+                                })()}
+                                {(() => {
+                                    const postponedDates = (event as any).postponed_dates;
+                                    const parsed = postponedDates ? (typeof postponedDates === 'string' ? JSON.parse(postponedDates) : postponedDates) : null;
+                                    const note = (event as any).postponed_note;
+                                    const singleDate = (event as any).postponed_date;
+                                    if (!parsed && !singleDate && !note) return null;
+                                    return (
+                                        <div className="py-2.5 border-b border-slate-50">
+                                            <span className="text-slate-400 font-medium text-sm">延期時の仮日</span>
+                                            {singleDate && !parsed && (
+                                                <p className="text-slate-900 font-semibold text-sm mt-1">{singleDate}</p>
+                                            )}
+                                            {parsed && Array.isArray(parsed) && parsed.length > 0 && (
+                                                <div className="mt-2 space-y-1">
+                                                    {parsed.map((d: any) => (
+                                                        <div key={d.date} className="flex justify-between text-sm">
+                                                            <span className="text-slate-500">{new Date(d.date).toLocaleDateString("ja-JP", { month: "short", day: "numeric" })}</span>
+                                                            <span className="text-slate-900 font-semibold">→ {d.postponed_to}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                            {note && <p className="text-xs text-slate-500 mt-1">({note})</p>}
+                                        </div>
+                                    );
+                                })()}
                                 <div className="flex justify-between py-2.5 border-b border-slate-50">
                                     <span className="text-slate-400 font-medium">会場名</span>
                                     <span className="text-slate-900 font-semibold">{event.venue_name || "-"}</span>
@@ -499,10 +543,32 @@ export default function EventDetailPage() {
                                     <span className="text-slate-400 font-medium">募集枠数</span>
                                     <span className="text-slate-900 font-semibold">{event.recruit_count || "-"} ブース</span>
                                 </div>
-                                <div className="flex justify-between py-2">
+                                <div className="flex justify-between py-2 border-b border-slate-50">
                                     <span className="text-slate-400 font-medium">承認済み / 募集枠</span>
                                     <span className="text-slate-900 font-semibold">{approvedCount} / {event.recruit_count || 0}</span>
                                 </div>
+                                {(() => {
+                                    const settings = (event as any).event_day_settings;
+                                    const parsed = settings ? (typeof settings === 'string' ? JSON.parse(settings) : settings) : null;
+                                    if (!parsed || !Array.isArray(parsed) || parsed.length === 0) return null;
+                                    return (
+                                        <div className="py-2">
+                                            <span className="text-slate-400 font-medium text-sm">日別の募集条件</span>
+                                            <div className="mt-2 space-y-2">
+                                                {parsed.map((d: any) => (
+                                                    <div key={d.date} className="bg-slate-50 rounded-lg p-3 text-sm">
+                                                        <span className="font-semibold text-slate-700">{new Date(d.date).toLocaleDateString("ja-JP", { month: "short", day: "numeric", weekday: "short" })}</span>
+                                                        <div className="flex gap-4 mt-1 text-slate-600">
+                                                            <span>募集: {d.recruit_count}</span>
+                                                            <span>出店料: {d.fee}</span>
+                                                        </div>
+                                                        {d.notes && <p className="text-xs text-slate-500 mt-1">{d.notes}</p>}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    );
+                                })()}
                             </div>
                         </div>
                     </div>

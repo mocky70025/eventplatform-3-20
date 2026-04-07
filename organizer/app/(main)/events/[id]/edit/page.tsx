@@ -62,8 +62,10 @@ export default function EditEventPage() {
         endDate: "",
         startTime: "",
         endTime: "",
-        postponedType: "" as "" | "none" | "date",
+        postponedType: "none" as "none" | "date",
         postponedDate: "",
+        postponedDates: [] as Array<{ date: string; postponed_to: string }>,
+        postponedNote: "",
         appDeadline: "",
         venueName: "",
         zipCode: "",
@@ -84,9 +86,15 @@ export default function EditEventPage() {
         selectedExhibitorFields: [] as string[],
         status: "published",
         visibility: "public" as "public" | "private",
+        usePerDaySchedule: false,
+        eventSchedule: [] as Array<{ date: string; start_time: string; end_time: string }>,
+        usePerDaySettings: false,
+        eventDaySettings: [] as Array<{ date: string; recruit_count: number; fee: string; notes: string }>,
     });
 
     const [customFields, setCustomFields] = useState<CustomField[]>([]);
+
+    const isMultiDay = formData.startDate && formData.endDate && formData.startDate !== formData.endDate;
 
     const [organizerProfile, setOrganizerProfile] = useState<{ id: string } | null>(null);
     const [files, setFiles] = useState<{ main: File | null; layout: File | null }>({
@@ -134,6 +142,21 @@ export default function EditEventPage() {
                         } catch {}
                     }
 
+                    // Parse JSONB fields
+                    let parsedSchedule: Array<{ date: string; start_time: string; end_time: string }> = [];
+                    if (data.event_schedule) {
+                        try { parsedSchedule = typeof data.event_schedule === 'string' ? JSON.parse(data.event_schedule) : data.event_schedule; } catch {}
+                    }
+                    let parsedDaySettings: Array<{ date: string; recruit_count: number; fee: string; notes: string }> = [];
+                    if (data.event_day_settings) {
+                        try { parsedDaySettings = typeof data.event_day_settings === 'string' ? JSON.parse(data.event_day_settings) : data.event_day_settings; } catch {}
+                    }
+                    let parsedPostponedDates: Array<{ date: string; postponed_to: string }> = [];
+                    if (data.postponed_dates) {
+                        try { parsedPostponedDates = typeof data.postponed_dates === 'string' ? JSON.parse(data.postponed_dates) : data.postponed_dates; } catch {}
+                    }
+                    const hasPostponement = data.postponed_date || parsedPostponedDates.length > 0;
+
                     setFormData({
                         eventName: data.event_name || "",
                         genre: data.genre || "",
@@ -143,8 +166,10 @@ export default function EditEventPage() {
                         endDate: data.event_end_date || "",
                         startTime: startT?.trim() || "",
                         endTime: endT?.trim() || "",
-                        postponedType: data.postponed_date ? "date" : "none",
+                        postponedType: hasPostponement ? "date" : "none",
                         postponedDate: data.postponed_date || "",
+                        postponedDates: parsedPostponedDates,
+                        postponedNote: data.postponed_note || "",
                         appDeadline: data.application_period_end || "",
                         venueName: data.venue_name || "",
                         zipCode: "",
@@ -165,6 +190,10 @@ export default function EditEventPage() {
                         selectedExhibitorFields: selectedFields,
                         status: data.status || "published",
                         visibility: data.visibility || "public",
+                        usePerDaySchedule: parsedSchedule.length > 0,
+                        eventSchedule: parsedSchedule,
+                        usePerDaySettings: parsedDaySettings.length > 0,
+                        eventDaySettings: parsedDaySettings,
                     });
                     setCustomFields(parsedCustomFields);
                 }
@@ -360,8 +389,15 @@ export default function EditEventPage() {
                     booth_content: formData.boothContent,
                     event_start_date: formData.startDate,
                     event_end_date: formData.endDate || formData.startDate,
-                    event_time: `${formData.startTime} - ${formData.endTime}`,
-                    postponed_date: formData.postponedType === "date" ? formData.postponedDate : null,
+                    event_time: formData.usePerDaySchedule ? null : `${formData.startTime} - ${formData.endTime}`,
+                    postponed_date: formData.postponedType === "date" && !isMultiDay ? formData.postponedDate : null,
+                    postponed_dates: formData.postponedType === "date" && isMultiDay && formData.postponedDates.length > 0
+                        ? JSON.stringify(formData.postponedDates) : null,
+                    postponed_note: formData.postponedType === "date" && formData.postponedNote ? formData.postponedNote : null,
+                    event_schedule: formData.usePerDaySchedule && formData.eventSchedule.length > 0
+                        ? JSON.stringify(formData.eventSchedule) : null,
+                    event_day_settings: formData.usePerDaySettings && formData.eventDaySettings.length > 0
+                        ? JSON.stringify(formData.eventDaySettings) : null,
                     application_period_end: formData.appDeadline,
                     venue_name: formData.venueName,
                     address: formData.address,

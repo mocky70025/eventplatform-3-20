@@ -210,17 +210,35 @@ export default async function EventDetailPage({ params }: PageProps) {
                         </div>
 
                         {/* Postponement notice */}
-                        {postponeDate && (
-                            <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl p-4">
-                                <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-                                <div>
-                                    <p className="font-bold text-amber-800 text-sm">延期のお知らせ</p>
-                                    <p className="text-sm text-amber-700 mt-1">
-                                        本イベントは <span className="font-bold">{postponeDate}</span> に延期となりました。
-                                    </p>
+                        {(() => {
+                            const postponedDatesRaw = (event as any).postponed_dates;
+                            const postponedDates = postponedDatesRaw ? (typeof postponedDatesRaw === 'string' ? JSON.parse(postponedDatesRaw) : postponedDatesRaw) : null;
+                            const postponedNote = (event as any).postponed_note as string | null;
+                            const hasPostponement = postponeDate || (postponedDates && Array.isArray(postponedDates) && postponedDates.length > 0);
+                            if (!hasPostponement) return null;
+                            return (
+                                <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl p-4">
+                                    <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                                    <div>
+                                        <p className="font-bold text-amber-800 text-sm">延期のお知らせ{postponedNote && ` (${postponedNote})`}</p>
+                                        {postponeDate && !postponedDates && (
+                                            <p className="text-sm text-amber-700 mt-1">
+                                                本イベントは <span className="font-bold">{postponeDate}</span> に延期となりました。
+                                            </p>
+                                        )}
+                                        {postponedDates && Array.isArray(postponedDates) && postponedDates.length > 0 && (
+                                            <div className="mt-1 space-y-1">
+                                                {postponedDates.map((d: any) => (
+                                                    <p key={d.date} className="text-sm text-amber-700">
+                                                        {new Date(d.date).toLocaleDateString("ja-JP", { month: "short", day: "numeric" })} → <span className="font-bold">{d.postponed_to}</span>
+                                                    </p>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            );
+                        })()}
 
                         {/* 概要 section */}
                         <div className="bg-white rounded-xl border border-slate-200 p-6">
