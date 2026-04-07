@@ -20,6 +20,10 @@ interface Event {
     event_end_date: string;
     event_time: string;
     postponed_date: string;
+    postponed_dates: string;
+    postponed_note: string;
+    event_schedule: string;
+    event_day_settings: string;
     application_period_end: string;
     venue_name: string;
     address: string;
