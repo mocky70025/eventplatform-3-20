@@ -53,7 +53,7 @@ export default async function Home({ searchParams }: PageProps) {
   let totalParticipations = 0;
   let events: any[] | null = null;
 
-  // Run events query in parallel with exhibitor query
+  // Run all queries in parallel
   if (user) {
     const [eventsResult, exhibitorResult] = await Promise.all([
       eventsQuery,

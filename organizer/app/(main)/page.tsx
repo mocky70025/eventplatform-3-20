@@ -27,33 +27,18 @@ export default async function Home() {
     redirect("/onboarding");
   }
 
-  // Fetch events + application counts in parallel
-  const [eventsResult, pendingResult, totalResult, approvedResult] = await Promise.all([
-    supabase
-      .from("events")
-      .select("*, event_applications(count)")
-      .eq("organizer_id", profile.id)
-      .order("created_at", { ascending: false }),
-    supabase
-      .from("event_applications")
-      .select("id, events!inner(id, organizer_id)", { count: "exact", head: true })
-      .eq("events.organizer_id", profile.id)
-      .eq("status", "pending"),
-    supabase
-      .from("event_applications")
-      .select("id, events!inner(id, organizer_id)", { count: "exact", head: true })
-      .eq("events.organizer_id", profile.id),
-    supabase
-      .from("event_applications")
-      .select("id, events!inner(id, organizer_id)", { count: "exact", head: true })
-      .eq("events.organizer_id", profile.id)
-      .eq("status", "approved"),
-  ]);
+  // Fetch events with application statuses in a single query
+  const { data: eventsWithApps } = await supabase
+    .from("events")
+    .select("*, event_applications(id, status)")
+    .eq("organizer_id", profile.id)
+    .order("created_at", { ascending: false });
 
-  const safeEvents = eventsResult.data || [];
-  const pendingApplications = pendingResult.count ?? 0;
-  const totalApplications = totalResult.count ?? 0;
-  const approvedApplications = approvedResult.count ?? 0;
+  const safeEvents = eventsWithApps || [];
+  const allApps = safeEvents.flatMap((e: any) => e.event_applications || []);
+  const totalApplications = allApps.length;
+  const pendingApplications = allApps.filter((a: any) => a.status === "pending").length;
+  const approvedApplications = allApps.filter((a: any) => a.status === "approved").length;
 
   // Derive stats
   const publishedEventsCount = safeEvents.filter(e => e.status === 'published').length;

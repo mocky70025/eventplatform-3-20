@@ -1,30 +1,33 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 export function NotificationBadge() {
     const [count, setCount] = useState(0);
     const supabase = createClient();
+    const userIdRef = useRef<string | null>(null);
 
     useEffect(() => {
         const fetchCount = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) return;
+            // Cache user ID to avoid repeated auth calls
+            if (!userIdRef.current) {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) return;
+                userIdRef.current = user.id;
+            }
 
             const { count: unreadCount } = await supabase
                 .from("notifications")
                 .select("id", { count: "exact", head: true })
-                .eq("user_id", user.id)
+                .eq("user_id", userIdRef.current)
                 .eq("is_read", false);
 
             setCount(unreadCount ?? 0);
         };
 
         fetchCount();
-
-        // Refresh every 30 seconds
-        const interval = setInterval(fetchCount, 30000);
+        const interval = setInterval(fetchCount, 60000);
         return () => clearInterval(interval);
     }, []);
 

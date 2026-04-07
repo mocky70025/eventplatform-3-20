@@ -40,6 +40,13 @@ export async function updateSession(request: NextRequest) {
         return response;
     }
 
+    const pathname = request.nextUrl.pathname
+
+    // Skip auth check entirely for public routes
+    if (isPublicRoute(pathname)) {
+        return response
+    }
+
     const supabase = createServerClient(
         supabaseUrl,
         supabaseAnonKey,
@@ -92,10 +99,8 @@ export async function updateSession(request: NextRequest) {
     try {
         const { data: { user } } = await supabase.auth.getUser()
 
-        const pathname = request.nextUrl.pathname
-
         // Redirect unauthenticated users from protected routes to signup
-        if (!user && !isPublicRoute(pathname)) {
+        if (!user) {
             const url = request.nextUrl.clone()
             url.pathname = '/signup'
             url.searchParams.set('next', pathname)
@@ -103,18 +108,15 @@ export async function updateSession(request: NextRequest) {
         }
 
         // Redirect authenticated users away from login/signup pages
-        if (user && (pathname === '/login' || pathname === '/signup')) {
+        if (pathname === '/login' || pathname === '/signup') {
             const url = request.nextUrl.clone()
             url.pathname = '/'
             return NextResponse.redirect(url)
         }
     } catch (error) {
-        // On auth error, allow public routes but block protected ones
-        if (!isPublicRoute(request.nextUrl.pathname)) {
-            const url = request.nextUrl.clone()
-            url.pathname = '/signup'
-            return NextResponse.redirect(url)
-        }
+        const url = request.nextUrl.clone()
+        url.pathname = '/signup'
+        return NextResponse.redirect(url)
     }
 
     return response
