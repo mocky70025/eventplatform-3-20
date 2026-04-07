@@ -9,7 +9,8 @@ import {
     ArrowLeft, ExternalLink, Clock,
     Edit, AlertCircle, Loader2, Copy, Trash2,
     FileText, ClipboardList, Building2, Tag,
-    Image as ImageIcon, Share2, Download, Settings, Check, X
+    Image as ImageIcon, Share2, Download, Settings, Check, X,
+    Shield, Phone, Mail, User, Truck
 } from "lucide-react";
 import NextImage from "next/image";
 import Link from "next/link";
@@ -29,6 +30,17 @@ interface EventDetail {
     status: string;
     recruit_count: number;
     fee: string;
+    booth_content: string;
+    venue_rules: string;
+    terms_compliance: string;
+    booth_qualification: string;
+    privacy_policy: string;
+    cancel_policy: string;
+    loading_info: string;
+    organizer_name: string;
+    organizer_email: string;
+    organizer_phone: string;
+    venue_layout_url: string;
 }
 
 interface Application {
@@ -571,6 +583,123 @@ export default function EventDetailPage() {
                                 })()}
                             </div>
                         </div>
+                        {/* Booth Content */}
+                        {event.booth_content && (
+                            <div className="bg-white rounded-2xl border border-slate-200 p-6">
+                                <h2 className="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
+                                    <Tag className="w-5 h-5 text-orange-500" />
+                                    出店内容
+                                </h2>
+                                <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">{event.booth_content}</p>
+                            </div>
+                        )}
+
+                        {/* Venue Rules */}
+                        {event.venue_rules && (
+                            <div className="bg-white rounded-2xl border border-slate-200 p-6">
+                                <h2 className="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
+                                    <AlertCircle className="w-5 h-5 text-orange-500" />
+                                    会場内ルール
+                                </h2>
+                                <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">{event.venue_rules}</p>
+                            </div>
+                        )}
+
+                        {/* Terms & Policies */}
+                        {(event.terms_compliance || event.booth_qualification || event.privacy_policy || event.cancel_policy) && (
+                            <div className="bg-white rounded-2xl border border-slate-200 p-6">
+                                <h2 className="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
+                                    <Shield className="w-5 h-5 text-orange-500" />
+                                    規約・ポリシー
+                                </h2>
+                                <div className="space-y-5">
+                                    {event.terms_compliance && (
+                                        <div>
+                                            <h3 className="text-sm font-semibold text-slate-700 mb-1.5">規約の履行</h3>
+                                            <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">{event.terms_compliance}</p>
+                                        </div>
+                                    )}
+                                    {event.booth_qualification && (
+                                        <div>
+                                            <h3 className="text-sm font-semibold text-slate-700 mb-1.5">出店資格</h3>
+                                            <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">{event.booth_qualification}</p>
+                                        </div>
+                                    )}
+                                    {event.privacy_policy && (
+                                        <div>
+                                            <h3 className="text-sm font-semibold text-slate-700 mb-1.5">肖像権・個人情報の取り扱い</h3>
+                                            <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">{event.privacy_policy}</p>
+                                        </div>
+                                    )}
+                                    {event.cancel_policy && (
+                                        <div>
+                                            <h3 className="text-sm font-semibold text-slate-700 mb-1.5">キャンセルポリシー</h3>
+                                            <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">{event.cancel_policy}</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Loading Info */}
+                        {event.loading_info && (
+                            <div className="bg-white rounded-2xl border border-slate-200 p-6">
+                                <h2 className="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
+                                    <Truck className="w-5 h-5 text-orange-500" />
+                                    搬出入について
+                                </h2>
+                                <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">{event.loading_info}</p>
+                            </div>
+                        )}
+
+                        {/* Venue Layout */}
+                        {event.venue_layout_url && (
+                            <div className="bg-white rounded-2xl border border-slate-200 p-6">
+                                <h2 className="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
+                                    <ImageIcon className="w-5 h-5 text-orange-500" />
+                                    会場レイアウト
+                                </h2>
+                                <div className="rounded-xl overflow-hidden border border-slate-100">
+                                    <NextImage
+                                        src={event.venue_layout_url}
+                                        alt="会場レイアウト"
+                                        width={600}
+                                        height={400}
+                                        className="w-full h-auto object-contain"
+                                    />
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Organizer Info */}
+                        {(event.organizer_name || event.organizer_email || event.organizer_phone) && (
+                            <div className="bg-white rounded-2xl border border-slate-200 p-6">
+                                <h2 className="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
+                                    <User className="w-5 h-5 text-orange-500" />
+                                    主催者連絡先
+                                </h2>
+                                <div className="space-y-3 text-sm">
+                                    {event.organizer_name && (
+                                        <div className="flex justify-between py-2 border-b border-slate-50">
+                                            <span className="text-slate-400 font-medium">主催者名</span>
+                                            <span className="text-slate-900 font-semibold">{event.organizer_name}</span>
+                                        </div>
+                                    )}
+                                    {event.organizer_email && (
+                                        <div className="flex justify-between py-2 border-b border-slate-50">
+                                            <span className="text-slate-400 font-medium flex items-center gap-1.5"><Mail className="w-3.5 h-3.5" />メール</span>
+                                            <span className="text-slate-900 font-semibold">{event.organizer_email}</span>
+                                        </div>
+                                    )}
+                                    {event.organizer_phone && (
+                                        <div className="flex justify-between py-2">
+                                            <span className="text-slate-400 font-medium flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" />電話番号</span>
+                                            <span className="text-slate-900 font-semibold">{event.organizer_phone}</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* Right: Sidebar (1 col) */}
@@ -594,35 +723,7 @@ export default function EventDetailPage() {
                                 </div>
                             </div>
 
-                            {/* Step 2: Completed */}
-                            <div className="flex gap-3">
-                                <div className="flex flex-col items-center">
-                                    <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center">
-                                        <Check className="w-4 h-4 text-white" strokeWidth={2.5} />
-                                    </div>
-                                    <div className="w-0.5 h-8 bg-emerald-300"></div>
-                                </div>
-                                <div className="pb-4">
-                                    <p className="text-sm font-semibold text-slate-900">募集開始</p>
-                                    <p className="text-xs text-slate-500 mt-0.5">完了</p>
-                                </div>
-                            </div>
-
-                            {/* Step 3: Completed */}
-                            <div className="flex gap-3">
-                                <div className="flex flex-col items-center">
-                                    <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center">
-                                        <Check className="w-4 h-4 text-white" strokeWidth={2.5} />
-                                    </div>
-                                    <div className="w-0.5 h-8 bg-emerald-300"></div>
-                                </div>
-                                <div className="pb-4">
-                                    <p className="text-sm font-semibold text-slate-900">募集締切</p>
-                                    <p className="text-xs text-slate-500 mt-0.5">完了</p>
-                                </div>
-                            </div>
-
-                            {/* Step 4: Current */}
+                            {/* Step 2: Current */}
                             <div className="flex gap-3">
                                 <div className="flex flex-col items-center">
                                     <div className="w-8 h-8 bg-emerald-100 border-2 border-emerald-400 rounded-full flex items-center justify-center">
@@ -633,6 +734,28 @@ export default function EventDetailPage() {
                                 <div className="pb-4">
                                     <p className="text-sm font-semibold text-emerald-700">審査中</p>
                                     <p className="text-xs text-orange-600 font-medium mt-0.5">現在のステップ</p>
+                                </div>
+                            </div>
+
+                            {/* Step 3: Upcoming */}
+                            <div className="flex gap-3">
+                                <div className="flex flex-col items-center">
+                                    <div className="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center text-xs font-bold text-slate-400">3</div>
+                                    <div className="w-0.5 h-8 bg-slate-200"></div>
+                                </div>
+                                <div className="pb-4">
+                                    <p className="text-sm font-medium text-slate-400">募集開始</p>
+                                </div>
+                            </div>
+
+                            {/* Step 4: Upcoming */}
+                            <div className="flex gap-3">
+                                <div className="flex flex-col items-center">
+                                    <div className="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center text-xs font-bold text-slate-400">4</div>
+                                    <div className="w-0.5 h-8 bg-slate-200"></div>
+                                </div>
+                                <div className="pb-4">
+                                    <p className="text-sm font-medium text-slate-400">募集締切</p>
                                 </div>
                             </div>
 
