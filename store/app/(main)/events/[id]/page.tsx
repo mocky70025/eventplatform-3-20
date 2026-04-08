@@ -72,6 +72,15 @@ export default async function EventDetailPage({ params }: PageProps) {
     const progressPercent = recruitCount > 0 ? Math.min((appliedCount / recruitCount) * 100, 100) : 0;
     const fee = event.fee ?? "未定";
 
+    // Per-day settings
+    const daySettingsRaw = (event as Record<string, unknown>).event_day_settings;
+    const daySettings: Array<{ date: string; recruit_count: number; fee: string; notes: string }> = (() => {
+        try {
+            const parsed = daySettingsRaw ? (typeof daySettingsRaw === "string" ? JSON.parse(daySettingsRaw) : daySettingsRaw) : null;
+            return Array.isArray(parsed) && parsed.length > 0 ? parsed : [];
+        } catch { return []; }
+    })();
+
     const venueRulesRaw = (event as Record<string, unknown>).venue_rules as string | string[] | null ?? null;
     const venueRules = Array.isArray(venueRulesRaw) ? venueRulesRaw : venueRulesRaw ? venueRulesRaw.split("\n").filter(Boolean) : null;
     const cancelPolicy = (event as Record<string, unknown>).cancel_policy as string | null ?? null;
@@ -130,8 +139,8 @@ export default async function EventDetailPage({ params }: PageProps) {
                             募集中
                         </span>
                     </div>
-                    {/* Bookmark button */}
-                    <HeroBookmarkButton eventId={id} />
+                    {/* Bookmark button (hide for private events) */}
+                    {event.visibility !== "private" && <HeroBookmarkButton eventId={id} />}
                 </div>
 
                 {/* Two-column layout */}
@@ -458,25 +467,48 @@ export default async function EventDetailPage({ params }: PageProps) {
 
                             {/* Apply CTA card */}
                             <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
-                                {/* Fee display */}
-                                <div className="mb-4">
-                                    <p className="text-xs font-medium text-slate-400 mb-1">出店料</p>
-                                    <p className="text-2xl font-bold text-slate-900">{fee}</p>
-                                </div>
+                                {daySettings.length > 0 ? (
+                                    <div className="mb-5 space-y-3">
+                                        {daySettings.map((day) => (
+                                            <div key={day.date} className="bg-slate-50 rounded-lg p-3">
+                                                <p className="text-xs font-bold text-slate-700 mb-1.5">
+                                                    {new Date(day.date).toLocaleDateString("ja-JP", { month: "short", day: "numeric", weekday: "short" })}
+                                                </p>
+                                                <div className="flex items-center justify-between text-sm">
+                                                    <span className="text-slate-500">出店料</span>
+                                                    <span className="font-bold text-slate-900">{day.fee || fee}</span>
+                                                </div>
+                                                <div className="flex items-center justify-between text-sm mt-1">
+                                                    <span className="text-slate-500">募集枠</span>
+                                                    <span className="font-bold text-slate-900">{day.recruit_count}区画</span>
+                                                </div>
+                                                {day.notes && <p className="text-xs text-slate-400 mt-1">{day.notes}</p>}
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <>
+                                        {/* Fee display */}
+                                        <div className="mb-4">
+                                            <p className="text-xs font-medium text-slate-400 mb-1">出店料</p>
+                                            <p className="text-2xl font-bold text-slate-900">{fee}</p>
+                                        </div>
 
-                                {/* Recruitment progress */}
-                                <div className="mb-5">
-                                    <div className="flex items-center justify-between text-sm mb-2">
-                                        <span className="text-slate-500">募集状況</span>
-                                        <span className="font-bold text-slate-900">{appliedCount}<span className="text-slate-400 font-normal">/{recruitCount}区画</span></span>
-                                    </div>
-                                    <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
-                                        <div
-                                            className="h-full bg-store-500 rounded-full transition-all"
-                                            style={{ width: `${progressPercent}%` }}
-                                        />
-                                    </div>
-                                </div>
+                                        {/* Recruitment progress */}
+                                        <div className="mb-5">
+                                            <div className="flex items-center justify-between text-sm mb-2">
+                                                <span className="text-slate-500">募集状況</span>
+                                                <span className="font-bold text-slate-900">{appliedCount}<span className="text-slate-400 font-normal">/{recruitCount}区画</span></span>
+                                            </div>
+                                            <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                                                <div
+                                                    className="h-full bg-store-500 rounded-full transition-all"
+                                                    style={{ width: `${progressPercent}%` }}
+                                                />
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
 
                                 {/* CTA button - state dependent */}
                                 {hasApplied ? (
@@ -560,7 +592,7 @@ export default async function EventDetailPage({ params }: PageProps) {
                             {/* Share & Bookmark buttons */}
                             <div className="flex gap-3">
                                 <ShareButton />
-                                <BookmarkButton eventId={id} />
+                                {event.visibility !== "private" && <BookmarkButton eventId={id} />}
                             </div>
 
                         </div>
