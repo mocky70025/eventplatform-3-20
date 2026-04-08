@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { createClient } from "@/lib/supabase/client";
@@ -70,6 +70,7 @@ export default function EventDetailPage() {
     const [isActionLoading, setIsActionLoading] = useState<string | null>(null);
     const [error, setError] = useState("");
     const [actionMessage, setActionMessage] = useState<{ type: "error" | "success"; text: string } | null>(null);
+    const orgIdRef = useRef<string | null>(null);
 
     const fetchData = useCallback(async () => {
         setIsLoading(true);
@@ -77,48 +78,35 @@ export default function EventDetailPage() {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error("ログインが必要です");
 
-            // Get organizer profile
             const { data: org } = await supabase
                 .from("organizers")
                 .select("id")
                 .eq("user_id", user.id)
                 .single();
             if (!org) throw new Error("主催者プロフィールが見つかりません");
+            orgIdRef.current = org.id;
 
-            // Fetch event with ownership check
-            const { data: eventData, error: eventError } = await supabase
-                .from("events")
-                .select("*")
-                .eq("id", eventId)
-                .eq("organizer_id", org.id)
-                .single();
+            // Fetch event and applications in parallel
+            const [eventResult, appResult] = await Promise.all([
+                supabase
+                    .from("events")
+                    .select("*")
+                    .eq("id", eventId)
+                    .eq("organizer_id", org.id)
+                    .single(),
+                supabase
+                    .from("event_applications")
+                    .select(`id, status, message, created_at, exhibitor:exhibitors (id, shop_name, name, genre, email)`)
+                    .eq("event_id", eventId)
+                    .order("created_at", { ascending: false }),
+            ]);
 
-            if (eventError) throw eventError;
-            if (!eventData) throw new Error("イベントが見つからないか、アクセス権がありません");
-            setEvent(eventData);
+            if (eventResult.error) throw eventResult.error;
+            if (!eventResult.data) throw new Error("イベントが見つからないか、アクセス権がありません");
+            setEvent(eventResult.data);
 
-            // Fetch applications
-            const { data: appData, error: appError } = await supabase
-                .from("event_applications")
-                .select(`
-                    id,
-                    status,
-                    message,
-                    created_at,
-                    exhibitor:exhibitors (
-                        id,
-                        shop_name,
-                        name,
-                        genre,
-                        email
-                    )
-                `)
-                .eq("event_id", eventId)
-                .order("created_at", { ascending: false });
-
-            if (appError) throw appError;
-            // Supabase returns joined relations as arrays; normalize to single objects
-            const normalized = (appData ?? []).map((app) => ({
+            if (appResult.error) throw appResult.error;
+            const normalized = (appResult.data ?? []).map((app) => ({
                 ...app,
                 exhibitor: Array.isArray(app.exhibitor) ? app.exhibitor[0] : app.exhibitor,
             }));
@@ -139,17 +127,12 @@ export default function EventDetailPage() {
         if (!event) return;
         if (!confirm(`「${event.event_name}」を削除しますか？この操作は元に戻せません。`)) return;
         try {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) throw new Error("ログインが必要です");
-            const { data: org } = await supabase.from("organizers").select("id").eq("user_id", user.id).single();
-            if (!org) throw new Error("主催者プロフィールが見つかりません");
-
-            // Delete with ownership check
+            if (!orgIdRef.current) throw new Error("主催者プロフィールが見つかりません");
             const { error, count } = await supabase
                 .from("events")
                 .delete({ count: "exact" })
                 .eq("id", eventId)
-                .eq("organizer_id", org.id);
+                .eq("organizer_id", orgIdRef.current);
             if (error) throw error;
             if (count === 0) throw new Error("削除対象が見つかりませんでした。権限を確認してください。");
             router.push("/");
@@ -203,25 +186,7 @@ export default function EventDetailPage() {
     const handleUpdateStatus = async (applicationId: string, newStatus: "approved" | "rejected" | "pending") => {
         setIsActionLoading(applicationId);
         try {
-            // Re-verify event ownership before updating application status
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) throw new Error("ログインが必要です");
-
-            const { data: org } = await supabase
-                .from("organizers")
-                .select("id")
-                .eq("user_id", user.id)
-                .single();
-            if (!org) throw new Error("主催者プロフィールが見つかりません");
-
-            // Verify this event belongs to the current organizer
-            const { data: ownedEvent } = await supabase
-                .from("events")
-                .select("id")
-                .eq("id", eventId)
-                .eq("organizer_id", org.id)
-                .single();
-            if (!ownedEvent) throw new Error("このイベントの操作権限がありません");
+            if (!orgIdRef.current) throw new Error("主催者プロフィールが見つかりません");
 
             const { error } = await supabase
                 .from("event_applications")
@@ -231,7 +196,6 @@ export default function EventDetailPage() {
 
             if (error) throw error;
 
-            // Local update
             setApplications(prev => prev.map(app =>
                 app.id === applicationId ? { ...app, status: newStatus } : app
             ));

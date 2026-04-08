@@ -20,7 +20,7 @@ export default async function EventDetailPage({ params }: PageProps) {
     // 1. Get event details with organizer info
     const { data: event, error } = await supabase
         .from("events")
-        .select("*, organizers(*)")
+        .select("*, organizers(company_name, name, email, phone)")
         .eq("id", id)
         .single();
 
@@ -28,28 +28,33 @@ export default async function EventDetailPage({ params }: PageProps) {
         return notFound();
     }
 
-    // 2. Check if user is logged in
-    let user = null;
-    try {
-        const { data, error } = await supabase.auth.getUser();
-        if (!error) {
-            user = data.user;
-        }
-    } catch (error) {
-        // Silently handle auth errors - user will be null
-    }
+    // 2. Fetch user auth and applicant exhibitors in parallel
+    const [userResult, appResult] = await Promise.all([
+        supabase.auth.getUser().catch(() => ({ data: { user: null }, error: null })),
+        supabase
+            .from("event_applications")
+            .select(`id, status, exhibitor:exhibitors (id, shop_name, name, description, genre, genres, business_styles)`)
+            .eq("event_id", id)
+            .in("status", ["pending", "approved"]),
+    ]);
+
+    const user = userResult.data?.user ?? null;
+    const applicantExhibitors = (appResult.data ?? [])
+        .map(app => ({
+            ...(Array.isArray(app.exhibitor) ? app.exhibitor[0] : app.exhibitor),
+            applicationStatus: app.status,
+        }))
+        .filter(Boolean);
 
     // 3. If logged in, check if already applied
     let hasApplied = false;
     let exhibitorProfile = null;
 
     if (user) {
-        // Get exhibitor profile
         const { data: profiles } = await supabase
             .from("exhibitors")
             .select("id")
             .eq("user_id", user.id)
-            .order("created_at", { ascending: false })
             .limit(1);
 
         exhibitorProfile = profiles?.[0] || null;
@@ -65,32 +70,6 @@ export default async function EventDetailPage({ params }: PageProps) {
             if (application) hasApplied = true;
         }
     }
-
-    // 4. Fetch exhibitors who applied to this event (pending + approved)
-    const { data: eventApplications } = await supabase
-        .from("event_applications")
-        .select(`
-            id,
-            status,
-            exhibitor:exhibitors (
-                id,
-                shop_name,
-                name,
-                description,
-                genre,
-                genres,
-                business_styles
-            )
-        `)
-        .eq("event_id", id)
-        .in("status", ["pending", "approved"]);
-
-    const applicantExhibitors = (eventApplications ?? [])
-        .map(app => ({
-            ...(Array.isArray(app.exhibitor) ? app.exhibitor[0] : app.exhibitor),
-            applicationStatus: app.status,
-        }))
-        .filter(Boolean);
 
     // Derived values
     const recruitCount = event.recruit_count ?? 20;

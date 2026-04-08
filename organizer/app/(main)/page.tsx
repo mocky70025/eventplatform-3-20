@@ -16,7 +16,7 @@ export default async function Home() {
   // Get organizer profile
   const { data: profile, error: profileError } = await supabase
     .from("organizers")
-    .select("*")
+    .select("id, company_name, is_approved")
     .eq("user_id", user.id)
     .maybeSingle();
 
@@ -30,7 +30,7 @@ export default async function Home() {
   // Fetch events with application statuses in a single query
   const { data: eventsWithApps } = await supabase
     .from("events")
-    .select("*, event_applications(id, status)")
+    .select("id, event_name, status, event_start_date, venue_name, address, created_at, event_applications(id, status)")
     .eq("organizer_id", profile.id)
     .order("created_at", { ascending: false });
 
@@ -158,7 +158,7 @@ export default async function Home() {
             <div className="space-y-4">
               {safeEvents && safeEvents.length > 0 ? (
                 safeEvents.map((event) => {
-                  const appCount = event.event_applications?.[0]?.count || 0;
+                  const appCount = event.event_applications?.length || 0;
                   return (
                     <Link
                       key={event.id}

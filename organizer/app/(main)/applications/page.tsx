@@ -41,7 +41,7 @@ export default async function ApplicationsPage({ searchParams }: PageProps) {
     // Get organizer profile
     const { data: profile } = await supabase
         .from("organizers")
-        .select("*")
+        .select("id")
         .eq("user_id", user.id)
         .single();
 
@@ -49,49 +49,42 @@ export default async function ApplicationsPage({ searchParams }: PageProps) {
         redirect("/onboarding");
     }
 
-    // Fetch counts in parallel (head: true = no row data, just counts)
-    const [totalResult, pendingResult, approvedResult, rejectedResult] = await Promise.all([
-        supabase.from("event_applications").select("id, events!inner(organizer_id)", { count: "exact", head: true }).eq("events.organizer_id", profile.id),
-        supabase.from("event_applications").select("id, events!inner(organizer_id)", { count: "exact", head: true }).eq("events.organizer_id", profile.id).eq("status", "pending"),
-        supabase.from("event_applications").select("id, events!inner(organizer_id)", { count: "exact", head: true }).eq("events.organizer_id", profile.id).eq("status", "approved"),
-        supabase.from("event_applications").select("id, events!inner(organizer_id)", { count: "exact", head: true }).eq("events.organizer_id", profile.id).eq("status", "rejected"),
-    ]);
-
-    const totalCount = totalResult.count ?? 0;
-    const pendingCount = pendingResult.count ?? 0;
-    const approvedCount = approvedResult.count ?? 0;
-    const rejectedCount = rejectedResult.count ?? 0;
-
-    // Build filtered + paginated query
-    let query = supabase
+    // Fetch all applications in a single query
+    const { data: allApps } = await supabase
         .from("event_applications")
         .select(`
             *,
-            events!inner(*),
+            events!inner(organizer_id, event_name, event_start_date, event_end_date),
             exhibitors(*)
-        `, { count: "exact" })
+        `)
         .eq("events.organizer_id", profile.id)
         .order("created_at", { ascending: false });
 
+    const allApplications = allApps || [];
+
+    // Derive counts from the single query result
+    const totalCount = allApplications.length;
+    const pendingCount = allApplications.filter(a => a.status === "pending").length;
+    const approvedCount = allApplications.filter(a => a.status === "approved").length;
+    const rejectedCount = allApplications.filter(a => a.status === "rejected").length;
+
     // Apply status filter
+    let filtered = allApplications;
     if (statusFilter && statusFilter !== "all") {
-        query = query.eq("status", statusFilter);
+        filtered = filtered.filter(a => a.status === statusFilter);
     }
 
-    const { data: filteredAll, count: filteredCount } = await query;
-
-    // Apply search filter post-query (Supabase PostgREST ilike on joined tables is unreliable)
-    let filtered = filteredAll || [];
+    // Apply search filter
     if (q) {
         const searchLower = q.toLowerCase();
-        filtered = filtered.filter(app =>
+        filtered = filtered.filter((app: any) =>
             (app.exhibitors?.shop_name || "").toLowerCase().includes(searchLower) ||
             (app.exhibitors?.name || "").toLowerCase().includes(searchLower)
         );
     }
 
     // Paginate
-    const actualFilteredCount = q ? filtered.length : (filteredCount ?? filtered.length);
+    const actualFilteredCount = filtered.length;
     const totalPages = Math.ceil(actualFilteredCount / ITEMS_PER_PAGE);
     const from = (currentPage - 1) * ITEMS_PER_PAGE;
     const applications = filtered.slice(from, from + ITEMS_PER_PAGE);

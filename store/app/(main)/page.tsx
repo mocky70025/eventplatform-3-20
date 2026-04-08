@@ -28,7 +28,8 @@ export default async function Home({ searchParams }: PageProps) {
     .select("*, organizers(company_name)")
     .eq("status", "published")
     .or("visibility.eq.public,visibility.is.null")
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .limit(6);
 
   if (q) {
     eventsQuery = eventsQuery.ilike("event_name", `%${q}%`);
