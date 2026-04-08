@@ -232,11 +232,11 @@ export default async function Home({ searchParams }: PageProps) {
           </section>
         )}
 
-        {/* 直近のイベント */}
+        {/* 直近の6件のイベント */}
         <section className="mb-8">
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-lg font-bold text-slate-900">
-              {q ? `「${q}」の検索結果` : "直近のイベント"}
+              {q ? `「${q}」の検索結果` : "直近の6件のイベント"}
             </h2>
             <Link
               href="/events"

@@ -20,7 +20,7 @@ export default async function EventDetailPage({ params }: PageProps) {
     // 1. Get event details with organizer info
     const { data: event, error } = await supabase
         .from("events")
-        .select("*, organizers(company_name, name, email, phone)")
+        .select("*, organizers(company_name, name, email, phone_number)")
         .eq("id", id)
         .single();
 
@@ -621,7 +621,7 @@ export default async function EventDetailPage({ params }: PageProps) {
                                             <span className="truncate">{event.organizers.email}</span>
                                         </div>
                                     )}
-                                    {event.organizers?.phone && (
+                                    {event.organizers?.phone_number && (
                                         <div className="flex items-center gap-2 text-slate-500">
                                             <Phone className="w-4 h-4 text-slate-400 shrink-0" />
                                             <span>{event.organizers.phone}</span>
