@@ -129,7 +129,7 @@ export default function OnboardingPage() {
     const handleSubmit = async () => {
         if (isLoading) return;
 
-        const missingRequired = !formData.storeName || !formData.repName || !formData.email || !formData.phone || !formData.address || !formData.description;
+        const missingRequired = !formData.storeName || !formData.repName || !formData.email || !formData.phone || !formData.address || !formData.description || !licenseFile;
         const emailInvalid = formData.email && !isValidEmail(formData.email);
         const phoneInvalid = formData.phone && !isValidPhone(formData.phone);
 
@@ -360,8 +360,7 @@ export default function OnboardingPage() {
                             <label className="block text-sm font-medium text-slate-700 mb-1.5">
                                 <span className="flex items-center gap-1.5">
                                     <FileText className="h-4 w-4 text-slate-400" />
-                                    営業許可証
-                                    <span className="text-slate-400 font-normal">（後からプロフィールでも登録可）</span>
+                                    営業許可証 <span className="text-red-500">*</span>
                                 </span>
                             </label>
 
@@ -422,6 +421,9 @@ export default function OnboardingPage() {
                                         onChange={handleFileChange}
                                     />
                                 </label>
+                            )}
+                            {showErrors && !licenseFile && (
+                                <p className="text-red-500 text-xs mt-1">営業許可証のアップロードは必須です</p>
                             )}
                         </div>
                     </div>

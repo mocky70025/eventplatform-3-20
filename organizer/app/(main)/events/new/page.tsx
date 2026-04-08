@@ -256,12 +256,12 @@ export default function CreateEventPage() {
         }
         setShowErrors(false);
         setStep(prev => prev + 1);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50);
     };
     const handleBack = () => {
         setShowErrors(false);
         setStep(prev => prev - 1);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50);
     };
 
     const searchAddress = async () => {
