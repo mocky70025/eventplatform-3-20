@@ -719,7 +719,8 @@ export default function EditEventPage() {
                                         <label className="block text-sm font-semibold text-slate-900 mb-2 flex items-center gap-2">
                                             <AlertCircle className={cn("w-4 h-4", isLocked ? "text-slate-400" : "text-orange-500")} />
                                             出店募集の締め切り</label>
-                                        <input name="appDeadline" type="date" value={formData.appDeadline} onChange={handleChange} readOnly={isLocked} className={isLocked ? lockedInputClass : "block w-full rounded-lg border-orange-200 bg-white p-3.5 text-slate-900 outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition-all font-bold shadow-sm"} />
+                                        <input name="appDeadline" type="date" value={formData.appDeadline} onChange={handleChange} readOnly={isLocked} className={cn(isLocked ? lockedInputClass : "block w-full rounded-lg border-orange-200 bg-white p-3.5 text-slate-900 outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition-all font-bold shadow-sm", !isLocked && fieldError("appDeadline"))} />
+                                        {!isLocked && fieldErrorMsg("appDeadline")}
                                         {!isLocked && <p className="text-xs text-orange-600 mt-2">※ この日を過ぎると出店申し込みができなくなります。</p>}
                                     </div>
                                 </div>
@@ -817,7 +818,7 @@ export default function EditEventPage() {
 
                             {/* メイン画像 */}
                             <section>
-                                <h2 className={sectionTitle}><ImageIcon className="w-5 h-5 text-orange-500" /> メイン画像 <span className="text-slate-400 font-normal text-sm">（任意）</span> {isLocked && lockedBadge}</h2>
+                                <h2 className={sectionTitle}><ImageIcon className="w-5 h-5 text-orange-500" /> メイン画像 {isLocked && lockedBadge}</h2>
                                 {isLocked ? (
                                     formData.mainImage ? (
                                         <div className="relative w-full aspect-video rounded-xl overflow-hidden border border-slate-200">

@@ -175,6 +175,38 @@ export default function CreateEventPage() {
         }));
     };
 
+    // 日付変更時に日別設定を同期
+    useEffect(() => {
+        if (formData.usePerDaySchedule && dateRange.length > 0) {
+            setFormData(prev => {
+                const existing = new Map(prev.eventSchedule.map(s => [s.date, s]));
+                return {
+                    ...prev,
+                    eventSchedule: dateRange.map(d => existing.get(d) || {
+                        date: d,
+                        start_time: prev.startTime || "10:00",
+                        end_time: prev.endTime || "18:00",
+                    }),
+                };
+            });
+        }
+        if (formData.usePerDaySettings && dateRange.length > 0) {
+            setFormData(prev => {
+                const existing = new Map(prev.eventDaySettings.map(s => [s.date, s]));
+                return {
+                    ...prev,
+                    eventDaySettings: dateRange.map(d => existing.get(d) || {
+                        date: d,
+                        recruit_count: prev.recruitCount || 10,
+                        fee: prev.fee || "",
+                        notes: "",
+                    }),
+                };
+            });
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [formData.startDate, formData.endDate]);
+
     const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, field: "main" | "layout") => {
@@ -749,7 +781,8 @@ export default function CreateEventPage() {
                                         <label className="block text-sm font-semibold text-slate-900 mb-2 flex items-center gap-2">
                                             <AlertCircle className="w-4 h-4 text-orange-500" />
                                             出店募集の締め切り</label>
-                                        <input name="appDeadline" type="date" value={formData.appDeadline} onChange={handleChange} className="block w-full rounded-lg border-orange-200 bg-white p-3.5 text-slate-900 outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition-all font-bold shadow-sm" />
+                                        <input name="appDeadline" type="date" value={formData.appDeadline} onChange={handleChange} className={cn("block w-full rounded-lg border-orange-200 bg-white p-3.5 text-slate-900 outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition-all font-bold shadow-sm", fieldError("appDeadline"))} />
+                                        {fieldErrorMsg("appDeadline")}
                                         <p className="text-xs text-orange-600 mt-2">※ この日を過ぎると出店申し込みができなくなります。</p>
                                     </div>
                                 </div>
@@ -905,8 +938,8 @@ export default function CreateEventPage() {
 
                             {/* メイン画像 */}
                             <section>
-                                <h2 className={sectionTitle}><ImageIcon className="w-5 h-5 text-orange-500" /> メイン画像 <span className="text-slate-400 font-normal text-sm">（任意）</span></h2>
-                                <label htmlFor="file-upload" className="mt-2 flex justify-center rounded-xl border-2 border-dashed border-slate-300 px-6 py-10 hover:bg-slate-50 transition-colors relative overflow-hidden cursor-pointer">
+                                <h2 className={sectionTitle}><ImageIcon className="w-5 h-5 text-orange-500" /> メイン画像</h2>
+                                <label htmlFor="file-upload" className={cn("mt-2 flex justify-center rounded-xl border-2 border-dashed px-6 py-10 hover:bg-slate-50 transition-colors relative overflow-hidden cursor-pointer", showErrors && !formData.mainImage ? "border-red-400 ring-2 ring-red-100" : "border-slate-300")}>
                                     {formData.mainImage ? (
                                         <div className="relative w-full aspect-video">
                                             <Image src={formData.mainImage} alt="Preview" fill className="object-cover rounded-lg" />
@@ -926,6 +959,7 @@ export default function CreateEventPage() {
                                     )}
                                     <input id="file-upload" type="file" className="sr-only" accept="image/*" onChange={(e) => handleFileChange(e, "main")} />
                                 </label>
+                                {showErrors && !formData.mainImage && <p className="text-xs text-red-500 mt-1">メイン画像のアップロードは必須です</p>}
                             </section>
                         </div>
                     )}

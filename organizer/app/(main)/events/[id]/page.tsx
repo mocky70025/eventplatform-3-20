@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import {
     Calendar, MapPin, Users, CheckCircle2, XCircle,
     ArrowLeft, ExternalLink, Clock,
-    Edit, AlertCircle, Loader2, Copy, Trash2,
+    Edit, AlertCircle, Loader2, Trash2,
     FileText, ClipboardList, Building2, Tag,
     Image as ImageIcon, Share2, Download, Settings, Check, X,
     Shield, Phone, Mail, User, Truck
@@ -41,6 +41,7 @@ interface EventDetail {
     organizer_email: string;
     organizer_phone: string;
     venue_layout_url: string;
+    visibility: string;
 }
 
 interface Application {
@@ -133,27 +134,6 @@ export default function EventDetailPage() {
     useEffect(() => {
         fetchData();
     }, [fetchData]);
-
-    const handleDuplicate = async () => {
-        if (!event) return;
-        if (!confirm("このイベントを複製しますか？")) return;
-        try {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) throw new Error("ログインが必要です");
-            const { data: org } = await supabase.from("organizers").select("id").eq("user_id", user.id).single();
-            if (!org) throw new Error("主催者プロフィールが見つかりません");
-            const { id: _eventId, ...rest } = event;
-            const { data: newEvent, error } = await supabase
-                .from("events")
-                .insert({ ...rest, event_name: `${event.event_name}（コピー）`, status: "draft", organizer_id: org.id })
-                .select("id")
-                .single();
-            if (error) throw error;
-            router.push(`/events/${newEvent.id}`);
-        } catch (err: any) {
-            setActionMessage({ type: "error", text: "複製に失敗しました: " + (err.message || "不明なエラー") });
-        }
-    };
 
     const handleDelete = async () => {
         if (!event) return;
@@ -343,10 +323,6 @@ export default function EventDetailPage() {
                         イベント一覧へ戻る
                     </Link>
                     <div className="flex items-center gap-3">
-                        <button onClick={handleDuplicate} className="text-sm font-medium text-slate-500 hover:text-slate-700 border border-slate-200 px-4 py-2 rounded-xl flex items-center gap-1.5">
-                            <Copy className="w-4 h-4" />
-                            複製
-                        </button>
                         <button onClick={handleDelete} className="text-sm font-medium text-red-500 hover:text-red-600 border border-red-200 px-4 py-2 rounded-xl flex items-center gap-1.5">
                             <Trash2 className="w-4 h-4" />
                             削除
@@ -378,6 +354,12 @@ export default function EventDetailPage() {
                             </div>
                         )}
                         <div className="absolute top-4 right-4 flex gap-2">
+                            {event.visibility === "private" && (
+                                <span className="h-7 inline-flex items-center justify-center px-3 rounded-full backdrop-blur bg-slate-800/70 text-white text-xs font-bold shadow-sm gap-1" style={{ lineHeight: 1 }}>
+                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                                    限定公開
+                                </span>
+                            )}
                             <span className={cn("h-7 inline-flex items-center justify-center px-3 rounded-full backdrop-blur text-xs font-bold shadow-sm", statusInfo.className)} style={{ lineHeight: 1 }}>
                                 {statusLabel}
                             </span>
