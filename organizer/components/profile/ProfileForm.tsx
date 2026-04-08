@@ -236,7 +236,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
                 <h3 className="text-base font-bold text-slate-900">基本情報</h3>
 
                 <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1.5">主催団体名 / 会社名 <span className="text-red-500">*</span></label>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">主催団体名 / 会社名</label>
                     <input
                         name="companyName"
                         value={formData.companyName}
@@ -251,7 +251,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1.5">代表者名 / 担当者名 <span className="text-red-500">*</span></label>
+                        <label className="block text-sm font-medium text-slate-700 mb-1.5">代表者名 / 担当者名</label>
                         <input
                             name="repName"
                             value={formData.repName}
@@ -264,7 +264,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
                         )}
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1.5">電話番号 <span className="text-red-500">*</span></label>
+                        <label className="block text-sm font-medium text-slate-700 mb-1.5">電話番号</label>
                         <input
                             name="phone"
                             value={formData.phone}
@@ -304,7 +304,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
 
                 <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                        ウェブサイト URL <span className="text-slate-400 text-xs font-normal">（任意）</span>
+                        SNS・ウェブサイト URL <span className="text-slate-400 text-xs font-normal">（任意）</span>
                     </label>
                     <input
                         name="website"

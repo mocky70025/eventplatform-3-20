@@ -146,20 +146,8 @@ export function DocumentsSection({ initialProfile }: DocumentsSectionProps) {
 
             {/* Documents list */}
             <div className="bg-white rounded-2xl border border-slate-200 p-6">
-                <div className="flex items-center justify-between mb-5">
+                <div className="mb-5">
                     <h3 className="text-base font-bold text-slate-900">登録書類</h3>
-                    <label className="inline-flex items-center gap-1.5 text-sm font-medium text-store-600 hover:text-store-700 cursor-pointer transition-colors">
-                        <Plus className="w-4 h-4" />
-                        書類を追加
-                        <input type="file" accept="image/*,.pdf" className="hidden" onChange={(e) => {
-                            // Default to first unregistered doc
-                            const unregistered = documentTypes.find(d => !initialProfile?.[d.dbKey]);
-                            if (unregistered && e.target.files?.[0]) {
-                                handleUpload(e.target.files[0], unregistered.key, unregistered.dbKey);
-                            }
-                            e.target.value = "";
-                        }} />
-                    </label>
                 </div>
 
                 <div className="divide-y divide-slate-100">

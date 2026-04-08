@@ -12,7 +12,7 @@ const navItems = [
   { href: "/applications", label: "申込管理" },
   { href: "/history", label: "出店履歴" },
   { href: "/notifications", label: "通知" },
-  { href: "/profile", label: "プロフィール" },
+  { href: "/profile", label: "設定" },
 ];
 
 export function Header() {

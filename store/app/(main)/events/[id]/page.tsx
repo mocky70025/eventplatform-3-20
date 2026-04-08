@@ -66,6 +66,32 @@ export default async function EventDetailPage({ params }: PageProps) {
         }
     }
 
+    // 4. Fetch exhibitors who applied to this event (pending + approved)
+    const { data: eventApplications } = await supabase
+        .from("event_applications")
+        .select(`
+            id,
+            status,
+            exhibitor:exhibitors (
+                id,
+                shop_name,
+                name,
+                description,
+                genre,
+                genres,
+                business_styles
+            )
+        `)
+        .eq("event_id", id)
+        .in("status", ["pending", "approved"]);
+
+    const applicantExhibitors = (eventApplications ?? [])
+        .map(app => ({
+            ...(Array.isArray(app.exhibitor) ? app.exhibitor[0] : app.exhibitor),
+            applicationStatus: app.status,
+        }))
+        .filter(Boolean);
+
     // Derived values
     const recruitCount = event.recruit_count ?? 20;
     const appliedCount = event.applied_count ?? 0;
@@ -302,6 +328,51 @@ export default async function EventDetailPage({ params }: PageProps) {
                                 );
                             })()}
                         </div>
+
+                        {/* 応募中の出店者 */}
+                        {applicantExhibitors.length > 0 && (
+                            <div className="bg-white rounded-xl border border-slate-200 p-6">
+                                <h2 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                                    <span className="w-1 h-5 bg-store-500 rounded-full"></span>
+                                    応募中の出店者
+                                    <span className="text-sm font-normal text-slate-400 ml-1">({applicantExhibitors.length})</span>
+                                </h2>
+                                <div className="space-y-3">
+                                    {applicantExhibitors.map((ex: any) => {
+                                        const genres = ex.genres && Array.isArray(ex.genres) && ex.genres.length > 0
+                                            ? ex.genres
+                                            : ex.genre ? [ex.genre] : [];
+                                        return (
+                                            <div key={ex.id} className="flex items-start gap-3 p-3 rounded-xl bg-slate-50">
+                                                <div className="w-10 h-10 rounded-full bg-store-100 flex items-center justify-center text-store-600 font-bold text-sm shrink-0">
+                                                    {ex.shop_name?.[0] || "?"}
+                                                </div>
+                                                <div className="min-w-0 flex-1">
+                                                    <div className="flex items-center gap-2">
+                                                        <p className="text-sm font-bold text-slate-900 truncate">{ex.shop_name || "店舗名なし"}</p>
+                                                        {ex.applicationStatus === "approved" ? (
+                                                            <span className="text-[11px] font-medium px-1.5 py-0.5 rounded-full bg-store-50 text-store-600" style={{ lineHeight: 1 }}>確定</span>
+                                                        ) : (
+                                                            <span className="text-[11px] font-medium px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-600" style={{ lineHeight: 1 }}>審査中</span>
+                                                        )}
+                                                    </div>
+                                                    {genres.length > 0 && (
+                                                        <div className="flex flex-wrap gap-1 mt-1">
+                                                            {genres.map((g: string) => (
+                                                                <span key={g} className="text-[11px] font-medium px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">{g}</span>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                    {ex.description && (
+                                                        <p className="text-xs text-slate-500 mt-1">{ex.description}</p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
 
                         {/* 会場内ルール section */}
                         {venueRules && venueRules.length > 0 && (

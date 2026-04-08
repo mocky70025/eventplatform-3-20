@@ -14,7 +14,7 @@ export function Header() {
         { href: "/events", label: "イベント管理", match: ["/events"] },
         { href: "/applications", label: "出店者管理", match: ["/applications", "/exhibitors"] },
         { href: "/notifications", label: "通知", match: ["/notifications"] },
-        { href: "/profile", label: "プロフィール", match: ["/profile"] },
+        { href: "/profile", label: "設定", match: ["/profile"] },
     ];
 
     const isActive = (item: typeof navItems[0]) => {

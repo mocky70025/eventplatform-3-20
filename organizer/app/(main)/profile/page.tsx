@@ -61,7 +61,7 @@ export default async function ProfilePage({
             <main className="max-w-4xl mx-auto px-6 py-8">
                 {/* Page title */}
                 <div className="mb-8">
-                    <h1 className="text-2xl font-bold text-slate-900">プロフィール設定</h1>
+                    <h1 className="text-2xl font-bold text-slate-900">設定</h1>
                     <p className="text-sm text-slate-500 mt-1">主催者情報を管理します。出店者に公開される情報です。</p>
                 </div>
 

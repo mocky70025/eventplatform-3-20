@@ -328,7 +328,7 @@ export default function OnboardingPage() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1.5">ウェブサイト URL <span className="text-slate-400 font-normal">（任意）</span></label>
+                            <label className="block text-sm font-medium text-slate-700 mb-1.5">SNS・ウェブサイト URL <span className="text-slate-400 font-normal">（任意）</span></label>
                             <div className="relative">
                                 <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" />
                                 <input
@@ -349,10 +349,12 @@ export default function OnboardingPage() {
                                 name="description"
                                 value={formData.description}
                                 onChange={handleChange}
-                                rows={3}
+                                rows={2}
+                                maxLength={100}
                                 className={inputClassNameNoIcon("description") + " resize-none"}
                                 placeholder="お店の特徴やメニューの紹介を入力してください"
                             />
+                            <p className="text-xs text-slate-400 mt-1 text-right">{formData.description.length}/100</p>
                         </div>
 
                         {/* 営業許可証 */}
@@ -360,7 +362,7 @@ export default function OnboardingPage() {
                             <label className="block text-sm font-medium text-slate-700 mb-1.5">
                                 <span className="flex items-center gap-1.5">
                                     <FileText className="h-4 w-4 text-slate-400" />
-                                    営業許可証 <span className="text-red-500">*</span>
+                                    営業許可証
                                 </span>
                             </label>
 

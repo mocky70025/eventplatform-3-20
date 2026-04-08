@@ -238,7 +238,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
             if (formData.storeName.length > 200) throw new Error("店舗名は200文字以内で入力してください");
             if (formData.repName.length > 100) throw new Error("代表者名は100文字以内で入力してください");
             if (formData.phone.length > 20) throw new Error("電話番号の形式が正しくありません");
-            if (formData.description.length > 2000) throw new Error("店舗紹介は2000文字以内で入力してください");
+            if (formData.description.length > 100) throw new Error("店舗紹介は100文字以内で入力してください");
             if (formData.address.length > 200) throw new Error("住所は200文字以内で入力してください");
 
             const updateData: any = {
@@ -363,8 +363,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
                 {/* Store name */}
                 <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                        店舗名 <span className="text-red-500">*</span>
-                    </label>
+                        店舗名                    </label>
                     <input
                         name="storeName"
                         value={formData.storeName}
@@ -381,8 +380,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                            代表者名 <span className="text-red-500">*</span>
-                        </label>
+                            代表者名                        </label>
                         <input
                             name="repName"
                             value={formData.repName}
@@ -396,8 +394,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                            電話番号 <span className="text-red-500">*</span>
-                        </label>
+                            電話番号                        </label>
                         <input
                             name="phone"
                             value={formData.phone}
@@ -494,12 +491,12 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
                         name="description"
                         value={formData.description}
                         onChange={handleChange}
-                        rows={4}
-                        maxLength={200}
+                        rows={2}
+                        maxLength={100}
                         placeholder="お店の特徴やこだわりをアピールしましょう"
                         className={cn(inputClass, "resize-none")}
                     />
-                    <p className="text-xs text-slate-400 mt-1">200文字以内で記入してください</p>
+                    <p className="text-xs text-slate-400 mt-1 text-right">{formData.description.length}/100</p>
                 </div>
             </div>
 
