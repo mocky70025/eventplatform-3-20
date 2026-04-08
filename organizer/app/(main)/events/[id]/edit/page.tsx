@@ -484,6 +484,8 @@ export default function EditEventPage() {
     ];
 
     const canProceed = () => {
+        // Published events have most fields locked; only validate editable fields
+        if (isLocked) return true;
         switch (step) {
             case 1:
                 return formData.eventName && formData.genre && formData.description

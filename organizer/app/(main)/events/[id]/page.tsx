@@ -709,65 +709,57 @@ export default function EventDetailPage() {
                         <div className="bg-white rounded-2xl border border-slate-200 p-6">
                             <h3 className="text-base font-bold text-slate-900 mb-5">ステータス</h3>
 
-                            {/* Step 1: Completed */}
-                            <div className="flex gap-3">
-                                <div className="flex flex-col items-center">
-                                    <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center">
-                                        <Check className="w-4 h-4 text-white" strokeWidth={2.5} />
-                                    </div>
-                                    <div className="w-0.5 h-8 bg-emerald-300"></div>
-                                </div>
-                                <div className="pb-4">
-                                    <p className="text-sm font-semibold text-slate-900">イベント作成</p>
-                                    <p className="text-xs text-slate-500 mt-0.5">完了</p>
-                                </div>
-                            </div>
+                            {(() => {
+                                const steps = [
+                                    { label: "イベント作成" },
+                                    { label: "審査中" },
+                                    { label: "募集開始" },
+                                    { label: "募集締切" },
+                                    { label: "イベント開催" },
+                                ];
+                                // Map event.status to current step index (0-based)
+                                const statusToStep: Record<string, number> = {
+                                    draft: 1, pending: 1, rejected: 1,
+                                    published: 2,
+                                    closed: 3,
+                                    ended: 4,
+                                };
+                                const currentStep = statusToStep[event.status] ?? 1;
 
-                            {/* Step 2: Current */}
-                            <div className="flex gap-3">
-                                <div className="flex flex-col items-center">
-                                    <div className="w-8 h-8 bg-emerald-100 border-2 border-emerald-400 rounded-full flex items-center justify-center">
-                                        <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full"></div>
-                                    </div>
-                                    <div className="w-0.5 h-8 bg-slate-200"></div>
-                                </div>
-                                <div className="pb-4">
-                                    <p className="text-sm font-semibold text-emerald-700">審査中</p>
-                                    <p className="text-xs text-orange-600 font-medium mt-0.5">現在のステップ</p>
-                                </div>
-                            </div>
+                                return steps.map((step, idx) => {
+                                    const isCompleted = idx < currentStep;
+                                    const isCurrent = idx === currentStep;
+                                    const isLast = idx === steps.length - 1;
 
-                            {/* Step 3: Upcoming */}
-                            <div className="flex gap-3">
-                                <div className="flex flex-col items-center">
-                                    <div className="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center text-xs font-bold text-slate-400">3</div>
-                                    <div className="w-0.5 h-8 bg-slate-200"></div>
-                                </div>
-                                <div className="pb-4">
-                                    <p className="text-sm font-medium text-slate-400">募集開始</p>
-                                </div>
-                            </div>
-
-                            {/* Step 4: Upcoming */}
-                            <div className="flex gap-3">
-                                <div className="flex flex-col items-center">
-                                    <div className="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center text-xs font-bold text-slate-400">4</div>
-                                    <div className="w-0.5 h-8 bg-slate-200"></div>
-                                </div>
-                                <div className="pb-4">
-                                    <p className="text-sm font-medium text-slate-400">募集締切</p>
-                                </div>
-                            </div>
-
-                            {/* Step 5: Upcoming */}
-                            <div className="flex gap-3">
-                                <div className="flex flex-col items-center">
-                                    <div className="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center text-xs font-bold text-slate-400">5</div>
-                                </div>
-                                <div>
-                                    <p className="text-sm font-medium text-slate-400">イベント開催</p>
-                                </div>
-                            </div>
+                                    return (
+                                        <div className="flex gap-3" key={idx}>
+                                            <div className="flex flex-col items-center">
+                                                {isCompleted ? (
+                                                    <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center">
+                                                        <Check className="w-4 h-4 text-white" strokeWidth={2.5} />
+                                                    </div>
+                                                ) : isCurrent ? (
+                                                    <div className="w-8 h-8 bg-emerald-100 border-2 border-emerald-400 rounded-full flex items-center justify-center">
+                                                        <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full"></div>
+                                                    </div>
+                                                ) : (
+                                                    <div className="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center text-xs font-bold text-slate-400">{idx + 1}</div>
+                                                )}
+                                                {!isLast && (
+                                                    <div className={`w-0.5 h-8 ${isCompleted ? "bg-emerald-300" : "bg-slate-200"}`}></div>
+                                                )}
+                                            </div>
+                                            <div className={isLast ? "" : "pb-4"}>
+                                                <p className={`text-sm ${isCompleted ? "font-semibold text-slate-900" : isCurrent ? "font-semibold text-emerald-700" : "font-medium text-slate-400"}`}>
+                                                    {step.label}
+                                                </p>
+                                                {isCompleted && <p className="text-xs text-slate-500 mt-0.5">完了</p>}
+                                                {isCurrent && <p className="text-xs text-orange-600 font-medium mt-0.5">現在のステップ</p>}
+                                            </div>
+                                        </div>
+                                    );
+                                });
+                            })()}
                         </div>
 
                         {/* Recent Applications */}
