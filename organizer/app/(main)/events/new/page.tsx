@@ -63,12 +63,18 @@ export default function CreateEventPage() {
 
                 const { data: profile } = await supabase
                     .from("organizers")
-                    .select("is_approved")
+                    .select("is_approved, company_name, name, email, phone_number")
                     .eq("user_id", user.id)
                     .single();
 
                 if (profile) {
                     setIsApproved(profile.is_approved || false);
+                    setFormData(prev => ({
+                        ...prev,
+                        organizerName: prev.organizerName || profile.company_name || profile.name || "",
+                        organizerEmail: prev.organizerEmail || profile.email || "",
+                        organizerPhone: prev.organizerPhone || profile.phone_number || "",
+                    }));
                 } else {
                     router.push("/onboarding");
                 }
@@ -1089,9 +1095,14 @@ export default function CreateEventPage() {
                                             </div>
                                         </>
                                     ) : (
-                                        <button type="button" onClick={() => addCustomField("text")} className="flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-orange-600 transition-colors">
-                                            <Plus className="w-4 h-4" /> カスタム質問を追加
-                                        </button>
+                                        <div className="flex gap-2">
+                                            <button type="button" onClick={() => addCustomField("text")} className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-dashed border-slate-300 text-sm font-medium text-slate-500 hover:border-orange-300 hover:text-orange-600 transition-all">
+                                                <Plus className="w-4 h-4" /> テキスト項目を追加
+                                            </button>
+                                            <button type="button" onClick={() => addCustomField("file")} className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-dashed border-slate-300 text-sm font-medium text-slate-500 hover:border-blue-300 hover:text-blue-600 transition-all">
+                                                <Plus className="w-4 h-4" /> 画像項目を追加
+                                            </button>
+                                        </div>
                                     )}
                                 </div>
 
