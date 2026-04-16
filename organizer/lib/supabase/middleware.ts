@@ -14,7 +14,9 @@ const PUBLIC_ROUTES = [
 ]
 
 function isPublicRoute(pathname: string): boolean {
-    return PUBLIC_ROUTES.some(route => pathname.startsWith(route))
+    return PUBLIC_ROUTES.some(route =>
+        pathname === route || pathname.startsWith(route + '/')
+    )
 }
 
 export async function updateSession(request: NextRequest) {
@@ -88,6 +90,9 @@ export async function updateSession(request: NextRequest) {
             },
             cookieOptions: {
                 name: 'sb-event-organizer-v1',
+            },
+            auth: {
+                storageKey: 'sb-event-organizer-auth-v1',
             },
         }
     )

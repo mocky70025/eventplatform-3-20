@@ -333,9 +333,15 @@ export default function ApplyClient({ event, exhibitor }: { event: any, exhibito
                         )}
                     </div>
                     <div className="flex justify-between py-3 border-b border-slate-50">
-                        <span className="text-slate-400 font-bold">商材ジャンル</span>
-                        <span className="text-slate-900 font-bold">{exhibitor.genre_free_text || exhibitor.genre}</span>
+                        <span className="text-slate-400 font-bold">ジャンル</span>
+                        <span className="text-slate-900 font-bold">{exhibitor.genres?.length > 0 ? exhibitor.genres.join("、") : exhibitor.genre_free_text || exhibitor.genre || "未設定"}</span>
                     </div>
+                    {exhibitor.business_styles?.length > 0 && (
+                        <div className="flex justify-between py-3 border-b border-slate-50">
+                            <span className="text-slate-400 font-bold">営業形態</span>
+                            <span className="text-slate-900 font-bold">{exhibitor.business_styles.join("、")}</span>
+                        </div>
+                    )}
                     <div className="flex justify-between items-center py-3 border-b border-slate-50">
                         <span className="text-slate-400 font-bold">メールアドレス</span>
                         {isEditing ? (
@@ -501,7 +507,9 @@ export default function ApplyClient({ event, exhibitor }: { event: any, exhibito
                     className="mt-0.5 w-4 h-4 rounded border-slate-300 text-store-600 focus:ring-store-500"
                 />
                 <span className="text-sm text-slate-700">
-                    イベントの出店規約・キャンセルポリシーを確認し、同意のうえ申し込みます
+                    <Link href="/terms" target="_blank" className="text-store-600 underline hover:text-store-700">利用規約</Link>・
+                    <Link href="/privacy" target="_blank" className="text-store-600 underline hover:text-store-700">プライバシーポリシー</Link>
+                    を確認し、同意のうえ申し込みます
                 </span>
             </label>
 

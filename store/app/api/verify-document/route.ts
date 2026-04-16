@@ -55,11 +55,15 @@ export async function POST(req: Request) {
         }
 
         // Extract MIME type and base64 data from data URL
+        const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
         let mimeType = 'image/jpeg';
         let base64Image = image;
         if (image.startsWith('data:')) {
             const match = image.match(/^data:(image\/[a-zA-Z+]+);base64,/);
             if (match) {
+                if (!ALLOWED_MIME_TYPES.includes(match[1])) {
+                    return NextResponse.json({ error: "サポートされていない画像形式です。JPEG, PNG, WebP, GIFのみ対応しています。" }, { status: 400 });
+                }
                 mimeType = match[1];
                 base64Image = image.split(',')[1];
             }

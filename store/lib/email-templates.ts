@@ -1,3 +1,12 @@
+function escapeHtml(text: string): string {
+    return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
 function baseTemplate(content: string): string {
     return `<!DOCTYPE html>
 <html lang="ja">
@@ -37,10 +46,11 @@ export function confirmationEmail(actionLink: string): string {
 }
 
 export function applicationApprovedEmail(eventName: string): string {
+    const safeEventName = escapeHtml(eventName);
     return baseTemplate(`
     <h2 style="margin:0 0 16px;font-size:18px;color:#0f172a;">出店が承認されました</h2>
     <p style="margin:0 0 16px;font-size:14px;color:#475569;line-height:1.7;">
-      「${eventName}」への出店申請が承認されました。<br>
+      「${safeEventName}」への出店申請が承認されました。<br>
       イベント詳細ページから主催者の連絡先を確認し、出店準備を進めてください。
     </p>
     <a href="${process.env.NEXT_PUBLIC_APP_URL || "https://store.wacca.app"}/notifications" style="display:inline-block;padding:12px 24px;background:#10b981;color:#fff;text-decoration:none;border-radius:12px;font-size:14px;font-weight:600;">
@@ -50,10 +60,11 @@ export function applicationApprovedEmail(eventName: string): string {
 }
 
 export function applicationRejectedEmail(eventName: string): string {
+    const safeEventName = escapeHtml(eventName);
     return baseTemplate(`
     <h2 style="margin:0 0 16px;font-size:18px;color:#0f172a;">出店申請の結果について</h2>
     <p style="margin:0 0 16px;font-size:14px;color:#475569;line-height:1.7;">
-      「${eventName}」への出店申請は、今回は見送りとなりました。<br>
+      「${safeEventName}」への出店申請は、今回は見送りとなりました。<br>
       他のイベントもぜひご検討ください。
     </p>
     <a href="${process.env.NEXT_PUBLIC_APP_URL || "https://store.wacca.app"}/events" style="display:inline-block;padding:12px 24px;background:#10b981;color:#fff;text-decoration:none;border-radius:12px;font-size:14px;font-weight:600;">
@@ -63,11 +74,12 @@ export function applicationRejectedEmail(eventName: string): string {
 }
 
 export function eventReminderEmail(eventName: string, daysUntil: number): string {
+    const safeEventName = escapeHtml(eventName);
     const label = daysUntil === 1 ? "明日" : `${daysUntil}日後`;
     return baseTemplate(`
     <h2 style="margin:0 0 16px;font-size:18px;color:#0f172a;">開催${label}のリマインド</h2>
     <p style="margin:0 0 16px;font-size:14px;color:#475569;line-height:1.7;">
-      「${eventName}」の開催が${label}に迫っています。<br>
+      「${safeEventName}」の開催が${label}に迫っています。<br>
       当日の準備をご確認ください。
     </p>
   `);

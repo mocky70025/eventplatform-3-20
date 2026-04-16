@@ -18,7 +18,9 @@ const PUBLIC_ROUTES = [
 function isPublicRoute(pathname: string): boolean {
     // Home page is public
     if (pathname === '/') return true
-    return PUBLIC_ROUTES.some(route => pathname.startsWith(route))
+    return PUBLIC_ROUTES.some(route =>
+        pathname === route || pathname.startsWith(route + '/')
+    )
 }
 
 export async function updateSession(request: NextRequest) {
@@ -92,6 +94,9 @@ export async function updateSession(request: NextRequest) {
             },
             cookieOptions: {
                 name: 'sb-event-store-v1',
+            },
+            auth: {
+                storageKey: 'sb-event-store-auth-v1',
             },
         }
     )

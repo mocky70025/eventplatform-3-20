@@ -19,6 +19,41 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "必須項目が不足しています" }, { status: 400 });
         }
 
+        // Validate user_type strictly
+        if (user_type !== "exhibitor" && user_type !== "organizer") {
+            return NextResponse.json({ error: "無効なユーザータイプです" }, { status: 400 });
+        }
+
+        // IDOR prevention: verify the caller has a legitimate relationship with the target
+        // Store app sends notifications to organizers (when applying to events)
+        // The caller must be an exhibitor with an application to the related event
+        if (user_type === "organizer" && related_event_id) {
+            const { data: exhibitors } = await supabase
+                .from("exhibitors")
+                .select("id")
+                .eq("user_id", user.id)
+                .limit(1);
+            const exhibitor = exhibitors?.[0];
+            if (!exhibitor) {
+                return NextResponse.json({ error: "権限がありません" }, { status: 403 });
+            }
+            // Verify the exhibitor has an application for this event
+            const { data: application } = await supabase
+                .from("event_applications")
+                .select("id")
+                .eq("event_id", related_event_id)
+                .eq("exhibitor_id", exhibitor.id)
+                .limit(1);
+            if (!application || application.length === 0) {
+                return NextResponse.json({ error: "権限がありません" }, { status: 403 });
+            }
+        } else {
+            // For other notification types, only allow self-notifications
+            if (user_id !== user.id) {
+                return NextResponse.json({ error: "権限がありません" }, { status: 403 });
+            }
+        }
+
         const admin = createAdminClient();
 
         const { error: insertError } = await admin
@@ -49,7 +84,7 @@ export async function POST(request: NextRequest) {
 
             if (profile?.email && profile?.notification_settings?.email !== false) {
                 const eventMatch = message.match(/「(.+?)」/);
-                const eventName = eventMatch?.[1] || "イベント";
+                const eventName = escapeHtml(eventMatch?.[1] || "イベント");
                 let html = "";
 
                 if (type === "application_approved") {
@@ -75,4 +110,13 @@ export async function POST(request: NextRequest) {
         console.error("Notification API error:", error);
         return NextResponse.json({ error: "サーバーエラー" }, { status: 500 });
     }
+}
+
+function escapeHtml(text: string): string {
+    return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }

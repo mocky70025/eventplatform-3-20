@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/Button";
-import { Loader2, Camera } from "lucide-react";
+import { Loader2, Camera, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
@@ -25,6 +25,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
         repName: initialProfile?.name || "",
         email: initialProfile?.email || "",
         phone: initialProfile?.phone_number || "",
+        postalCode: initialProfile?.postal_code || "",
         address: initialProfile?.address || "",
         website: initialProfile?.social_links?.website || "",
         description: initialProfile?.description || "",
@@ -32,11 +33,85 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
 
     const [formData, setFormData] = useState(initialFormData);
     const [showErrors, setShowErrors] = useState(false);
+    const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+    const [isSearchingZip, setIsSearchingZip] = useState(false);
+
+    const validateField = (name: string, value: string): string | null => {
+        switch (name) {
+            case "companyName":
+                if (!value.trim()) return "団体名を入力してください";
+                if (value.length > 200) return "団体名は200文字以内で入力してください";
+                return null;
+            case "repName":
+                if (!value.trim()) return "代表者名を入力してください";
+                if (value.length > 100) return "代表者名は100文字以内で入力してください";
+                return null;
+            case "phone":
+                if (!value.trim()) return "電話番号を入力してください";
+                if (!/^[\d\-+() ]{10,15}$/.test(value)) return "正しい電話番号を入力してください";
+                return null;
+            case "postalCode":
+                if (!value.trim()) return null;
+                if (!/^\d{3}-?\d{4}$/.test(value) && !/^\d{7}$/.test(value)) return "郵便番号は7桁の数字で入力してください";
+                return null;
+            case "address":
+                if (!value.trim()) return null; // optional for organizer
+                if (value.length > 200) return "住所は200文字以内で入力してください";
+                return null;
+            default:
+                return null;
+        }
+    };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
         setSuccess("");
+        if (fieldErrors[name]) {
+            setFieldErrors(prev => {
+                const next = { ...prev };
+                delete next[name];
+                return next;
+            });
+        }
+    };
+
+    const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        const error = validateField(name, value);
+        if (error) {
+            setFieldErrors(prev => ({ ...prev, [name]: error }));
+        }
+    };
+
+    const handlePostalCodeSearch = async () => {
+        const raw = formData.postalCode.replace(/[-\s]/g, "");
+        if (!/^\d{7}$/.test(raw)) {
+            setFieldErrors(prev => ({ ...prev, postalCode: "郵便番号は7桁の数字で入力してください" }));
+            return;
+        }
+        setIsSearchingZip(true);
+        try {
+            const res = await fetch(`/api/zipcode?zipcode=${raw}`);
+            const data = await res.json();
+            if (data.results && data.results.length > 0) {
+                const result = data.results[0];
+                const address = `${result.address1}${result.address2}${result.address3}`;
+                setFormData(prev => ({ ...prev, address }));
+                setFieldErrors(prev => {
+                    const next = { ...prev };
+                    delete next.postalCode;
+                    delete next.address;
+                    return next;
+                });
+            } else {
+                setFieldErrors(prev => ({ ...prev, postalCode: "該当する住所が見つかりませんでした" }));
+            }
+        } catch {
+            setFieldErrors(prev => ({ ...prev, postalCode: "住所の検索に失敗しました" }));
+        } finally {
+            setIsSearchingZip(false);
+        }
     };
 
     const handleCancel = () => {
@@ -110,6 +185,17 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
             return;
         }
 
+        // Run field validations
+        const errors: Record<string, string> = {};
+        for (const name of ["companyName", "repName", "phone", "postalCode", "address"] as const) {
+            const err = validateField(name, formData[name]);
+            if (err) errors[name] = err;
+        }
+        if (Object.keys(errors).length > 0) {
+            setFieldErrors(errors);
+            return;
+        }
+
         setIsSaving(true);
         setError("");
         setSuccess("");
@@ -118,12 +204,6 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error("セッションがありません");
 
-            if (formData.companyName.length > 200) throw new Error("団体名は200文字以内で入力してください");
-            if (formData.repName.length > 100) throw new Error("代表者名は100文字以内で入力してください");
-            if (formData.phone.length > 20) throw new Error("電話番号の形式が正しくありません");
-            if (formData.description.length > 2000) throw new Error("自己紹介は2000文字以内で入力してください");
-            if (formData.address.length > 200) throw new Error("住所は200文字以内で入力してください");
-
             const { error: updateError } = await supabase
                 .from("organizers")
                 .update({
@@ -131,6 +211,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
                     name: formData.repName,
                     email: formData.email,
                     phone_number: formData.phone,
+                    postal_code: formData.postalCode.replace(/[-\s]/g, "") || null,
                     address: formData.address,
                     social_links: formData.website ? { website: formData.website } : null,
                     description: formData.description,
@@ -241,11 +322,12 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
                         name="companyName"
                         value={formData.companyName}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         placeholder="株式会社イベントプロ"
-                        className={showErrors && !formData.companyName ? inputClass + " border-red-400 focus:ring-red-500 focus:border-red-500" : inputClass}
+                        className={(fieldErrors.companyName || (showErrors && !formData.companyName)) ? inputClass + " border-red-400 focus:ring-red-500 focus:border-red-500" : inputClass}
                     />
-                    {showErrors && !formData.companyName && (
-                        <p className="text-xs text-red-500 mt-1">団体名を入力してください</p>
+                    {(fieldErrors.companyName || (showErrors && !formData.companyName)) && (
+                        <p className="text-xs text-red-500 mt-1">{fieldErrors.companyName || "団体名を入力してください"}</p>
                     )}
                 </div>
 
@@ -256,11 +338,12 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
                             name="repName"
                             value={formData.repName}
                             onChange={handleChange}
+                            onBlur={handleBlur}
                             placeholder="山田 太郎"
-                            className={showErrors && !formData.repName ? inputClass + " border-red-400 focus:ring-red-500 focus:border-red-500" : inputClass}
+                            className={(fieldErrors.repName || (showErrors && !formData.repName)) ? inputClass + " border-red-400 focus:ring-red-500 focus:border-red-500" : inputClass}
                         />
-                        {showErrors && !formData.repName && (
-                            <p className="text-xs text-red-500 mt-1">代表者名を入力してください</p>
+                        {(fieldErrors.repName || (showErrors && !formData.repName)) && (
+                            <p className="text-xs text-red-500 mt-1">{fieldErrors.repName || "代表者名を入力してください"}</p>
                         )}
                     </div>
                     <div>
@@ -269,12 +352,13 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
                             name="phone"
                             value={formData.phone}
                             onChange={handleChange}
+                            onBlur={handleBlur}
                             type="tel"
                             placeholder="03-1234-5678"
-                            className={showErrors && !formData.phone ? inputClass + " border-red-400 focus:ring-red-500 focus:border-red-500" : inputClass}
+                            className={(fieldErrors.phone || (showErrors && !formData.phone)) ? inputClass + " border-red-400 focus:ring-red-500 focus:border-red-500" : inputClass}
                         />
-                        {showErrors && !formData.phone && (
-                            <p className="text-xs text-red-500 mt-1">電話番号を入力してください</p>
+                        {(fieldErrors.phone || (showErrors && !formData.phone)) && (
+                            <p className="text-xs text-red-500 mt-1">{fieldErrors.phone || "電話番号を入力してください"}</p>
                         )}
                     </div>
                 </div>
@@ -292,14 +376,44 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1.5">所在地</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">郵便番号 <span className="text-slate-400 text-xs font-normal">(任意)</span></label>
+                    <div className="flex gap-2">
+                        <input
+                            name="postalCode"
+                            value={formData.postalCode}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            placeholder="1000001"
+                            maxLength={8}
+                            className={(fieldErrors.postalCode ? inputClass + " border-red-400 focus:ring-red-500 focus:border-red-500" : inputClass) + " w-40"}
+                        />
+                        <button
+                            type="button"
+                            onClick={handlePostalCodeSearch}
+                            disabled={isSearchingZip}
+                            className="px-4 py-2.5 rounded-xl bg-orange-500 text-white text-sm font-medium hover:bg-orange-600 transition-colors disabled:opacity-50 flex items-center gap-1.5 shrink-0"
+                        >
+                            {isSearchingZip ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+                            住所を検索
+                        </button>
+                    </div>
+                    {fieldErrors.postalCode && (
+                        <p className="text-xs text-red-500 mt-1">{fieldErrors.postalCode}</p>
+                    )}
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">所在地 <span className="text-slate-400 text-xs font-normal">(任意)</span></label>
                     <input
                         name="address"
                         value={formData.address}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         placeholder="東京都渋谷区..."
-                        className={inputClass}
+                        className={fieldErrors.address ? inputClass + " border-red-400 focus:ring-red-500 focus:border-red-500" : inputClass}
                     />
+                    {fieldErrors.address && (
+                        <p className="text-xs text-red-500 mt-1">{fieldErrors.address}</p>
+                    )}
                 </div>
 
                 <div>

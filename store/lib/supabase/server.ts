@@ -44,6 +44,9 @@ export async function createClient() {
             cookieOptions: {
                 name: 'sb-event-store-v1',
             },
+            auth: {
+                storageKey: 'sb-event-store-auth-v1',
+            },
         }
     )
 }

@@ -1,3 +1,12 @@
+function escapeHtml(text: string): string {
+    return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
 function baseTemplate(content: string): string {
     return `<!DOCTYPE html>
 <html lang="ja">
@@ -37,10 +46,12 @@ export function confirmationEmail(actionLink: string): string {
 }
 
 export function newApplicationEmail(exhibitorName: string, eventName: string): string {
+    const safeExhibitorName = escapeHtml(exhibitorName);
+    const safeEventName = escapeHtml(eventName);
     return baseTemplate(`
     <h2 style="margin:0 0 16px;font-size:18px;color:#0f172a;">新しい出店申し込みがありました</h2>
     <p style="margin:0 0 16px;font-size:14px;color:#475569;line-height:1.7;">
-      「${eventName}」に <strong>${exhibitorName}</strong> から出店申し込みがありました。<br>
+      「${safeEventName}」に <strong>${safeExhibitorName}</strong> から出店申し込みがありました。<br>
       内容を確認し、承認または却下の判断を行ってください。
     </p>
     <a href="${process.env.NEXT_PUBLIC_APP_URL || "https://organizer.wacca.app"}/applications" style="display:inline-block;padding:12px 24px;background:#f97316;color:#fff;text-decoration:none;border-radius:12px;font-size:14px;font-weight:600;">
@@ -50,11 +61,12 @@ export function newApplicationEmail(exhibitorName: string, eventName: string): s
 }
 
 export function eventReminderEmail(eventName: string, daysUntil: number): string {
+    const safeEventName = escapeHtml(eventName);
     const label = daysUntil === 1 ? "明日" : `${daysUntil}日後`;
     return baseTemplate(`
     <h2 style="margin:0 0 16px;font-size:18px;color:#0f172a;">開催${label}のリマインド</h2>
     <p style="margin:0 0 16px;font-size:14px;color:#475569;line-height:1.7;">
-      「${eventName}」の開催が${label}に迫っています。<br>
+      「${safeEventName}」の開催が${label}に迫っています。<br>
       出店者への最終連絡や当日の段取りをご確認ください。
     </p>
   `);

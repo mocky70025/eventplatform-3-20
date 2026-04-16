@@ -1,8 +1,27 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { pbkdf2Sync, randomBytes } from "crypto";
+import { pbkdf2Sync, randomBytes, timingSafeEqual } from "crypto";
 
 const APP_PASSWORD_KEY = "store_password_hash";
+
+// In-memory rate limiting
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT_MAX = 5;
+const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
+
+function checkRateLimit(key: string): boolean {
+    const now = Date.now();
+    const entry = rateLimitMap.get(key);
+    if (!entry || now > entry.resetAt) {
+        rateLimitMap.set(key, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+        return true;
+    }
+    if (entry.count >= RATE_LIMIT_MAX) {
+        return false;
+    }
+    entry.count++;
+    return true;
+}
 
 function hashPassword(password: string): string {
     const salt = randomBytes(16).toString("hex");
@@ -12,9 +31,17 @@ function hashPassword(password: string): string {
 
 function verifyPassword(password: string, stored: string): boolean {
     const [salt, storedHash] = stored.split(":");
+    if (!salt || !storedHash) return false;
     const hash = pbkdf2Sync(password, salt, 310000, 32, "sha256").toString("hex");
-    return storedHash === hash;
+    // Timing-safe comparison to prevent timing attacks
+    const hashBuf = Buffer.from(hash, "hex");
+    const storedBuf = Buffer.from(storedHash, "hex");
+    if (hashBuf.length !== storedBuf.length) return false;
+    return timingSafeEqual(hashBuf, storedBuf);
 }
+
+// Generic error message to prevent user enumeration
+const AUTH_FAILED_MSG = "メールアドレスまたはパスワードが正しくありません";
 
 export async function POST(request: Request) {
     try {
@@ -22,6 +49,26 @@ export async function POST(request: Request) {
 
         if (!email || !password || !action) {
             return NextResponse.json({ error: "必須項目が不足しています" }, { status: 400 });
+        }
+
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return NextResponse.json({ error: "有効なメールアドレスを入力してください" }, { status: 400 });
+        }
+
+        // Validate password length
+        if (password.length < 8 || password.length > 128) {
+            return NextResponse.json({ error: "パスワードは8文字以上128文字以下で入力してください" }, { status: 400 });
+        }
+
+        // Rate limiting by email
+        const rateLimitKey = `auth:${email.toLowerCase()}`;
+        if (!checkRateLimit(rateLimitKey)) {
+            return NextResponse.json(
+                { error: "リクエストが多すぎます。しばらく待ってから再試行してください。" },
+                { status: 429 }
+            );
         }
 
         const admin = createAdminClient();
@@ -33,12 +80,7 @@ export async function POST(request: Request) {
             if (existingUserId) {
                 const { data: { user }, error: getUserError } = await admin.auth.admin.getUserById(existingUserId);
                 if (getUserError || !user) {
-                    return NextResponse.json({ error: "認証に失敗しました" }, { status: 401 });
-                }
-
-                // Ensure email is confirmed
-                if (!user.email_confirmed_at) {
-                    await admin.auth.admin.updateUserById(existingUserId, { email_confirm: true });
+                    return NextResponse.json({ error: AUTH_FAILED_MSG }, { status: 401 });
                 }
 
                 // Try app-specific password
@@ -62,7 +104,7 @@ export async function POST(request: Request) {
                     return NextResponse.json({ action: "login" });
                 }
 
-                return NextResponse.json({ error: "メールアドレスまたはパスワードが正しくありません" }, { status: 401 });
+                return NextResponse.json({ error: AUTH_FAILED_MSG }, { status: 401 });
             }
 
             // New user — create with email auto-confirmed
@@ -77,7 +119,8 @@ export async function POST(request: Request) {
             });
 
             if (createError) {
-                return NextResponse.json({ error: createError.message || "登録に失敗しました" }, { status: 400 });
+                console.error("User creation error:", createError);
+                return NextResponse.json({ error: "登録に失敗しました。しばらく後にお試しください。" }, { status: 400 });
             }
 
             return NextResponse.json({ action: "signup" });
@@ -89,22 +132,17 @@ export async function POST(request: Request) {
             });
 
             if (rpcError || !foundUserId) {
-                return NextResponse.json({ error: "認証に失敗しました" }, { status: 401 });
+                return NextResponse.json({ error: AUTH_FAILED_MSG }, { status: 401 });
             }
 
             const { data: { user }, error: getUserError } = await admin.auth.admin.getUserById(foundUserId);
             if (getUserError || !user) {
-                return NextResponse.json({ error: "認証に失敗しました" }, { status: 401 });
-            }
-
-            // Ensure email is confirmed
-            if (!user.email_confirmed_at) {
-                await admin.auth.admin.updateUserById(foundUserId, { email_confirm: true });
+                return NextResponse.json({ error: AUTH_FAILED_MSG }, { status: 401 });
             }
 
             const storedHash = user.app_metadata?.[APP_PASSWORD_KEY];
             if (!storedHash || !verifyPassword(password, storedHash)) {
-                return NextResponse.json({ error: "認証に失敗しました" }, { status: 401 });
+                return NextResponse.json({ error: AUTH_FAILED_MSG }, { status: 401 });
             }
 
             // Sync Supabase native password

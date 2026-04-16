@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, Mail, Bell } from "lucide-react";
+import { Loader2, Mail } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
@@ -21,7 +21,6 @@ export function NotificationsSection({ initialProfile }: NotificationsSectionPro
 
     const initialChannels = {
         email: defaultSettings.email ?? true,
-        push: defaultSettings.push ?? false,
     };
 
     const initialTypes = {
@@ -90,7 +89,6 @@ export function NotificationsSection({ initialProfile }: NotificationsSectionPro
 
     const channelItems = [
         { key: "email" as const, icon: Mail, label: "メール通知", desc: initialProfile?.email || "メールアドレス未設定" },
-        { key: "push" as const, icon: Bell, label: "プッシュ通知", desc: "ブラウザ通知" },
     ];
 
     const typeItems = [
