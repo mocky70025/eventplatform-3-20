@@ -198,8 +198,8 @@ export default function ApplyClient({ event, exhibitor }: { event: any, exhibito
                         }),
                     });
                 }
-            } catch (notifErr) {
-                console.error("通知作成に失敗:", notifErr);
+            } catch {
+                // Notification creation is non-critical; swallow failures.
             }
 
             setIsSuccess(true);

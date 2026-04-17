@@ -54,7 +54,6 @@ export async function POST(request: Request) {
         if (error.code === "23505") {
             return NextResponse.json({ error: "このイベントへのレビューは既に送信済みです" }, { status: 409 });
         }
-        console.error("Review creation error:", error);
         return NextResponse.json({ error: "レビューの作成に失敗しました" }, { status: 500 });
     }
 

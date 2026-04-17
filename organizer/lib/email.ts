@@ -10,7 +10,6 @@ export async function sendNotificationEmail(params: {
     html: string;
 }) {
     if (!process.env.RESEND_API_KEY) {
-        console.warn("RESEND_API_KEY is not set, skipping email send");
         return;
     }
 
@@ -21,7 +20,7 @@ export async function sendNotificationEmail(params: {
             subject: params.subject,
             html: params.html,
         });
-    } catch (error) {
-        console.error("Email send failed:", error);
+    } catch {
+        // Email delivery is non-critical; swallow failures.
     }
 }

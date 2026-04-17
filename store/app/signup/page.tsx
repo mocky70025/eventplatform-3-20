@@ -54,8 +54,7 @@ export default function SignupPage() {
         .limit(1);
 
       router.push(!profiles?.length ? "/onboarding" : "/");
-    } catch (error: any) {
-      console.error("Signup error:", error);
+    } catch {
       setError("アカウント作成に失敗しました。入力内容を確認してください。");
     } finally {
       setIsLoading(false);

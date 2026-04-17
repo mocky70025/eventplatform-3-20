@@ -37,8 +37,7 @@ export async function PATCH(request: NextRequest) {
         }
 
         return NextResponse.json({ success: true });
-    } catch (error) {
-        console.error("Notification read API error:", error);
+    } catch {
         return NextResponse.json({ error: "サーバーエラー" }, { status: 500 });
     }
 }

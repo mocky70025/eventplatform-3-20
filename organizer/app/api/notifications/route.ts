@@ -68,7 +68,6 @@ export async function POST(request: NextRequest) {
             });
 
         if (insertError) {
-            console.error("Notification insert error:", insertError);
             return NextResponse.json({ error: "通知の作成に失敗しました" }, { status: 500 });
         }
 
@@ -99,13 +98,12 @@ export async function POST(request: NextRequest) {
                     });
                 }
             }
-        } catch (emailErr) {
-            console.error("Email send failed:", emailErr);
+        } catch {
+            // Email delivery is non-critical; swallow failures.
         }
 
         return NextResponse.json({ success: true });
-    } catch (error) {
-        console.error("Notification API error:", error);
+    } catch {
         return NextResponse.json({ error: "サーバーエラー" }, { status: 500 });
     }
 }

@@ -97,8 +97,8 @@ export default function ApplicationStatusActions({
                         });
                     }
                 }
-            } catch (notifErr) {
-                console.error("通知作成に失敗:", notifErr);
+            } catch {
+                // Notification creation is non-critical; swallow failures.
             }
 
             setStatus(newStatus);

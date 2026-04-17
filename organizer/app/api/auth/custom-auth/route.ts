@@ -119,7 +119,6 @@ export async function POST(request: Request) {
             });
 
             if (createError) {
-                console.error("User creation error:", createError);
                 return NextResponse.json({ error: "登録に失敗しました。しばらく後にお試しください。" }, { status: 400 });
             }
 
@@ -152,8 +151,7 @@ export async function POST(request: Request) {
         }
 
         return NextResponse.json({ error: "無効なアクションです" }, { status: 400 });
-    } catch (error) {
-        console.error("Auth error:", error);
+    } catch {
         return NextResponse.json({ error: "サーバーエラーが発生しました" }, { status: 500 });
     }
 }
