@@ -9,6 +9,16 @@ import { cn } from "@/lib/utils";
 
 const GENRE_OPTIONS = ["和食", "中華", "洋食", "スイーツ", "カフェ・ドリンク", "エスニック"];
 const STYLE_OPTIONS = ["キッチンカー", "テント出店", "屋台"];
+const PREFECTURES = [
+    "北海道", "青森県", "岩手県", "宮城県", "秋田県", "山形県", "福島県",
+    "茨城県", "栃木県", "群馬県", "埼玉県", "千葉県", "東京都", "神奈川県",
+    "新潟県", "富山県", "石川県", "福井県", "山梨県", "長野県",
+    "岐阜県", "静岡県", "愛知県", "三重県",
+    "滋賀県", "京都府", "大阪府", "兵庫県", "奈良県", "和歌山県",
+    "鳥取県", "島根県", "岡山県", "広島県", "山口県",
+    "徳島県", "香川県", "愛媛県", "高知県",
+    "福岡県", "佐賀県", "長崎県", "熊本県", "大分県", "宮崎県", "鹿児島県", "沖縄県",
+];
 
 interface ProfileFormProps {
     initialProfile: any;
@@ -29,8 +39,10 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
         repName: initialProfile?.name || "",
         email: initialProfile?.email || "",
         phone: initialProfile?.phone_number || "",
-        postalCode: initialProfile?.postal_code || "",
-        address: initialProfile?.address || "",
+        postalCode: "",
+        prefecture: initialProfile?.prefecture || "",
+        cityAddress: initialProfile?.city_address || "",
+        building: initialProfile?.building || "",
         description: initialProfile?.description || "",
         genres: (initialProfile?.genres as string[]) || [],
         styles: (initialProfile?.business_styles as string[]) || [],
@@ -80,9 +92,12 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
                 if (!value.trim()) return null;
                 if (!/^\d{3}-?\d{4}$/.test(value) && !/^\d{7}$/.test(value)) return "郵便番号は7桁の数字で入力してください";
                 return null;
-            case "address":
-                if (!value.trim()) return "住所を入力してください";
-                if (value.length > 200) return "住所は200文字以内で入力してください";
+            case "prefecture":
+                if (!value) return "都道府県を選択してください";
+                return null;
+            case "cityAddress":
+                if (!value.trim()) return "市区町村・番地を入力してください";
+                if (value.length > 200) return "市区町村・番地は200文字以内で入力してください";
                 return null;
             default:
                 return null;
@@ -122,12 +137,15 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
             const data = await res.json();
             if (data.results && data.results.length > 0) {
                 const result = data.results[0];
-                const address = `${result.address1}${result.address2}${result.address3}`;
-                setFormData(prev => ({ ...prev, address }));
+                // address1 = prefecture, address2 = city, address3 = town
+                const prefecture = result.address1;
+                const cityAddress = `${result.address2}${result.address3}`;
+                setFormData(prev => ({ ...prev, prefecture, cityAddress }));
                 setFieldErrors(prev => {
                     const next = { ...prev };
                     delete next.postalCode;
-                    delete next.address;
+                    delete next.prefecture;
+                    delete next.cityAddress;
                     return next;
                 });
             } else {
@@ -294,14 +312,14 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!formData.storeName || !formData.repName || !formData.phone || !formData.address) {
+        if (!formData.storeName || !formData.repName || !formData.phone || !formData.prefecture || !formData.cityAddress) {
             setShowErrors(true);
             return;
         }
 
         // Run field validations
         const errors: Record<string, string> = {};
-        for (const name of ["storeName", "repName", "phone", "postalCode", "address"] as const) {
+        for (const name of ["storeName", "repName", "phone", "prefecture", "cityAddress"] as const) {
             const err = validateField(name, formData[name]);
             if (err) errors[name] = err;
         }
@@ -325,15 +343,16 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
             if (formData.repName.length > 100) throw new Error("代表者名は100文字以内で入力してください");
             if (formData.phone.length > 20) throw new Error("電話番号の形式が正しくありません");
             if (formData.description.length > 100) throw new Error("店舗紹介は100文字以内で入力してください");
-            if (formData.address.length > 200) throw new Error("住所は200文字以内で入力してください");
 
             const updateData: any = {
                 shop_name: formData.storeName,
                 name: formData.repName,
                 email: formData.email,
                 phone_number: formData.phone,
-                postal_code: formData.postalCode.replace(/[-\s]/g, "") || null,
-                address: formData.address,
+                prefecture: formData.prefecture,
+                city_address: formData.cityAddress,
+                building: formData.building || null,
+                address: `${formData.prefecture}${formData.cityAddress}${formData.building || ""}`,
                 description: formData.description,
                 genres: formData.genres,
                 business_styles: formData.styles,
@@ -514,7 +533,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
                     <p className="text-xs text-slate-400 mt-1">メールアドレスの変更はアカウント設定から行ってください</p>
                 </div>
 
-                {/* Postal code + Address (required) */}
+                {/* Address section */}
                 <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1.5">
                         郵便番号
@@ -525,7 +544,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
                             value={formData.postalCode}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            placeholder="1000001"
+                            placeholder="100-0001"
                             maxLength={8}
                             className={cn(inputClass, "w-40", fieldErrors.postalCode && "border-red-400 focus:ring-red-500 focus:border-red-500")}
                         />
@@ -545,19 +564,56 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                        住所
+                        都道府県
+                    </label>
+                    <select
+                        name="prefecture"
+                        value={formData.prefecture}
+                        onChange={(e) => {
+                            setFormData(prev => ({ ...prev, prefecture: e.target.value }));
+                            setSuccess("");
+                            if (fieldErrors.prefecture) {
+                                setFieldErrors(prev => { const next = { ...prev }; delete next.prefecture; return next; });
+                            }
+                        }}
+                        className={cn(inputClass, "appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M2%204l4%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px] bg-[right_12px_center] bg-no-repeat pr-8", (fieldErrors.prefecture || (showErrors && !formData.prefecture)) && "border-red-400 focus:ring-red-500 focus:border-red-500")}
+                    >
+                        <option value="">選択してください</option>
+                        {PREFECTURES.map(p => (
+                            <option key={p} value={p}>{p}</option>
+                        ))}
+                    </select>
+                    {(fieldErrors.prefecture || (showErrors && !formData.prefecture)) && (
+                        <p className="text-xs text-red-500 mt-1">{fieldErrors.prefecture || "都道府県を選択してください"}</p>
+                    )}
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                        市区町村・番地
                     </label>
                     <input
-                        name="address"
-                        value={formData.address}
+                        name="cityAddress"
+                        value={formData.cityAddress}
                         onChange={handleChange}
                         onBlur={handleBlur}
-                        placeholder="東京都渋谷区..."
-                        className={cn(inputClass, (fieldErrors.address || (showErrors && !formData.address)) && "border-red-400 focus:ring-red-500 focus:border-red-500")}
+                        placeholder="渋谷区神南1-2-3"
+                        className={cn(inputClass, (fieldErrors.cityAddress || (showErrors && !formData.cityAddress)) && "border-red-400 focus:ring-red-500 focus:border-red-500")}
                     />
-                    {(fieldErrors.address || (showErrors && !formData.address)) && (
-                        <p className="text-xs text-red-500 mt-1">{fieldErrors.address || "住所を入力してください"}</p>
+                    {(fieldErrors.cityAddress || (showErrors && !formData.cityAddress)) && (
+                        <p className="text-xs text-red-500 mt-1">{fieldErrors.cityAddress || "市区町村・番地を入力してください"}</p>
                     )}
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                        建物名・部屋番号 <span className="text-slate-400 text-xs font-normal">(任意)</span>
+                    </label>
+                    <input
+                        name="building"
+                        value={formData.building}
+                        onChange={handleChange}
+                        placeholder="ワッカビル 301号室"
+                        className={inputClass}
+                    />
                 </div>
 
                 {/* Genre multi-select chips */}
