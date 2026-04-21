@@ -41,8 +41,12 @@ CREATE TABLE organizers (
   age INTEGER CHECK (age >= 0 AND age <= 150),
   phone_number VARCHAR(20),
   email VARCHAR(255) NOT NULL,
+  -- Address (structured)
   postal_code VARCHAR(7),
-  address VARCHAR(200),
+  prefecture VARCHAR(10),
+  city_address VARCHAR(200),
+  building VARCHAR(200),
+  address VARCHAR(200),                            -- legacy concatenated address (kept for back-compat)
   description TEXT,
   avatar_url TEXT,
   social_links JSONB,                              -- { website: "https://..." }

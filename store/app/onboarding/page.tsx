@@ -5,6 +5,17 @@ import { Store, User, Phone, Mail, Globe, MapPin, Loader2, FileText } from "luci
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
+const PREFECTURES = [
+    "北海道", "青森県", "岩手県", "宮城県", "秋田県", "山形県", "福島県",
+    "茨城県", "栃木県", "群馬県", "埼玉県", "千葉県", "東京都", "神奈川県",
+    "新潟県", "富山県", "石川県", "福井県", "山梨県", "長野県",
+    "岐阜県", "静岡県", "愛知県", "三重県",
+    "滋賀県", "京都府", "大阪府", "兵庫県", "奈良県", "和歌山県",
+    "鳥取県", "島根県", "岡山県", "広島県", "山口県",
+    "徳島県", "香川県", "愛媛県", "高知県",
+    "福岡県", "佐賀県", "長崎県", "熊本県", "大分県", "宮崎県", "鹿児島県", "沖縄県",
+];
+
 export default function OnboardingPage() {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
@@ -18,7 +29,9 @@ export default function OnboardingPage() {
         repName: "",
         email: "",
         phone: "",
-        address: "",
+        prefecture: "",
+        cityAddress: "",
+        building: "",
         website: "",
         description: "",
     });
@@ -49,7 +62,7 @@ export default function OnboardingPage() {
         checkUser();
     }, []);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
@@ -129,7 +142,7 @@ export default function OnboardingPage() {
     const handleSubmit = async () => {
         if (isLoading) return;
 
-        const missingRequired = !formData.storeName || !formData.repName || !formData.email || !formData.phone || !formData.address || !formData.description || !licenseFile;
+        const missingRequired = !formData.storeName || !formData.repName || !formData.email || !formData.phone || !formData.prefecture || !formData.cityAddress || !formData.description || !licenseFile;
         const emailInvalid = formData.email && !isValidEmail(formData.email);
         const phoneInvalid = formData.phone && !isValidPhone(formData.phone);
 
@@ -163,7 +176,10 @@ export default function OnboardingPage() {
                 name: formData.repName,
                 email: formData.email,
                 phone_number: formData.phone,
-                address: formData.address,
+                prefecture: formData.prefecture,
+                city_address: formData.cityAddress,
+                building: formData.building || null,
+                address: `${formData.prefecture}${formData.cityAddress}${formData.building || ""}`,
                 description: formData.description,
                 business_permit_image_url: licenseUrl,
             });
@@ -313,18 +329,45 @@ export default function OnboardingPage() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1.5">住所</label>
-                            {fieldErrorMsg("address", "住所")}
+                            <label className="block text-sm font-medium text-slate-700 mb-1.5">都道府県</label>
+                            {fieldErrorMsg("prefecture", "都道府県")}
                             <div className="relative">
                                 <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" />
-                                <input
-                                    name="address"
-                                    value={formData.address}
+                                <select
+                                    name="prefecture"
+                                    value={formData.prefecture}
                                     onChange={handleChange}
-                                    className={inputClassName("address")}
-                                    placeholder="東京都..."
-                                />
+                                    className={inputClassName("prefecture")}
+                                >
+                                    <option value="">選択してください</option>
+                                    {PREFECTURES.map(p => (
+                                        <option key={p} value={p}>{p}</option>
+                                    ))}
+                                </select>
                             </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1.5">市区町村・番地</label>
+                            {fieldErrorMsg("cityAddress", "市区町村・番地")}
+                            <input
+                                name="cityAddress"
+                                value={formData.cityAddress}
+                                onChange={handleChange}
+                                className={inputClassNameNoIcon("cityAddress")}
+                                placeholder="渋谷区神宮前1-2-3"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1.5">建物名 <span className="text-slate-400 font-normal">（任意）</span></label>
+                            <input
+                                name="building"
+                                value={formData.building}
+                                onChange={handleChange}
+                                className={inputClassNameNoIcon("building")}
+                                placeholder="〇〇ビル 3F"
+                            />
                         </div>
 
                         <div>
@@ -440,7 +483,7 @@ export default function OnboardingPage() {
                     <div className="pt-2">
                         <button
                             onClick={handleSubmit}
-                            disabled={isLoading || !formData.storeName || !formData.repName || !formData.email || !formData.phone || !formData.address || !formData.description}
+                            disabled={isLoading || !formData.storeName || !formData.repName || !formData.email || !formData.phone || !formData.prefecture || !formData.cityAddress || !formData.description}
                             className="w-full h-12 rounded-xl bg-store-500 hover:bg-store-600 text-white font-semibold text-sm shadow-lg shadow-store-500/25 transition disabled:opacity-50 disabled:pointer-events-none inline-flex items-center justify-center gap-2"
                         >
                             {isLoading ? (
