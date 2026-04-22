@@ -1,4 +1,4 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr'
+import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 // Public routes that don't require authentication
@@ -54,42 +54,19 @@ export async function updateSession(request: NextRequest) {
         supabaseAnonKey,
         {
             cookies: {
-                get(name: string) {
-                    return request.cookies.get(name)?.value
+                getAll() {
+                    return request.cookies.getAll()
                 },
-                set(name: string, value: string, options: CookieOptions) {
-                    request.cookies.set({
-                        name,
-                        value,
-                        ...options,
-                    })
+                setAll(cookiesToSet) {
+                    cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
                     response = NextResponse.next({
                         request: {
                             headers: request.headers,
                         },
                     })
-                    response.cookies.set({
-                        name,
-                        value,
-                        ...options,
-                    })
-                },
-                remove(name: string, options: CookieOptions) {
-                    request.cookies.set({
-                        name,
-                        value: '',
-                        ...options,
-                    })
-                    response = NextResponse.next({
-                        request: {
-                            headers: request.headers,
-                        },
-                    })
-                    response.cookies.set({
-                        name,
-                        value: '',
-                        ...options,
-                    })
+                    cookiesToSet.forEach(({ name, value, options }) =>
+                        response.cookies.set(name, value, options)
+                    )
                 },
             },
             cookieOptions: {
@@ -118,7 +95,7 @@ export async function updateSession(request: NextRequest) {
             url.pathname = '/'
             return NextResponse.redirect(url)
         }
-    } catch (error) {
+    } catch {
         const url = request.nextUrl.clone()
         url.pathname = '/signup'
         return NextResponse.redirect(url)

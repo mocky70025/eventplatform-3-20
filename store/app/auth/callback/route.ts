@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
 function getOrigin(request: Request): string {
@@ -35,23 +35,20 @@ export async function GET(request: Request) {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-    // Build the response up-front so we can attach cookies directly to it.
-    // Next.js 16 does not reliably propagate cookieStore.set() mutations onto
-    // NextResponse.redirect() responses in Route Handlers — cookies must be set
-    // on the response object itself for them to reach the browser.
+    // Collect every cookie Supabase wants to set during exchangeCodeForSession,
+    // then attach them to the final redirect response. Using the modern
+    // getAll/setAll adapter is required for correct handling of Supabase's
+    // chunked session cookies (name.0, name.1, …).
     const cookieStore = await cookies();
-    let response = NextResponse.redirect(`${origin}/onboarding`);
+    const pending: { name: string; value: string; options: any }[] = [];
 
     const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
         cookies: {
-            get(name: string) {
-                return cookieStore.get(name)?.value;
+            getAll() {
+                return cookieStore.getAll();
             },
-            set(name: string, value: string, options: CookieOptions) {
-                response.cookies.set({ name, value, ...options });
-            },
-            remove(name: string, options: CookieOptions) {
-                response.cookies.set({ name, value: '', ...options });
+            setAll(cookiesToSet) {
+                pending.push(...cookiesToSet);
             },
         },
         cookieOptions: {
@@ -68,25 +65,19 @@ export async function GET(request: Request) {
         return NextResponse.redirect(`${origin}/login?error=auth-code-error`);
     }
 
+    let redirectTo: string;
     if (type === 'recovery') {
-        const recoveryResponse = NextResponse.redirect(`${origin}${next}`);
-        response.cookies.getAll().forEach(c => recoveryResponse.cookies.set(c));
-        return recoveryResponse;
+        redirectTo = `${origin}${next}`;
+    } else {
+        const { data: profile } = await supabase
+            .from('exhibitors')
+            .select('id')
+            .eq('user_id', data.user.id)
+            .maybeSingle();
+        redirectTo = profile ? `${origin}${next}` : `${origin}/onboarding`;
     }
 
-    const { data: profile } = await supabase
-        .from('exhibitors')
-        .select('id')
-        .eq('user_id', data.user.id)
-        .maybeSingle();
-
-    // If profile exists, redirect to `next` but carry over session cookies.
-    if (profile) {
-        const finalResponse = NextResponse.redirect(`${origin}${next}`);
-        response.cookies.getAll().forEach(c => finalResponse.cookies.set(c));
-        return finalResponse;
-    }
-
-    // No profile → already pointing at /onboarding with cookies attached.
+    const response = NextResponse.redirect(redirectTo);
+    pending.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
     return response;
 }
