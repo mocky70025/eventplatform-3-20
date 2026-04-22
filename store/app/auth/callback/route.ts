@@ -59,7 +59,10 @@ export async function GET(request: Request) {
     const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
 
     if (exchangeError || !data?.user) {
-        return NextResponse.redirect(`${origin}/login?error=auth-code-error`);
+        const desc = exchangeError?.message || 'no-user';
+        return NextResponse.redirect(
+            `${origin}/login?error=exchange-failed&error_description=${encodeURIComponent(desc)}`
+        );
     }
 
     let redirectTo: string;

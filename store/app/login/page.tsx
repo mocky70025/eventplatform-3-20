@@ -1,16 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+  const searchParams = useSearchParams();
   const supabase = createClient();
+
+  // Show any error returned by /auth/callback so OAuth failures are visible
+  useEffect(() => {
+    const err = searchParams?.get("error");
+    const desc = searchParams?.get("error_description");
+    if (err) setError(desc ? `${err}: ${decodeURIComponent(desc)}` : err);
+  }, [searchParams]);
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
