@@ -68,9 +68,6 @@ export async function updateSession(request: NextRequest) {
             cookieOptions: {
                 name: 'sb-event-organizer-v1',
             },
-            auth: {
-                storageKey: 'sb-event-organizer-auth-v1',
-            },
         }
     )
 

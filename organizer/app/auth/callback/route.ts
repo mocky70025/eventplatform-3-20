@@ -54,9 +54,6 @@ export async function GET(request: Request) {
         cookieOptions: {
             name: 'sb-event-organizer-v1',
         },
-        auth: {
-            storageKey: 'sb-event-organizer-auth-v1',
-        },
     });
 
     const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);

@@ -18,9 +18,6 @@ export function createClient() {
             cookieOptions: {
                 name: 'sb-event-organizer-v1',
             },
-            auth: {
-                storageKey: 'sb-event-organizer-auth-v1',
-            },
         }
     )
 }
