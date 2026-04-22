@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { pbkdf2Sync, randomBytes, timingSafeEqual } from "crypto";
 
-async function sendConfirmationEmail(to: string, confirmUrl: string): Promise<boolean> {
+async function sendConfirmationEmail(to: string, confirmUrl: string): Promise<{ ok: boolean; error?: string }> {
     const res = await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: {
@@ -47,7 +47,9 @@ async function sendConfirmationEmail(to: string, confirmUrl: string): Promise<bo
 </html>`,
         }),
     });
-    return res.ok;
+    if (res.ok) return { ok: true };
+    const body = await res.json().catch(() => ({}));
+    return { ok: false, error: body?.message ?? `status ${res.status}` };
 }
 
 const APP_PASSWORD_KEY = "store_password_hash";
@@ -175,9 +177,9 @@ export async function POST(request: Request) {
             });
 
             const sent = await sendConfirmationEmail(email, linkData.properties.action_link);
-            if (!sent) {
+            if (!sent.ok) {
                 await admin.auth.admin.deleteUser(linkData.user.id);
-                return NextResponse.json({ error: "メール送信に失敗しました。しばらく後にお試しください。" }, { status: 500 });
+                return NextResponse.json({ error: `メール送信に失敗しました: ${sent.error}` }, { status: 500 });
             }
 
             return NextResponse.json({ action: "signup" });
