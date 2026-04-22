@@ -2,6 +2,54 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { pbkdf2Sync, randomBytes, timingSafeEqual } from "crypto";
 
+async function sendConfirmationEmail(to: string, confirmUrl: string): Promise<boolean> {
+    const res = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+            Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            from: "Wacca <noreply@wacca.xyz>",
+            to: [to],
+            subject: "【Wacca】メールアドレスの確認",
+            html: `
+<!DOCTYPE html>
+<html lang="ja">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f8fafc;font-family:'Helvetica Neue',Arial,sans-serif">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;padding:40px 20px">
+    <tr><td align="center">
+      <table width="480" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:16px;padding:40px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
+        <tr><td align="center" style="padding-bottom:24px">
+          <span style="font-size:22px;font-weight:bold;color:#0f172a">Wacca</span>
+        </td></tr>
+        <tr><td style="font-size:18px;font-weight:bold;color:#0f172a;padding-bottom:12px">
+          メールアドレスの確認
+        </td></tr>
+        <tr><td style="font-size:14px;color:#475569;line-height:1.7;padding-bottom:28px">
+          Waccaにご登録いただきありがとうございます。<br>
+          以下のボタンをクリックして、メールアドレスを確認してください。
+        </td></tr>
+        <tr><td align="center" style="padding-bottom:28px">
+          <a href="${confirmUrl}" style="display:inline-block;background:#f97316;color:#fff;font-size:15px;font-weight:bold;text-decoration:none;padding:14px 32px;border-radius:10px">
+            メールアドレスを確認する
+          </a>
+        </td></tr>
+        <tr><td style="font-size:12px;color:#94a3b8;line-height:1.7;border-top:1px solid #e2e8f0;padding-top:20px">
+          このリンクは24時間有効です。心当たりのない場合はこのメールを無視してください。<br>
+          ボタンが機能しない場合: ${confirmUrl}
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`,
+        }),
+    });
+    return res.ok;
+}
+
 const APP_PASSWORD_KEY = "organizer_password_hash";
 
 // In-memory rate limiting
@@ -107,19 +155,29 @@ export async function POST(request: Request) {
                 return NextResponse.json({ error: AUTH_FAILED_MSG }, { status: 401 });
             }
 
-            // New user — create with email auto-confirmed
+            // New user — create unconfirmed and send confirmation email
             const passwordHash = hashPassword(password);
-            const { error: createError } = await admin.auth.admin.createUser({
+            const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
+                type: "signup",
                 email,
                 password,
-                email_confirm: true,
-                app_metadata: {
-                    [APP_PASSWORD_KEY]: passwordHash,
+                options: {
+                    redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
                 },
             });
 
-            if (createError) {
+            if (linkError || !linkData) {
                 return NextResponse.json({ error: "登録に失敗しました。しばらく後にお試しください。" }, { status: 400 });
+            }
+
+            await admin.auth.admin.updateUserById(linkData.user.id, {
+                app_metadata: { [APP_PASSWORD_KEY]: passwordHash },
+            });
+
+            const sent = await sendConfirmationEmail(email, linkData.properties.action_link);
+            if (!sent) {
+                await admin.auth.admin.deleteUser(linkData.user.id);
+                return NextResponse.json({ error: "メール送信に失敗しました。しばらく後にお試しください。" }, { status: 500 });
             }
 
             return NextResponse.json({ action: "signup" });

@@ -35,7 +35,12 @@ export default function SignupPage() {
         return;
       }
 
-      // API succeeded — now sign in with password to create session
+      if (result.action === "signup") {
+        router.push(`/signup/verify-email?email=${encodeURIComponent(email)}`);
+        return;
+      }
+
+      // Existing user (cross-app) — sign in immediately
       const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -46,7 +51,6 @@ export default function SignupPage() {
         return;
       }
 
-      // Check if exhibitor profile exists
       const { data: profiles } = await supabase
         .from("exhibitors")
         .select("id")
