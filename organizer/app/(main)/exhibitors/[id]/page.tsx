@@ -218,7 +218,7 @@ export default async function ExhibitorDetailPage({ params }: { params: Promise<
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <DocumentCard
                                     label="営業許可証"
-                                    imageUrl={exhibitor.business_license_image_url}
+                                    imageUrl={exhibitor.business_permit_image_url}
                                     required
                                 />
                                 <DocumentCard label="車検証" imageUrl={exhibitor.vehicle_inspection_image_url} />

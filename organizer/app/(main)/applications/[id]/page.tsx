@@ -157,7 +157,7 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <DocumentCard
                                     label="営業許可証"
-                                    imageUrl={app.exhibitors?.business_license_image_url}
+                                    imageUrl={app.exhibitors?.business_permit_image_url}
                                     required={true}
                                 />
                                 <DocumentCard
