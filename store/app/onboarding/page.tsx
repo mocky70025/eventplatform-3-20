@@ -53,7 +53,7 @@ export default function OnboardingPage() {
         setPostalCodeLoading(true);
         setPostalCodeError("");
         try {
-            const res = await fetch(`https://zipcloud.ibsnet.co.jp/api/search?zipcode=${code}`);
+            const res = await fetch(`/api/zipcode?zipcode=${code}`);
             const data = await res.json();
             if (data.results && data.results.length > 0) {
                 const r = data.results[0];
