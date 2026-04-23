@@ -40,6 +40,37 @@ export default function OnboardingPage() {
     const [licenseFile, setLicenseFile] = useState<File | null>(null);
     const [licensePreview, setLicensePreview] = useState("");
     const [aiResult, setAiResult] = useState<{ status: "idle" | "verifying" | "success" | "error"; message?: string }>({ status: "idle" });
+    const [postalCode, setPostalCode] = useState("");
+    const [postalCodeLoading, setPostalCodeLoading] = useState(false);
+    const [postalCodeError, setPostalCodeError] = useState("");
+
+    const lookupPostalCode = async () => {
+        const code = postalCode.replace(/-/g, "");
+        if (code.length !== 7) {
+            setPostalCodeError("7桁の郵便番号を入力してください");
+            return;
+        }
+        setPostalCodeLoading(true);
+        setPostalCodeError("");
+        try {
+            const res = await fetch(`https://zipcloud.ibsnet.co.jp/api/search?zipcode=${code}`);
+            const data = await res.json();
+            if (data.results && data.results.length > 0) {
+                const r = data.results[0];
+                setFormData(prev => ({
+                    ...prev,
+                    prefecture: r.address1,
+                    cityAddress: r.address2 + r.address3,
+                }));
+            } else {
+                setPostalCodeError("住所が見つかりませんでした");
+            }
+        } catch {
+            setPostalCodeError("検索に失敗しました");
+        } finally {
+            setPostalCodeLoading(false);
+        }
+    };
 
     useEffect(() => {
         const checkUser = async (retry = false) => {
@@ -326,6 +357,30 @@ export default function OnboardingPage() {
                                     placeholder="090-1234-5678"
                                 />
                             </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1.5">郵便番号で住所検索</label>
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    value={postalCode}
+                                    onChange={e => { setPostalCode(e.target.value); setPostalCodeError(""); }}
+                                    onKeyDown={e => e.key === "Enter" && lookupPostalCode()}
+                                    className={`${inputBaseNoIcon} ${normalBorder} w-40`}
+                                    placeholder="1234567"
+                                    maxLength={8}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={lookupPostalCode}
+                                    disabled={postalCodeLoading}
+                                    className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium bg-store-500 text-white hover:bg-store-600 disabled:opacity-50 transition-colors"
+                                >
+                                    {postalCodeLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "検索"}
+                                </button>
+                            </div>
+                            {postalCodeError && <p className="text-xs text-red-500 mt-1">{postalCodeError}</p>}
                         </div>
 
                         <div>
