@@ -35,6 +35,10 @@ const PRESET_EXHIBITOR_FIELDS = [
     { key: "emergency_contact", label: "当日の緊急連絡先", type: "text" as const, category: "その他" },
 ];
 
+const TARGET_AUDIENCE_OPTIONS = ["ファミリー", "学生・若者", "20〜30代", "40〜50代", "高齢者", "インバウンド・外国人", "ビジネスパーソン"];
+const RESTRICTION_OPTIONS = ["火気厳禁", "アルコールNG", "匂いの強いものNG", "大音量NG", "ペットNG", "喫煙NG", "車両乗り入れNG"];
+const FOOD_CATEGORIES = ["主食", "軽食・スナック", "デザート・スイーツ", "ノンアル飲料", "アルコール飲料", "雑貨・物販", "体験・ワークショップ", "その他"];
+
 type CustomField = {
     id: string;
     label: string;
@@ -125,6 +129,12 @@ export default function CreateEventPage() {
         eventSchedule: [] as Array<{ date: string; start_time: string; end_time: string }>,
         usePerDaySettings: false,
         eventDaySettings: [] as Array<{ date: string; recruit_count: number; fee: string; notes: string }>,
+        targetAudience: [] as string[],
+        expectedVisitors: "",
+        powerSupply: "" as "yes" | "no" | "",
+        waterSupply: "" as "yes" | "no" | "",
+        restrictions: [] as string[],
+        categorySlots: [] as Array<{ category: string; count: number }>,
     });
 
     const [customFields, setCustomFields] = useState<CustomField[]>([]);
@@ -459,6 +469,12 @@ export default function CreateEventPage() {
                         ? JSON.stringify(formData.eventSchedule) : null,
                     event_day_settings: formData.usePerDaySettings && formData.eventDaySettings.length > 0
                         ? JSON.stringify(formData.eventDaySettings) : null,
+                    target_audience: formData.targetAudience.length > 0 ? JSON.stringify(formData.targetAudience) : null,
+                    expected_visitors: formData.expectedVisitors ? parseInt(formData.expectedVisitors) : null,
+                    power_supply: formData.powerSupply === "yes",
+                    water_supply: formData.waterSupply === "yes",
+                    restrictions: formData.restrictions.length > 0 ? JSON.stringify(formData.restrictions) : null,
+                    category_slots: formData.categorySlots.length > 0 ? JSON.stringify(formData.categorySlots) : null,
                 });
 
             if (insertError) throw insertError;
@@ -491,7 +507,10 @@ export default function CreateEventPage() {
                     && formData.startDate && timeValid && formData.postponedType && formData.appDeadline
                     && postponedValid
                     && formData.venueName && formData.address
-                    && recruitValid && formData.venueRules
+                    && formData.targetAudience.length > 0 && formData.expectedVisitors
+                    && formData.powerSupply && formData.waterSupply
+                    && formData.restrictions.length > 0
+                    && recruitValid
                     && !!formData.mainImage;
             case 2:
                 return formData.termsCompliance && formData.boothQualification && formData.privacyPolicy && formData.cancelPolicy
@@ -655,6 +674,26 @@ export default function CreateEventPage() {
                                         <label className={labelClass}>出店内容 </label>
                                         <textarea name="boothContent" value={formData.boothContent} onChange={handleChange} rows={3} className={cn(textareaClass, fieldError("boothContent"))} placeholder={"・飲食ブース（キッチンカー含む）\n・ハンドメイド雑貨\n・ワークショップ体験"} />
                                         {fieldErrorMsg("boothContent")}
+                                    </div>
+                                    <div>
+                                        <label className={labelClass}>ターゲット層 </label>
+                                        <div className={cn("flex flex-wrap gap-2 p-3 rounded-lg border bg-slate-50", showErrors && formData.targetAudience.length === 0 ? "border-red-400 ring-2 ring-red-100" : "border-slate-300")}>
+                                            {TARGET_AUDIENCE_OPTIONS.map(opt => (
+                                                <label key={opt} className={cn("flex items-center gap-1.5 px-3 py-1.5 rounded-full border cursor-pointer text-sm font-medium transition-colors", formData.targetAudience.includes(opt) ? "bg-orange-500 text-white border-orange-500" : "bg-white text-slate-700 border-slate-200 hover:border-orange-300")}>
+                                                    <input type="checkbox" className="sr-only" checked={formData.targetAudience.includes(opt)} onChange={() => setFormData(prev => ({ ...prev, targetAudience: prev.targetAudience.includes(opt) ? prev.targetAudience.filter(v => v !== opt) : [...prev.targetAudience, opt] }))} />
+                                                    {opt}
+                                                </label>
+                                            ))}
+                                        </div>
+                                        {showErrors && formData.targetAudience.length === 0 && <p className="text-xs text-red-500 mt-1">1つ以上選択してください</p>}
+                                    </div>
+                                    <div>
+                                        <label className={labelClass}>予想来場者数 </label>
+                                        <div className="relative">
+                                            <input name="expectedVisitors" type="number" min="0" value={formData.expectedVisitors} onChange={handleChange} className={cn(inputClass, "pr-12", showErrors && !formData.expectedVisitors ? errorBorder : "")} placeholder="500" />
+                                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-500 font-medium">人</span>
+                                        </div>
+                                        {showErrors && !formData.expectedVisitors && <p className="text-xs text-red-500 mt-1">この項目は必須です</p>}
                                     </div>
                                 </div>
                             </section>
@@ -912,9 +951,48 @@ export default function CreateEventPage() {
                                     )}
 
                                     <div>
-                                        <label className={labelClass}>会場内ルール </label>
-                                        <textarea name="venueRules" value={formData.venueRules} onChange={handleChange} rows={5} className={cn(textareaClass, fieldError("venueRules"))} placeholder={"・火気の使用は禁止です\n・ゴミは各自持ち帰り\n・音量は80dB以下"} />
-                                        {fieldErrorMsg("venueRules")}
+                                        <label className={labelClass}>会場インフラ提供 </label>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div>
+                                                <p className="text-sm text-slate-600 mb-2 font-medium">電源</p>
+                                                <div className={cn("flex gap-2", showErrors && !formData.powerSupply ? "ring-2 ring-red-100 rounded-lg p-1" : "")}>
+                                                    {[{ v: "yes", label: "提供あり" }, { v: "no", label: "提供なし" }].map(({ v, label }) => (
+                                                        <label key={v} className={cn("flex-1 flex items-center justify-center gap-2 p-2.5 rounded-xl border cursor-pointer text-sm font-medium transition-colors", formData.powerSupply === v ? "border-orange-400 bg-orange-50 text-orange-700" : "border-slate-200 text-slate-600 hover:border-slate-300")}>
+                                                            <input type="radio" name="powerSupply" value={v} checked={formData.powerSupply === v} onChange={handleChange} className="sr-only" />
+                                                            {label}
+                                                        </label>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm text-slate-600 mb-2 font-medium">水道</p>
+                                                <div className={cn("flex gap-2", showErrors && !formData.waterSupply ? "ring-2 ring-red-100 rounded-lg p-1" : "")}>
+                                                    {[{ v: "yes", label: "提供あり" }, { v: "no", label: "提供なし" }].map(({ v, label }) => (
+                                                        <label key={v} className={cn("flex-1 flex items-center justify-center gap-2 p-2.5 rounded-xl border cursor-pointer text-sm font-medium transition-colors", formData.waterSupply === v ? "border-orange-400 bg-orange-50 text-orange-700" : "border-slate-200 text-slate-600 hover:border-slate-300")}>
+                                                            <input type="radio" name="waterSupply" value={v} checked={formData.waterSupply === v} onChange={handleChange} className="sr-only" />
+                                                            {label}
+                                                        </label>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {showErrors && (!formData.powerSupply || !formData.waterSupply) && <p className="text-xs text-red-500 mt-1">電源・水道どちらも選択してください</p>}
+                                    </div>
+                                    <div>
+                                        <label className={labelClass}>禁止・制限事項 </label>
+                                        <div className={cn("flex flex-wrap gap-2 p-3 rounded-lg border bg-slate-50", showErrors && formData.restrictions.length === 0 ? "border-red-400 ring-2 ring-red-100" : "border-slate-300")}>
+                                            {RESTRICTION_OPTIONS.map(opt => (
+                                                <label key={opt} className={cn("flex items-center gap-1.5 px-3 py-1.5 rounded-full border cursor-pointer text-sm font-medium transition-colors", formData.restrictions.includes(opt) ? "bg-red-500 text-white border-red-500" : "bg-white text-slate-700 border-slate-200 hover:border-red-200")}>
+                                                    <input type="checkbox" className="sr-only" checked={formData.restrictions.includes(opt)} onChange={() => setFormData(prev => ({ ...prev, restrictions: prev.restrictions.includes(opt) ? prev.restrictions.filter(v => v !== opt) : [...prev.restrictions, opt] }))} />
+                                                    {opt}
+                                                </label>
+                                            ))}
+                                        </div>
+                                        {showErrors && formData.restrictions.length === 0 && <p className="text-xs text-red-500 mt-1">1つ以上選択してください（制限なしの場合は該当なし以外を選択不要なら「なし」を追加）</p>}
+                                    </div>
+                                    <div>
+                                        <label className={labelClass}>その他のルール <span className="text-slate-400 font-normal">（任意）</span></label>
+                                        <textarea name="venueRules" value={formData.venueRules} onChange={handleChange} rows={4} className={textareaClass} placeholder={"・ゴミは各自持ち帰り\n・音量は80dB以下\n・搬入は8:00〜10:00"} />
                                     </div>
                                     <div>
                                         <label className={labelClass}>会場レイアウト <span className="text-slate-400 font-normal">（任意）</span>{editableBadge}</label>
@@ -973,6 +1051,35 @@ export default function CreateEventPage() {
                     {/* ============ Step 2: 規約・運営 ============ */}
                     {step === 2 && (
                         <div className="space-y-10 animate-in fade-in slide-in-from-right-4 duration-300">
+
+                            {/* カテゴリ別募集枠 */}
+                            <section>
+                                <h2 className={sectionTitle}><ClipboardList className="w-5 h-5 text-orange-500" /> カテゴリ別募集枠 <span className="text-slate-400 font-normal text-sm ml-1">（任意）</span></h2>
+                                <p className="text-sm text-slate-500 mb-4">カテゴリごとに募集枠数を設定できます。総枠数とのバランスにご注意ください。</p>
+                                <div className="space-y-3">
+                                    {formData.categorySlots.map((slot, idx) => (
+                                        <div key={idx} className="flex items-center gap-3 bg-white border border-slate-200 rounded-xl p-3">
+                                            <select value={slot.category} onChange={(e) => { const updated = [...formData.categorySlots]; updated[idx] = { ...updated[idx], category: e.target.value }; setFormData(prev => ({ ...prev, categorySlots: updated })); }} className="flex-1 text-sm border border-slate-200 rounded-lg px-3 py-2 bg-slate-50 outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-500">
+                                                <option value="">カテゴリを選択</option>
+                                                {FOOD_CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                                            </select>
+                                            <div className="flex items-center gap-1.5">
+                                                <input type="number" min="1" value={slot.count} onChange={(e) => { const updated = [...formData.categorySlots]; updated[idx] = { ...updated[idx], count: parseInt(e.target.value) || 1 }; setFormData(prev => ({ ...prev, categorySlots: updated })); }} className="w-20 text-sm border border-slate-200 rounded-lg px-2 py-2 text-center outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-500" />
+                                                <span className="text-sm text-slate-500">枠</span>
+                                            </div>
+                                            <button type="button" onClick={() => setFormData(prev => ({ ...prev, categorySlots: prev.categorySlots.filter((_, i) => i !== idx) }))} className="text-slate-400 hover:text-red-500 transition-colors p-1">
+                                                <X className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    ))}
+                                    <button type="button" onClick={() => setFormData(prev => ({ ...prev, categorySlots: [...prev.categorySlots, { category: "", count: 1 }] }))} className="w-full flex items-center justify-center gap-2 py-2.5 border-2 border-dashed border-slate-300 rounded-xl text-sm font-medium text-slate-500 hover:border-orange-300 hover:text-orange-600 transition-colors">
+                                        <Plus className="w-4 h-4" /> カテゴリを追加
+                                    </button>
+                                    {formData.categorySlots.length > 0 && (
+                                        <p className="text-xs text-slate-500 text-right">合計: {formData.categorySlots.reduce((sum, s) => sum + s.count, 0)} 枠</p>
+                                    )}
+                                </div>
+                            </section>
 
                             {/* 出店規約 */}
                             <section>
