@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import {
     Check, X, Loader2, AlertCircle, Calendar, MapPin, ChevronDown, ChevronUp,
-    Tag, FileText, Building2, Shield, Truck, Phone, Mail
+    Tag, FileText, Building2, Shield, Truck, Phone, Mail, Search
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -51,6 +51,23 @@ interface Event {
     };
 }
 
+const STATUS_LABELS: Record<string, string> = {
+    pending: "承認待ち",
+    published: "公開中",
+    rejected: "却下",
+    draft: "非公開",
+    closed: "募集終了",
+    ended: "終了",
+};
+
+const STATUS_TABS = [
+    { key: "all", label: "すべて" },
+    { key: "pending", label: "承認待ち" },
+    { key: "published", label: "公開中" },
+    { key: "rejected", label: "却下" },
+    { key: "draft", label: "非公開" },
+];
+
 function InfoGrid({ children }: { children: React.ReactNode }) {
     return <div className="grid grid-cols-2 gap-x-6 gap-y-3">{children}</div>;
 }
@@ -87,6 +104,22 @@ function SectionHeading({ icon, children }: { icon: React.ReactNode; children: R
     );
 }
 
+function StatusBadge({ status }: { status: string }) {
+    const styles: Record<string, string> = {
+        published: "bg-green-100 text-green-700",
+        pending: "bg-yellow-100 text-yellow-700",
+        rejected: "bg-red-100 text-red-700",
+        closed: "bg-slate-200 text-slate-600",
+        ended: "bg-slate-200 text-slate-500",
+        draft: "bg-slate-100 text-slate-600",
+    };
+    return (
+        <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${styles[status] || "bg-slate-100 text-slate-600"}`}>
+            {STATUS_LABELS[status] || status}
+        </span>
+    );
+}
+
 export function EventRow({ event }: { event: Event }) {
     const [isUpdating, setIsUpdating] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
@@ -96,7 +129,6 @@ export function EventRow({ event }: { event: Event }) {
         if (newStatus === 'deleted') {
             if (!confirm("本当にこのイベントを削除しますか？")) return;
         }
-
         setIsUpdating(true);
         try {
             const action = newStatus === 'deleted' ? 'delete' : newStatus;
@@ -105,12 +137,10 @@ export function EventRow({ event }: { event: Event }) {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ eventId: event.id, action }),
             });
-
             if (!response.ok) {
                 const data = await response.json();
                 throw new Error(data.error || 'エラーが発生しました');
             }
-
             router.refresh();
         } catch (err: any) {
             alert("エラーが発生しました: " + (err.message || "不明なエラー"));
@@ -119,40 +149,27 @@ export function EventRow({ event }: { event: Event }) {
         }
     };
 
-    const statusBadge = (
-        <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${event.status === 'published'
-            ? "bg-green-100 text-green-700"
-            : event.status === 'pending'
-                ? "bg-yellow-100 text-yellow-700"
-                : event.status === 'rejected'
-                    ? "bg-red-100 text-red-700"
-                    : "bg-slate-100 text-slate-600"
-            }`}>
-            {event.status === 'published' ? "公開中" : event.status === 'pending' ? "承認待ち" : event.status === 'rejected' ? "却下" : "非公開"}
-        </span>
-    );
-
     const actionButtons = (
         <div className="flex gap-2">
             {event.status === 'pending' ? (
                 <>
                     <Button size="sm" onClick={() => handleToggleStatus('published')} disabled={isUpdating} className="bg-green-600 text-white hover:bg-green-700 h-8 text-xs font-bold">
-                        {isUpdating ? <Loader2 className="w-3 h-3 animate-spin" /> : <><Check className="w-3 h-3 mr-1" /> 承認</>}
+                        {isUpdating ? <Loader2 className="w-3 h-3 animate-spin" /> : <><Check className="w-3 h-3 mr-1" />承認</>}
                     </Button>
                     <Button size="sm" variant="outline" onClick={() => handleToggleStatus('rejected')} disabled={isUpdating} className="h-8 text-xs text-red-500 hover:bg-red-50 font-bold border-red-200">
                         {isUpdating ? <Loader2 className="w-3 h-3 animate-spin" /> : "却下"}
                     </Button>
                 </>
-            ) : event.status !== 'published' ? (
-                <Button size="sm" onClick={() => handleToggleStatus('published')} disabled={isUpdating} className="bg-slate-900 text-white hover:bg-slate-800 h-8 text-xs font-bold">
-                    {isUpdating ? <Loader2 className="w-3 h-3 animate-spin" /> : "公開許可"}
-                </Button>
-            ) : (
+            ) : event.status === 'published' ? (
                 <Button size="sm" variant="outline" onClick={() => handleToggleStatus('draft')} disabled={isUpdating} className="h-8 text-xs text-slate-500">
                     {isUpdating ? <Loader2 className="w-3 h-3 animate-spin" /> : "非公開にする"}
                 </Button>
+            ) : (
+                <Button size="sm" onClick={() => handleToggleStatus('published')} disabled={isUpdating} className="bg-slate-900 text-white hover:bg-slate-800 h-8 text-xs font-bold">
+                    {isUpdating ? <Loader2 className="w-3 h-3 animate-spin" /> : "公開許可"}
+                </Button>
             )}
-            <Button size="sm" variant="ghost" onClick={() => handleToggleStatus('deleted')} disabled={isUpdating} className="h-8 text-xs text-red-500 hover:text-red-700 hover:bg-red-50 font-bold">
+            <Button size="sm" variant="ghost" onClick={() => handleToggleStatus('deleted')} disabled={isUpdating} className="h-8 text-xs text-red-400 hover:text-red-600 hover:bg-red-50">
                 <X className="w-3 h-3" />
             </Button>
         </div>
@@ -162,7 +179,7 @@ export function EventRow({ event }: { event: Event }) {
         <>
             <tr
                 id={`event-${event.id}`}
-                className="hover:bg-slate-50/50 transition-colors scroll-mt-20 cursor-pointer"
+                className={`hover:bg-slate-50/70 transition-colors scroll-mt-20 cursor-pointer ${event.status === 'pending' ? 'bg-yellow-50/30' : ''}`}
                 onClick={() => setIsExpanded(!isExpanded)}
             >
                 <td className="px-6 py-4">
@@ -192,7 +209,7 @@ export function EventRow({ event }: { event: Event }) {
                     </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                    {statusBadge}
+                    <StatusBadge status={event.status} />
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium" onClick={(e) => e.stopPropagation()}>
                     {actionButtons}
@@ -202,10 +219,7 @@ export function EventRow({ event }: { event: Event }) {
                 <tr>
                     <td colSpan={4} className="px-0 py-0">
                         <div className="bg-slate-50/80 border-y border-slate-100 px-8 py-6 space-y-6">
-
-                            {/* Row 1: Images + Basic Info */}
                             <div className="grid grid-cols-[280px_1fr] gap-8">
-                                {/* Left: Images */}
                                 <div className="space-y-3">
                                     {event.main_image_url ? (
                                         <div>
@@ -231,8 +245,6 @@ export function EventRow({ event }: { event: Event }) {
                                         </div>
                                     )}
                                 </div>
-
-                                {/* Right: Event basic info */}
                                 <div className="space-y-5">
                                     <div>
                                         <SectionHeading icon={<FileText className="w-3.5 h-3.5" />}>イベント基本情報</SectionHeading>
@@ -244,7 +256,7 @@ export function EventRow({ event }: { event: Event }) {
                                                     ? `${event.event_start_date} ~ ${event.event_end_date}`
                                                     : event.event_start_date
                                             } />
-                                            <InfoItem label="予備日（雨天時等）" value={(() => {
+                                            <InfoItem label="予備日" value={(() => {
                                                 const pd = event.postponed_dates;
                                                 const parsed = pd ? (typeof pd === 'string' ? JSON.parse(pd) : pd) : null;
                                                 if (parsed && Array.isArray(parsed) && parsed.length > 0) {
@@ -273,8 +285,6 @@ export function EventRow({ event }: { event: Event }) {
                                             })()}
                                         </InfoGrid>
                                     </div>
-
-                                    {/* Organizer info card */}
                                     <div>
                                         <SectionHeading icon={<Building2 className="w-3.5 h-3.5" />}>主催者情報</SectionHeading>
                                         <div className="bg-white rounded-xl p-4 border border-slate-100">
@@ -299,7 +309,6 @@ export function EventRow({ event }: { event: Event }) {
                                                     </div>
                                                 </div>
                                             </div>
-                                            {/* Event-specific contact (if different) */}
                                             {(event.organizer_name || event.organizer_email || event.organizer_phone) && (
                                                 <div className="mt-3 pt-3 border-t border-slate-100">
                                                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">イベント担当者</p>
@@ -314,20 +323,14 @@ export function EventRow({ event }: { event: Event }) {
                                     </div>
                                 </div>
                             </div>
-
-                            {/* Row 2: Description + Booth content */}
                             <div className="grid grid-cols-2 gap-6">
                                 <TextBlock label="イベント説明" value={event.description} icon={<FileText className="w-3.5 h-3.5" />} />
                                 <TextBlock label="出店内容" value={event.booth_content} icon={<Tag className="w-3.5 h-3.5" />} />
                             </div>
-
-                            {/* Row 3: Venue rules + Loading info */}
                             <div className="grid grid-cols-2 gap-6">
                                 <TextBlock label="会場ルール" value={event.venue_rules} icon={<Shield className="w-3.5 h-3.5" />} />
                                 <TextBlock label="搬入・搬出情報" value={event.loading_info} icon={<Truck className="w-3.5 h-3.5" />} />
                             </div>
-
-                            {/* Row 4: Terms & Policies */}
                             {(event.terms_compliance || event.booth_qualification || event.privacy_policy || event.cancel_policy) && (
                                 <div>
                                     <SectionHeading icon={<Shield className="w-3.5 h-3.5" />}>規約・ポリシー</SectionHeading>
@@ -359,8 +362,6 @@ export function EventRow({ event }: { event: Event }) {
                                     </div>
                                 </div>
                             )}
-
-                            {/* Bottom: Action buttons */}
                             <div className="flex justify-end pt-2 border-t border-slate-200" onClick={(e) => e.stopPropagation()}>
                                 {actionButtons}
                             </div>
@@ -373,34 +374,106 @@ export function EventRow({ event }: { event: Event }) {
 }
 
 export default function EventList({ events }: { events: Event[] }) {
-    if (!events || events.length === 0) {
-        return (
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-12 text-center">
-                <AlertCircle className="w-12 h-12 text-slate-200 mx-auto mb-4" />
-                <p className="text-slate-400">登録されているイベントはありません</p>
-            </div>
-        );
-    }
+    const [activeFilter, setActiveFilter] = useState("all");
+    const [searchQuery, setSearchQuery] = useState("");
+
+    const counts = STATUS_TABS.reduce((acc, tab) => {
+        acc[tab.key] = tab.key === "all"
+            ? events.length
+            : events.filter(e => e.status === tab.key).length;
+        return acc;
+    }, {} as Record<string, number>);
+
+    const filtered = events.filter(event => {
+        const matchesStatus = activeFilter === "all" || event.status === activeFilter;
+        const q = searchQuery.toLowerCase();
+        const matchesSearch = !q
+            || event.event_name.toLowerCase().includes(q)
+            || (event.organizer?.company_name || "").toLowerCase().includes(q)
+            || (event.organizer?.name || "").toLowerCase().includes(q)
+            || (event.venue_name || "").toLowerCase().includes(q);
+        return matchesStatus && matchesSearch;
+    });
 
     return (
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-            <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                    <thead>
-                        <tr className="bg-slate-50/50 border-b border-slate-50">
-                            <th className="px-6 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider">イベント名 / 主催者</th>
-                            <th className="px-6 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider">日程 / 場所</th>
-                            <th className="px-6 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider">ステータス</th>
-                            <th className="px-6 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider text-right">操作</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-50">
-                        {events.map((event) => (
-                            <EventRow key={event.id} event={event} />
-                        ))}
-                    </tbody>
-                </table>
+        <div className="space-y-4">
+            {/* Search + Filter bar */}
+            <div className="flex flex-col sm:flex-row gap-3">
+                <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input
+                        type="text"
+                        placeholder="イベント名・主催者名・会場名で検索"
+                        value={searchQuery}
+                        onChange={e => setSearchQuery(e.target.value)}
+                        className="w-full pl-9 pr-4 py-2.5 text-sm bg-white border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all"
+                    />
+                    {searchQuery && (
+                        <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                            <X className="w-3.5 h-3.5" />
+                        </button>
+                    )}
+                </div>
             </div>
+
+            {/* Status tabs */}
+            <div className="flex gap-1 bg-white border border-slate-200 rounded-xl p-1 w-fit">
+                {STATUS_TABS.map(tab => (
+                    <button
+                        key={tab.key}
+                        onClick={() => setActiveFilter(tab.key)}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${activeFilter === tab.key
+                            ? "bg-slate-900 text-white"
+                            : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"
+                            }`}
+                    >
+                        {tab.label}
+                        {counts[tab.key] > 0 && (
+                            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${activeFilter === tab.key
+                                ? "bg-white/20 text-white"
+                                : tab.key === "pending"
+                                    ? "bg-yellow-100 text-yellow-700"
+                                    : "bg-slate-100 text-slate-500"
+                                }`}>
+                                {counts[tab.key]}
+                            </span>
+                        )}
+                    </button>
+                ))}
+            </div>
+
+            {filtered.length === 0 ? (
+                <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-12 text-center">
+                    <AlertCircle className="w-12 h-12 text-slate-200 mx-auto mb-4" />
+                    <p className="text-slate-400">
+                        {searchQuery ? `"${searchQuery}" に一致するイベントはありません` : "該当するイベントはありません"}
+                    </p>
+                </div>
+            ) : (
+                <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                    <div className="px-4 py-2.5 border-b border-slate-100 text-xs text-slate-400 font-medium">
+                        {filtered.length} 件表示
+                        {activeFilter !== "all" && <span className="ml-1">（全 {events.length} 件中）</span>}
+                    </div>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="bg-slate-50/50 border-b border-slate-50">
+                                    <th className="px-6 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider">イベント名 / 主催者</th>
+                                    <th className="px-6 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider">日程 / 場所</th>
+                                    <th className="px-6 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider">ステータス</th>
+                                    <th className="px-6 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider text-right">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-50">
+                                {filtered.map((event) => (
+                                    <EventRow key={event.id} event={event} />
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
