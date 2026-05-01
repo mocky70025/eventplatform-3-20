@@ -14,26 +14,55 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 
 // 出店者に求める情報のプリセット項目
-const PRESET_EXHIBITOR_FIELDS = [
-    { key: "menu_list", label: "出店メニュー・商品リスト", type: "textarea" as const, category: "基本情報" },
-    { key: "price_range", label: "販売価格帯", type: "text" as const, category: "基本情報" },
-    { key: "booth_description", label: "ブースの装飾・外観の説明", type: "textarea" as const, category: "基本情報" },
-    { key: "power_needed", label: "電源の要否・必要電力量", type: "text" as const, category: "設備・インフラ" },
-    { key: "water_needed", label: "水道の要否", type: "text" as const, category: "設備・インフラ" },
-    { key: "gas_usage", label: "ガス使用の有無", type: "text" as const, category: "設備・インフラ" },
-    { key: "tent_info", label: "テント持参の有無・サイズ", type: "text" as const, category: "設備・インフラ" },
-    { key: "space_size", label: "必要なスペースサイズ", type: "text" as const, category: "設備・インフラ" },
-    { key: "vehicle_entry", label: "車両乗り入れの有無・サイズ", type: "text" as const, category: "車両・搬入" },
-    { key: "loading_time_preference", label: "搬入希望時間帯", type: "text" as const, category: "車両・搬入" },
-    { key: "food_safety_cert", label: "食品衛生責任者証", type: "file" as const, category: "必要書類" },
-    { key: "business_license", label: "営業許可証（保健所）", type: "file" as const, category: "必要書類" },
-    { key: "pl_insurance", label: "PL保険証書", type: "file" as const, category: "必要書類" },
-    { key: "fire_equipment_layout", label: "火器類配置図", type: "file" as const, category: "必要書類" },
-    { key: "vehicle_inspection", label: "車検証", type: "file" as const, category: "必要書類" },
-    { key: "allergy_info", label: "アレルギー表示", type: "file" as const, category: "必要書類" },
-    { key: "staff_count", label: "当日のスタッフ人数", type: "text" as const, category: "その他" },
-    { key: "emergency_contact", label: "当日の緊急連絡先", type: "text" as const, category: "その他" },
+type PresetField = {
+    key: string;
+    label: string;
+    category: string;
+    type: "text" | "textarea" | "file" | "select" | "multiselect" | "radio_date";
+    options?: string[];
+};
+
+const PRESET_EXHIBITOR_FIELDS: PresetField[] = [
+    // 基本・メニュー情報
+    { key: "booth_type", label: "出店形態", type: "select", options: ["テント", "キッチンカー", "相談可"], category: "基本・メニュー情報" },
+    { key: "food_categories", label: "提供カテゴリ", type: "multiselect", options: ["主食", "軽食", "デザート", "ノンアル", "アルコール"], category: "基本・メニュー情報" },
+    { key: "menu_list", label: "出店メニュー・商品リスト", type: "textarea", category: "基本・メニュー情報" },
+    { key: "price_range", label: "販売価格帯", type: "text", category: "基本・メニュー情報" },
+    { key: "expected_sales_count", label: "販売予定数", type: "text", category: "基本・メニュー情報" },
+    { key: "allergy_display", label: "アレルギー表示の有無", type: "select", options: ["あり", "なし"], category: "基本・メニュー情報" },
+    { key: "booth_description", label: "ブースの装飾・外観の説明", type: "textarea", category: "基本・メニュー情報" },
+    // 安全・インフラ要件
+    { key: "fire_equipment", label: "火気使用機材", type: "multiselect", options: ["ガスコンロ", "カセットコンロ", "炭火", "ガスフライヤー", "IH", "その他"], category: "安全・インフラ要件" },
+    { key: "generator_type", label: "発電機の種別", type: "select", options: ["持参なし", "ガソリン式", "灯油式", "ガス式", "電動バッテリー式"], category: "安全・インフラ要件" },
+    { key: "fire_extinguisher", label: "消火器の有無と有効期限", type: "radio_date", category: "安全・インフラ要件" },
+    { key: "power_needed", label: "電源の要否・必要電力量", type: "text", category: "安全・インフラ要件" },
+    { key: "water_needed", label: "水道の要否", type: "text", category: "安全・インフラ要件" },
+    { key: "tent_info", label: "テント持参の有無・サイズ", type: "text", category: "安全・インフラ要件" },
+    { key: "space_size", label: "必要なスペースサイズ", type: "text", category: "安全・インフラ要件" },
+    // 車両・搬入
+    { key: "vehicle_entry", label: "車両乗り入れの有無・サイズ", type: "text", category: "車両・搬入" },
+    { key: "loading_time_preference", label: "搬入希望時間帯", type: "text", category: "車両・搬入" },
+    // 必須書類
+    { key: "business_license", label: "営業許可証（許可番号・自治体名・有効期限）", type: "file", category: "必須書類" },
+    { key: "food_safety_cert", label: "食品衛生責任者証", type: "file", category: "必須書類" },
+    { key: "vehicle_inspection", label: "車検証（キッチンカー選択時）", type: "file", category: "必須書類" },
+    { key: "pl_insurance", label: "PL保険証書", type: "file", category: "必須書類" },
+    { key: "fire_equipment_layout", label: "火器類配置図", type: "file", category: "必須書類" },
+    { key: "allergy_info", label: "アレルギー表示資料", type: "file", category: "必須書類" },
+    // その他
+    { key: "staff_count", label: "当日のスタッフ人数", type: "text", category: "その他" },
+    { key: "emergency_contact", label: "当日の緊急連絡先", type: "text", category: "その他" },
 ];
+
+// プリセット項目の表示用ラベルとスタイル
+const TYPE_BADGE: Record<PresetField["type"], { label: string; class: string }> = {
+    text: { label: "テキスト", class: "bg-slate-100 text-slate-500" },
+    textarea: { label: "長文", class: "bg-slate-100 text-slate-500" },
+    file: { label: "画像", class: "bg-blue-50 text-blue-600" },
+    select: { label: "単一選択", class: "bg-purple-50 text-purple-600" },
+    multiselect: { label: "複数選択", class: "bg-emerald-50 text-emerald-600" },
+    radio_date: { label: "選択+日付", class: "bg-amber-50 text-amber-600" },
+};
 
 const TARGET_AUDIENCE_OPTIONS = ["ファミリー", "学生・若者", "20〜30代", "40〜50代", "高齢者", "インバウンド・外国人", "ビジネスパーソン"];
 const RESTRICTION_OPTIONS = ["火気厳禁", "アルコールNG", "匂いの強いものNG", "大音量NG", "ペットNG", "喫煙NG", "車両乗り入れNG"];
@@ -135,6 +164,7 @@ export default function CreateEventPage() {
         waterSupply: "" as "yes" | "no" | "",
         restrictions: [] as string[],
         categorySlots: [] as Array<{ category: string; count: number }>,
+        exhibitorListVisibility: "all" as "all" | "category" | "none",
     });
 
     const [customFields, setCustomFields] = useState<CustomField[]>([]);
@@ -475,6 +505,7 @@ export default function CreateEventPage() {
                     water_supply: formData.waterSupply === "yes",
                     restrictions: formData.restrictions.length > 0 ? JSON.stringify(formData.restrictions) : null,
                     category_slots: formData.categorySlots.length > 0 ? JSON.stringify(formData.categorySlots) : null,
+                    exhibitor_list_visibility: formData.exhibitorListVisibility,
                 });
 
             if (insertError) throw insertError;
@@ -1081,6 +1112,27 @@ export default function CreateEventPage() {
                                 </div>
                             </section>
 
+                            {/* 他出店者の公開設定 */}
+                            <section>
+                                <h2 className={sectionTitle}><Users className="w-5 h-5 text-orange-500" /> 他出店者情報の公開設定</h2>
+                                <p className="text-sm text-slate-500 mb-4">応募してくる出店者に対して、すでに参加が決まっている出店者の情報をどこまで見せるかを設定します。</p>
+                                <div className="space-y-2">
+                                    {[
+                                        { v: "all", label: "全公開", desc: "店名・カテゴリなど、すでに集まっている出店者の情報を全て公開します" },
+                                        { v: "category", label: "カテゴリのみ公開", desc: "店名は伏せ、提供カテゴリ（主食・軽食など）のみ公開します" },
+                                        { v: "none", label: "非公開", desc: "他の出店者の情報は一切公開しません" },
+                                    ].map(({ v, label, desc }) => (
+                                        <label key={v} className={cn("flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-colors", formData.exhibitorListVisibility === v ? "border-orange-400 bg-orange-50" : "border-slate-200 hover:border-slate-300")}>
+                                            <input type="radio" name="exhibitorListVisibility" value={v} checked={formData.exhibitorListVisibility === v} onChange={handleChange} className="mt-1 accent-orange-500" />
+                                            <div>
+                                                <span className="text-sm font-bold text-slate-900">{label}</span>
+                                                <p className="text-xs text-slate-500 mt-0.5">{desc}</p>
+                                            </div>
+                                        </label>
+                                    ))}
+                                </div>
+                            </section>
+
                             {/* 出店規約 */}
                             <section>
                                 <h2 className={sectionTitle}><Shield className="w-5 h-5 text-orange-500" /> 出店規約</h2>
@@ -1162,8 +1214,8 @@ export default function CreateEventPage() {
                                                         <input type="checkbox" checked={formData.selectedExhibitorFields.includes(field.key)} onChange={() => toggleExhibitorField(field.key)} className="w-4 h-4 rounded border-slate-300 text-orange-500 focus:ring-orange-500" />
                                                         <div className="flex-1 min-w-0">
                                                             <span className="text-sm font-medium text-slate-900">{field.label}</span>
-                                                            <span className={cn("ml-2 text-[10px] font-bold px-1.5 py-0.5 rounded", field.type === "file" ? "bg-blue-50 text-blue-600" : "bg-slate-100 text-slate-500")}>
-                                                                {field.type === "file" ? "画像" : "テキスト"}
+                                                            <span className={cn("ml-2 text-[10px] font-bold px-1.5 py-0.5 rounded", TYPE_BADGE[field.type].class)}>
+                                                                {TYPE_BADGE[field.type].label}
                                                             </span>
                                                         </div>
                                                     </label>
@@ -1226,6 +1278,17 @@ export default function CreateEventPage() {
                                                         <label className="text-xs font-bold text-slate-600">{field.label}</label>
                                                         {field.type === "file" ? (
                                                             <div className="h-10 bg-white rounded-lg border border-dashed border-slate-300 flex items-center justify-center text-xs text-slate-400">ファイルアップロード欄</div>
+                                                        ) : field.type === "select" ? (
+                                                            <div className="h-10 bg-white rounded-lg border border-slate-200 flex items-center px-3 text-xs text-slate-400">{field.options?.join(" / ")}</div>
+                                                        ) : field.type === "multiselect" ? (
+                                                            <div className="flex flex-wrap gap-1.5">{field.options?.map(o => <span key={o} className="text-[11px] px-2 py-0.5 bg-white border border-slate-200 rounded-full text-slate-500">{o}</span>)}</div>
+                                                        ) : field.type === "radio_date" ? (
+                                                            <div className="flex gap-2">
+                                                                <div className="h-10 flex-1 bg-white rounded-lg border border-slate-200 flex items-center px-3 text-xs text-slate-400">あり / なし</div>
+                                                                <div className="h-10 flex-1 bg-white rounded-lg border border-slate-200 flex items-center px-3 text-xs text-slate-400">有効期限</div>
+                                                            </div>
+                                                        ) : field.type === "textarea" ? (
+                                                            <div className="h-16 bg-white rounded-lg border border-slate-200"></div>
                                                         ) : (
                                                             <div className="h-10 bg-white rounded-lg border border-slate-200"></div>
                                                         )}
@@ -1269,6 +1332,8 @@ export default function CreateEventPage() {
                                         <div><dt className="text-slate-500 text-xs">ジャンル</dt><dd className="font-semibold text-slate-900">{formData.genre}</dd></div>
                                         <div className="col-span-2"><dt className="text-slate-500 text-xs">概要</dt><dd className="font-semibold text-slate-900 whitespace-pre-wrap">{formData.description}</dd></div>
                                         <div className="col-span-2"><dt className="text-slate-500 text-xs">出店内容</dt><dd className="font-semibold text-slate-900 whitespace-pre-wrap">{formData.boothContent}</dd></div>
+                                        <div className="col-span-2"><dt className="text-slate-500 text-xs">ターゲット層</dt><dd className="flex flex-wrap gap-1.5 mt-1">{formData.targetAudience.map(t => <span key={t} className="text-xs px-2 py-0.5 bg-orange-100 text-orange-700 rounded-full font-semibold">{t}</span>)}</dd></div>
+                                        <div><dt className="text-slate-500 text-xs">予想来場者数</dt><dd className="font-semibold text-slate-900">{formData.expectedVisitors ? `${Number(formData.expectedVisitors).toLocaleString()}人` : ""}</dd></div>
                                     </dl>
                                 </section>
 
@@ -1297,7 +1362,16 @@ export default function CreateEventPage() {
                                     <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
                                         <div><dt className="text-slate-500 text-xs">出店数</dt><dd className="font-semibold text-slate-900">{formData.recruitCount}店舗</dd></div>
                                         <div><dt className="text-slate-500 text-xs">出店料</dt><dd className="font-semibold text-slate-900">{formData.fee}</dd></div>
-                                        <div className="col-span-2"><dt className="text-slate-500 text-xs">会場内ルール</dt><dd className="font-semibold text-slate-900 whitespace-pre-wrap">{formData.venueRules}</dd></div>
+                                        <div><dt className="text-slate-500 text-xs">電源</dt><dd className="font-semibold text-slate-900">{formData.powerSupply === "yes" ? "提供あり" : formData.powerSupply === "no" ? "提供なし" : "未設定"}</dd></div>
+                                        <div><dt className="text-slate-500 text-xs">水道</dt><dd className="font-semibold text-slate-900">{formData.waterSupply === "yes" ? "提供あり" : formData.waterSupply === "no" ? "提供なし" : "未設定"}</dd></div>
+                                        <div className="col-span-2"><dt className="text-slate-500 text-xs">禁止・制限事項</dt><dd className="flex flex-wrap gap-1.5 mt-1">{formData.restrictions.map(r => <span key={r} className="text-xs px-2 py-0.5 bg-red-100 text-red-700 rounded-full font-semibold">{r}</span>)}</dd></div>
+                                        {formData.categorySlots.length > 0 && (
+                                            <div className="col-span-2"><dt className="text-slate-500 text-xs">カテゴリ別募集枠</dt><dd className="flex flex-wrap gap-1.5 mt-1">{formData.categorySlots.map((s, i) => <span key={i} className="text-xs px-2 py-0.5 bg-slate-200 text-slate-700 rounded-full font-semibold">{s.category}：{s.count}枠</span>)}</dd></div>
+                                        )}
+                                        <div className="col-span-2"><dt className="text-slate-500 text-xs">他出店者情報の公開</dt><dd className="font-semibold text-slate-900">{formData.exhibitorListVisibility === "all" ? "全公開" : formData.exhibitorListVisibility === "category" ? "カテゴリのみ公開" : "非公開"}</dd></div>
+                                        {formData.venueRules && (
+                                            <div className="col-span-2"><dt className="text-slate-500 text-xs">その他のルール</dt><dd className="font-semibold text-slate-900 whitespace-pre-wrap">{formData.venueRules}</dd></div>
+                                        )}
                                         {formData.venueLayout && (
                                             <div className="col-span-2"><dt className="text-slate-500 text-xs mb-1">会場レイアウト</dt><dd className="relative w-full h-40"><Image src={formData.venueLayout} alt="会場レイアウト" fill className="object-contain rounded-lg" /></dd></div>
                                         )}
