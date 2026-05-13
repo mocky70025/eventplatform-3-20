@@ -451,7 +451,7 @@ CREATE POLICY "rate_limits_no_access" ON rate_limits
 -- ---- admin_audit_logs ---------------------------------------------------
 -- Inserts happen via service_role only; direct user inserts are blocked.
 CREATE POLICY "admin_audit_logs_select" ON admin_audit_logs
-  FOR SELECT USING (true);
+  FOR SELECT USING (false);
 CREATE POLICY "admin_audit_logs_no_insert" ON admin_audit_logs
   FOR INSERT WITH CHECK (false);
 

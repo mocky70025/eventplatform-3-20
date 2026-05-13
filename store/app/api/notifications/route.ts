@@ -24,6 +24,11 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "無効なユーザータイプです" }, { status: 400 });
         }
 
+        const validTypes = ["new_application", "application_approved", "application_rejected", "confirmed", "remind", "reviewRequest"];
+        if (!validTypes.includes(type)) {
+            return NextResponse.json({ error: "無効な通知タイプです" }, { status: 400 });
+        }
+
         // IDOR prevention: verify the caller has a legitimate relationship with the target
         // Store app sends notifications to organizers (when applying to events)
         // The caller must be an exhibitor with an application to the related event

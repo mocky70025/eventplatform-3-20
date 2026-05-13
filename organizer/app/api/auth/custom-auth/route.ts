@@ -54,24 +54,8 @@ async function sendConfirmationEmail(to: string, confirmUrl: string): Promise<{ 
 
 const APP_PASSWORD_KEY = "organizer_password_hash";
 
-// In-memory rate limiting
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 const RATE_LIMIT_MAX = 5;
-const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
-
-function checkRateLimit(key: string): boolean {
-    const now = Date.now();
-    const entry = rateLimitMap.get(key);
-    if (!entry || now > entry.resetAt) {
-        rateLimitMap.set(key, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-        return true;
-    }
-    if (entry.count >= RATE_LIMIT_MAX) {
-        return false;
-    }
-    entry.count++;
-    return true;
-}
+const RATE_LIMIT_WINDOW_SECONDS = 60;
 
 function hashPassword(password: string): string {
     const salt = randomBytes(16).toString("hex");
@@ -112,16 +96,20 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "パスワードは8文字以上128文字以下で入力してください" }, { status: 400 });
         }
 
-        // Rate limiting by email
-        const rateLimitKey = `auth:${email.toLowerCase()}`;
-        if (!checkRateLimit(rateLimitKey)) {
+        const admin = createAdminClient();
+
+        // Rate limiting by email (distributed via Supabase)
+        const { data: allowed, error: rlError } = await admin.rpc("check_rate_limit", {
+            p_key: `auth:${email.toLowerCase()}`,
+            p_max_requests: RATE_LIMIT_MAX,
+            p_window_seconds: RATE_LIMIT_WINDOW_SECONDS,
+        });
+        if (rlError || !allowed) {
             return NextResponse.json(
                 { error: "リクエストが多すぎます。しばらく待ってから再試行してください。" },
                 { status: 429 }
             );
         }
-
-        const admin = createAdminClient();
 
         if (action === "signup") {
             // Check if user already exists
