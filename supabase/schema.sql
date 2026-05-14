@@ -562,7 +562,7 @@ CREATE POLICY "Allow organizer select from exhibitor-documents" ON storage.objec
       JOIN exhibitors e ON e.id = ea.exhibitor_id
       JOIN events ev ON ev.id = ea.event_id
       JOIN organizers o ON o.id = ev.organizer_id
-      WHERE e.user_id = (storage.foldername(name))[1]::uuid
+      WHERE e.user_id = (storage.foldername(objects.name))[1]::uuid
       AND o.user_id = auth.uid()
     )
   );
