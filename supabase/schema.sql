@@ -153,6 +153,8 @@ CREATE TABLE events (
   -- Flags
   visibility VARCHAR(10) DEFAULT 'public' CHECK (visibility IN ('public', 'private')),
   status VARCHAR(20) DEFAULT 'draft' CHECK (status IN ('draft', 'pending', 'published', 'rejected', 'closed', 'ended')),
+  -- Day-of info (meeting time/place) shared with approved exhibitors
+  meeting_info_sent BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { UserNav } from "./UserNav";
 import { NotificationBadge } from "./NotificationBadge";
+import { Bell } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function Header() {
@@ -12,8 +13,7 @@ export function Header() {
     const navItems = [
         { href: "/", label: "ホーム", match: [] as string[] },
         { href: "/events", label: "イベント管理", match: ["/events"] },
-        { href: "/applications", label: "出店者管理", match: ["/applications", "/exhibitors"] },
-        { href: "/notifications", label: "通知", match: ["/notifications"] },
+        { href: "/applications", label: "応募管理", match: ["/applications", "/exhibitors"] },
         { href: "/profile", label: "設定", match: ["/profile"] },
     ];
 
@@ -49,9 +49,16 @@ export function Header() {
                             )}
                         >
                             {item.label}
-                            {item.href === "/notifications" && <NotificationBadge />}
                         </Link>
                     ))}
+                    <Link
+                        href="/notifications"
+                        className="relative p-2 text-slate-500 hover:text-slate-700 transition-colors"
+                        aria-label="通知"
+                    >
+                        <Bell className="w-5 h-5" />
+                        <NotificationBadge />
+                    </Link>
                     <div className="w-px h-6 bg-slate-200 mx-2" />
                     <UserNav />
                 </nav>
