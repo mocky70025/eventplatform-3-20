@@ -1,7 +1,5 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 const FROM_ADDRESS = process.env.EMAIL_FROM || "Wacca <noreply@wacca.xyz>";
 
 export async function sendNotificationEmail(params: {
@@ -14,6 +12,7 @@ export async function sendNotificationEmail(params: {
     }
 
     try {
+        const resend = new Resend(process.env.RESEND_API_KEY);
         await resend.emails.send({
             from: FROM_ADDRESS,
             to: params.to,
