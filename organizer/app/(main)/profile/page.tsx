@@ -5,20 +5,13 @@ import { ProfileSidebar } from "@/components/profile/ProfileSidebar";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
-export default async function ProfilePage({
-    searchParams,
-}: {
-    searchParams: Promise<{ tab?: string }>;
-}) {
+export default async function ProfilePage() {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
         redirect("/login");
     }
-
-    const params = await searchParams;
-    const activeTab = params.tab || "basic";
 
     const { data: profiles } = await supabase
         .from("organizers")
@@ -65,22 +58,22 @@ export default async function ProfilePage({
                     <p className="text-sm text-slate-500 mt-1">主催者情報を管理します。出店者に公開される情報です。</p>
                 </div>
 
-                {/* Two-column layout */}
+                {/* Two-column layout: sticky scroll-spy sidebar + stacked sections */}
                 <div className="flex gap-8">
-                    {/* Left sidebar nav */}
-                    <ProfileSidebar activeTab={activeTab} />
+                    {/* Left sidebar nav (sticky, scroll-spy) */}
+                    <ProfileSidebar />
 
-                    {/* Right content */}
-                    <div className="flex-1 min-w-0">
-                        {activeTab === "basic" && (
+                    {/* Right content — all sections stacked as scroll anchors */}
+                    <div className="flex-1 min-w-0 space-y-8">
+                        <section id="basic" className="scroll-mt-24">
                             <ProfileForm initialProfile={profile} />
-                        )}
-                        {activeTab === "reviews" && (
+                        </section>
+                        <section id="reviews" className="scroll-mt-24">
                             <ReviewsSection reviews={reviews} />
-                        )}
-                        {activeTab === "notifications" && (
+                        </section>
+                        <section id="notifications" className="scroll-mt-24">
                             <NotificationsSection initialProfile={profile} />
-                        )}
+                        </section>
                     </div>
                 </div>
             </main>

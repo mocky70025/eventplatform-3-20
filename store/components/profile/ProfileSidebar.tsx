@@ -1,4 +1,6 @@
-import Link from "next/link";
+"use client";
+
+import { useEffect, useState, type MouseEvent } from "react";
 
 const tabs = [
     {
@@ -28,16 +30,44 @@ const tabs = [
     },
 ];
 
-export function ProfileSidebar({ activeTab }: { activeTab: string }) {
+export function ProfileSidebar() {
+    const [active, setActive] = useState(tabs[0].id);
+
+    // Scroll-spy: highlight the section currently in view.
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                const visible = entries
+                    .filter((e) => e.isIntersecting)
+                    .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+                if (visible[0]) setActive(visible[0].target.id);
+            },
+            // Top offset accounts for the sticky header; only count a section
+            // as active once it reaches the upper portion of the viewport.
+            { rootMargin: "-96px 0px -55% 0px", threshold: 0 }
+        );
+        tabs.forEach((t) => {
+            const el = document.getElementById(t.id);
+            if (el) observer.observe(el);
+        });
+        return () => observer.disconnect();
+    }, []);
+
+    const handleClick = (id: string) => (e: MouseEvent) => {
+        e.preventDefault();
+        document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+
     return (
-        <div className="w-56 shrink-0">
+        <div className="w-56 shrink-0 sticky top-20 self-start">
             <nav className="bg-white rounded-2xl border border-slate-200 p-2 space-y-1">
                 {tabs.map((tab) => {
-                    const isActive = tab.id === activeTab;
+                    const isActive = tab.id === active;
                     return (
-                        <Link
+                        <a
                             key={tab.id}
-                            href={`/profile?tab=${tab.id}`}
+                            href={`#${tab.id}`}
+                            onClick={handleClick(tab.id)}
                             className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${
                                 isActive
                                     ? "bg-store-50 text-store-700"
@@ -48,7 +78,7 @@ export function ProfileSidebar({ activeTab }: { activeTab: string }) {
                                 <path strokeLinecap="round" strokeLinejoin="round" d={tab.icon} />
                             </svg>
                             {tab.label}
-                        </Link>
+                        </a>
                     );
                 })}
             </nav>
