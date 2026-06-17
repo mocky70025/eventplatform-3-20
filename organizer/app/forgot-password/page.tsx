@@ -34,7 +34,7 @@ export default function ForgotPasswordPage() {
     };
 
     return (
-        <div className="min-h-screen relative overflow-hidden flex items-center justify-center bg-gradient-to-br from-[#fdf8f1] via-orange-50 to-amber-100/40">
+        <div className="min-h-screen relative overflow-hidden flex items-center justify-center bg-gradient-to-br from-[#fde7d2] via-[#fdf8f1] to-[#fbe0c4]">
             {/* Background decorations */}
             <div className="absolute -top-[120px] -left-[60px] w-[400px] h-[400px] rounded-full bg-orange-200 opacity-15" />
             <div className="absolute -bottom-[100px] -right-[80px] w-[350px] h-[350px] rounded-full bg-orange-300 opacity-10" />
