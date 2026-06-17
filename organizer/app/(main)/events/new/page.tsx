@@ -561,7 +561,7 @@ export default function CreateEventPage() {
     const editableBadge = <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-green-50 text-green-600 border border-green-100">訂正可</span>;
 
     return (
-        <div className="min-h-screen bg-slate-50 flex flex-col">
+        <div className="min-h-screen bg-[#fdf8f1] flex flex-col">
             {/* Header */}
             <header className="px-6 h-16 bg-white border-b border-slate-100 flex items-center justify-between sticky top-0 z-50">
                 <div className="flex items-center gap-4">

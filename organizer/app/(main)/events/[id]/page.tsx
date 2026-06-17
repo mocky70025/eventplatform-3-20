@@ -208,7 +208,7 @@ export default function EventDetailPage() {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-slate-50 flex flex-col">
+            <div className="min-h-screen bg-[#fdf8f1] flex flex-col">
                 <div className="flex-1 flex items-center justify-center">
                     <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
                 </div>
@@ -218,7 +218,7 @@ export default function EventDetailPage() {
 
     if (error || !event) {
         return (
-            <div className="min-h-screen bg-slate-50 flex flex-col">
+            <div className="min-h-screen bg-[#fdf8f1] flex flex-col">
                 <div className="flex-1 flex flex-col items-center justify-center p-4">
                     <AlertCircle className="w-12 h-12 text-red-500 mb-4" />
                     <h2 className="text-xl font-bold text-slate-900 mb-2">エラーが発生しました</h2>
@@ -262,7 +262,7 @@ export default function EventDetailPage() {
     }
 
     return (
-        <div className="min-h-screen bg-slate-50 flex flex-col">
+        <div className="min-h-screen bg-[#fdf8f1] flex flex-col">
 
             <main className="flex-1 max-w-5xl mx-auto py-8 px-6 w-full">
                 {/* Action message toast */}

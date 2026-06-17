@@ -44,7 +44,7 @@ export default async function Home() {
   const publishedEventsCount = safeEvents.filter(e => e.status === 'published').length;
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-[#fdf8f1]">
 
       <main className="max-w-6xl mx-auto py-8 px-6">
 

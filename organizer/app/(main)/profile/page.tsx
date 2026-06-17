@@ -49,7 +49,7 @@ export default async function ProfilePage() {
     }));
 
     return (
-        <div className="min-h-screen bg-slate-50">
+        <div className="min-h-screen bg-[#fdf8f1]">
 
             <main className="max-w-4xl mx-auto px-6 py-8">
                 {/* Page title */}

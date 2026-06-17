@@ -145,7 +145,7 @@ export default async function EventApplicationsPage({ params, searchParams }: Pa
     ];
 
     return (
-        <div className="min-h-screen bg-slate-50">
+        <div className="min-h-screen bg-[#fdf8f1]">
             <main className="max-w-6xl mx-auto py-8 px-6">
 
                 {/* Breadcrumb */}

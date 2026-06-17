@@ -470,7 +470,7 @@ export default function EditEventPage() {
 
     if (isFetching) {
         return (
-            <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+            <div className="min-h-screen bg-[#fdf8f1] flex items-center justify-center">
                 <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
             </div>
         );
@@ -516,7 +516,7 @@ export default function EditEventPage() {
     const lockedBadge = <span className="ml-2 inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-400 border border-slate-200"><Lock className="w-2.5 h-2.5" />変更不可</span>;
 
     return (
-        <div className="min-h-screen bg-slate-50 flex flex-col">
+        <div className="min-h-screen bg-[#fdf8f1] flex flex-col">
             {/* Header */}
             <header className="px-6 h-16 bg-white border-b border-slate-100 flex items-center justify-between sticky top-0 z-50">
                 <div className="flex items-center gap-4">
