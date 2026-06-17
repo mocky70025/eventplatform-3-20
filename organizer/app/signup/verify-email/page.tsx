@@ -10,9 +10,7 @@ function VerifyEmailContent() {
   const email = searchParams.get("email") || "";
 
   return (
-    <div className="min-h-screen relative overflow-hidden flex items-center justify-center bg-gradient-to-br from-[#fde7d2] via-[#fdf8f1] to-[#fbe0c4]">
-      <div className="absolute -top-[120px] -left-[60px] w-[400px] h-[400px] rounded-full bg-orange-200 opacity-15" />
-      <div className="absolute -bottom-[100px] -right-[80px] w-[350px] h-[350px] rounded-full bg-orange-300 opacity-10" />
+    <div className="min-h-screen flex items-center justify-center bg-[#fdf8f1] px-4">
 
       <div className="relative z-10 w-full max-w-[480px] mx-4 bg-white rounded-3xl shadow-[0_4px_6px_rgba(0,0,0,0.02),0_12px_40px_rgba(0,0,0,0.06)] px-6 sm:px-11 py-10 sm:py-12 text-center">
         <div className="flex items-center justify-center gap-3 mb-8">

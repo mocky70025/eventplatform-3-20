@@ -34,20 +34,10 @@ export default function ForgotPasswordPage() {
     };
 
     return (
-        <div className="min-h-screen relative overflow-hidden flex items-center justify-center bg-gradient-to-br from-[#fde7d2] via-[#fdf8f1] to-[#fbe0c4]">
+        <div className="min-h-screen flex items-center justify-center bg-[#fdf8f1] px-4">
             {/* Background decorations */}
-            <div className="absolute -top-[120px] -left-[60px] w-[400px] h-[400px] rounded-full bg-orange-200 opacity-15" />
-            <div className="absolute -bottom-[100px] -right-[80px] w-[350px] h-[350px] rounded-full bg-orange-300 opacity-10" />
-            <div className="absolute top-[20%] right-[10%] w-[200px] h-[200px] rounded-full bg-amber-200 opacity-[0.08]" />
-            <div className="absolute bottom-[15%] left-[8%] w-[160px] h-[160px] rounded-full bg-pink-200 opacity-[0.08]" />
 
             {/* Floating dots */}
-            <div className="absolute top-[10%] left-[15%] w-3.5 h-3.5 rounded-full bg-orange-400 opacity-50" />
-            <div className="absolute top-[8%] right-[20%] w-2.5 h-2.5 rounded-full bg-pink-400 opacity-40" />
-            <div className="absolute bottom-[12%] left-[25%] w-4 h-4 rounded-full bg-orange-400 opacity-30" />
-            <div className="absolute bottom-[20%] right-[15%] w-3 h-3 rounded-full bg-purple-400 opacity-35" />
-            <div className="absolute top-[40%] left-[6%] w-2.5 h-2.5 rounded-full bg-amber-400 opacity-40" />
-            <div className="absolute top-[55%] right-[8%] w-3.5 h-3.5 rounded-full bg-orange-400 opacity-30" />
 
             {/* Card */}
             <div className="relative z-10 w-full max-w-[480px] mx-4 bg-white rounded-3xl shadow-[0_4px_6px_rgba(0,0,0,0.02),0_12px_40px_rgba(0,0,0,0.06)] px-6 sm:px-11 py-10 sm:py-12">
@@ -66,7 +56,7 @@ export default function ForgotPasswordPage() {
                         </svg>
                     </div>
                     <span className="text-2xl font-bold text-slate-900">Wacca</span>
-                    <span className="text-[10px] bg-orange-100 text-orange-700 px-2 rounded-full font-semibold inline-flex items-center justify-center h-5" style={{ lineHeight: 1 }}>主催者</span>
+                    <span className="hidden" style={{ lineHeight: 1 }}>主催者</span>
                 </div>
 
                 <h2 className="text-center text-[22px] font-bold text-slate-900 mb-1.5">パスワードをお忘れですか？</h2>
