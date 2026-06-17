@@ -150,23 +150,16 @@ export default async function ApplicationsPage({ searchParams }: PageProps) {
     ];
 
     return (
-        <div className="min-h-screen bg-slate-50">
+        <div className="min-h-screen bg-[#fdf8f1]">
 
             <main className="max-w-6xl mx-auto py-8 px-6">
-
-                {/* Breadcrumb */}
-                <nav className="flex items-center gap-2 text-sm mb-6">
-                    <Link href="/" className="text-orange-600 hover:underline">ダッシュボード</Link>
-                    <span className="text-slate-300">/</span>
-                    <span className="text-slate-700 font-medium">出店者管理</span>
-                </nav>
 
                 {/* Page Header */}
                 <div className="flex justify-between items-center mb-6">
                     <div>
-                        <h1 className="text-2xl font-bold text-slate-900">出店者管理</h1>
+                        <h1 className="text-2xl font-bold text-slate-900">応募管理</h1>
                         <p className="text-sm text-slate-500 mt-1">
-                            各イベントへの応募状況を確認・管理できます
+                            全{totalCount}件の応募
                         </p>
                     </div>
                 </div>
@@ -194,7 +187,7 @@ export default async function ApplicationsPage({ searchParams }: PageProps) {
                                 className={cn(
                                     "inline-flex items-center justify-center text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors",
                                     activeFilter === tab.value
-                                        ? "text-orange-700 bg-orange-50"
+                                        ? "text-white bg-orange-500"
                                         : "text-slate-500 hover:bg-slate-50"
                                 )}
                             >
