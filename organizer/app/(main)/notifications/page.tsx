@@ -392,7 +392,7 @@ export default async function NotificationsPage({ searchParams }: PageProps) {
                     <div>
                         <h1 className="text-2xl font-bold text-slate-900">通知</h1>
                         <p className="text-sm text-slate-500 mt-1">
-                            イベントや出店申し込みに関する重要なお知らせを確認できます。
+                            未読 {unreadCount}件
                         </p>
                     </div>
                     {unreadCount > 0 && (
