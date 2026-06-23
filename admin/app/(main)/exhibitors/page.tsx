@@ -1,6 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
 import ExhibitorList from "./ExhibitorList";
-import { Users } from "lucide-react";
 
 export default async function ExhibitorsPage() {
     const supabase = await createClient();
@@ -12,7 +11,7 @@ export default async function ExhibitorsPage() {
 
     if (error) {
         return (
-            <div className="min-h-screen bg-slate-50 flex flex-col">
+            <div className="min-h-screen bg-[#eff4fb] flex flex-col">
                 <div className="flex-1 flex items-center justify-center p-4">
                     <p className="text-red-500">データの取得に失敗しました。時間をおいて再度お試しください。</p>
                 </div>
@@ -21,17 +20,12 @@ export default async function ExhibitorsPage() {
     }
 
     return (
-        <div className="min-h-screen bg-slate-50 flex flex-col">
+        <div className="min-h-screen bg-[#eff4fb] flex flex-col">
 
-            <main className="flex-1 container mx-auto px-4 py-8 max-w-5xl">
-                <div className="flex items-center gap-3 mb-8">
-                    <div className="p-2 bg-emerald-50 rounded-xl">
-                        <Users className="w-6 h-6 text-emerald-600" />
-                    </div>
-                    <div>
-                        <h1 className="text-2xl font-bold text-slate-900 tracking-tight">出店者管理</h1>
-                        <p className="text-sm text-slate-500">全出店者の登録状況を管理します</p>
-                    </div>
+            <main className="flex-1 container mx-auto px-6 py-8 max-w-6xl">
+                <div className="mb-6">
+                    <h1 className="text-2xl font-bold text-slate-900">出店者管理</h1>
+                    <p className="text-sm text-slate-500 mt-1">/exhibitors — 出店者アカウントの管理</p>
                 </div>
 
                 <ExhibitorList exhibitors={exhibitors || []} />

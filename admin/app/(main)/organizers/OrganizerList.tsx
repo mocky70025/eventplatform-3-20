@@ -91,7 +91,7 @@ export function OrganizerRow({ organizer: initialOrganizer }: { organizer: Organ
                     variant={organizer.is_approved ? "outline" : "primary"}
                     onClick={handleToggleApproval}
                     disabled={isUpdating}
-                    className={!organizer.is_approved ? "bg-slate-900 text-white hover:bg-slate-800 h-8 text-xs font-bold" : "h-8 text-xs text-slate-500"}
+                    className={!organizer.is_approved ? "bg-blue-500 text-white hover:bg-blue-600 h-8 text-xs font-bold" : "h-8 text-xs text-slate-500"}
                 >
                     {isUpdating ? (
                         <Loader2 className="w-3 h-3 animate-spin" />

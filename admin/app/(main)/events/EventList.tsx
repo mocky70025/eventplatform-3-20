@@ -165,7 +165,7 @@ export function EventRow({ event }: { event: Event }) {
                     {isUpdating ? <Loader2 className="w-3 h-3 animate-spin" /> : "非公開にする"}
                 </Button>
             ) : (
-                <Button size="sm" onClick={() => handleToggleStatus('published')} disabled={isUpdating} className="bg-slate-900 text-white hover:bg-slate-800 h-8 text-xs font-bold">
+                <Button size="sm" onClick={() => handleToggleStatus('published')} disabled={isUpdating} className="bg-blue-500 text-white hover:bg-blue-600 h-8 text-xs font-bold">
                     {isUpdating ? <Loader2 className="w-3 h-3 animate-spin" /> : "公開許可"}
                 </Button>
             )}
