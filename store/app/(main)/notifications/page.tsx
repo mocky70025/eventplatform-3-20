@@ -280,9 +280,7 @@ export default async function NotificationsPage({ searchParams }: PageProps) {
                 <div className="flex items-center justify-between mb-6">
                     <div>
                         <h1 className="text-2xl font-bold text-slate-900">通知</h1>
-                        <p className="text-sm text-slate-500 mt-1">
-                            出店確定やリマインドなど、重要なお知らせを確認できます。
-                        </p>
+                        <p className="text-sm text-slate-500 mt-1">未読 {unreadCount}件</p>
                     </div>
                     {unreadCount > 0 && (
                         <NotificationActions markAll />

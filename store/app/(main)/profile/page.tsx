@@ -50,14 +50,65 @@ export default async function ProfilePage() {
         created_at: r.created_at,
     }));
 
+    // Header stats
+    let appCount = 0;
+    let approvedCount = 0;
+    if (profile?.id) {
+        const { data: apps } = await supabase
+            .from("event_applications")
+            .select("status")
+            .eq("exhibitor_id", profile.id);
+        appCount = (apps || []).length;
+        approvedCount = (apps || []).filter((a: any) => a.status === "approved").length;
+    }
+    const rating = profile?.rating as number | null;
+    const displayName = profile?.shop_name || profile?.name || "出店者";
+    const location = [profile?.prefecture, profile?.city].filter(Boolean).join("") || profile?.address || null;
+
     return (
         <div className="min-h-screen bg-[#f0fdf4]">
 
             <main className="max-w-4xl mx-auto px-6 py-8">
-                {/* Page title */}
-                <div className="mb-8">
-                    <h1 className="text-2xl font-bold text-slate-900">設定</h1>
-                    <p className="text-sm text-slate-500 mt-1">店舗情報や提出書類を最新の状態に保ちましょう。</p>
+                {/* Header card */}
+                <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-6">
+                    <div className="flex items-start justify-between gap-4">
+                        <div className="flex items-center gap-4 min-w-0">
+                            <div className="w-16 h-16 rounded-full bg-store-500 flex items-center justify-center text-white text-2xl font-bold shrink-0 overflow-hidden">
+                                {profile?.avatar_url ? (
+                                    // eslint-disable-next-line @next/next/no-img-element
+                                    <img src={profile.avatar_url} alt={displayName} className="w-full h-full object-cover" />
+                                ) : (
+                                    displayName.charAt(0)
+                                )}
+                            </div>
+                            <div className="min-w-0">
+                                <div className="flex items-center gap-2">
+                                    <h1 className="text-xl font-bold text-slate-900 truncate">{displayName}</h1>
+                                    <span className="shrink-0 text-[10px] bg-store-100 text-store-700 px-2 py-0.5 rounded-full font-semibold">出店者</span>
+                                </div>
+                                <p className="text-sm text-slate-500 mt-1 truncate">
+                                    {[profile?.genre, location, rating ? `★ ${rating}` : null].filter(Boolean).join("　・　")}
+                                </p>
+                            </div>
+                        </div>
+                        <a href="#basic" className="shrink-0 inline-flex items-center justify-center text-sm font-semibold text-slate-600 border border-slate-200 rounded-xl px-4 py-2 hover:bg-slate-50 transition-colors">
+                            プロフィールを編集
+                        </a>
+                    </div>
+                    <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-slate-100 text-center">
+                        <div>
+                            <p className="text-2xl font-bold text-slate-900">{approvedCount}</p>
+                            <p className="text-xs text-slate-400 mt-1">出店回数</p>
+                        </div>
+                        <div>
+                            <p className="text-2xl font-bold text-store-600">{rating ?? "—"}</p>
+                            <p className="text-xs text-slate-400 mt-1">平均評価</p>
+                        </div>
+                        <div>
+                            <p className="text-2xl font-bold text-store-600">{appCount}</p>
+                            <p className="text-xs text-slate-400 mt-1">応募</p>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Two-column layout: sticky scroll-spy sidebar + stacked sections */}
