@@ -168,7 +168,7 @@ export default async function EventSearchPage({ searchParams }: PageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-[#f0fdf4]">
 
       <main className="max-w-7xl mx-auto py-8 px-6">
         {/* Breadcrumb */}

@@ -146,7 +146,7 @@ export default async function ApplicationDetailPage({ params }: PageProps) {
     }
 
     return (
-        <div className="min-h-screen bg-slate-50 flex flex-col">
+        <div className="min-h-screen bg-[#f0fdf4] flex flex-col">
 
             <main className="flex-1 max-w-5xl mx-auto w-full py-8 px-6">
                 {/* Back Link */}
