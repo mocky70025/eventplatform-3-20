@@ -5,6 +5,7 @@ import {
     FileText,
     MessageCircle,
     ExternalLink,
+    Star,
 } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
@@ -70,52 +71,52 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
             <main className="max-w-5xl mx-auto py-8 px-6">
 
                 {/* Back Link */}
-                <Link href="/applications" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 mb-6">
+                <Link href="/applications" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 mb-4">
                     <ArrowLeft className="w-4 h-4" />
-                    出店者管理へ戻る
+                    応募一覧に戻る
                 </Link>
 
-                {/* Page Header */}
-                <div className="flex items-center justify-between mb-6">
-                    <div>
-                        <h1 className="text-2xl font-bold text-slate-900">申請審査</h1>
-                        <p className="text-sm text-slate-500 mt-1">出店者の情報を確認し、承認または却下してください。</p>
+                {/* Header card (full width) */}
+                <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-6">
+                    <div className="flex items-start justify-between gap-5">
+                        <div className="flex items-start gap-4 min-w-0">
+                            <div className="w-14 h-14 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 text-lg font-bold shrink-0">
+                                {shopInitial}
+                            </div>
+                            <div className="min-w-0">
+                                <div className="flex items-center gap-2">
+                                    <h1 className="text-xl font-bold text-slate-900 truncate">{app.exhibitors?.shop_name}</h1>
+                                    <span className={`shrink-0 h-6 inline-flex items-center justify-center px-2.5 rounded-full text-[10px] font-semibold ${statusColor}`} style={{ lineHeight: 1 }}>
+                                        {statusLabel}
+                                    </span>
+                                </div>
+                                <p className="text-sm text-slate-500 mt-1">
+                                    {[app.exhibitors?.genre, app.exhibitors?.name && `代表: ${app.exhibitors.name}`].filter(Boolean).join("　・　")}
+                                </p>
+                                <div className="flex items-center gap-4 mt-2 text-sm">
+                                    {app.exhibitors?.rating && (
+                                        <span className="inline-flex items-center gap-1 text-slate-700">
+                                            <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                                            {app.exhibitors.rating}
+                                        </span>
+                                    )}
+                                    <span className="text-slate-400">
+                                        申請日 {app.created_at ? new Date(app.created_at).toLocaleDateString("ja-JP") : "-"}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="shrink-0 text-right">
+                            <p className="text-xs text-slate-400">応募イベント</p>
+                            <p className="text-sm font-semibold text-slate-700 mt-0.5">{app.events?.event_name}</p>
+                        </div>
                     </div>
-                    <span className={`h-7 inline-flex items-center justify-center px-3 rounded-full text-xs font-bold ${statusColor}`} style={{ lineHeight: 1 }}>
-                        {statusLabel}
-                    </span>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
                     {/* Left: Applicant Details (2 cols) */}
                     <div className="lg:col-span-2 space-y-6">
-
-                        {/* Applicant Profile Card */}
-                        <div className="bg-white rounded-2xl border border-slate-200 p-6">
-                            <div className="flex items-start gap-5">
-                                <div className="w-16 h-16 rounded-2xl bg-emerald-100 flex items-center justify-center text-emerald-700 text-xl font-bold shrink-0">
-                                    {shopInitial}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <h2 className="text-xl font-bold text-slate-900">{app.exhibitors?.shop_name}</h2>
-                                    <p className="text-sm text-slate-500 mt-0.5">代表: {app.exhibitors?.name}</p>
-                                    {app.exhibitors?.genre && (
-                                        <div className="flex flex-wrap gap-2 mt-3">
-                                            <span className="h-6 inline-flex items-center justify-center px-2.5 rounded-full bg-emerald-100 text-emerald-700 text-xs font-medium" style={{ lineHeight: 1 }}>
-                                                {app.exhibitors.genre}
-                                            </span>
-                                        </div>
-                                    )}
-                                </div>
-                                <div className="shrink-0 text-right">
-                                    <p className="text-xs text-slate-400">応募日</p>
-                                    <p className="text-sm font-semibold text-slate-700">
-                                        {app.created_at ? new Date(app.created_at).toLocaleDateString("ja-JP") : "-"}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
 
                         {/* Contact Info */}
                         <div className="bg-white rounded-2xl border border-slate-200 p-6">
