@@ -24,35 +24,30 @@ export function Header() {
   };
 
   return (
-    <header className="bg-white px-8 h-16 flex items-center justify-between border-b border-slate-100 sticky top-0 z-50">
-      <div className="flex items-center gap-3">
-        <Link href="/" className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-store-500 rounded-xl flex items-center justify-center">
-            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z" />
-            </svg>
-          </div>
-          <span className="text-lg font-bold text-slate-900">Wacca</span>
-        </Link>
-        <span className="text-[10px] bg-store-100 text-store-700 px-2 rounded-full font-semibold inline-flex items-center justify-center h-5" style={{ lineHeight: 1 }}>
-          出店者
-        </span>
-      </div>
-      <nav className="flex items-center gap-1">
+    <header className="bg-white px-8 h-16 grid grid-cols-[1fr_auto_1fr] items-center border-b border-slate-100 sticky top-0 z-50">
+      <Link href="/" className="flex items-center gap-2.5 justify-self-start">
+        <div className="w-7 h-7 bg-store-500 rounded-full" />
+        <span className="text-lg font-bold text-slate-900">Wacca</span>
+      </Link>
+
+      <nav className="flex items-center gap-6 h-full justify-self-center">
         {navItems.map((item) => (
           <Link
             key={item.href}
             href={item.href}
             className={cn(
-              "text-sm font-medium px-4 py-2 rounded-lg transition-colors relative",
+              "relative h-full flex items-center text-sm font-medium transition-colors",
               isActive(item.href)
-                ? "text-store-700 bg-store-50"
+                ? "text-store-700 font-semibold after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-store-600"
                 : "text-slate-500 hover:text-slate-700"
             )}
           >
             {item.label}
           </Link>
         ))}
+      </nav>
+
+      <div className="flex items-center gap-1 justify-self-end">
         <Link
           href="/notifications"
           className="relative p-2 text-slate-500 hover:text-slate-700 transition-colors"
@@ -62,7 +57,7 @@ export function Header() {
           <NotificationBadge />
         </Link>
         <UserNav />
-      </nav>
+      </div>
     </header>
   );
 }
