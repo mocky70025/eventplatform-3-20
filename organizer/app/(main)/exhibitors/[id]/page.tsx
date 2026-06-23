@@ -1,6 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { Button } from "@/components/ui/Button";
-import { ArrowLeft, Store, Mail, Phone, FileText, Star } from "lucide-react";
+import { ArrowLeft, Mail, Star } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import DocumentCard from "./DocumentCard";
@@ -23,7 +22,6 @@ export default async function ExhibitorDetailPage({ params }: { params: Promise<
         redirect("/login");
     }
 
-    // Get organizer profile to verify access
     const { data: profile } = await supabase
         .from("organizers")
         .select("*")
@@ -34,7 +32,6 @@ export default async function ExhibitorDetailPage({ params }: { params: Promise<
         redirect("/onboarding");
     }
 
-    // Fetch all applications from this exhibitor to this organizer's events
     const { data: applications } = await supabase
         .from("event_applications")
         .select(`
@@ -49,7 +46,6 @@ export default async function ExhibitorDetailPage({ params }: { params: Promise<
         notFound();
     }
 
-    // Fetch exhibitor details
     const { data: exhibitor, error } = await supabase
         .from("exhibitors")
         .select("*")
@@ -60,7 +56,6 @@ export default async function ExhibitorDetailPage({ params }: { params: Promise<
         notFound();
     }
 
-    // Get ended/closed events where this exhibitor was approved (review eligible)
     const endedEvents = applications
         .filter((a: any) => {
             const s = a.events?.status;
@@ -71,7 +66,6 @@ export default async function ExhibitorDetailPage({ params }: { params: Promise<
             event_name: a.events.event_name as string,
         }));
 
-    // Fetch existing reviews from this organizer for this exhibitor
     const { data: existingReviews } = endedEvents.length > 0
         ? await supabase
             .from("event_reviews")
@@ -88,7 +82,6 @@ export default async function ExhibitorDetailPage({ params }: { params: Promise<
         existingReview: (reviewMap.get(e.id) as { rating: number; comment: string | null } | undefined) || null,
     }));
 
-    // Application history sorted by event status
     const statusOrder: Record<string, number> = { ended: 0, closed: 1, published: 2, pending: 3, draft: 4 };
     const eventHistory = applications
         .map((a: any) => ({
@@ -109,171 +102,113 @@ export default async function ExhibitorDetailPage({ params }: { params: Promise<
             ? "bg-red-100 text-red-700"
             : "bg-yellow-100 text-yellow-700";
 
-    return (
-        <div className="min-h-screen bg-orange-50/30">
+    const approvedCount = applications.filter((a: any) => a.status === "approved").length;
+    const rating = (exhibitor as any).rating as number | null;
+    const location = [exhibitor.prefecture, exhibitor.city].filter(Boolean).join("") || exhibitor.address || null;
 
-            <main className="container mx-auto px-4 py-8 max-w-5xl">
-                <div className="mb-8">
-                    <Link
-                        href="/applications"
-                        className="flex items-center text-sm font-medium text-slate-500 hover:text-orange-600 transition-colors mb-4 group"
-                    >
-                        <ArrowLeft className="w-4 h-4 mr-1 group-hover:-translate-x-1 transition-transform" />
-                        出店者管理へ戻る
-                    </Link>
-                    <h1 className="text-3xl font-bold text-slate-900">出店者詳細</h1>
+    const InfoRow = ({ label, value }: { label: string; value: React.ReactNode }) => (
+        <div className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-4 py-3 border-b border-slate-100 last:border-0">
+            <dt className="text-sm text-slate-500 sm:w-28 shrink-0">{label}</dt>
+            <dd className="text-sm text-slate-900 font-medium flex-1">{value || "—"}</dd>
+        </div>
+    );
+
+    return (
+        <div className="min-h-screen bg-[#fdf8f1]">
+            <main className="max-w-4xl mx-auto px-6 py-8">
+                <Link
+                    href="/applications"
+                    className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 mb-4"
+                >
+                    <ArrowLeft className="w-4 h-4" /> 応募一覧に戻る
+                </Link>
+
+                {/* Centered header */}
+                <div className="bg-white rounded-2xl border border-slate-200 p-8 mb-6 flex flex-col items-center text-center">
+                    <div className="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 text-2xl font-bold">
+                        {exhibitor.shop_name?.charAt(0) || "?"}
+                    </div>
+                    <div className="flex items-center gap-2 mt-3">
+                        <h1 className="text-xl font-bold text-slate-900">{exhibitor.shop_name || "店舗名なし"}</h1>
+                        <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-semibold">出店者</span>
+                    </div>
+                    <p className="text-sm text-slate-500 mt-1">
+                        {[exhibitor.genre, location, rating ? `★ ${rating}` : null].filter(Boolean).join("　・　")}
+                    </p>
+                    <div className="flex items-center gap-10 mt-5">
+                        <div><p className="text-2xl font-bold text-slate-900">{approvedCount}</p><p className="text-xs text-slate-400 mt-0.5">出店回数</p></div>
+                        <div><p className="text-2xl font-bold text-slate-900">{rating ?? "—"}</p><p className="text-xs text-slate-400 mt-0.5">平均評価</p></div>
+                        <div><p className="text-2xl font-bold text-slate-900">{applications.length}</p><p className="text-xs text-slate-400 mt-0.5">応募回数</p></div>
+                    </div>
+                    {exhibitor.email && (
+                        <a
+                            href={`mailto:${exhibitor.email}`}
+                            className="inline-flex items-center gap-2 mt-5 bg-orange-500 hover:bg-orange-600 text-white font-bold text-sm rounded-xl px-6 py-2.5 transition-colors"
+                        >
+                            <Mail className="w-4 h-4" /> 連絡先を確認
+                        </a>
+                    )}
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Left Column */}
-                    <div className="lg:col-span-2 space-y-8">
-                        {/* Exhibitor Profile Card */}
-                        <section className="bg-white rounded-2xl p-8 shadow-sm border border-slate-100">
-                            <h2 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
-                                <Store className="w-6 h-6 text-orange-600" />
-                                出店者プロフィール
-                            </h2>
+                {/* Single column sections */}
+                <div className="space-y-6">
+                    {/* 店舗情報 */}
+                    <section className="bg-white rounded-2xl border border-slate-200 p-6">
+                        <h2 className="text-lg font-bold text-slate-900 mb-2">店舗情報</h2>
+                        <dl>
+                            <InfoRow label="代表者" value={exhibitor.name} />
+                            <InfoRow label="ジャンル" value={exhibitor.genre} />
+                            <InfoRow label="拠点" value={location} />
+                            <InfoRow label="連絡先" value={exhibitor.phone_number} />
+                        </dl>
+                        {exhibitor.description && (
+                            <p className="text-sm text-slate-600 leading-relaxed mt-3 whitespace-pre-wrap">{exhibitor.description}</p>
+                        )}
+                    </section>
 
-                            <div className="space-y-6">
-                                <div className="flex items-start gap-4">
-                                    <div className="w-16 h-16 rounded-2xl bg-orange-50 flex items-center justify-center text-orange-600 border border-orange-100 shrink-0 text-2xl font-bold">
-                                        {exhibitor.shop_name?.charAt(0) || "?"}
-                                    </div>
+                    {/* 応募履歴 */}
+                    <section className="bg-white rounded-2xl border border-slate-200 p-6">
+                        <h2 className="text-lg font-bold text-slate-900 mb-2">応募履歴</h2>
+                        <div className="divide-y divide-slate-100">
+                            {eventHistory.map((ev: any, i: number) => (
+                                <div key={i} className="flex items-center justify-between py-3">
                                     <div>
-                                        <h3 className="text-2xl font-bold text-slate-900">
-                                            {exhibitor.shop_name || "店舗名なし"}
-                                        </h3>
-                                        <p className="text-slate-500 font-medium">{exhibitor.name || "名前なし"}</p>
-                                        {exhibitor.genre && (
-                                            <span
-                                                className="inline-flex items-center justify-center mt-2 h-6 px-2.5 rounded-full bg-emerald-100 text-emerald-700 text-xs font-medium"
-                                                style={{ lineHeight: 1 }}
-                                            >
-                                                {exhibitor.genre}
-                                            </span>
-                                        )}
+                                        <p className="text-sm font-semibold text-slate-900">{ev.eventName}</p>
+                                        <p className="text-xs text-slate-400 mt-0.5">
+                                            {ev.eventDate ? new Date(ev.eventDate).toLocaleDateString("ja-JP") : "日付未定"}
+                                        </p>
                                     </div>
+                                    <span className={`h-6 inline-flex items-center justify-center px-2.5 rounded-full text-[10px] font-semibold ${appStatusColor(ev.appStatus)}`} style={{ lineHeight: 1 }}>
+                                        {appStatusLabel(ev.appStatus)}
+                                    </span>
                                 </div>
+                            ))}
+                        </div>
+                    </section>
 
-                                {exhibitor.description && (
-                                    <div className="bg-slate-50 rounded-xl p-4">
-                                        <p className="text-sm text-slate-600 leading-relaxed">{exhibitor.description}</p>
-                                    </div>
-                                )}
+                    {/* 提出書類 */}
+                    <section className="bg-white rounded-2xl border border-slate-200 p-6">
+                        <h2 className="text-lg font-bold text-slate-900 mb-4">提出書類</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <DocumentCard label="営業許可証" imageUrl={exhibitor.business_permit_image_url} required />
+                            <DocumentCard label="車検証" imageUrl={exhibitor.vehicle_inspection_image_url} />
+                            <DocumentCard label="PL保険" imageUrl={exhibitor.pl_insurance_image_url} />
+                            <DocumentCard label="火器類配置図" imageUrl={exhibitor.fire_equipment_layout_image_url} />
+                            <DocumentCard label="自動車検査証" imageUrl={exhibitor.automobile_inspection_image_url} />
+                        </div>
+                    </section>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {exhibitor.email && (
-                                        <div className="p-4 rounded-xl border border-slate-100 flex items-center gap-3">
-                                            <Mail className="w-5 h-5 text-slate-400 shrink-0" />
-                                            <div className="text-sm min-w-0">
-                                                <p className="text-slate-400 font-medium leading-none mb-1">メール</p>
-                                                <p className="text-slate-900 font-bold truncate">{exhibitor.email}</p>
-                                            </div>
-                                        </div>
-                                    )}
-                                    {exhibitor.phone_number && (
-                                        <div className="p-4 rounded-xl border border-slate-100 flex items-center gap-3">
-                                            <Phone className="w-5 h-5 text-slate-400 shrink-0" />
-                                            <div className="text-sm">
-                                                <p className="text-slate-400 font-medium leading-none mb-1">電話番号</p>
-                                                <p className="text-slate-900 font-bold">{exhibitor.phone_number}</p>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </section>
-
-                        {/* Application History */}
-                        <section className="bg-white rounded-2xl p-8 shadow-sm border border-slate-100">
-                            <h2 className="text-xl font-bold text-slate-900 mb-6">応募履歴</h2>
-                            <div className="divide-y divide-slate-50">
-                                {eventHistory.map((ev: any, i: number) => (
-                                    <div key={i} className="flex items-center justify-between py-3">
-                                        <div>
-                                            <p className="text-sm font-semibold text-slate-900">{ev.eventName}</p>
-                                            <p className="text-xs text-slate-400 mt-0.5">
-                                                {ev.eventDate
-                                                    ? new Date(ev.eventDate).toLocaleDateString("ja-JP")
-                                                    : "日付未定"}
-                                            </p>
-                                        </div>
-                                        <span
-                                            className={`h-6 inline-flex items-center justify-center px-2.5 rounded-full text-[10px] font-semibold ${appStatusColor(ev.appStatus)}`}
-                                            style={{ lineHeight: 1 }}
-                                        >
-                                            {appStatusLabel(ev.appStatus)}
-                                        </span>
-                                    </div>
-                                ))}
-                            </div>
-                        </section>
-
-                        {/* Documents Section */}
-                        <section className="bg-white rounded-2xl p-8 shadow-sm border border-slate-100">
-                            <h2 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
-                                <FileText className="w-6 h-6 text-orange-600" />
-                                提出書類
-                            </h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <DocumentCard
-                                    label="営業許可証"
-                                    imageUrl={exhibitor.business_permit_image_url}
-                                    required
-                                />
-                                <DocumentCard label="車検証" imageUrl={exhibitor.vehicle_inspection_image_url} />
-                                <DocumentCard label="PL保険" imageUrl={exhibitor.pl_insurance_image_url} />
-                                <DocumentCard
-                                    label="火器類配置図"
-                                    imageUrl={exhibitor.fire_equipment_layout_image_url}
-                                />
-                                <DocumentCard
-                                    label="自動車検査証"
-                                    imageUrl={exhibitor.automobile_inspection_image_url}
-                                />
-                            </div>
-                        </section>
-                    </div>
-
-                    {/* Right Column */}
-                    <div className="lg:col-span-1 space-y-6">
-                        {/* Review Panel */}
-                        <section className="bg-white rounded-2xl p-6 shadow-sm border border-orange-100 sticky top-24">
-                            <h3 className="text-lg font-bold text-slate-900 mb-1 flex items-center gap-2">
+                    {/* レビューを書く */}
+                    {reviewEvents.length > 0 && (
+                        <section className="bg-white rounded-2xl border border-slate-200 p-6">
+                            <h2 className="text-lg font-bold text-slate-900 mb-1 flex items-center gap-2">
                                 <Star className="w-5 h-5 text-amber-400 fill-amber-400" />
                                 レビューを書く
-                            </h3>
-                            <p className="text-xs text-slate-400 mb-4">
-                                終了したイベントについて出店者を評価できます
-                            </p>
+                            </h2>
+                            <p className="text-xs text-slate-400 mb-4">終了したイベントについて出店者を評価できます</p>
                             <ReviewForm exhibitorUserId={exhibitor.user_id} events={reviewEvents} />
                         </section>
-
-                        {/* Actions */}
-                        <section className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-                            <h3 className="text-lg font-bold text-slate-900 mb-4">アクション</h3>
-                            <div className="space-y-3">
-                                {exhibitor.email && (
-                                    <a
-                                        href={`mailto:${exhibitor.email}`}
-                                        className="w-full inline-flex items-center justify-center gap-2 border border-orange-200 text-orange-600 hover:bg-orange-50 py-2.5 rounded-xl text-sm font-medium transition-colors"
-                                    >
-                                        <Mail className="w-4 h-4" />
-                                        メールを送る
-                                    </a>
-                                )}
-                                <Link href="/applications" className="block">
-                                    <Button
-                                        variant="outline"
-                                        className="w-full border-slate-200 text-slate-600 hover:bg-slate-50 gap-2"
-                                    >
-                                        <ArrowLeft className="w-4 h-4" />
-                                        出店者管理に戻る
-                                    </Button>
-                                </Link>
-                            </div>
-                        </section>
-                    </div>
+                    )}
                 </div>
             </main>
         </div>
