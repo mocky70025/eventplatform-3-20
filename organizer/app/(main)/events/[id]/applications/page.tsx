@@ -1,10 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import {
-    ClipboardList,
-    Search,
-    ChevronLeft,
-    ChevronRight,
-} from "lucide-react";
+import { ClipboardList, ChevronLeft, ChevronRight, Star } from "lucide-react";
 import Link from "next/link";
 import { redirect, notFound } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -14,7 +9,6 @@ const ITEMS_PER_PAGE = 20;
 interface PageProps {
     params: Promise<{ id: string }>;
     searchParams: Promise<{
-        q?: string;
         status?: string;
         page?: string;
     }>;
@@ -22,7 +16,7 @@ interface PageProps {
 
 export default async function EventApplicationsPage({ params, searchParams }: PageProps) {
     const { id: eventId } = await params;
-    const { q, status: statusFilter, page } = await searchParams;
+    const { status: statusFilter, page } = await searchParams;
     const currentPage = Math.max(1, parseInt(page || "1", 10));
 
     const supabase = await createClient();
@@ -45,7 +39,7 @@ export default async function EventApplicationsPage({ params, searchParams }: Pa
     // Verify this event belongs to the organizer
     const { data: event } = await supabase
         .from("events")
-        .select("id, event_name, event_start_date, event_end_date")
+        .select("id, event_name, recruit_count, max_exhibitors")
         .eq("id", eventId)
         .eq("organizer_id", profile.id)
         .single();
@@ -70,17 +64,11 @@ export default async function EventApplicationsPage({ params, searchParams }: Pa
     const pendingCount = allApplications.filter(a => a.status === "pending").length;
     const approvedCount = allApplications.filter(a => a.status === "approved").length;
     const rejectedCount = allApplications.filter(a => a.status === "rejected").length;
+    const recruit = (event as any).recruit_count || (event as any).max_exhibitors || 0;
 
     let filtered = allApplications;
     if (statusFilter && statusFilter !== "all") {
         filtered = filtered.filter(a => a.status === statusFilter);
-    }
-    if (q) {
-        const searchLower = q.toLowerCase();
-        filtered = filtered.filter((app: any) =>
-            (app.exhibitors?.shop_name || "").toLowerCase().includes(searchLower) ||
-            (app.exhibitors?.name || "").toLowerCase().includes(searchLower)
-        );
     }
 
     const actualFilteredCount = filtered.length;
@@ -92,10 +80,8 @@ export default async function EventApplicationsPage({ params, searchParams }: Pa
 
     function buildSearchParams(overrides: Record<string, string | undefined>): string {
         const params = new URLSearchParams();
-        const finalQ = overrides.q !== undefined ? overrides.q : q;
         const finalStatus = overrides.status !== undefined ? overrides.status : statusFilter;
         const finalPage = overrides.page !== undefined ? overrides.page : String(currentPage);
-        if (finalQ) params.set("q", finalQ);
         if (finalStatus && finalStatus !== "all") params.set("status", finalStatus);
         if (finalPage && finalPage !== "1") params.set("page", finalPage);
         const str = params.toString();
@@ -105,99 +91,58 @@ export default async function EventApplicationsPage({ params, searchParams }: Pa
     const getStatusBadge = (status: string) => {
         switch (status) {
             case "approved":
-                return { text: "承認済み", className: "bg-emerald-50 text-emerald-700" };
+                return { text: "承認", className: "bg-emerald-100 text-emerald-700" };
             case "rejected":
-                return { text: "却下済み", className: "bg-red-50 text-red-700" };
+                return { text: "却下", className: "bg-slate-100 text-slate-500" };
             default:
-                return { text: "審査中", className: "bg-yellow-50 text-yellow-700" };
+                return { text: "未対応", className: "bg-orange-100 text-orange-700" };
         }
-    };
-
-    const getGenreBadgeColor = (genre: string | undefined) => {
-        switch (genre) {
-            case "和食": return "bg-emerald-100 text-emerald-700";
-            case "洋食": return "bg-orange-100 text-orange-700";
-            case "中華": return "bg-pink-100 text-pink-700";
-            case "スイーツ": return "bg-yellow-50 text-yellow-700";
-            default: return "bg-slate-100 text-slate-700";
-        }
-    };
-
-    const getAvatarColor = (index: number) => {
-        const colors = [
-            "bg-emerald-100 text-emerald-700",
-            "bg-pink-100 text-pink-700",
-            "bg-purple-100 text-purple-700",
-            "bg-sky-100 text-sky-700",
-            "bg-red-100 text-red-700",
-            "bg-yellow-100 text-yellow-700",
-            "bg-orange-100 text-orange-700",
-        ];
-        return colors[index % colors.length];
     };
 
     const activeFilter = statusFilter || "all";
     const filterTabs = [
         { label: "すべて", value: "all", count: totalCount },
-        { label: "審査中", value: "pending", count: pendingCount },
-        { label: "承認済み", value: "approved", count: approvedCount },
-        { label: "不承認", value: "rejected", count: rejectedCount },
+        { label: "未対応", value: "pending", count: pendingCount },
+        { label: "承認", value: "approved", count: approvedCount },
+        { label: "却下", value: "rejected", count: rejectedCount },
     ];
 
     return (
         <div className="min-h-screen bg-[#fdf8f1]">
             <main className="max-w-6xl mx-auto py-8 px-6">
 
-                {/* Breadcrumb */}
-                <nav className="flex items-center gap-2 text-sm mb-6">
-                    <Link href="/" className="text-orange-600 hover:underline">ダッシュボード</Link>
-                    <span className="text-slate-300">/</span>
-                    <Link href="/events" className="text-orange-600 hover:underline">イベント一覧</Link>
-                    <span className="text-slate-300">/</span>
-                    <Link href={`/events/${eventId}`} className="text-orange-600 hover:underline">{event.event_name}</Link>
-                    <span className="text-slate-300">/</span>
-                    <span className="text-slate-700 font-medium">応募一覧</span>
-                </nav>
+                {/* Back link */}
+                <Link
+                    href={`/events/${eventId}`}
+                    className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 mb-4"
+                >
+                    <ChevronLeft className="w-4 h-4" /> イベント詳細に戻る
+                </Link>
 
                 {/* Page Header */}
-                <div className="flex justify-between items-center mb-6">
-                    <div>
-                        <h1 className="text-2xl font-bold text-slate-900">応募一覧</h1>
-                        <p className="text-sm text-slate-500 mt-1">{event.event_name} への応募状況を確認・管理できます</p>
-                    </div>
+                <div className="mb-6">
+                    <h1 className="text-2xl font-bold text-slate-900">{event.event_name} の応募</h1>
+                    <p className="text-sm text-slate-500 mt-1">
+                        全 {totalCount} 件の応募　・　募集 {approvedCount} / {recruit} 名
+                    </p>
                 </div>
 
-                {/* Filter / Search Bar */}
-                <div className="flex items-center gap-4 mb-6">
-                    <form action={baseRoute} method="GET" className="relative">
-                        <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                        <input
-                            type="text"
-                            name="q"
-                            defaultValue={q}
-                            placeholder="出店者名で検索..."
-                            className="bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 w-64"
-                        />
-                        {statusFilter && statusFilter !== "all" && (
-                            <input type="hidden" name="status" value={statusFilter} />
-                        )}
-                    </form>
-                    <div className="flex items-center gap-1 bg-white border border-slate-200 rounded-xl p-1">
-                        {filterTabs.map((tab) => (
-                            <Link
-                                key={tab.value}
-                                href={`${baseRoute}${buildSearchParams({ status: tab.value, page: "1" })}`}
-                                className={cn(
-                                    "inline-flex items-center justify-center text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors",
-                                    activeFilter === tab.value
-                                        ? "text-orange-700 bg-orange-50"
-                                        : "text-slate-500 hover:bg-slate-50"
-                                )}
-                            >
-                                {tab.label}({tab.count})
-                            </Link>
-                        ))}
-                    </div>
+                {/* Filter tabs */}
+                <div className="flex items-center gap-1 bg-white border border-slate-200 rounded-2xl p-2 mb-6">
+                    {filterTabs.map((tab) => (
+                        <Link
+                            key={tab.value}
+                            href={`${baseRoute}${buildSearchParams({ status: tab.value, page: "1" })}`}
+                            className={cn(
+                                "inline-flex items-center justify-center text-sm font-semibold px-4 py-2 rounded-full transition-colors",
+                                activeFilter === tab.value
+                                    ? "text-white bg-orange-500"
+                                    : "text-slate-500 hover:bg-slate-50"
+                            )}
+                        >
+                            {tab.label} {tab.count}
+                        </Link>
+                    ))}
                 </div>
 
                 {/* Table */}
@@ -205,54 +150,45 @@ export default async function EventApplicationsPage({ params, searchParams }: Pa
                     {applications && applications.length > 0 ? (
                         <table className="w-full">
                             <thead>
-                                <tr className="bg-slate-50">
-                                    <th className="text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider px-6 py-3">出店者名</th>
-                                    <th className="text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider px-4 py-3">ジャンル</th>
-                                    <th className="text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider px-4 py-3">申込日</th>
-                                    <th className="text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider px-4 py-3">ステータス</th>
-                                    <th className="text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider px-4 py-3">アクション</th>
+                                <tr className="border-b border-slate-100">
+                                    <th className="text-left text-xs font-semibold text-slate-400 px-6 py-3">出店者</th>
+                                    <th className="text-left text-xs font-semibold text-slate-400 px-4 py-3">申請日</th>
+                                    <th className="text-left text-xs font-semibold text-slate-400 px-4 py-3">評価</th>
+                                    <th className="text-left text-xs font-semibold text-slate-400 px-4 py-3">ステータス</th>
+                                    <th className="text-left text-xs font-semibold text-slate-400 px-4 py-3">操作</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {applications.map((app, index) => {
+                                {applications.map((app) => {
                                     const status = getStatusBadge(app.status);
                                     const shopName = app.exhibitors?.shop_name ?? "不明";
                                     const genre = app.exhibitors?.genre;
+                                    const rating = app.exhibitors?.rating;
                                     return (
-                                        <tr key={app.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                                        <tr key={app.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/50 transition-colors">
                                             <td className="px-6 py-4">
-                                                <div className="flex items-center gap-3">
-                                                    <div className={cn(
-                                                        "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold",
-                                                        getAvatarColor(index)
-                                                    )}>
-                                                        {shopName.charAt(0)}
-                                                    </div>
-                                                    <Link href={`/applications/${app.id}`} className="text-sm font-medium text-orange-600 hover:underline">
-                                                        {shopName}
-                                                    </Link>
-                                                </div>
-                                            </td>
-                                            <td className="px-4 py-4">
-                                                {genre && (
-                                                    <span
-                                                        className={cn(
-                                                            "h-6 inline-flex items-center justify-center px-2 rounded-full text-[10px] font-medium",
-                                                            getGenreBadgeColor(genre)
-                                                        )}
-                                                        style={{ lineHeight: 1 }}
-                                                    >
-                                                        {genre}
-                                                    </span>
-                                                )}
+                                                <Link href={`/applications/${app.id}`} className="block">
+                                                    <p className="text-sm font-bold text-slate-900">{shopName}</p>
+                                                    {genre && <p className="text-xs text-slate-400 mt-0.5">{genre}</p>}
+                                                </Link>
                                             </td>
                                             <td className="px-4 py-4 text-sm text-slate-500">
-                                                {new Date(app.created_at).toLocaleDateString('ja-JP')}
+                                                {new Date(app.created_at).toLocaleDateString('ja-JP').replace(/\//g, '/')}
+                                            </td>
+                                            <td className="px-4 py-4">
+                                                {rating ? (
+                                                    <span className="inline-flex items-center gap-1 text-sm text-slate-700">
+                                                        <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                                                        {rating}
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-sm text-slate-300">—</span>
+                                                )}
                                             </td>
                                             <td className="px-4 py-4">
                                                 <span
                                                     className={cn(
-                                                        "h-5 inline-flex items-center justify-center text-[10px] font-semibold rounded-full px-2.5",
+                                                        "h-6 inline-flex items-center justify-center text-xs font-semibold rounded-full px-3",
                                                         status.className
                                                     )}
                                                     style={{ lineHeight: 1 }}
@@ -261,25 +197,12 @@ export default async function EventApplicationsPage({ params, searchParams }: Pa
                                                 </span>
                                             </td>
                                             <td className="px-4 py-4">
-                                                {app.status === "pending" ? (
-                                                    <Link href={`/applications/${app.id}`}>
-                                                        <button className="text-xs font-semibold text-white bg-orange-500 hover:bg-orange-600 border border-orange-500 rounded-xl px-3 py-1.5 transition-colors">
-                                                            審査する
-                                                        </button>
-                                                    </Link>
-                                                ) : app.status === "rejected" ? (
-                                                    <Link href={`/applications/${app.id}`}>
-                                                        <button className="text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-3 py-1.5 hover:bg-amber-100 transition-colors">
-                                                            再審査
-                                                        </button>
-                                                    </Link>
-                                                ) : (
-                                                    <Link href={`/applications/${app.id}`}>
-                                                        <button className="text-xs font-medium text-slate-600 border border-slate-200 rounded-xl px-3 py-1.5 hover:bg-slate-50 transition-colors">
-                                                            詳細を見る
-                                                        </button>
-                                                    </Link>
-                                                )}
+                                                <Link
+                                                    href={`/applications/${app.id}`}
+                                                    className="inline-flex items-center justify-center text-xs font-semibold text-slate-600 border border-slate-200 rounded-lg px-4 py-1.5 hover:bg-slate-50 transition-colors"
+                                                >
+                                                    詳細
+                                                </Link>
                                             </td>
                                         </tr>
                                     );
@@ -292,12 +215,12 @@ export default async function EventApplicationsPage({ params, searchParams }: Pa
                                 <ClipboardList className="w-10 h-10 text-slate-300" />
                             </div>
                             <h3 className="text-xl font-bold text-slate-900 mb-2">
-                                {q || (statusFilter && statusFilter !== "all") ? "該当する申し込みが見つかりません" : "まだ申し込みはありません"}
+                                {statusFilter && statusFilter !== "all" ? "該当する応募が見つかりません" : "まだ応募はありません"}
                             </h3>
                             <p className="text-slate-500 max-w-sm mx-auto">
-                                {q || (statusFilter && statusFilter !== "all")
-                                    ? "検索条件やフィルターを変更してお試しください。"
-                                    : "イベントを公開すると出店者から申し込みが届きます。"}
+                                {statusFilter && statusFilter !== "all"
+                                    ? "フィルターを変更してお試しください。"
+                                    : "イベントを公開すると出店者から応募が届きます。"}
                             </p>
                         </div>
                     )}
