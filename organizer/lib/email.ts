@@ -1,6 +1,6 @@
 import { Resend } from "resend";
 
-const FROM_ADDRESS = process.env.EMAIL_FROM || "Wacca <noreply@wacca.xyz>";
+const FROM_ADDRESS = process.env.EMAIL_FROM || "Wacca <noreply@wacca.site>";
 
 export async function sendNotificationEmail(params: {
     to: string;

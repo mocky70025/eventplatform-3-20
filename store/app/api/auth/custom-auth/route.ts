@@ -10,7 +10,7 @@ async function sendConfirmationEmail(to: string, confirmUrl: string): Promise<{ 
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            from: "Wacca <noreply@wacca.xyz>",
+            from: process.env.EMAIL_FROM || "Wacca <noreply@wacca.site>",
             to: [to],
             subject: "【Wacca】メールアドレスの確認",
             html: `
