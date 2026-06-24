@@ -27,7 +27,7 @@ export default async function Home() {
     .from("event_applications")
     .select(`
       id, status, created_at,
-      exhibitors(shop_name, genre, rating, gallery_images, cover_image, avatar_url),
+      exhibitors(shop_name, genre, gallery_images, cover_image, avatar_url),
       events!inner(id, event_name, organizer_id)
     `)
     .eq("events.organizer_id", profile.id)
