@@ -179,7 +179,6 @@ export default async function Home() {
               <div className="grid grid-cols-1 md:grid-cols-2">
                 {todos.map((todo) => (
                   <div key={todo.id} className="flex items-center gap-3 p-4">
-                    <div className="w-5 h-5 rounded-md border-2 border-slate-300 shrink-0" />
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-bold text-slate-900 truncate">{todo.title}</p>
                       <p className="text-xs text-slate-400 mt-0.5 truncate">{todo.meta}</p>
