@@ -60,6 +60,34 @@ export function newApplicationEmail(exhibitorName: string, eventName: string): s
   `);
 }
 
+export function applicationApprovedEmail(eventName: string): string {
+    const safeEventName = escapeHtml(eventName);
+    return baseTemplate(`
+    <h2 style="margin:0 0 16px;font-size:18px;color:#0f172a;">出店が承認されました</h2>
+    <p style="margin:0 0 16px;font-size:14px;color:#475569;line-height:1.7;">
+      「${safeEventName}」への出店申請が承認されました。<br>
+      イベント詳細ページから主催者の連絡先を確認し、出店準備を進めてください。
+    </p>
+    <a href="${process.env.NEXT_PUBLIC_STORE_URL || "https://eventra-store.vercel.app"}/notifications" style="display:inline-block;padding:12px 24px;background:#10b981;color:#fff;text-decoration:none;border-radius:12px;font-size:14px;font-weight:600;">
+      通知を確認する
+    </a>
+  `);
+}
+
+export function applicationRejectedEmail(eventName: string): string {
+    const safeEventName = escapeHtml(eventName);
+    return baseTemplate(`
+    <h2 style="margin:0 0 16px;font-size:18px;color:#0f172a;">出店申請の結果について</h2>
+    <p style="margin:0 0 16px;font-size:14px;color:#475569;line-height:1.7;">
+      「${safeEventName}」への出店申請は、今回は見送りとなりました。<br>
+      他のイベントもぜひご検討ください。
+    </p>
+    <a href="${process.env.NEXT_PUBLIC_STORE_URL || "https://eventra-store.vercel.app"}/events" style="display:inline-block;padding:12px 24px;background:#10b981;color:#fff;text-decoration:none;border-radius:12px;font-size:14px;font-weight:600;">
+      イベントを探す
+    </a>
+  `);
+}
+
 export function eventReminderEmail(eventName: string, daysUntil: number): string {
     const safeEventName = escapeHtml(eventName);
     const label = daysUntil === 1 ? "明日" : `${daysUntil}日後`;

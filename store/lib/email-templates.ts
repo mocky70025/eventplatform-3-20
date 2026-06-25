@@ -45,6 +45,21 @@ export function confirmationEmail(actionLink: string): string {
   `);
 }
 
+export function newApplicationEmail(exhibitorName: string, eventName: string): string {
+    const safeExhibitorName = escapeHtml(exhibitorName);
+    const safeEventName = escapeHtml(eventName);
+    return baseTemplate(`
+    <h2 style="margin:0 0 16px;font-size:18px;color:#0f172a;">新しい出店申し込みがありました</h2>
+    <p style="margin:0 0 16px;font-size:14px;color:#475569;line-height:1.7;">
+      「${safeEventName}」に <strong>${safeExhibitorName}</strong> から出店申し込みがありました。<br>
+      内容を確認し、承認または却下の判断を行ってください。
+    </p>
+    <a href="${process.env.NEXT_PUBLIC_ORGANIZER_URL || "https://eventra-organizer.vercel.app"}/applications" style="display:inline-block;padding:12px 24px;background:#f97316;color:#fff;text-decoration:none;border-radius:12px;font-size:14px;font-weight:600;">
+      申し込みを確認する
+    </a>
+  `);
+}
+
 export function applicationApprovedEmail(eventName: string): string {
     const safeEventName = escapeHtml(eventName);
     return baseTemplate(`

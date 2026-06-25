@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendNotificationEmail } from "@/lib/email";
-import { newApplicationEmail } from "@/lib/email-templates";
+import { applicationApprovedEmail, applicationRejectedEmail } from "@/lib/email-templates";
 
 export async function POST(request: NextRequest) {
     try {
@@ -86,13 +86,13 @@ export async function POST(request: NextRequest) {
                 .single();
 
             if (profile?.email && profile?.notification_settings?.email !== false) {
+                const eventMatch = message.match(/「(.+?)」/);
+                const eventName = escapeHtml(eventMatch?.[1] || "イベント");
                 let html = "";
-                if (type === "new_application") {
-                    const match = message.match(/に(.+?)から/);
-                    const exhibitorName = escapeHtml(match?.[1] || "出店者");
-                    const eventMatch = message.match(/「(.+?)」/);
-                    const eventName = escapeHtml(eventMatch?.[1] || "イベント");
-                    html = newApplicationEmail(exhibitorName, eventName);
+                if (type === "application_approved") {
+                    html = applicationApprovedEmail(eventName);
+                } else if (type === "application_rejected") {
+                    html = applicationRejectedEmail(eventName);
                 }
 
                 if (html) {
