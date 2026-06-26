@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { redirect } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { LoginRequired } from "@/components/LoginRequired";
 import Link from "next/link";
 import NotificationActions from "./NotificationActions";
 
@@ -132,7 +133,7 @@ export default async function NotificationsPage({ searchParams }: PageProps) {
 
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) redirect("/login");
+    if (!user) return <LoginRequired label="通知" />;
 
     const { data: exhibitors } = await supabase
         .from("exhibitors")

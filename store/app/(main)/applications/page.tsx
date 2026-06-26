@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { Inbox } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { LoginRequired } from "@/components/LoginRequired";
 
 interface PageProps {
     searchParams: Promise<{ status?: string }>;
@@ -14,7 +15,7 @@ export default async function ApplicationsPage({ searchParams }: PageProps) {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
-        redirect("/login");
+        return <LoginRequired label="応募管理" />;
     }
 
     const { data: exhibitors } = await supabase

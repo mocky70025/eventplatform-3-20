@@ -3,6 +3,7 @@ import { Star, CalendarDays, MapPin, Trophy } from "lucide-react";
 import { redirect } from "next/navigation";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { LoginRequired } from "@/components/LoginRequired";
 
 function StarRating({ rating }: { rating: number }) {
     return (
@@ -22,7 +23,7 @@ export default async function HistoryPage({ searchParams }: PageProps) {
 
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) redirect("/login");
+    if (!user) return <LoginRequired label="出店履歴" />;
 
     const { data: exhibitors } = await supabase
         .from("exhibitors")

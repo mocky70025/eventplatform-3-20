@@ -13,6 +13,12 @@ const PUBLIC_ROUTES = [
     '/organizers',
     '/privacy',
     '/terms',
+    // Soft-protected: let through so the page can show a friendly "login required"
+    // prompt instead of an abrupt redirect (the page renders LoginRequired when logged out).
+    '/applications',
+    '/history',
+    '/profile',
+    '/notifications',
 ]
 
 function isPublicRoute(pathname: string): boolean {

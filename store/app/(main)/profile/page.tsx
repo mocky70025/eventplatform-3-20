@@ -5,14 +5,14 @@ import { DocumentsSection } from "@/components/profile/DocumentsSection";
 import { NotificationsSection } from "@/components/profile/NotificationsSection";
 import { ProfileSidebar } from "@/components/profile/ProfileSidebar";
 import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
+import { LoginRequired } from "@/components/LoginRequired";
 
 export default async function ProfilePage() {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
-        redirect("/login");
+        return <LoginRequired label="設定" />;
     }
 
     const { data: profiles } = await supabase
