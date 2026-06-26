@@ -31,11 +31,33 @@ export async function getExhibitorTodos(
   const { data: exhibitor } = await supabase
     .from("exhibitors")
     .select(
-      "business_license_expiry, business_permit_expiry, pl_insurance_expiry, vehicle_inspection_expiry, fire_manager_expiry"
+      "avatar_url, business_permit_image_url, business_license_expiry, business_permit_expiry, pl_insurance_expiry, vehicle_inspection_expiry, fire_manager_expiry"
     )
     .eq("id", exhibitorId)
     .maybeSingle();
   if (exhibitor) {
+    // --- 0. プロフィール準備（新規出店者向け） ---
+    if (!exhibitor.avatar_url) {
+      todos.push({
+        id: "setup-avatar",
+        urgent: false,
+        title: "プロフィール写真を登録する",
+        meta: "応募時の印象が良くなります",
+        action: { label: "設定", route: "/profile" },
+        _days: null,
+      });
+    }
+    if (!exhibitor.business_permit_image_url) {
+      todos.push({
+        id: "setup-documents",
+        urgent: false,
+        title: "出店書類を登録する",
+        meta: "営業許可証などを事前に登録しておきましょう",
+        action: { label: "登録", route: "/profile" },
+        _days: null,
+      });
+    }
+
     const expiries: { label: string; date: string }[] = [
       { label: "営業許可証", date: exhibitor.business_permit_expiry },
       { label: "営業許可証", date: exhibitor.business_license_expiry },

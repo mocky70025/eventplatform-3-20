@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/Button";
-import { ArrowRight, Inbox } from "lucide-react";
+import { ArrowRight, Inbox, CalendarDays } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { getExhibitorTodos } from "@/lib/dashboard/todos";
@@ -18,6 +18,7 @@ export default async function Home() {
   let exhibitor: { id: string; shop_name?: string } | null = null;
   let applications: any[] = [];
   let todos: Awaited<ReturnType<typeof getExhibitorTodos>> = { todos: [], totalCount: 0, urgentCount: 0 };
+  let openEventsCount = 0;
 
   if (user) {
     const { data: exData } = await supabase
@@ -29,7 +30,7 @@ export default async function Home() {
     exhibitor = exData?.[0] || null;
 
     if (exhibitor) {
-      const [{ data: appData }, todoResult] = await Promise.all([
+      const [{ data: appData }, todoResult, openCountRes] = await Promise.all([
         supabase
           .from("event_applications")
           .select(`
@@ -40,9 +41,14 @@ export default async function Home() {
           .order("created_at", { ascending: false })
           .limit(6),
         getExhibitorTodos(supabase, exhibitor.id, user.id),
+        supabase
+          .from("events")
+          .select("id", { count: "exact", head: true })
+          .eq("status", "published"),
       ]);
       applications = (appData as any) || [];
       todos = todoResult;
+      openEventsCount = openCountRes.count || 0;
     }
   }
 
@@ -157,13 +163,26 @@ export default async function Home() {
                 );
               })}
             </div>
+          ) : openEventsCount === 0 ? (
+            // 募集ゼロ: 募集中のイベントが一つもない
+            <div className="bg-white rounded-2xl border border-slate-200 p-12 flex flex-col items-center text-center">
+              <div className="w-16 h-16 rounded-2xl bg-store-50 flex items-center justify-center mb-4">
+                <CalendarDays className="w-8 h-8 text-store-300" />
+              </div>
+              <h3 className="text-lg font-bold text-slate-900 mb-1">現在募集中のイベントがありません</h3>
+              <p className="text-sm text-slate-500 max-w-sm leading-relaxed">
+                新しいイベントが公開されると、ここに表示されます。<br />
+                通知でもお知らせするので、プロフィールを整えてお待ちください。
+              </p>
+            </div>
           ) : (
+            // 応募ゼロ: 募集中イベントはあるが、まだ応募していない
             <div className="bg-white rounded-2xl border border-slate-200 p-12 flex flex-col items-center text-center">
               <div className="w-16 h-16 rounded-2xl bg-store-50 flex items-center justify-center mb-4">
                 <Inbox className="w-8 h-8 text-store-300" />
               </div>
               <h3 className="text-lg font-bold text-slate-900 mb-1">まだ応募がありません</h3>
-              <p className="text-sm text-slate-500 max-w-sm">気になるイベントを探して応募してみましょう。</p>
+              <p className="text-sm text-slate-500 max-w-sm">気になるイベントを探して、応募してみましょう。</p>
               <Link
                 href="/events"
                 className="mt-6 inline-flex items-center justify-center gap-2 bg-store-500 hover:bg-store-600 text-white font-semibold rounded-xl px-6 py-3 transition-colors"
