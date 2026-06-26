@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/Button";
 import { ArrowRight, Inbox, CalendarDays } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
@@ -76,35 +75,7 @@ export default async function Home() {
     }
   };
 
-  // --- Logged-out marketing hero ---
-  if (!user || !exhibitor) {
-    return (
-      <div className="min-h-screen bg-[#f0fdf4]">
-        <main className="max-w-6xl mx-auto py-8 px-6">
-          <section className="bg-gradient-to-r from-store-500 to-store-700 rounded-2xl p-8 sm:p-12 text-white text-center">
-            <h1 className="text-2xl sm:text-3xl font-bold mb-3">
-              あなたの出店を、もっと自由に、スマートに。
-            </h1>
-            <p className="text-store-100 text-base mb-8 max-w-lg mx-auto">
-              場所探しから集客までを一つに。輝くイベントと、あなたの情熱を繋ぎます。
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link href="/signup">
-                <Button size="lg" className="bg-white text-store-700 hover:bg-store-50 font-bold rounded-xl px-8">
-                  今すぐ無料で始める
-                </Button>
-              </Link>
-              <Link href="/login">
-                <Button size="lg" variant="ghost" className="text-white border border-white/30 hover:bg-white/10 font-bold rounded-xl px-8">
-                  ログイン
-                </Button>
-              </Link>
-            </div>
-          </section>
-        </main>
-      </div>
-    );
-  }
+  // 未ログイン / 未登録の場合も応募ゼロ表示にする（applications=[], exhibitor=null）
 
   return (
     <div className="min-h-screen bg-[#f0fdf4]">
@@ -163,8 +134,8 @@ export default async function Home() {
                 );
               })}
             </div>
-          ) : openEventsCount === 0 ? (
-            // 募集ゼロ: 募集中のイベントが一つもない
+          ) : exhibitor && openEventsCount === 0 ? (
+            // 募集ゼロ: ログイン中 ＆ 募集中のイベントが一つもない
             <div className="bg-white rounded-2xl border border-slate-200 p-12 flex flex-col items-center text-center">
               <div className="w-16 h-16 rounded-2xl bg-store-50 flex items-center justify-center mb-4">
                 <CalendarDays className="w-8 h-8 text-store-300" />
@@ -193,7 +164,8 @@ export default async function Home() {
           )}
         </section>
 
-        {/* === 今日のTODO === */}
+        {/* === 今日のTODO（ログイン中のみ） === */}
+        {exhibitor && (
         <section>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
@@ -236,6 +208,7 @@ export default async function Home() {
             </div>
           )}
         </section>
+        )}
 
       </main>
     </div>
