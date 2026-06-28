@@ -194,10 +194,6 @@ export default function LoginPage() {
                     </button>
                 </div>
 
-                <p className="text-xs text-center text-slate-400 mt-3">
-                    登録することで、<a href="/terms" className="underline hover:text-slate-600">利用規約</a>と<a href="/privacy" className="underline hover:text-slate-600">プライバシーポリシー</a>に同意したことになります。
-                </p>
-
                 <p className="text-center text-sm text-slate-500 mt-6">
                     アカウントをお持ちでない方
                     <Link

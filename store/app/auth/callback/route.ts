@@ -17,6 +17,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const origin = getOrigin(request);
     const code = searchParams.get('code');
+    const token_hash = searchParams.get('token_hash');
     const rawNext = searchParams.get('next') ?? '/';
     // Prevent open redirect: only allow relative paths starting with /
     const next = rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : '/';
@@ -28,7 +29,7 @@ export async function GET(request: Request) {
         return NextResponse.redirect(`${origin}/login?error=${encodeURIComponent(error)}&error_description=${encodeURIComponent(error_description || '')}`);
     }
 
-    if (!code) {
+    if (!code && !token_hash) {
         return NextResponse.redirect(`${origin}/login?error=auth-code-error`);
     }
 
@@ -56,7 +57,9 @@ export async function GET(request: Request) {
         },
     });
 
-    const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+    const { data, error: exchangeError } = token_hash
+        ? await supabase.auth.verifyOtp({ type: type as "signup" | "magiclink" | "recovery", token_hash })
+        : await supabase.auth.exchangeCodeForSession(code!);
 
     if (exchangeError || !data?.user) {
         const desc = exchangeError?.message || 'no-user';

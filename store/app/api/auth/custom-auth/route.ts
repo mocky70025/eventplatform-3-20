@@ -77,6 +77,18 @@ function verifyPassword(password: string, stored: string): boolean {
 // Generic error message to prevent user enumeration
 const AUTH_FAILED_MSG = "メールアドレスまたはパスワードが正しくありません";
 
+// Build the confirmation-link base from the request host (the domain the user is
+// actually on), restricted to wacca.site / localhost. Falls back to env.
+function getBaseUrl(request: Request): string {
+    const host = request.headers.get("x-forwarded-host") || request.headers.get("host") || "";
+    const isWacca = host.endsWith(".wacca.site");
+    const isLocal = host.startsWith("localhost") || host.startsWith("127.0.0.1");
+    if (isWacca || isLocal) {
+        return `${isLocal ? "http" : "https"}://${host}`;
+    }
+    return process.env.NEXT_PUBLIC_APP_URL || "";
+}
+
 export async function POST(request: Request) {
     try {
         const { action, email, password, userId } = await request.json();
@@ -129,7 +141,8 @@ export async function POST(request: Request) {
                         },
                     });
                     if (!linkError && linkData) {
-                        await sendConfirmationEmail(email, linkData.properties.action_link);
+                        const confirmUrl = `${getBaseUrl(request)}/auth/callback?token_hash=${linkData.properties.hashed_token}&type=magiclink`;
+                        await sendConfirmationEmail(email, confirmUrl);
                     }
                 }
             }
@@ -189,7 +202,8 @@ export async function POST(request: Request) {
                 app_metadata: { [APP_PASSWORD_KEY]: passwordHash },
             });
 
-            const sent = await sendConfirmationEmail(email, linkData.properties.action_link);
+            const confirmUrl = `${getBaseUrl(request)}/auth/callback?token_hash=${linkData.properties.hashed_token}&type=signup`;
+            const sent = await sendConfirmationEmail(email, confirmUrl);
             if (!sent.ok) {
                 await admin.auth.admin.deleteUser(linkData.user.id);
                 return NextResponse.json({ error: `メール送信に失敗しました: ${sent.error}` }, { status: 500 });

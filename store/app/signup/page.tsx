@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Loader2 } from "lucide-react";
+import { Loader2, Check } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
@@ -150,8 +150,11 @@ export default function SignupPage() {
                 type="checkbox"
                 checked={agreedTerms}
                 onChange={(e) => setAgreedTerms(e.target.checked)}
-                className="mt-0.5 w-4 h-4 accent-store-500 shrink-0 cursor-pointer"
+                className="sr-only"
               />
+              <span className={`mt-0.5 w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-colors ${agreedTerms ? "bg-store-500 border-store-500" : "bg-white border-slate-300"}`}>
+                {agreedTerms && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
+              </span>
               <span>
                 <a href="/terms" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-store-600 underline hover:text-store-700">利用規約</a>
                 に同意する
@@ -162,8 +165,11 @@ export default function SignupPage() {
                 type="checkbox"
                 checked={agreedPrivacy}
                 onChange={(e) => setAgreedPrivacy(e.target.checked)}
-                className="mt-0.5 w-4 h-4 accent-store-500 shrink-0 cursor-pointer"
+                className="sr-only"
               />
+              <span className={`mt-0.5 w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-colors ${agreedPrivacy ? "bg-store-500 border-store-500" : "bg-white border-slate-300"}`}>
+                {agreedPrivacy && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
+              </span>
               <span>
                 <a href="/privacy" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-store-600 underline hover:text-store-700">プライバシーポリシー</a>
                 に同意する

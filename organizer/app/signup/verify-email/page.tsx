@@ -79,30 +79,31 @@ function VerifyEmailContent() {
             <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${open ? "rotate-180" : ""}`} />
           </button>
           {open && (
-            <div className="mt-3 rounded-xl bg-slate-50 border border-slate-100 p-4 text-sm text-slate-600 text-left leading-relaxed">
-              迷惑メールフォルダもご確認ください。それでも届かない場合は、メールアドレスが正しいかご確認のうえ、下の「確認メールを再送信」をお試しください。
+            <div className="mt-3 rounded-xl bg-slate-50 border border-slate-100 p-4 text-left">
+              <p className="text-sm text-slate-600 leading-relaxed">
+                迷惑メールフォルダもご確認ください。それでも届かない場合は、メールアドレスが正しいかご確認のうえ、下のボタンから再送信してください。
+              </p>
+              <button
+                type="button"
+                onClick={handleResend}
+                disabled={resending || !email}
+                className="mt-3 w-full h-11 rounded-xl border border-orange-200 bg-white text-sm font-semibold text-orange-700 hover:bg-orange-50 transition disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {resending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    送信中...
+                  </>
+                ) : (
+                  "確認メールを再送信"
+                )}
+              </button>
+              {resendMsg && (
+                <p className="mt-2 text-sm text-orange-600">{resendMsg}</p>
+              )}
             </div>
           )}
         </div>
-
-        <button
-          type="button"
-          onClick={handleResend}
-          disabled={resending || !email}
-          className="mt-6 w-full h-11 rounded-xl border border-orange-200 text-sm font-semibold text-orange-700 hover:bg-orange-50 transition disabled:opacity-50 flex items-center justify-center gap-2"
-        >
-          {resending ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              送信中...
-            </>
-          ) : (
-            "確認メールを再送信"
-          )}
-        </button>
-        {resendMsg && (
-          <p className="mt-3 text-sm text-orange-600">{resendMsg}</p>
-        )}
 
         <p className="text-center text-sm text-slate-500 mt-6">
           <Link href="/login" className="text-orange-600 hover:text-orange-700 font-semibold transition">
