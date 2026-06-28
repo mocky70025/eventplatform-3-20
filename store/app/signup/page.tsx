@@ -9,11 +9,18 @@ import { createClient } from "@/lib/supabase/client";
 export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [agreedTerms, setAgreedTerms] = useState(false);
+  const [agreedPrivacy, setAgreedPrivacy] = useState(false);
+  const agreed = agreedTerms && agreedPrivacy;
   const router = useRouter();
   const supabase = createClient();
 
   const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!agreedTerms || !agreedPrivacy) {
+      setError("利用規約とプライバシーポリシーに同意してください。");
+      return;
+    }
     setIsLoading(true);
     setError("");
 
@@ -66,6 +73,10 @@ export default function SignupPage() {
   };
 
   const handleSocialLogin = async (provider: "google") => {
+    if (!agreedTerms || !agreedPrivacy) {
+      setError("利用規約とプライバシーポリシーに同意してください。");
+      return;
+    }
     setIsLoading(true);
     setError("");
 
@@ -132,10 +143,38 @@ export default function SignupPage() {
             </div>
           )}
 
+          {/* 同意チェック */}
+          <div className="space-y-2 pt-1">
+            <label className="flex items-start gap-2.5 text-xs text-slate-600 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={agreedTerms}
+                onChange={(e) => setAgreedTerms(e.target.checked)}
+                className="mt-0.5 w-4 h-4 accent-store-500 shrink-0 cursor-pointer"
+              />
+              <span>
+                <a href="/terms" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-store-600 underline hover:text-store-700">利用規約</a>
+                に同意する
+              </span>
+            </label>
+            <label className="flex items-start gap-2.5 text-xs text-slate-600 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={agreedPrivacy}
+                onChange={(e) => setAgreedPrivacy(e.target.checked)}
+                className="mt-0.5 w-4 h-4 accent-store-500 shrink-0 cursor-pointer"
+              />
+              <span>
+                <a href="/privacy" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-store-600 underline hover:text-store-700">プライバシーポリシー</a>
+                に同意する
+              </span>
+            </label>
+          </div>
+
           <button
             type="submit"
-            disabled={isLoading}
-            className="w-full h-12 rounded-xl bg-store-500 hover:bg-store-600 text-white font-semibold text-sm shadow-lg shadow-store-500/25 transition mt-2 disabled:opacity-50 flex items-center justify-center gap-2"
+            disabled={isLoading || !agreed}
+            className="w-full h-12 rounded-xl bg-store-500 hover:bg-store-600 text-white font-semibold text-sm shadow-lg shadow-store-500/25 transition mt-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {isLoading ? (
               <>
@@ -160,7 +199,7 @@ export default function SignupPage() {
           <button
             type="button"
             onClick={() => handleSocialLogin("google")}
-            disabled={isLoading}
+            disabled={isLoading || !agreed}
             className="w-full flex items-center justify-center gap-3 h-12 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 transition text-sm font-medium text-slate-700 shadow-sm disabled:opacity-50"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -172,10 +211,6 @@ export default function SignupPage() {
             Googleで登録
           </button>
         </div>
-
-        <p className="text-xs text-center text-slate-400 mt-3">
-          登録することで、<a href="/terms" className="underline hover:text-slate-600">利用規約</a>と<a href="/privacy" className="underline hover:text-slate-600">プライバシーポリシー</a>に同意したことになります。
-        </p>
 
         <p className="text-center text-sm text-slate-500 mt-6">
           すでにアカウントをお持ちの方
