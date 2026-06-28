@@ -988,7 +988,7 @@ export default function EditEventPage() {
                                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                                         {PRESET_EXHIBITOR_FIELDS.filter(f => f.category === category).map(field => (
                                                             <label key={field.key} className={cn("flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all", formData.selectedExhibitorFields.includes(field.key) ? "border-orange-500 bg-orange-50" : "border-slate-100 bg-slate-50 hover:border-slate-200")}>
-                                                                <input type="checkbox" checked={formData.selectedExhibitorFields.includes(field.key)} onChange={() => toggleExhibitorField(field.key)} className="w-4 h-4 rounded border-slate-300 text-orange-500 focus:ring-orange-500" />
+                                                                <input type="checkbox" checked={formData.selectedExhibitorFields.includes(field.key)} onChange={() => toggleExhibitorField(field.key)} className="w-4 h-4 rounded border-slate-300 accent-orange-500 focus:ring-orange-500" />
                                                                 <div className="flex-1 min-w-0">
                                                                     <span className="text-sm font-medium text-slate-900">{field.label}</span>
                                                                     <span className={cn("ml-2 text-[10px] font-bold px-1.5 py-0.5 rounded", field.type === "file" ? "bg-blue-50 text-blue-600" : "bg-slate-100 text-slate-500")}>

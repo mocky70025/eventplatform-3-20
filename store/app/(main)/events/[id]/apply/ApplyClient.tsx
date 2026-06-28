@@ -481,7 +481,7 @@ export default function ApplyClient({ event, exhibitor }: { event: any, exhibito
                                                 : prev.filter(d => d !== day.date)
                                         );
                                     }}
-                                    className="w-4 h-4 rounded border-slate-300 text-store-600 focus:ring-store-500"
+                                    className="w-4 h-4 rounded border-slate-300 accent-store-500 focus:ring-store-500"
                                 />
                                 <div className="flex-1">
                                     <span className="text-sm font-medium text-slate-900">
@@ -504,7 +504,7 @@ export default function ApplyClient({ event, exhibitor }: { event: any, exhibito
                     type="checkbox"
                     checked={agreedToTerms}
                     onChange={(e) => setAgreedToTerms(e.target.checked)}
-                    className="mt-0.5 w-4 h-4 rounded border-slate-300 text-store-600 focus:ring-store-500"
+                    className="mt-0.5 w-4 h-4 rounded border-slate-300 accent-store-500 focus:ring-store-500"
                 />
                 <span className="text-sm text-slate-700">
                     <Link href="/terms" target="_blank" className="text-store-600 underline hover:text-store-700">利用規約</Link>・
