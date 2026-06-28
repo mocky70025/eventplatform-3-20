@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
+import { ImageCropDialog } from "@/components/ui/ImageCropDialog";
 
 // 出店者に求める情報のプリセット項目
 type PresetField = {
@@ -255,28 +256,32 @@ export default function CreateEventPage() {
 
     const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 
+    const [cropState, setCropState] = useState<{ src: string; aspect: number; onDone: (f: File) => void } | null>(null);
+    const openCrop = (file: File, aspect: number, onDone: (f: File) => void) => {
+        setCropState({ src: URL.createObjectURL(file), aspect, onDone });
+    };
+
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, field: "main" | "layout") => {
-        if (e.target.files && e.target.files[0]) {
-            const file = e.target.files[0];
-            if (file.size > 10 * 1024 * 1024) {
-                setError("ファイルサイズは10MB以下にしてください。");
-                e.target.value = '';
-                return;
-            }
-            if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
-                setError("対応していない画像形式です（JPEG, PNG, GIF, WebPのみ）");
-                e.target.value = '';
-                return;
-            }
-            setError("");
-            const url = URL.createObjectURL(file);
-            if (field === "main") {
-                setFormData(prev => ({ ...prev, mainImage: url }));
-                setFiles(prev => ({ ...prev, main: file }));
-            } else {
-                setFormData(prev => ({ ...prev, venueLayout: url }));
-                setFiles(prev => ({ ...prev, layout: file }));
-            }
+        const file = e.target.files?.[0];
+        e.target.value = '';
+        if (!file) return;
+        if (file.size > 10 * 1024 * 1024) {
+            setError("ファイルサイズは10MB以下にしてください。");
+            return;
+        }
+        if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+            setError("対応していない画像形式です（JPEG, PNG, GIF, WebPのみ）");
+            return;
+        }
+        setError("");
+        if (field === "main") {
+            openCrop(file, 16 / 9, (cropped) => {
+                setFormData(prev => ({ ...prev, mainImage: URL.createObjectURL(cropped) }));
+                setFiles(prev => ({ ...prev, main: cropped }));
+            });
+        } else {
+            setFormData(prev => ({ ...prev, venueLayout: URL.createObjectURL(file) }));
+            setFiles(prev => ({ ...prev, layout: file }));
         }
     };
 
@@ -562,6 +567,22 @@ export default function CreateEventPage() {
 
     return (
         <div className="min-h-screen bg-[#fdf8f1] flex flex-col">
+            {cropState && (
+                <ImageCropDialog
+                    imageSrc={cropState.src}
+                    aspect={cropState.aspect}
+                    accent="#f97316"
+                    title="メイン画像を調整"
+                    onCancel={() => { URL.revokeObjectURL(cropState.src); setCropState(null); }}
+                    onComplete={(blob) => {
+                        const file = new File([blob], `main_${Date.now()}.jpg`, { type: "image/jpeg" });
+                        const cb = cropState.onDone;
+                        URL.revokeObjectURL(cropState.src);
+                        setCropState(null);
+                        cb(file);
+                    }}
+                />
+            )}
             {/* Header */}
             <header className="px-6 h-16 bg-white border-b border-slate-100 flex items-center justify-between sticky top-0 z-50">
                 <div className="flex items-center gap-4">

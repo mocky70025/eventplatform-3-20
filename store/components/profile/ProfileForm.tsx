@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/Button";
+import { ImageCropDialog } from "@/components/ui/ImageCropDialog";
 import { Loader2, Check, X, AlertCircle, Sparkles, Camera, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -174,23 +175,33 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
         setSuccess("");
     };
 
+    const [cropState, setCropState] = useState<{ src: string; aspect: number; shape: "rect" | "round"; onDone: (f: File) => void } | null>(null);
+    const openCrop = (file: File, aspect: number, shape: "rect" | "round", onDone: (f: File) => void) => {
+        setCropState({ src: URL.createObjectURL(file), aspect, shape, onDone });
+    };
+
     const handleImageClick = () => {
         fileInputRef.current?.click();
     };
 
-    const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
+        if (fileInputRef.current) fileInputRef.current.value = "";
         if (!file) return;
 
         if (!file.type.startsWith("image/")) {
             setError("画像ファイルを選択してください");
             return;
         }
-        if (file.size > 5 * 1024 * 1024) {
-            setError("画像は5MB以内にしてください");
+        if (file.size > 10 * 1024 * 1024) {
+            setError("画像は10MB以内にしてください");
             return;
         }
+        setError("");
+        openCrop(file, 1, "round", (cropped) => uploadAvatar(cropped));
+    };
 
+    const uploadAvatar = async (file: File) => {
         setIsUploadingImage(true);
         setError("");
 
@@ -198,8 +209,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error("セッションがありません");
 
-            const ext = file.name.split(".").pop();
-            const filePath = `${user.id}/avatar.${ext}`;
+            const filePath = `${user.id}/avatar.jpg`;
 
             const { error: uploadError } = await supabase.storage
                 .from("exhibitor-avatars")
@@ -220,14 +230,13 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
 
             if (updateError) throw updateError;
 
-            setAvatarUrl(publicUrl);
+            setAvatarUrl(`${publicUrl}?t=${Date.now()}`);
             setSuccess("プロフィール画像を更新しました");
             router.refresh();
         } catch (err: any) {
             setError(err.message || "画像のアップロードに失敗しました");
         } finally {
             setIsUploadingImage(false);
-            if (fileInputRef.current) fileInputRef.current.value = "";
         }
     };
 
@@ -387,6 +396,24 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
+            {cropState && (
+                <ImageCropDialog
+                    imageSrc={cropState.src}
+                    aspect={cropState.aspect}
+                    cropShape={cropState.shape}
+                    accent="#10b981"
+                    title="プロフィール画像を調整"
+                    maxWidth={600}
+                    onCancel={() => { URL.revokeObjectURL(cropState.src); setCropState(null); }}
+                    onComplete={(blob) => {
+                        const file = new File([blob], `avatar_${Date.now()}.jpg`, { type: "image/jpeg" });
+                        const cb = cropState.onDone;
+                        URL.revokeObjectURL(cropState.src);
+                        setCropState(null);
+                        cb(file);
+                    }}
+                />
+            )}
             {error && (
                 <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm">
                     {error}

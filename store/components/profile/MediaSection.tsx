@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Loader2, X, ImagePlus, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { ImageCropDialog } from "@/components/ui/ImageCropDialog";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 
@@ -24,6 +25,11 @@ export function MediaSection({ initialProfile }: MediaSectionProps) {
     const [coverPreview, setCoverPreview] = useState<string>(initialProfile?.cover_image || "");
     const [allowPhotoUsage, setAllowPhotoUsage] = useState<boolean>(initialProfile?.allow_photo_usage ?? true);
 
+    const [cropState, setCropState] = useState<{ src: string; aspect: number; onDone: (f: File) => void } | null>(null);
+    const openCrop = (file: File, aspect: number, onDone: (f: File) => void) => {
+        setCropState({ src: URL.createObjectURL(file), aspect, onDone });
+    };
+
     const MAX_FILE_SIZE = 10 * 1024 * 1024;
     const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"];
     const MAX_PHOTOS = 10;
@@ -43,50 +49,39 @@ export function MediaSection({ initialProfile }: MediaSectionProps) {
     const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files?.[0]) return;
         const file = e.target.files[0];
-        if (!validateFile(file)) { e.target.value = ""; return; }
-        setError("");
-        setCoverFile(file);
-        const reader = new FileReader();
-        reader.onloadend = () => setCoverPreview(reader.result as string);
-        reader.readAsDataURL(file);
         e.target.value = "";
+        if (!validateFile(file)) return;
+        setError("");
+        openCrop(file, 16 / 9, (cropped) => {
+            setCoverFile(cropped);
+            setCoverPreview(URL.createObjectURL(cropped));
+        });
+    };
+
+    // Crop selected gallery photos one by one (square 1:1), then queue them.
+    const cropGalleryQueue = (files: File[]) => {
+        if (files.length === 0) return;
+        const [first, ...rest] = files;
+        openCrop(first, 1, (cropped) => {
+            setNewFiles(prev => [...prev, cropped]);
+            setNewPreviews(prev => [...prev, URL.createObjectURL(cropped)]);
+            cropGalleryQueue(rest);
+        });
     };
 
     const handleAddPhotos = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files) return;
         const selectedFiles = Array.from(e.target.files);
+        e.target.value = "";
         const totalCount = existingPhotos.length + newFiles.length + selectedFiles.length;
         if (totalCount > MAX_PHOTOS) {
             setError(`写真は最大${MAX_PHOTOS}枚までです`);
-            e.target.value = "";
             return;
         }
-
-        const validFiles: File[] = [];
-        const validPreviews: string[] = [];
-
-        for (const file of selectedFiles) {
-            if (!validateFile(file)) continue;
-            validFiles.push(file);
-        }
-
+        const validFiles = selectedFiles.filter((file) => validateFile(file));
         if (validFiles.length === 0) return;
         setError("");
-
-        let loaded = 0;
-        validFiles.forEach(file => {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                validPreviews.push(reader.result as string);
-                loaded++;
-                if (loaded === validFiles.length) {
-                    setNewFiles(prev => [...prev, ...validFiles]);
-                    setNewPreviews(prev => [...prev, ...validPreviews]);
-                }
-            };
-            reader.readAsDataURL(file);
-        });
-        e.target.value = "";
+        cropGalleryQueue(validFiles);
     };
 
     const removeNewPhoto = (index: number) => {
@@ -168,6 +163,21 @@ export function MediaSection({ initialProfile }: MediaSectionProps) {
 
     return (
         <div className="space-y-6">
+            {cropState && (
+                <ImageCropDialog
+                    imageSrc={cropState.src}
+                    aspect={cropState.aspect}
+                    accent="#10b981"
+                    onCancel={() => { URL.revokeObjectURL(cropState.src); setCropState(null); }}
+                    onComplete={(blob) => {
+                        const file = new File([blob], `crop_${Date.now()}.jpg`, { type: "image/jpeg" });
+                        const cb = cropState.onDone;
+                        URL.revokeObjectURL(cropState.src);
+                        setCropState(null);
+                        cb(file);
+                    }}
+                />
+            )}
             {error && (
                 <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm">{error}</div>
             )}
