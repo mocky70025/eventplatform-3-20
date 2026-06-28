@@ -81,7 +81,7 @@ export async function POST(request: Request) {
     try {
         const { action, email, password, userId } = await request.json();
 
-        if (!email || !password || !action) {
+        if (!email || !action) {
             return NextResponse.json({ error: "必須項目が不足しています" }, { status: 400 });
         }
 
@@ -91,9 +91,11 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "有効なメールアドレスを入力してください" }, { status: 400 });
         }
 
-        // Validate password length
-        if (password.length < 8 || password.length > 128) {
-            return NextResponse.json({ error: "パスワードは8文字以上128文字以下で入力してください" }, { status: 400 });
+        // Password required only for signup/login
+        if (action === "signup" || action === "login") {
+            if (!password || password.length < 8 || password.length > 128) {
+                return NextResponse.json({ error: "パスワードは8文字以上128文字以下で入力してください" }, { status: 400 });
+            }
         }
 
         const admin = createAdminClient();
@@ -109,6 +111,29 @@ export async function POST(request: Request) {
                 { error: "リクエストが多すぎます。しばらく待ってから再試行してください。" },
                 { status: 429 }
             );
+        }
+
+        if (action === "resend") {
+            // Resend a confirmation link (as magic link) for an unconfirmed user.
+            // Always return ok to avoid email enumeration.
+            const { data: existingUserId } = await admin.rpc("get_user_id_by_email", { user_email: email });
+            if (existingUserId) {
+                const { data: userData } = await admin.auth.admin.getUserById(existingUserId);
+                const user = userData?.user;
+                if (user && !user.email_confirmed_at) {
+                    const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
+                        type: "magiclink",
+                        email,
+                        options: {
+                            redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+                        },
+                    });
+                    if (!linkError && linkData) {
+                        await sendConfirmationEmail(email, linkData.properties.action_link);
+                    }
+                }
+            }
+            return NextResponse.json({ ok: true });
         }
 
         if (action === "signup") {

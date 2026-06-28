@@ -2,12 +2,38 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
-import { Mail } from "lucide-react";
+import { Suspense, useState } from "react";
+import { Mail, HelpCircle, ChevronDown, Loader2 } from "lucide-react";
 
 function VerifyEmailContent() {
   const searchParams = useSearchParams();
   const email = searchParams.get("email") || "";
+  const [open, setOpen] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [resendMsg, setResendMsg] = useState("");
+
+  const handleResend = async () => {
+    if (!email || resending) return;
+    setResending(true);
+    setResendMsg("");
+    try {
+      const res = await fetch("/api/auth/custom-auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "resend", email }),
+      });
+      if (res.ok) {
+        setResendMsg("確認メールを再送信しました。");
+      } else {
+        const r = await res.json().catch(() => ({}));
+        setResendMsg(r.error || "再送信に失敗しました。しばらくしてからお試しください。");
+      }
+    } catch {
+      setResendMsg("再送信に失敗しました。しばらくしてからお試しください。");
+    } finally {
+      setResending(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#fdf8f1] px-4">
@@ -36,16 +62,49 @@ function VerifyEmailContent() {
           </p>
         )}
 
-        <p className="text-sm text-slate-500 leading-relaxed mb-8">
+        <p className="text-sm text-slate-500 leading-relaxed mb-6">
           メール内のリンクをクリックして、アカウントを有効化してください。
           リンクの有効期限は24時間です。
         </p>
 
-        <div className="rounded-xl bg-amber-50 border border-amber-200 p-4 text-sm text-amber-700 text-left leading-relaxed">
-          メールが届かない場合は、迷惑メールフォルダをご確認ください。
+        <div>
+          <button
+            type="button"
+            onClick={() => setOpen(!open)}
+            aria-expanded={open}
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-slate-800 transition"
+          >
+            <HelpCircle className="w-4 h-4 text-slate-400" />
+            メールが届かない場合
+            <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${open ? "rotate-180" : ""}`} />
+          </button>
+          {open && (
+            <div className="mt-3 rounded-xl bg-slate-50 border border-slate-100 p-4 text-sm text-slate-600 text-left leading-relaxed">
+              迷惑メールフォルダもご確認ください。それでも届かない場合は、メールアドレスが正しいかご確認のうえ、下の「確認メールを再送信」をお試しください。
+            </div>
+          )}
         </div>
 
-        <p className="text-center text-sm text-slate-500 mt-8">
+        <button
+          type="button"
+          onClick={handleResend}
+          disabled={resending || !email}
+          className="mt-6 w-full h-11 rounded-xl border border-orange-200 text-sm font-semibold text-orange-700 hover:bg-orange-50 transition disabled:opacity-50 flex items-center justify-center gap-2"
+        >
+          {resending ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              送信中...
+            </>
+          ) : (
+            "確認メールを再送信"
+          )}
+        </button>
+        {resendMsg && (
+          <p className="mt-3 text-sm text-orange-600">{resendMsg}</p>
+        )}
+
+        <p className="text-center text-sm text-slate-500 mt-6">
           <Link href="/login" className="text-orange-600 hover:text-orange-700 font-semibold transition">
             ログインページへ戻る
           </Link>
