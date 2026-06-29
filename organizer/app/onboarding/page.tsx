@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Building2, User, Phone, MapPin, Globe, Loader2, Mail } from "lucide-react";
+import { Building2, User, Phone, MapPin, Globe, Loader2, Mail, ChevronDown } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
@@ -310,13 +310,14 @@ export default function OnboardingPage() {
                                     name="prefecture"
                                     value={formData.prefecture}
                                     onChange={handleChange}
-                                    className={inputClassName("prefecture")}
+                                    className={`${inputClassName("prefecture")} appearance-none pr-10 cursor-pointer`}
                                 >
                                     <option value="">選択してください</option>
                                     {PREFECTURES.map(p => (
                                         <option key={p} value={p}>{p}</option>
                                     ))}
                                 </select>
+                                <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
                             </div>
                         </div>
 
