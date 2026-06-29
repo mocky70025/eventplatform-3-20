@@ -268,9 +268,6 @@ export default function OnboardingPage() {
                 <div className="space-y-6">
                     <div className="text-center">
                         <h2 className="text-[22px] font-bold text-slate-900">出店者情報の登録</h2>
-                        <p className="text-sm text-slate-500 mt-1.5">
-                            基本情報を入力して、アカウント設定を完了しましょう
-                        </p>
                     </div>
 
                     <div className="space-y-4">
