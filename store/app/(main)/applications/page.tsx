@@ -101,9 +101,9 @@ export default async function ApplicationsPage({ searchParams }: PageProps) {
                                 <div key={app.id} className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
                                     {ev?.main_image_url ? (
                                         // eslint-disable-next-line @next/next/no-img-element
-                                        <img src={ev.main_image_url} alt="" className="w-full h-32 object-cover bg-slate-100" />
+                                        <img src={ev.main_image_url} alt="" className="w-full aspect-video object-cover bg-slate-100" />
                                     ) : (
-                                        <div className="w-full h-32 bg-store-50" />
+                                        <div className="w-full aspect-video bg-store-50" />
                                     )}
                                     <div className="p-4">
                                         <div className="flex items-center justify-between gap-2">
