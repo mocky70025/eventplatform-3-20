@@ -285,7 +285,7 @@ export default function OnboardingPage() {
                                     value={postalCode}
                                     onChange={e => { setPostalCode(e.target.value); setPostalCodeError(""); }}
                                     onKeyDown={e => e.key === "Enter" && lookupPostalCode()}
-                                    className={`${inputBaseNoIcon} ${normalBorder} w-40`}
+                                    className={`flex-1 min-w-0 rounded-xl border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 transition placeholder:text-slate-400 ${normalBorder}`}
                                     placeholder="1234567"
                                     maxLength={8}
                                 />
@@ -293,7 +293,7 @@ export default function OnboardingPage() {
                                     type="button"
                                     onClick={lookupPostalCode}
                                     disabled={postalCodeLoading}
-                                    className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-50 transition-colors"
+                                    className="inline-flex shrink-0 whitespace-nowrap items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-50 transition-colors"
                                 >
                                     {postalCodeLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "検索"}
                                 </button>
