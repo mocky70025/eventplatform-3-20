@@ -2,25 +2,18 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Loader2, Check } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 export default function SignupPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
-    const [agreedTerms, setAgreedTerms] = useState(false);
-    const [agreedPrivacy, setAgreedPrivacy] = useState(false);
-    const agreed = agreedTerms && agreedPrivacy;
     const router = useRouter();
     const supabase = createClient();
 
     const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (!agreedTerms || !agreedPrivacy) {
-            setError("利用規約とプライバシーポリシーに同意してください。");
-            return;
-        }
         setIsLoading(true);
         setError("");
 
@@ -73,10 +66,6 @@ export default function SignupPage() {
     };
 
     const handleSocialLogin = async (provider: "google") => {
-        if (!agreedTerms || !agreedPrivacy) {
-            setError("利用規約とプライバシーポリシーに同意してください。");
-            return;
-        }
         setIsLoading(true);
         setError("");
 
@@ -143,43 +132,9 @@ export default function SignupPage() {
                         </div>
                     )}
 
-                    {/* 同意チェック */}
-                    <div className="space-y-2 pt-1">
-                        <label className="flex items-start gap-2.5 text-xs text-slate-600 cursor-pointer select-none">
-                            <input
-                                type="checkbox"
-                                checked={agreedTerms}
-                                onChange={(e) => setAgreedTerms(e.target.checked)}
-                                className="sr-only"
-                            />
-                            <span className={`mt-0.5 w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-colors ${agreedTerms ? "bg-orange-500 border-orange-500" : "bg-white border-slate-300"}`}>
-                                {agreedTerms && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
-                            </span>
-                            <span>
-                                <a href="/terms" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-orange-600 underline hover:text-orange-700">利用規約</a>
-                                に同意する
-                            </span>
-                        </label>
-                        <label className="flex items-start gap-2.5 text-xs text-slate-600 cursor-pointer select-none">
-                            <input
-                                type="checkbox"
-                                checked={agreedPrivacy}
-                                onChange={(e) => setAgreedPrivacy(e.target.checked)}
-                                className="sr-only"
-                            />
-                            <span className={`mt-0.5 w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-colors ${agreedPrivacy ? "bg-orange-500 border-orange-500" : "bg-white border-slate-300"}`}>
-                                {agreedPrivacy && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
-                            </span>
-                            <span>
-                                <a href="/privacy" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-orange-600 underline hover:text-orange-700">プライバシーポリシー</a>
-                                に同意する
-                            </span>
-                        </label>
-                    </div>
-
                     <button
                         type="submit"
-                        disabled={isLoading || !agreed}
+                        disabled={isLoading}
                         className="w-full h-12 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-semibold text-sm shadow-lg shadow-orange-500/25 transition mt-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
                         {isLoading ? (
@@ -205,7 +160,7 @@ export default function SignupPage() {
                     <button
                         type="button"
                         onClick={() => handleSocialLogin('google')}
-                        disabled={isLoading || !agreed}
+                        disabled={isLoading}
                         className="w-full flex items-center justify-center gap-3 h-12 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 transition text-sm font-medium text-slate-700 shadow-sm disabled:opacity-50"
                     >
                         <svg className="w-5 h-5" viewBox="0 0 24 24">

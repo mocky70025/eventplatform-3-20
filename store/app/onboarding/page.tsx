@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Store, User, Phone, Mail, Globe, MapPin, Loader2, FileText, ChevronDown } from "lucide-react";
+import { Store, User, Phone, Mail, Globe, MapPin, Loader2, FileText, ChevronDown, Check } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
@@ -19,6 +19,8 @@ const PREFECTURES = [
 export default function OnboardingPage() {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
+    const [agreedTerms, setAgreedTerms] = useState(false);
+    const [agreedPrivacy, setAgreedPrivacy] = useState(false);
     const [error, setError] = useState("");
     const [showErrors, setShowErrors] = useState(false);
     const [sessionMissing, setSessionMissing] = useState(false);
@@ -172,6 +174,11 @@ export default function OnboardingPage() {
 
     const handleSubmit = async () => {
         if (isLoading) return;
+
+        if (!agreedTerms || !agreedPrivacy) {
+            setError("利用規約とプライバシーポリシーに同意してください。");
+            return;
+        }
 
         const missingRequired = !formData.storeName || !formData.repName || !formData.email || !formData.phone || !formData.prefecture || !formData.cityAddress || !formData.description || !licenseFile;
         const emailInvalid = formData.email && !isValidEmail(formData.email);
@@ -514,10 +521,33 @@ export default function OnboardingPage() {
                         </div>
                     )}
 
+                    <div className="space-y-2.5 pt-1">
+                        <label className="flex items-start gap-2.5 text-sm text-slate-600 cursor-pointer select-none">
+                            <input type="checkbox" checked={agreedTerms} onChange={(e) => setAgreedTerms(e.target.checked)} className="sr-only" />
+                            <span className={`mt-0.5 w-5 h-5 rounded border flex items-center justify-center shrink-0 transition-colors ${agreedTerms ? "bg-store-500 border-store-500" : "bg-white border-slate-300"}`}>
+                                {agreedTerms && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
+                            </span>
+                            <span>
+                                <a href="/terms" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-store-600 underline hover:text-store-700">利用規約</a>
+                                に同意する
+                            </span>
+                        </label>
+                        <label className="flex items-start gap-2.5 text-sm text-slate-600 cursor-pointer select-none">
+                            <input type="checkbox" checked={agreedPrivacy} onChange={(e) => setAgreedPrivacy(e.target.checked)} className="sr-only" />
+                            <span className={`mt-0.5 w-5 h-5 rounded border flex items-center justify-center shrink-0 transition-colors ${agreedPrivacy ? "bg-store-500 border-store-500" : "bg-white border-slate-300"}`}>
+                                {agreedPrivacy && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
+                            </span>
+                            <span>
+                                <a href="/privacy" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-store-600 underline hover:text-store-700">プライバシーポリシー</a>
+                                に同意する
+                            </span>
+                        </label>
+                    </div>
+
                     <div className="pt-2">
                         <button
                             onClick={handleSubmit}
-                            disabled={isLoading || !formData.storeName || !formData.repName || !formData.email || !formData.phone || !formData.prefecture || !formData.cityAddress || !formData.description}
+                            disabled={isLoading || !agreedTerms || !agreedPrivacy || !formData.storeName || !formData.repName || !formData.email || !formData.phone || !formData.prefecture || !formData.cityAddress || !formData.description}
                             className="w-full h-12 rounded-xl bg-store-500 hover:bg-store-600 text-white font-semibold text-sm shadow-lg shadow-store-500/25 transition disabled:opacity-50 disabled:pointer-events-none inline-flex items-center justify-center gap-2"
                         >
                             {isLoading ? (
