@@ -69,6 +69,26 @@ export default function OnboardingPage() {
         description: "",
     });
 
+    // Persist the draft so leaving for 利用規約/プライバシー and coming back keeps inputs
+    const DRAFT_KEY = "organizer-onboarding-draft";
+    useEffect(() => {
+        try {
+            const saved = sessionStorage.getItem(DRAFT_KEY);
+            if (saved) {
+                const d = JSON.parse(saved);
+                if (d.formData) setFormData((prev) => ({ ...prev, ...d.formData }));
+                if (typeof d.agreedTerms === "boolean") setAgreedTerms(d.agreedTerms);
+                if (typeof d.agreedPrivacy === "boolean") setAgreedPrivacy(d.agreedPrivacy);
+            }
+        } catch { }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+    useEffect(() => {
+        try {
+            sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ formData, agreedTerms, agreedPrivacy }));
+        } catch { }
+    }, [formData, agreedTerms, agreedPrivacy]);
+
     useEffect(() => {
         const checkUser = async (retry = false) => {
             const { data: { user } } = await supabase.auth.getUser();
@@ -144,6 +164,8 @@ export default function OnboardingPage() {
                 });
 
             if (insertError) throw insertError;
+
+            try { sessionStorage.removeItem(DRAFT_KEY); } catch { }
 
             router.push("/");
         } catch (error: any) {
