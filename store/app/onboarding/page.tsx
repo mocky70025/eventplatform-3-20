@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Store, User, Phone, Mail, Globe, MapPin, Loader2, FileText, ChevronDown, Check } from "lucide-react";
+import { LegalModal } from "@/components/LegalModal";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
@@ -21,6 +22,7 @@ export default function OnboardingPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [agreedTerms, setAgreedTerms] = useState(false);
     const [agreedPrivacy, setAgreedPrivacy] = useState(false);
+    const [legalModal, setLegalModal] = useState<"terms" | "privacy" | null>(null);
     const [error, setError] = useState("");
     const [showErrors, setShowErrors] = useState(false);
     const [sessionMissing, setSessionMissing] = useState(false);
@@ -278,6 +280,7 @@ export default function OnboardingPage() {
 
     return (
         <div className="min-h-screen flex items-center justify-center py-12 px-4 bg-[#f0fdf4]">
+            <LegalModal type={legalModal} onClose={() => setLegalModal(null)} />
             {/* Card */}
             <div className="relative z-10 w-[520px] max-w-lg bg-white rounded-3xl shadow-[0_4px_6px_rgba(0,0,0,0.02),0_12px_40px_rgba(0,0,0,0.06)] px-8 md:px-11 py-10">
                 {/* Logo */}
@@ -550,7 +553,7 @@ export default function OnboardingPage() {
                                 {agreedTerms && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
                             </span>
                             <span>
-                                <a href="/terms" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-store-600 underline hover:text-store-700">利用規約</a>
+                                <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLegalModal("terms"); }} className="text-store-600 underline hover:text-store-700">利用規約</button>
                                 に同意する
                             </span>
                         </label>
@@ -560,7 +563,7 @@ export default function OnboardingPage() {
                                 {agreedPrivacy && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
                             </span>
                             <span>
-                                <a href="/privacy" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-store-600 underline hover:text-store-700">プライバシーポリシー</a>
+                                <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLegalModal("privacy"); }} className="text-store-600 underline hover:text-store-700">プライバシーポリシー</button>
                                 に同意する
                             </span>
                         </label>

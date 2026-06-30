@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Building2, User, Phone, MapPin, Globe, Loader2, Mail, ChevronDown, Check } from "lucide-react";
+import { LegalModal } from "@/components/LegalModal";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
@@ -21,6 +22,7 @@ export default function OnboardingPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [agreedTerms, setAgreedTerms] = useState(false);
     const [agreedPrivacy, setAgreedPrivacy] = useState(false);
+    const [legalModal, setLegalModal] = useState<"terms" | "privacy" | null>(null);
     const [error, setError] = useState("");
     const [showErrors, setShowErrors] = useState(false);
     const [sessionMissing, setSessionMissing] = useState(false);
@@ -199,6 +201,7 @@ export default function OnboardingPage() {
 
     return (
         <div className="min-h-screen flex items-center justify-center py-12 px-4 bg-[#fdf8f1]">
+            <LegalModal type={legalModal} onClose={() => setLegalModal(null)} />
             {/* Background decorations */}
 
             {/* Floating dots */}
@@ -403,7 +406,7 @@ export default function OnboardingPage() {
                                 {agreedTerms && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
                             </span>
                             <span>
-                                <a href="/terms" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-orange-600 underline hover:text-orange-700">利用規約</a>
+                                <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLegalModal("terms"); }} className="text-orange-600 underline hover:text-orange-700">利用規約</button>
                                 に同意する
                             </span>
                         </label>
@@ -413,7 +416,7 @@ export default function OnboardingPage() {
                                 {agreedPrivacy && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
                             </span>
                             <span>
-                                <a href="/privacy" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-orange-600 underline hover:text-orange-700">プライバシーポリシー</a>
+                                <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLegalModal("privacy"); }} className="text-orange-600 underline hover:text-orange-700">プライバシーポリシー</button>
                                 に同意する
                             </span>
                         </label>
