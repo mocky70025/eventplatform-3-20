@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { LogoMark } from "@/components/LogoMark";
 import { usePathname } from "next/navigation";
 import { UserNav } from "./UserNav";
 import { NotificationBadge } from "./NotificationBadge";
@@ -26,7 +27,7 @@ export function Header() {
   return (
     <header className="bg-white px-8 h-16 grid grid-cols-[1fr_auto_1fr] items-center border-b border-slate-100 sticky top-0 z-50">
       <Link href="/" className="flex items-center gap-2.5 justify-self-start">
-        <div className="w-7 h-7 bg-store-500 rounded-full" />
+        <LogoMark />
         <span className="text-lg font-bold text-slate-900">Wacca</span>
       </Link>
 

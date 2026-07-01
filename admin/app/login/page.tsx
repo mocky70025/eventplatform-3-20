@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useState, useEffect } from "react";
+import { LogoMark } from "@/components/LogoMark";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
@@ -49,7 +50,7 @@ function LoginForm() {
             <div className="relative z-10 w-full max-w-[440px] bg-white rounded-3xl shadow-[0_4px_6px_rgba(0,0,0,0.02),0_12px_40px_rgba(0,0,0,0.06)] px-6 sm:px-11 py-10 sm:py-12">
                 {/* Logo */}
                 <div className="flex items-center justify-center gap-2.5 mb-7">
-                    <div className="w-7 h-7 bg-blue-500 rounded-full" />
+                    <LogoMark />
                     <span className="text-2xl font-bold text-slate-900">Wacca Admin</span>
                 </div>
 

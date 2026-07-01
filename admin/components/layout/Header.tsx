@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LogoMark } from "@/components/LogoMark";
 import { UserNav } from "./UserNav";
 import { createClient } from "@/lib/supabase/server";
 
@@ -10,7 +11,7 @@ export async function Header() {
         <header className="sticky top-0 z-50 bg-white border-b border-slate-100">
             <div className="max-w-7xl mx-auto grid grid-cols-[1fr_auto_1fr] h-16 items-center px-6">
                 <Link href="/" className="flex items-center gap-2 justify-self-start">
-                    <div className="w-7 h-7 bg-blue-500 rounded-full" />
+                    <LogoMark />
                     <span className="text-lg font-bold text-slate-900">Wacca</span>
                     <span className="text-[10px] bg-blue-100 text-blue-700 px-2 rounded-full font-semibold inline-flex items-center justify-center h-5" style={{ lineHeight: 1 }}>ADMIN</span>
                 </Link>

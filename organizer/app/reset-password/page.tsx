@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { LogoMark } from "@/components/LogoMark";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Loader2, CheckCircle2, ArrowRight } from "lucide-react";
@@ -83,7 +84,7 @@ export default function ResetPasswordPage() {
             <div className="relative z-10 w-full max-w-[480px] mx-4 bg-white rounded-3xl shadow-[0_4px_6px_rgba(0,0,0,0.02),0_12px_40px_rgba(0,0,0,0.06)] px-6 sm:px-11 py-10 sm:py-12">
                 {/* Logo */}
                 <div className="flex items-center justify-center gap-3 mb-8">
-                    <div className="w-7 h-7 bg-orange-500 rounded-full" />
+                    <LogoMark />
                     <span className="text-2xl font-bold text-slate-900">Wacca</span>
                     <span className="hidden" style={{ lineHeight: 1 }}>主催者</span>
                 </div>

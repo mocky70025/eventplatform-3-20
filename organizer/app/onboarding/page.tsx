@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { LogoMark } from "@/components/LogoMark";
 import { Building2, User, Phone, MapPin, Globe, Loader2, Mail, ChevronDown, Check } from "lucide-react";
 import { LegalModal } from "@/components/LegalModal";
 import { useRouter } from "next/navigation";
@@ -210,7 +211,7 @@ export default function OnboardingPage() {
             <div className="relative z-10 w-[520px] max-w-lg bg-white rounded-3xl shadow-[0_4px_6px_rgba(0,0,0,0.02),0_12px_40px_rgba(0,0,0,0.06)] px-8 md:px-11 py-10">
                 {/* Logo */}
                 <div className="flex items-center justify-center gap-3 mb-6">
-                    <div className="w-7 h-7 bg-orange-500 rounded-full" />
+                    <LogoMark />
                     <span className="text-2xl font-bold text-slate-900">Wacca</span>
                     <span className="text-[10px] bg-orange-100 text-orange-700 px-2 rounded-full font-semibold inline-flex items-center justify-center h-5" style={{ lineHeight: 1 }}>主催者</span>
                 </div>

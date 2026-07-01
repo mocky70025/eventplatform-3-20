@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LogoMark } from "@/components/LogoMark";
 import { BackButton } from "@/components/BackButton";
 import { TermsContent } from "@/components/legal/LegalContent";
 
@@ -9,7 +10,7 @@ export default function TermsPage() {
       <header className="border-b border-slate-200/60 bg-[#fdf8f1]/80 backdrop-blur sticky top-0 z-50">
         <div className="max-w-3xl mx-auto px-8 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-7 h-7 bg-orange-500 rounded-full" />
+            <LogoMark />
             <span className="text-lg font-bold text-slate-900">Wacca</span>
           </Link>
           <BackButton />

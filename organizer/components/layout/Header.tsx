@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { LogoMark } from "@/components/LogoMark";
 import { usePathname } from "next/navigation";
 import { UserNav } from "./UserNav";
 import { NotificationBadge } from "./NotificationBadge";
@@ -28,7 +29,7 @@ export function Header() {
             <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-6">
                 <div className="flex items-center gap-3">
                     <Link href="/" className="flex items-center gap-2">
-                        <div className="w-7 h-7 bg-orange-500 rounded-full" />
+                        <LogoMark />
                         <span className="text-lg font-bold text-slate-900">Wacca</span>
                     </Link>
                     <span className="text-[10px] bg-orange-100 text-orange-700 px-2 rounded-full font-semibold inline-flex items-center justify-center h-5" style={{ lineHeight: 1 }}>主催者</span>

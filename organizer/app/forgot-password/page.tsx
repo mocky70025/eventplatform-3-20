@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { LogoMark } from "@/components/LogoMark";
 import Link from "next/link";
 import { ArrowLeft, Loader2, CheckCircle2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -50,7 +51,7 @@ export default function ForgotPasswordPage() {
 
                 {/* Logo */}
                 <div className="flex items-center justify-center gap-3 mb-8">
-                    <div className="w-7 h-7 bg-orange-500 rounded-full" />
+                    <LogoMark />
                     <span className="text-2xl font-bold text-slate-900">Wacca</span>
                     <span className="hidden" style={{ lineHeight: 1 }}>主催者</span>
                 </div>
