@@ -3,12 +3,11 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
-import { Mail, HelpCircle, ChevronDown, Loader2 } from "lucide-react";
+import { Mail, HelpCircle, Loader2 } from "lucide-react";
 
 function VerifyEmailContent() {
   const searchParams = useSearchParams();
   const email = searchParams.get("email") || "";
-  const [open, setOpen] = useState(false);
   const [resending, setResending] = useState(false);
   const [resendMsg, setResendMsg] = useState("");
 
@@ -68,41 +67,33 @@ function VerifyEmailContent() {
         </p>
 
         <div>
-          <button
-            type="button"
-            onClick={() => setOpen(!open)}
-            aria-expanded={open}
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-slate-800 transition"
-          >
+          <div className="flex items-center justify-center gap-1.5 text-sm font-medium text-slate-600">
             <HelpCircle className="w-4 h-4 text-slate-400" />
             メールが届かない場合
-            <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${open ? "rotate-180" : ""}`} />
-          </button>
-          {open && (
-            <div className="mt-3 rounded-xl bg-slate-50 border border-slate-100 p-4 text-left">
-              <p className="text-sm text-slate-600 leading-relaxed">
-                迷惑メールフォルダもご確認ください。それでも届かない場合は、メールアドレスが正しいかご確認のうえ、下のボタンから再送信してください。
-              </p>
-              <button
-                type="button"
-                onClick={handleResend}
-                disabled={resending || !email}
-                className="mt-3 w-full h-11 rounded-xl border border-orange-200 bg-white text-sm font-semibold text-orange-700 hover:bg-orange-50 transition disabled:opacity-50 flex items-center justify-center gap-2"
-              >
-                {resending ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    送信中...
-                  </>
-                ) : (
-                  "確認メールを再送信"
-                )}
-              </button>
-              {resendMsg && (
-                <p className="mt-2 text-sm text-orange-600">{resendMsg}</p>
+          </div>
+          <div className="mt-3 rounded-xl bg-slate-50 border border-slate-100 p-4 text-left">
+            <p className="text-sm text-slate-600 leading-relaxed">
+              迷惑メールフォルダもご確認ください。それでも届かない場合は、メールアドレスが正しいかご確認のうえ、下のボタンから再送信してください。
+            </p>
+            <button
+              type="button"
+              onClick={handleResend}
+              disabled={resending || !email}
+              className="mt-3 w-full h-11 rounded-xl border border-orange-200 bg-white text-sm font-semibold text-orange-700 hover:bg-orange-50 transition disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              {resending ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  送信中...
+                </>
+              ) : (
+                "確認メールを再送信"
               )}
-            </div>
-          )}
+            </button>
+            {resendMsg && (
+              <p className="mt-2 text-sm text-orange-600">{resendMsg}</p>
+            )}
+          </div>
         </div>
 
         <p className="text-center text-sm text-slate-500 mt-6">
