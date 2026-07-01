@@ -2,6 +2,16 @@ import { ArrowRight, Inbox, CalendarDays } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { getExhibitorTodos } from "@/lib/dashboard/todos";
+import { EventCardGrid } from "./events/EventCardGrid";
+
+const GRADIENTS = [
+  "linear-gradient(135deg, #6ee7b7 0%, #34d399 50%, #059669 100%)",
+  "linear-gradient(135deg, #fcd34d 0%, #f59e0b 50%, #d97706 100%)",
+  "linear-gradient(135deg, #c4b5fd 0%, #8b5cf6 50%, #6d28d9 100%)",
+  "linear-gradient(135deg, #67e8f9 0%, #0ea5e9 50%, #0369a1 100%)",
+  "linear-gradient(135deg, #fda4af 0%, #ec4899 50%, #be185d 100%)",
+  "linear-gradient(135deg, #a5f3fc 0%, #2dd4bf 50%, #0d9488 100%)",
+];
 
 export default async function Home() {
   const supabase = await createClient();
@@ -75,7 +85,41 @@ export default async function Home() {
     }
   };
 
-  // 未ログイン / 未登録の場合も応募ゼロ表示にする（applications=[], exhibitor=null）
+  // 未ログインは公開イベントの閲覧のみ（応募・TODOは非表示）
+  if (!user) {
+    const { data: eventsData } = await supabase
+      .from("events")
+      .select("id, event_name, genre, event_start_date, event_end_date, application_period_end, venue_name, address, main_image_url, fee, recruit_count")
+      .eq("status", "published")
+      .or("visibility.eq.public,visibility.is.null")
+      .order("created_at", { ascending: false })
+      .limit(12);
+    const events = (eventsData as any[]) || [];
+    return (
+      <div className="min-h-screen bg-[#f0fdf4]">
+        <main className="max-w-6xl mx-auto py-8 px-6">
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold text-slate-900">募集中のイベント</h1>
+            <p className="text-sm text-slate-500 mt-1.5">気になるイベントを見つけたら、無料登録して応募できます。</p>
+          </div>
+          {events.length > 0 ? (
+            <>
+              <EventCardGrid events={events} gradients={GRADIENTS} />
+              <div className="mt-8 text-center">
+                <Link href="/events" className="inline-flex items-center gap-1 text-sm font-semibold text-store-600 hover:text-store-700">
+                  すべてのイベントを見る <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+            </>
+          ) : (
+            <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
+              <p className="text-sm text-slate-500">現在募集中のイベントはありません。</p>
+            </div>
+          )}
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#f0fdf4]">

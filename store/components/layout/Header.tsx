@@ -16,13 +16,32 @@ const navItems = [
   { href: "/profile", label: "設定" },
 ];
 
-export function Header() {
+export function Header({ isLoggedIn = true }: { isLoggedIn?: boolean }) {
   const pathname = usePathname();
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
     return pathname.startsWith(href);
   };
+
+  if (!isLoggedIn) {
+    return (
+      <header className="bg-white px-8 h-16 flex items-center justify-between border-b border-slate-100 sticky top-0 z-50">
+        <Link href="/" className="flex items-center gap-2.5">
+          <LogoMark />
+          <span className="text-lg font-bold text-slate-900">Wacca</span>
+        </Link>
+        <div className="flex items-center gap-2">
+          <Link href="/login" className="text-sm font-medium text-slate-500 hover:text-slate-700 px-3 py-2">
+            ログイン
+          </Link>
+          <Link href="/signup" className="text-sm font-semibold text-white bg-store-500 hover:bg-store-600 px-4 py-2 rounded-xl transition-colors">
+            新規登録
+          </Link>
+        </div>
+      </header>
+    );
+  }
 
   return (
     <header className="bg-white px-8 h-16 grid grid-cols-[1fr_auto_1fr] items-center border-b border-slate-100 sticky top-0 z-50">
