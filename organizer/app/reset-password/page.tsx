@@ -83,11 +83,7 @@ export default function ResetPasswordPage() {
             <div className="relative z-10 w-full max-w-[480px] mx-4 bg-white rounded-3xl shadow-[0_4px_6px_rgba(0,0,0,0.02),0_12px_40px_rgba(0,0,0,0.06)] px-6 sm:px-11 py-10 sm:py-12">
                 {/* Logo */}
                 <div className="flex items-center justify-center gap-3 mb-8">
-                    <div className="w-11 h-11 bg-orange-500 rounded-xl flex items-center justify-center">
-                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                            <path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z" />
-                        </svg>
-                    </div>
+                    <div className="w-7 h-7 bg-orange-500 rounded-full" />
                     <span className="text-2xl font-bold text-slate-900">Wacca</span>
                     <span className="hidden" style={{ lineHeight: 1 }}>主催者</span>
                 </div>
