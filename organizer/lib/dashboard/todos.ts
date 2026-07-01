@@ -176,6 +176,41 @@ export async function getDashboardTodos(
     });
   }
 
+  // --- Getting started (new organizers) ---
+  const { data: org } = await supabase
+    .from("organizers")
+    .select("is_approved, description, avatar_url")
+    .eq("id", organizerId)
+    .maybeSingle();
+  // Create the first event — only once approved (unapproved organizers can't create yet).
+  if (org?.is_approved && eventList.length === 0) {
+    todos.push({
+      id: "create-first-event",
+      type: "create_first_event",
+      urgent: false,
+      title: "最初のイベントを作成する",
+      meta: "出店者の募集を始めましょう",
+      badge: "",
+      action: { label: "作成", route: "/events/new" },
+      count: 0,
+      _days: null,
+    });
+  }
+  // Flesh out the organizer profile (logo / description) for exhibitor trust.
+  if (org && (!org.avatar_url || !org.description)) {
+    todos.push({
+      id: "complete-profile",
+      type: "complete_profile",
+      urgent: false,
+      title: "主催者プロフィールを充実させる",
+      meta: "ロゴや紹介文で出店者からの信頼度が上がります",
+      badge: "",
+      action: { label: "編集", route: "/profile" },
+      count: 0,
+      _days: null,
+    });
+  }
+
   // Sort: urgent -> normal, then time-criticality (asc, no-deadline last),
   // then count (desc).
   todos.sort((a, b) => {
