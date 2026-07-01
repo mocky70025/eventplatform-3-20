@@ -176,7 +176,7 @@ export default async function Home() {
 
           {todos.length > 0 ? (
             <div className="bg-white rounded-2xl border border-slate-200 p-2">
-              <div className="grid grid-cols-1 md:grid-cols-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 md:[&>*:nth-child(even)]:border-l md:[&>*:nth-child(even)]:border-slate-100">
                 {todos.map((todo) => (
                   <div key={todo.id} className="flex items-center gap-3 p-4">
                     <div className="min-w-0 flex-1">
