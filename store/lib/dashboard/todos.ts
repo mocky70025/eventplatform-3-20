@@ -31,7 +31,7 @@ export async function getExhibitorTodos(
   const { data: exhibitor } = await supabase
     .from("exhibitors")
     .select(
-      "avatar_url, business_permit_image_url, business_license_expiry, business_permit_expiry, pl_insurance_expiry, vehicle_inspection_expiry, fire_manager_expiry"
+      "avatar_url, description, gallery_images, business_permit_image_url, business_license_expiry, business_permit_expiry, pl_insurance_expiry, vehicle_inspection_expiry, fire_manager_expiry"
     )
     .eq("id", exhibitorId)
     .maybeSingle();
@@ -54,6 +54,26 @@ export async function getExhibitorTodos(
         title: "出店書類を登録する",
         meta: "営業許可証などを事前に登録しておきましょう",
         action: { label: "登録", route: "/profile" },
+        _days: null,
+      });
+    }
+    if (!exhibitor.description) {
+      todos.push({
+        id: "setup-profile-info",
+        urgent: false,
+        title: "店舗紹介・メニューを充実させる",
+        meta: "紹介文があると応募が通りやすくなります",
+        action: { label: "編集", route: "/profile" },
+        _days: null,
+      });
+    }
+    if (!Array.isArray(exhibitor.gallery_images) || exhibitor.gallery_images.length === 0) {
+      todos.push({
+        id: "setup-gallery",
+        urgent: false,
+        title: "キッチンカー・商品写真を追加する",
+        meta: "写真があると採用されやすくなります",
+        action: { label: "追加", route: "/profile" },
         _days: null,
       });
     }
@@ -116,6 +136,22 @@ export async function getExhibitorTodos(
       title: "主催者からのお知らせ",
       meta: `未読 ${unreadCount}件`,
       action: { label: "開く", route: "/notifications" },
+      _days: null,
+    });
+  }
+
+  // --- 4. まだ応募していない出店者を後押し ---
+  const { count: appCount } = await supabase
+    .from("event_applications")
+    .select("id", { count: "exact", head: true })
+    .eq("exhibitor_id", exhibitorId);
+  if ((appCount ?? 0) === 0) {
+    todos.push({
+      id: "first-application",
+      urgent: false,
+      title: "気になるイベントに応募してみる",
+      meta: "イベントを探して出店しましょう",
+      action: { label: "探す", route: "/events" },
       _days: null,
     });
   }
