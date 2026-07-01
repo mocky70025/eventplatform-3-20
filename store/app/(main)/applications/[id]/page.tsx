@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getUserWithRefresh } from "@/lib/supabase/auth";
 import { notFound, redirect } from "next/navigation";
 import {
     ArrowLeft,
@@ -27,9 +28,9 @@ export default async function ApplicationDetailPage({ params }: PageProps) {
     const { id } = await params;
     const supabase = await createClient();
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const user = await getUserWithRefresh(supabase);
 
-    if (authError || !user) {
+    if (!user) {
         redirect("/login");
     }
 

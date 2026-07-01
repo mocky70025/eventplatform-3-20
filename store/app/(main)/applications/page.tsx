@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getUserWithRefresh } from "@/lib/supabase/auth";
 import { redirect } from "next/navigation";
 import { Inbox } from "lucide-react";
 import Link from "next/link";
@@ -12,9 +13,9 @@ interface PageProps {
 export default async function ApplicationsPage({ searchParams }: PageProps) {
     const { status: statusFilter } = await searchParams;
     const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const user = await getUserWithRefresh(supabase);
 
-    if (authError || !user) {
+    if (!user) {
         return <LoginRequired label="応募管理" />;
     }
 

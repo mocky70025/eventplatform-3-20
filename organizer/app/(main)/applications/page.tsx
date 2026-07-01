@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getUserWithRefresh } from "@/lib/supabase/auth";
 import {
     ClipboardList,
     Search,
@@ -25,14 +26,7 @@ export default async function ApplicationsPage({ searchParams }: PageProps) {
 
     const supabase = await createClient();
     let user = null;
-    try {
-        const { data, error } = await supabase.auth.getUser();
-        if (!error && data?.user) {
-            user = data.user;
-        }
-    } catch (error: any) {
-        // ignore
-    }
+    user = await getUserWithRefresh(supabase);
 
     if (!user) {
         redirect("/login");

@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getUserWithRefresh } from "@/lib/supabase/auth";
 import { ArrowLeft, Mail, Star } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
@@ -9,14 +10,7 @@ export default async function ExhibitorDetailPage({ params }: { params: Promise<
     const { id } = await params;
     const supabase = await createClient();
     let user = null;
-    try {
-        const { data, error } = await supabase.auth.getUser();
-        if (!error && data?.user) {
-            user = data.user;
-        }
-    } catch (error: any) {
-        // ignore
-    }
+    user = await getUserWithRefresh(supabase);
 
     if (!user) {
         redirect("/login");

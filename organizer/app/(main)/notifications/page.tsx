@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getUserWithRefresh } from "@/lib/supabase/auth";
 import {
     FileText,
     CheckCircle2,
@@ -179,14 +180,7 @@ export default async function NotificationsPage({ searchParams }: PageProps) {
 
     const supabase = await createClient();
     let user = null;
-    try {
-        const { data, error } = await supabase.auth.getUser();
-        if (!error && data?.user) {
-            user = data.user;
-        }
-    } catch {
-        // ignore
-    }
+    user = await getUserWithRefresh(supabase);
 
     if (!user) {
         redirect("/login");

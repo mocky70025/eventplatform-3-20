@@ -3,11 +3,12 @@ import { ReviewsSection } from "@/components/profile/ReviewsSection";
 import { NotificationsSection } from "@/components/profile/NotificationsSection";
 import { ProfileSidebar } from "@/components/profile/ProfileSidebar";
 import { createClient } from "@/lib/supabase/server";
+import { getUserWithRefresh } from "@/lib/supabase/auth";
 import { redirect } from "next/navigation";
 
 export default async function ProfilePage() {
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const user = await getUserWithRefresh(supabase);
 
     if (!user) {
         redirect("/login");

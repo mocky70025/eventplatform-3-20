@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getUserWithRefresh } from "@/lib/supabase/auth";
 import { notFound, redirect } from "next/navigation";
 import ApplyClient from "./ApplyClient";
 
@@ -11,15 +12,7 @@ export default async function ApplyPage({ params }: PageProps) {
     const supabase = await createClient();
 
     // 1. Check Auth & Profile
-    let user = null;
-    try {
-        const { data, error } = await supabase.auth.getUser();
-        if (!error) {
-            user = data.user;
-        }
-    } catch (error) {
-        redirect("/login");
-    }
+    const user = await getUserWithRefresh(supabase);
     if (!user) redirect("/login");
 
     const { data: exhibitors } = await supabase

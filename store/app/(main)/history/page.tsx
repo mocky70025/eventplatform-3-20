@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getUserWithRefresh } from "@/lib/supabase/auth";
 import { Star, CalendarDays, MapPin, Trophy } from "lucide-react";
 import { redirect } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -22,7 +23,7 @@ export default async function HistoryPage({ searchParams }: PageProps) {
     const { year } = await searchParams;
 
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const user = await getUserWithRefresh(supabase);
     if (!user) return <LoginRequired label="出店履歴" />;
 
     const { data: exhibitors } = await supabase

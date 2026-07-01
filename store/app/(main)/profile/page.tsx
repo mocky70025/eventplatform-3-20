@@ -5,11 +5,12 @@ import { DocumentsSection } from "@/components/profile/DocumentsSection";
 import { NotificationsSection } from "@/components/profile/NotificationsSection";
 import { ProfileSidebar } from "@/components/profile/ProfileSidebar";
 import { createClient } from "@/lib/supabase/server";
+import { getUserWithRefresh } from "@/lib/supabase/auth";
 import { LoginRequired } from "@/components/LoginRequired";
 
 export default async function ProfilePage() {
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const user = await getUserWithRefresh(supabase);
 
     if (!user) {
         return <LoginRequired label="設定" />;

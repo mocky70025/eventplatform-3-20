@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getUserWithRefresh } from "@/lib/supabase/auth";
 import {
     ArrowLeft,
     Mail,
@@ -16,14 +17,7 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
     const { id } = await params;
     const supabase = await createClient();
     let user = null;
-    try {
-        const { data, error } = await supabase.auth.getUser();
-        if (!error && data?.user) {
-            user = data.user;
-        }
-    } catch (error: any) {
-        // ignore
-    }
+    user = await getUserWithRefresh(supabase);
 
     if (!user) {
         redirect("/login");

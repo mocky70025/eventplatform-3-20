@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getUserWithRefresh } from "@/lib/supabase/auth";
 import {
     Bell,
     CheckCircle2,
@@ -132,7 +133,7 @@ export default async function NotificationsPage({ searchParams }: PageProps) {
     const currentPage = Math.max(1, parseInt(page || "1", 10));
 
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const user = await getUserWithRefresh(supabase);
     if (!user) return <LoginRequired label="通知" />;
 
     const { data: exhibitors } = await supabase

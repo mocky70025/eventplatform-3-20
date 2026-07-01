@@ -1,5 +1,6 @@
 import { Plus, AlertCircle, ArrowRight, Star, Inbox } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { getUserWithRefresh } from "@/lib/supabase/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getDashboardTodos } from "@/lib/dashboard/todos";
@@ -7,8 +8,8 @@ import { getDashboardTodos } from "@/lib/dashboard/todos";
 export default async function Home() {
   const supabase = await createClient();
 
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-  if (authError || !user) {
+  const user = await getUserWithRefresh(supabase);
+  if (!user) {
     redirect("/login");
   }
 

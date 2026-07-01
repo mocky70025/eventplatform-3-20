@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getUserWithRefresh } from "@/lib/supabase/auth";
 import { ClipboardList, ChevronLeft, ChevronRight, Star } from "lucide-react";
 import Link from "next/link";
 import { redirect, notFound } from "next/navigation";
@@ -20,11 +21,10 @@ export default async function EventApplicationsPage({ params, searchParams }: Pa
     const currentPage = Math.max(1, parseInt(page || "1", 10));
 
     const supabase = await createClient();
-    const { data: userData, error: userError } = await supabase.auth.getUser();
-    if (userError || !userData?.user) {
+    const user = await getUserWithRefresh(supabase);
+    if (!user) {
         redirect("/login");
     }
-    const user = userData.user;
 
     const { data: profile } = await supabase
         .from("organizers")

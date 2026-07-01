@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import { Plus, Search, CalendarDays } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { getUserWithRefresh } from "@/lib/supabase/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 
@@ -27,7 +28,7 @@ export default async function EventsPage({
     searchParams: Promise<{ status?: string; q?: string }>;
 }) {
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const user = await getUserWithRefresh(supabase);
 
     if (!user) {
         redirect("/login");

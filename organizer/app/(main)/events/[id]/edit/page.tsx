@@ -651,14 +651,16 @@ export default function EditEventPage() {
                                         <label className={labelClass}>公開設定</label>
                                         <div className="flex gap-3">
                                             <label className={cn("flex-1 flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors", formData.visibility === "public" ? "border-orange-400 bg-orange-50" : "border-slate-200 hover:border-slate-300")}>
-                                                <input type="radio" name="visibility" value="public" checked={formData.visibility === "public"} onChange={handleChange} className="accent-orange-500" />
+                                                <input type="radio" name="visibility" value="public" checked={formData.visibility === "public"} onChange={handleChange} className="peer sr-only" />
+                                                <span className="relative w-[18px] h-[18px] rounded-full border-2 border-slate-300 peer-checked:border-orange-500 shrink-0 transition-colors after:content-[''] after:absolute after:inset-[3px] after:rounded-full after:bg-orange-500 after:opacity-0 peer-checked:after:opacity-100 after:transition-opacity" />
                                                 <div>
                                                     <span className="text-sm font-medium text-slate-900">一般公開</span>
                                                     <p className="text-xs text-slate-500 mt-0.5">検索結果に表示され、誰でも閲覧できます</p>
                                                 </div>
                                             </label>
                                             <label className={cn("flex-1 flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors", formData.visibility === "private" ? "border-orange-400 bg-orange-50" : "border-slate-200 hover:border-slate-300")}>
-                                                <input type="radio" name="visibility" value="private" checked={formData.visibility === "private"} onChange={handleChange} className="accent-orange-500" />
+                                                <input type="radio" name="visibility" value="private" checked={formData.visibility === "private"} onChange={handleChange} className="peer sr-only" />
+                                                <span className="relative w-[18px] h-[18px] rounded-full border-2 border-slate-300 peer-checked:border-orange-500 shrink-0 transition-colors after:content-[''] after:absolute after:inset-[3px] after:rounded-full after:bg-orange-500 after:opacity-0 peer-checked:after:opacity-100 after:transition-opacity" />
                                                 <div>
                                                     <span className="text-sm font-medium text-slate-900">限定公開</span>
                                                     <p className="text-xs text-slate-500 mt-0.5">招待リンクを知っている人のみ閲覧できます</p>
