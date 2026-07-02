@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { signExhibitorDocuments } from "@/lib/supabase/documents";
 import { getUserWithRefresh } from "@/lib/supabase/auth";
 import { ArrowLeft, Mail, Star } from "lucide-react";
 import Link from "next/link";
@@ -49,6 +50,14 @@ export default async function ExhibitorDetailPage({ params }: { params: Promise<
     if (error || !exhibitor) {
         notFound();
     }
+
+    const [permitUrl, vehicleUrl, plUrl, fireUrl, automobileUrl] = await signExhibitorDocuments([
+        exhibitor.business_permit_image_url,
+        exhibitor.vehicle_inspection_image_url,
+        exhibitor.pl_insurance_image_url,
+        exhibitor.fire_equipment_layout_image_url,
+        exhibitor.automobile_inspection_image_url,
+    ]);
 
     const endedEvents = applications
         .filter((a: any) => {
@@ -184,11 +193,11 @@ export default async function ExhibitorDetailPage({ params }: { params: Promise<
                     <section className="bg-white rounded-2xl border border-slate-200 p-6">
                         <h2 className="text-lg font-bold text-slate-900 mb-4">提出書類</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <DocumentCard label="営業許可証" imageUrl={exhibitor.business_permit_image_url} required />
-                            <DocumentCard label="車検証" imageUrl={exhibitor.vehicle_inspection_image_url} />
-                            <DocumentCard label="PL保険" imageUrl={exhibitor.pl_insurance_image_url} />
-                            <DocumentCard label="火器類配置図" imageUrl={exhibitor.fire_equipment_layout_image_url} />
-                            <DocumentCard label="自動車検査証" imageUrl={exhibitor.automobile_inspection_image_url} />
+                            <DocumentCard label="営業許可証" imageUrl={permitUrl} required />
+                            <DocumentCard label="車検証" imageUrl={vehicleUrl} />
+                            <DocumentCard label="PL保険" imageUrl={plUrl} />
+                            <DocumentCard label="火器類配置図" imageUrl={fireUrl} />
+                            <DocumentCard label="自動車検査証" imageUrl={automobileUrl} />
                         </div>
                     </section>
 

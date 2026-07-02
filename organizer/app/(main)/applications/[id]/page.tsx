@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { signExhibitorDocuments } from "@/lib/supabase/documents";
 import { getUserWithRefresh } from "@/lib/supabase/auth";
 import {
     ArrowLeft,
@@ -51,6 +52,13 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
     }
 
     const shopInitial = app.exhibitors?.shop_name?.charAt(0) || "?";
+
+    const [permitUrl, vehicleUrl, plUrl, fireUrl] = await signExhibitorDocuments([
+        app.exhibitors?.business_permit_image_url,
+        app.exhibitors?.vehicle_inspection_image_url,
+        app.exhibitors?.pl_insurance_image_url,
+        app.exhibitors?.fire_equipment_layout_image_url,
+    ]);
 
     const statusLabel = app.status === "approved" ? "承認済み"
         : app.status === "rejected" ? "却下済み"
@@ -152,20 +160,20 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <DocumentCard
                                     label="営業許可証"
-                                    imageUrl={app.exhibitors?.business_permit_image_url}
+                                    imageUrl={permitUrl}
                                     required={true}
                                 />
                                 <DocumentCard
                                     label="車検証"
-                                    imageUrl={app.exhibitors?.vehicle_inspection_image_url}
+                                    imageUrl={vehicleUrl}
                                 />
                                 <DocumentCard
                                     label="PL保険"
-                                    imageUrl={app.exhibitors?.pl_insurance_image_url}
+                                    imageUrl={plUrl}
                                 />
                                 <DocumentCard
                                     label="火器類配置図"
-                                    imageUrl={app.exhibitors?.fire_equipment_layout_image_url}
+                                    imageUrl={fireUrl}
                                 />
                             </div>
                         </div>
