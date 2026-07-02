@@ -23,6 +23,8 @@ export default function OnboardingPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [agreedTerms, setAgreedTerms] = useState(false);
     const [agreedPrivacy, setAgreedPrivacy] = useState(false);
+    const [readTerms, setReadTerms] = useState(false);
+    const [readPrivacy, setReadPrivacy] = useState(false);
     const [legalModal, setLegalModal] = useState<"terms" | "privacy" | null>(null);
     const [error, setError] = useState("");
     const [showErrors, setShowErrors] = useState(false);
@@ -548,24 +550,26 @@ export default function OnboardingPage() {
                     )}
 
                     <div className="space-y-2.5 pt-1">
-                        <label className="flex items-start gap-2.5 text-sm text-slate-600 cursor-pointer select-none">
-                            <input type="checkbox" checked={agreedTerms} onChange={(e) => setAgreedTerms(e.target.checked)} className="sr-only" />
-                            <span className={`mt-0.5 w-5 h-5 rounded border flex items-center justify-center shrink-0 transition-colors ${agreedTerms ? "bg-store-500 border-store-500" : "bg-white border-slate-300"}`}>
+                        <label className={`flex items-start gap-2.5 text-sm text-slate-600 select-none ${readTerms ? "cursor-pointer" : "cursor-default"}`}>
+                            <input type="checkbox" checked={agreedTerms} disabled={!readTerms} onChange={(e) => setAgreedTerms(e.target.checked)} className="sr-only" />
+                            <span className={`mt-0.5 w-5 h-5 rounded border flex items-center justify-center shrink-0 transition-colors ${agreedTerms ? "bg-store-500 border-store-500" : readTerms ? "bg-white border-slate-300" : "bg-slate-100 border-slate-200"}`}>
                                 {agreedTerms && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
                             </span>
                             <span>
-                                <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLegalModal("terms"); }} className="text-store-600 underline hover:text-store-700">利用規約</button>
+                                <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLegalModal("terms"); setReadTerms(true); }} className="text-store-600 underline hover:text-store-700">利用規約</button>
                                 に同意する
+                                {!readTerms && <span className="block text-xs text-slate-500 mt-0.5">※ 内容を確認すると選択できます</span>}
                             </span>
                         </label>
-                        <label className="flex items-start gap-2.5 text-sm text-slate-600 cursor-pointer select-none">
-                            <input type="checkbox" checked={agreedPrivacy} onChange={(e) => setAgreedPrivacy(e.target.checked)} className="sr-only" />
-                            <span className={`mt-0.5 w-5 h-5 rounded border flex items-center justify-center shrink-0 transition-colors ${agreedPrivacy ? "bg-store-500 border-store-500" : "bg-white border-slate-300"}`}>
+                        <label className={`flex items-start gap-2.5 text-sm text-slate-600 select-none ${readPrivacy ? "cursor-pointer" : "cursor-default"}`}>
+                            <input type="checkbox" checked={agreedPrivacy} disabled={!readPrivacy} onChange={(e) => setAgreedPrivacy(e.target.checked)} className="sr-only" />
+                            <span className={`mt-0.5 w-5 h-5 rounded border flex items-center justify-center shrink-0 transition-colors ${agreedPrivacy ? "bg-store-500 border-store-500" : readPrivacy ? "bg-white border-slate-300" : "bg-slate-100 border-slate-200"}`}>
                                 {agreedPrivacy && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
                             </span>
                             <span>
-                                <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLegalModal("privacy"); }} className="text-store-600 underline hover:text-store-700">プライバシーポリシー</button>
+                                <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLegalModal("privacy"); setReadPrivacy(true); }} className="text-store-600 underline hover:text-store-700">プライバシーポリシー</button>
                                 に同意する
+                                {!readPrivacy && <span className="block text-xs text-slate-500 mt-0.5">※ 内容を確認すると選択できます</span>}
                             </span>
                         </label>
                     </div>
