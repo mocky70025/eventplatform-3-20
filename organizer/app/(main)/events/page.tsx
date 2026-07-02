@@ -164,10 +164,10 @@ export default async function EventsPage({
                             return (
                                 <div
                                     key={event.id}
-                                    className="bg-white rounded-2xl border border-slate-200 overflow-hidden flex hover:border-orange-200 transition-colors"
+                                    className="bg-white rounded-2xl border border-slate-200 overflow-hidden flex flex-col hover:border-orange-200 transition-colors"
                                 >
-                                    {/* Image */}
-                                    <div className="w-[150px] shrink-0 bg-gradient-to-br from-orange-100 to-amber-50 relative">
+                                    {/* Image (16:9, top) */}
+                                    <div className="relative aspect-video bg-gradient-to-br from-orange-100 to-amber-50">
                                         {event.main_image_url ? (
                                             // eslint-disable-next-line @next/next/no-img-element
                                             <img
