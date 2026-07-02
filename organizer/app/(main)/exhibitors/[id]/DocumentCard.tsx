@@ -14,11 +14,11 @@ export default function DocumentCard({ label, imageUrl, required = false }: {
     if (!imageUrl || imageError) {
         return (
             <div className="aspect-video bg-slate-50 rounded-xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center p-4">
-                <AlertTriangle className="w-8 h-8 text-slate-400 mb-2" />
+                <AlertTriangle className="w-8 h-8 text-slate-500 mb-2" />
                 <p className="text-xs font-medium text-slate-500 text-center">
                     {label}
                 </p>
-                <p className="text-xs text-slate-400 mt-1">画像がありません</p>
+                <p className="text-xs text-slate-500 mt-1">画像がありません</p>
             </div>
         );
     }

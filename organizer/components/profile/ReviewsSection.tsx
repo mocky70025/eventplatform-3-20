@@ -43,7 +43,7 @@ export function ReviewsSection({ reviews }: ReviewsSectionProps) {
                         <Star className="w-6 h-6 text-slate-300" />
                     </div>
                     <p className="text-sm text-slate-500">まだ評価がありません</p>
-                    <p className="text-xs text-slate-400 mt-1">イベント終了後に出店者から評価が届きます</p>
+                    <p className="text-xs text-slate-500 mt-1">イベント終了後に出店者から評価が届きます</p>
                 </div>
             </div>
         );
@@ -59,7 +59,7 @@ export function ReviewsSection({ reviews }: ReviewsSectionProps) {
                 <div className="flex items-center gap-2">
                     <StarRating rating={Math.round(avgRating)} />
                     <span className="text-lg font-bold text-slate-900">{avgRating.toFixed(1)}</span>
-                    <span className="text-sm text-slate-400">({reviews.length}件)</span>
+                    <span className="text-sm text-slate-500">({reviews.length}件)</span>
                 </div>
             </div>
             <p className="text-sm text-slate-500 mb-6">イベント終了後に出店者から届いた評価です（直近3件）</p>
@@ -80,7 +80,7 @@ export function ReviewsSection({ reviews }: ReviewsSectionProps) {
                             </div>
                             <div className="text-right flex items-center gap-3">
                                 <StarRating rating={review.rating} />
-                                <p className="text-xs text-slate-400">
+                                <p className="text-xs text-slate-500">
                                     {new Date(review.created_at).toLocaleDateString("ja-JP", { year: "numeric", month: "2-digit", day: "2-digit" }).replace(/\//g, "/")}
                                 </p>
                             </div>

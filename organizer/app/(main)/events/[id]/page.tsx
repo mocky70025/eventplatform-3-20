@@ -251,9 +251,9 @@ export default function EventDetailPage() {
                         <h1 className="text-2xl font-bold text-slate-900 mb-1">{event.event_name}</h1>
                         <p className="text-sm text-slate-500 mb-4">{dateText}　・　{event.venue_name || event.address}</p>
                         <div className="flex flex-wrap gap-x-8 gap-y-2">
-                            <div><p className="text-xs text-slate-400">出店料</p><p className="text-sm font-bold text-slate-900">{event.fee || "—"}</p></div>
-                            <div><p className="text-xs text-slate-400">募集数</p><p className="text-sm font-bold text-slate-900">{recruit ? `${recruit}店舗` : "—"}</p></div>
-                            <div><p className="text-xs text-slate-400">応募締切</p><p className="text-sm font-bold text-slate-900">{formatDate(event.application_period_end)}</p></div>
+                            <div><p className="text-xs text-slate-500">出店料</p><p className="text-sm font-bold text-slate-900">{event.fee || "—"}</p></div>
+                            <div><p className="text-xs text-slate-500">募集数</p><p className="text-sm font-bold text-slate-900">{recruit ? `${recruit}店舗` : "—"}</p></div>
+                            <div><p className="text-xs text-slate-500">応募締切</p><p className="text-sm font-bold text-slate-900">{formatDate(event.application_period_end)}</p></div>
                         </div>
                     </div>
                 </div>
@@ -297,7 +297,7 @@ export default function EventDetailPage() {
                             <h3 className="text-sm font-bold text-slate-900 mb-3">募集状況</h3>
                             <p className="mb-2">
                                 <span className="text-3xl font-bold text-orange-500">{approvedCount}</span>
-                                <span className="text-sm text-slate-400"> / {recruit || "—"} 名</span>
+                                <span className="text-sm text-slate-500"> / {recruit || "—"} 名</span>
                             </p>
                             <div className="h-2 bg-slate-100 rounded-full overflow-hidden mb-4">
                                 <div className="h-full bg-orange-500 rounded-full" style={{ width: `${pct}%` }} />
@@ -339,7 +339,7 @@ export default function EventDetailPage() {
                             </div>
                         </section>
 
-                        <button onClick={handleDelete} className="w-full text-center text-xs text-slate-400 hover:text-red-500 transition-colors py-2">
+                        <button onClick={handleDelete} className="w-full text-center text-xs text-slate-500 hover:text-red-500 transition-colors py-2">
                             このイベントを削除
                         </button>
                     </div>

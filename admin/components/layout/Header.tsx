@@ -13,7 +13,7 @@ export async function Header() {
                 <Link href="/" className="flex items-center gap-2 justify-self-start">
                     <LogoMark />
                     <span className="text-lg font-bold text-slate-900">Wacca</span>
-                    <span className="text-[10px] bg-blue-100 text-blue-700 px-2 rounded-full font-semibold inline-flex items-center justify-center h-5" style={{ lineHeight: 1 }}>ADMIN</span>
+                    <span className="text-xs bg-blue-100 text-blue-700 px-2 rounded-full font-semibold inline-flex items-center justify-center h-5" style={{ lineHeight: 1 }}>ADMIN</span>
                 </Link>
 
                 <nav className="flex items-center gap-2 justify-self-center">

@@ -178,7 +178,7 @@ export default async function EventDetailPage({ params }: PageProps) {
                                         <Calendar className="w-5 h-5 text-store-600" />
                                     </div>
                                     <div className="flex-1">
-                                        <p className="text-xs font-medium text-slate-400 mb-1">開催日時</p>
+                                        <p className="text-xs font-medium text-slate-500 mb-1">開催日時</p>
                                         {(() => {
                                             const schedule = event.event_schedule;
                                             const parsed = schedule ? (typeof schedule === "string" ? JSON.parse(schedule) : schedule) : null;
@@ -213,7 +213,7 @@ export default async function EventDetailPage({ params }: PageProps) {
                                         <MapPin className="w-5 h-5 text-store-600" />
                                     </div>
                                     <div>
-                                        <p className="text-xs font-medium text-slate-400 mb-1">場所</p>
+                                        <p className="text-xs font-medium text-slate-500 mb-1">場所</p>
                                         <p className="font-bold text-slate-900 text-sm">{event.venue_name}</p>
                                         {event.address && (
                                             <p className="text-sm text-slate-500 mt-0.5">{event.address}</p>
@@ -276,11 +276,11 @@ export default async function EventDetailPage({ params }: PageProps) {
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="bg-slate-50 rounded-lg p-4">
-                                    <p className="text-xs font-medium text-slate-400 mb-1">募集区画数</p>
+                                    <p className="text-xs font-medium text-slate-500 mb-1">募集区画数</p>
                                     <p className="text-lg font-bold text-slate-900">{boothCount}<span className="text-sm font-normal text-slate-500 ml-1">区画</span></p>
                                 </div>
                                 <div className="bg-slate-50 rounded-lg p-4">
-                                    <p className="text-xs font-medium text-slate-400 mb-1">出店料</p>
+                                    <p className="text-xs font-medium text-slate-500 mb-1">出店料</p>
                                     <p className="text-lg font-bold text-slate-900">{fee}</p>
                                 </div>
                             </div>
@@ -292,14 +292,14 @@ export default async function EventDetailPage({ params }: PageProps) {
                                 if (!Array.isArray(parsed) || parsed.length === 0) return null;
                                 return (
                                     <div className="mt-4">
-                                        <p className="text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider">日別の条件</p>
+                                        <p className="text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wider">日別の条件</p>
                                         <div className="space-y-2">
                                             {parsed.map((day: { date: string; recruit_count: number; fee: string; notes: string }) => (
                                                 <div key={day.date} className="flex items-center gap-4 bg-slate-50 rounded-lg p-3 text-sm">
                                                     <span className="font-bold text-slate-700 min-w-[80px]">{new Date(day.date).toLocaleDateString("ja-JP", { month: "short", day: "numeric", weekday: "short" })}</span>
                                                     <span className="text-slate-600">{day.recruit_count}区画</span>
                                                     <span className="text-slate-600">{day.fee || fee}</span>
-                                                    {day.notes && <span className="text-slate-400 text-xs">{day.notes}</span>}
+                                                    {day.notes && <span className="text-slate-500 text-xs">{day.notes}</span>}
                                                 </div>
                                             ))}
                                         </div>
@@ -314,7 +314,7 @@ export default async function EventDetailPage({ params }: PageProps) {
                                 <h2 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
                                     <span className="w-1 h-5 bg-store-500 rounded-full"></span>
                                     応募中の出店者
-                                    <span className="text-sm font-normal text-slate-400 ml-1">({applicantExhibitors.length})</span>
+                                    <span className="text-sm font-normal text-slate-500 ml-1">({applicantExhibitors.length})</span>
                                 </h2>
                                 <div className="space-y-3">
                                     {applicantExhibitors.map((ex: any) => {
@@ -330,15 +330,15 @@ export default async function EventDetailPage({ params }: PageProps) {
                                                     <div className="flex items-center gap-2">
                                                         <p className="text-sm font-bold text-slate-900 truncate">{ex.shop_name || "店舗名なし"}</p>
                                                         {ex.applicationStatus === "approved" ? (
-                                                            <span className="text-[11px] font-medium px-1.5 py-0.5 rounded-full bg-store-50 text-store-600" style={{ lineHeight: 1 }}>確定</span>
+                                                            <span className="text-xs font-medium px-1.5 py-0.5 rounded-full bg-store-50 text-store-600" style={{ lineHeight: 1 }}>確定</span>
                                                         ) : (
-                                                            <span className="text-[11px] font-medium px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-600" style={{ lineHeight: 1 }}>審査中</span>
+                                                            <span className="text-xs font-medium px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-600" style={{ lineHeight: 1 }}>審査中</span>
                                                         )}
                                                     </div>
                                                     {genres.length > 0 && (
                                                         <div className="flex flex-wrap gap-1 mt-1">
                                                             {genres.map((g: string) => (
-                                                                <span key={g} className="text-[11px] font-medium px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">{g}</span>
+                                                                <span key={g} className="text-xs font-medium px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">{g}</span>
                                                             ))}
                                                         </div>
                                                     )}
@@ -504,7 +504,7 @@ export default async function EventDetailPage({ params }: PageProps) {
                                 <div className="bg-slate-50 rounded-lg border-2 border-dashed border-slate-200 h-48 flex items-center justify-center">
                                     <div className="text-center">
                                         <MapPin className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-                                        <p className="text-sm text-slate-400">住所が設定されていません</p>
+                                        <p className="text-sm text-slate-500">住所が設定されていません</p>
                                     </div>
                                 </div>
                             )}
@@ -532,7 +532,7 @@ export default async function EventDetailPage({ params }: PageProps) {
                                                     <span className="text-slate-500">募集枠</span>
                                                     <span className="font-bold text-slate-900">{day.recruit_count}区画</span>
                                                 </div>
-                                                {day.notes && <p className="text-xs text-slate-400 mt-1">{day.notes}</p>}
+                                                {day.notes && <p className="text-xs text-slate-500 mt-1">{day.notes}</p>}
                                             </div>
                                         ))}
                                     </div>
@@ -540,7 +540,7 @@ export default async function EventDetailPage({ params }: PageProps) {
                                     <>
                                         {/* Fee display */}
                                         <div className="mb-4">
-                                            <p className="text-xs font-medium text-slate-400 mb-1">出店料</p>
+                                            <p className="text-xs font-medium text-slate-500 mb-1">出店料</p>
                                             <p className="text-2xl font-bold text-slate-900">{fee}</p>
                                         </div>
 
@@ -548,7 +548,7 @@ export default async function EventDetailPage({ params }: PageProps) {
                                         <div className="mb-5">
                                             <div className="flex items-center justify-between text-sm mb-2">
                                                 <span className="text-slate-500">募集状況</span>
-                                                <span className="font-bold text-slate-900">{appliedCount}<span className="text-slate-400 font-normal">/{recruitCount}区画</span></span>
+                                                <span className="font-bold text-slate-900">{appliedCount}<span className="text-slate-500 font-normal">/{recruitCount}区画</span></span>
                                             </div>
                                             <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
                                                 <div
@@ -564,7 +564,7 @@ export default async function EventDetailPage({ params }: PageProps) {
                                 {hasApplied ? (
                                     <button
                                         disabled
-                                        className="w-full h-12 rounded-xl text-sm font-bold bg-slate-100 text-slate-400 cursor-not-allowed"
+                                        className="w-full h-12 rounded-xl text-sm font-bold bg-slate-100 text-slate-500 cursor-not-allowed"
                                     >
                                         すでに申し込み済みです
                                     </button>
@@ -593,7 +593,7 @@ export default async function EventDetailPage({ params }: PageProps) {
 
                                 {/* Deadline notice */}
                                 {event.application_period_end && (
-                                    <div className="mt-3 flex items-center gap-1.5 text-xs text-slate-400">
+                                    <div className="mt-3 flex items-center gap-1.5 text-xs text-slate-500">
                                         <Clock className="w-3.5 h-3.5" />
                                         <span>募集締切: {event.application_period_end}</span>
                                     </div>
@@ -602,7 +602,7 @@ export default async function EventDetailPage({ params }: PageProps) {
 
                             {/* Organizer card */}
                             <div className="bg-white rounded-xl border border-slate-200 p-6">
-                                <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-4">主催者情報</p>
+                                <p className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-4">主催者情報</p>
                                 <div className="flex items-center gap-3 mb-4">
                                     <div className="w-11 h-11 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold text-lg shrink-0">
                                         {event.organizers?.company_name?.[0] ?? <User className="w-5 h-5" />}
@@ -617,13 +617,13 @@ export default async function EventDetailPage({ params }: PageProps) {
                                 <div className="space-y-2 text-sm">
                                     {event.organizers?.email && (
                                         <div className="flex items-center gap-2 text-slate-500">
-                                            <Mail className="w-4 h-4 text-slate-400 shrink-0" />
+                                            <Mail className="w-4 h-4 text-slate-500 shrink-0" />
                                             <span className="truncate">{event.organizers.email}</span>
                                         </div>
                                     )}
                                     {event.organizers?.phone_number && (
                                         <div className="flex items-center gap-2 text-slate-500">
-                                            <Phone className="w-4 h-4 text-slate-400 shrink-0" />
+                                            <Phone className="w-4 h-4 text-slate-500 shrink-0" />
                                             <span>{event.organizers.phone}</span>
                                         </div>
                                     )}

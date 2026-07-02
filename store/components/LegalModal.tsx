@@ -26,7 +26,7 @@ export function LegalModal({
           type="button"
           onClick={onClose}
           aria-label="閉じる"
-          className="absolute top-3 right-3 z-10 p-1.5 rounded-lg bg-white/80 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition"
+          className="absolute top-3 right-3 z-10 p-1.5 rounded-lg bg-white/80 text-slate-500 hover:bg-slate-100 hover:text-slate-600 transition"
         >
           <X className="w-5 h-5" />
         </button>

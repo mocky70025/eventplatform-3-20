@@ -195,13 +195,13 @@ export default async function ApplicationDetailPage({ params }: PageProps) {
                                     </h4>
                                     <div className="space-y-1.5">
                                         <div className="flex items-center gap-2 text-sm text-slate-600">
-                                            <Calendar className="w-4 h-4 text-slate-400 shrink-0" />
+                                            <Calendar className="w-4 h-4 text-slate-500 shrink-0" />
                                             {event?.event_start_date
                                                 ? new Date(event.event_start_date).toLocaleDateString("ja-JP")
                                                 : "未定"}
                                         </div>
                                         <div className="flex items-center gap-2 text-sm text-slate-600">
-                                            <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
+                                            <MapPin className="w-4 h-4 text-slate-500 shrink-0" />
                                             {event?.venue_name || "会場未定"}
                                         </div>
                                     </div>
@@ -218,35 +218,35 @@ export default async function ApplicationDetailPage({ params }: PageProps) {
                         {/* Submitted Profile Info */}
                         <div className="bg-white rounded-2xl border border-slate-200 p-6">
                             <h3 className="text-base font-bold text-slate-900 mb-4">申し込み時のプロフィール情報</h3>
-                            <p className="text-xs text-slate-400 mb-4">申し込み時に提出されたプロフィール情報です</p>
+                            <p className="text-xs text-slate-500 mb-4">申し込み時に提出されたプロフィール情報です</p>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
                                 <div>
-                                    <p className="text-xs text-slate-400 mb-0.5">屋号</p>
+                                    <p className="text-xs text-slate-500 mb-0.5">屋号</p>
                                     <p className="text-sm font-medium text-slate-900">
                                         {exhibitorProfile?.shop_name || exhibitorProfile?.company_name || "-"}
                                     </p>
                                 </div>
                                 <div>
-                                    <p className="text-xs text-slate-400 mb-0.5">代表者名</p>
+                                    <p className="text-xs text-slate-500 mb-0.5">代表者名</p>
                                     <p className="text-sm font-medium text-slate-900">
                                         {exhibitorProfile?.representative_name || exhibitorProfile?.name || "-"}
                                     </p>
                                 </div>
                                 <div>
-                                    <p className="text-xs text-slate-400 mb-0.5">メールアドレス</p>
+                                    <p className="text-xs text-slate-500 mb-0.5">メールアドレス</p>
                                     <p className="text-sm font-medium text-slate-900">
                                         {exhibitorProfile?.email || "-"}
                                     </p>
                                 </div>
                                 <div>
-                                    <p className="text-xs text-slate-400 mb-0.5">住所</p>
+                                    <p className="text-xs text-slate-500 mb-0.5">住所</p>
                                     <p className="text-sm font-medium text-slate-900">
                                         {exhibitorProfile?.address || "-"}
                                     </p>
                                 </div>
                                 <div>
-                                    <p className="text-xs text-slate-400 mb-0.5">ジャンル</p>
+                                    <p className="text-xs text-slate-500 mb-0.5">ジャンル</p>
                                     <div className="flex gap-1.5 mt-1 flex-wrap">
                                         {exhibitorProfile?.genre ? (
                                             (Array.isArray(exhibitorProfile.genre)
@@ -262,12 +262,12 @@ export default async function ApplicationDetailPage({ params }: PageProps) {
                                                 </span>
                                             ))
                                         ) : (
-                                            <span className="text-sm text-slate-400">-</span>
+                                            <span className="text-sm text-slate-500">-</span>
                                         )}
                                     </div>
                                 </div>
                                 <div>
-                                    <p className="text-xs text-slate-400 mb-0.5">営業形態</p>
+                                    <p className="text-xs text-slate-500 mb-0.5">営業形態</p>
                                     <div className="flex gap-1.5 mt-1 flex-wrap">
                                         {exhibitorProfile?.business_type ? (
                                             (Array.isArray(exhibitorProfile.business_type)
@@ -283,7 +283,7 @@ export default async function ApplicationDetailPage({ params }: PageProps) {
                                                 </span>
                                             ))
                                         ) : (
-                                            <span className="text-sm text-slate-400">-</span>
+                                            <span className="text-sm text-slate-500">-</span>
                                         )}
                                     </div>
                                 </div>
@@ -291,7 +291,7 @@ export default async function ApplicationDetailPage({ params }: PageProps) {
 
                             {/* Store description */}
                             <div className="border-t border-slate-100 mt-4 pt-4">
-                                <p className="text-xs text-slate-400 mb-1">店舗紹介</p>
+                                <p className="text-xs text-slate-500 mb-1">店舗紹介</p>
                                 <p className="text-sm text-slate-600">
                                     {exhibitorProfile?.description || exhibitorProfile?.introduction || "-"}
                                 </p>
@@ -299,17 +299,17 @@ export default async function ApplicationDetailPage({ params }: PageProps) {
 
                             {/* Business license */}
                             <div className="border-t border-slate-100 mt-4 pt-4">
-                                <p className="text-xs text-slate-400 mb-1">営業許可証</p>
+                                <p className="text-xs text-slate-500 mb-1">営業許可証</p>
                                 <div className="flex items-center gap-2">
                                     {exhibitorProfile?.business_license_url || exhibitorProfile?.license_url ? (
                                         <span
-                                            className="inline-flex items-center justify-center text-[10px] font-semibold bg-store-100 text-store-700 h-5 px-2 rounded-full"
+                                            className="inline-flex items-center justify-center text-xs font-semibold bg-store-100 text-store-700 h-5 px-2 rounded-full"
                                             style={{ lineHeight: 1 }}
                                         >
                                             登録済み
                                         </span>
                                     ) : (
-                                        <span className="text-sm text-slate-400">未登録</span>
+                                        <span className="text-sm text-slate-500">未登録</span>
                                     )}
                                 </div>
                             </div>
@@ -337,7 +337,7 @@ export default async function ApplicationDetailPage({ params }: PageProps) {
                                             </div>
                                         )}
                                         {step.state === "upcoming" && (
-                                            <div className="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center text-xs font-bold text-slate-400">
+                                            <div className="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center text-xs font-bold text-slate-500">
                                                 {idx + 1}
                                             </div>
                                         )}
@@ -356,7 +356,7 @@ export default async function ApplicationDetailPage({ params }: PageProps) {
                                                 "text-sm font-semibold",
                                                 step.state === "completed" && "text-slate-900",
                                                 step.state === "current" && "text-store-700",
-                                                step.state === "upcoming" && "text-slate-400 font-medium"
+                                                step.state === "upcoming" && "text-slate-500 font-medium"
                                             )}
                                         >
                                             {step.label}
@@ -372,7 +372,7 @@ export default async function ApplicationDetailPage({ params }: PageProps) {
                         {/* Organizer Info */}
                         {organizer && (
                             <div className="bg-white rounded-2xl border border-slate-200 p-5">
-                                <p className="text-xs text-slate-400 mb-3">主催者</p>
+                                <p className="text-xs text-slate-500 mb-3">主催者</p>
                                 <div className="flex items-center gap-3 mb-3">
                                     <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center text-sm font-bold text-orange-700">
                                         {(organizer.company_name || organizer.name || "?").charAt(0)}
@@ -386,13 +386,13 @@ export default async function ApplicationDetailPage({ params }: PageProps) {
                                 <div className="space-y-2 pt-3 border-t border-slate-100">
                                     {organizer.email && (
                                         <div className="flex items-center gap-2 text-xs text-slate-600">
-                                            <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                            <Mail className="w-3.5 h-3.5 text-slate-500 shrink-0" />
                                             {organizer.email}
                                         </div>
                                     )}
                                     {organizer.phone_number && (
                                         <div className="flex items-center gap-2 text-xs text-slate-600">
-                                            <Phone className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                            <Phone className="w-3.5 h-3.5 text-slate-500 shrink-0" />
                                             {organizer.phone_number}
                                         </div>
                                     )}

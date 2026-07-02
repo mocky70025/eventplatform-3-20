@@ -188,7 +188,7 @@ export default async function EventSearchPage({ searchParams }: PageProps) {
           {/* Search Input */}
           <div className="relative mb-4">
             <svg
-              className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"
+              className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500"
               fill="none"
               stroke="currentColor"
               strokeWidth={2}
@@ -202,7 +202,7 @@ export default async function EventSearchPage({ searchParams }: PageProps) {
               name="q"
               defaultValue={q}
               placeholder="イベント名、キーワードで検索..."
-              className="w-full rounded-xl py-2.5 px-4 pl-12 border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-store-500 focus:border-store-500 placeholder:text-slate-400"
+              className="w-full rounded-xl py-2.5 px-4 pl-12 border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-store-500 focus:border-store-500 placeholder:text-slate-500"
             />
           </div>
 
@@ -436,7 +436,7 @@ export default async function EventSearchPage({ searchParams }: PageProps) {
                 item === "ellipsis" ? (
                   <span
                     key={`ellipsis-${i}`}
-                    className="w-9 h-9 flex items-center justify-center text-sm text-slate-400"
+                    className="w-9 h-9 flex items-center justify-center text-sm text-slate-500"
                   >
                     ...
                   </span>

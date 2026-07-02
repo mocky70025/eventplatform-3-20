@@ -64,7 +64,7 @@ function VerifyEmailContent() {
 
         <div>
           <div className="flex items-center justify-center gap-1.5 text-sm font-medium text-slate-600">
-            <HelpCircle className="w-4 h-4 text-slate-400" />
+            <HelpCircle className="w-4 h-4 text-slate-500" />
             メールが届かない場合
           </div>
           <div className="mt-3 rounded-xl bg-slate-50 border border-slate-100 p-4 text-left">

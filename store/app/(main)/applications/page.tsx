@@ -108,15 +108,15 @@ export default async function ApplicationsPage({ searchParams }: PageProps) {
                                     )}
                                     <div className="p-4">
                                         <div className="flex items-center justify-between gap-2">
-                                            <p className="text-xs text-slate-400">
+                                            <p className="text-xs text-slate-500">
                                                 {ev?.event_start_date ? new Date(ev.event_start_date).toLocaleDateString("ja-JP") : "日付未定"}
                                             </p>
-                                            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${badge.className}`}>
+                                            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${badge.className}`}>
                                                 {badge.label}
                                             </span>
                                         </div>
                                         <p className="text-sm font-bold text-slate-900 mt-1 truncate">{ev?.event_name}</p>
-                                        <p className="text-xs text-slate-400 mt-0.5 truncate">
+                                        <p className="text-xs text-slate-500 mt-0.5 truncate">
                                             {[ev?.venue_name, statusNote(app.status)].filter(Boolean).join("　・　")}
                                         </p>
                                         <Link

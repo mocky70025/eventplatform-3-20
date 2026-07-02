@@ -563,7 +563,7 @@ export default function CreateEventPage() {
     const fieldErrorMsg = (name: string) => showErrors && !formData[name as keyof typeof formData] ? <p className="text-xs text-red-500 mt-1">この項目は必須です</p> : null;
     const inlineError = (name: string) => fieldErrors[name] ? <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p> : null;
     const sectionTitle = "text-lg font-bold text-slate-900 mb-4 flex items-center gap-2 border-b border-slate-200 pb-2";
-    const editableBadge = <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-green-50 text-green-600 border border-green-100">訂正可</span>;
+    const editableBadge = <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-xs font-bold bg-green-50 text-green-600 border border-green-100">訂正可</span>;
 
     return (
         <div className="min-h-screen bg-[#fdf8f1] flex flex-col">
@@ -586,7 +586,7 @@ export default function CreateEventPage() {
             {/* Header */}
             <header className="px-6 h-16 bg-white border-b border-slate-100 flex items-center justify-between sticky top-0 z-50">
                 <div className="flex items-center gap-4">
-                    <Link href="/" className="text-slate-400 hover:text-slate-600 transition-colors">
+                    <Link href="/" className="text-slate-500 hover:text-slate-600 transition-colors">
                         <ChevronLeft className="w-5 h-5" />
                     </Link>
                     <h1 className="text-lg font-bold text-slate-900">イベント新規作成</h1>
@@ -762,7 +762,7 @@ export default function CreateEventPage() {
                                             <input name="startDate" type="date" value={formData.startDate} onChange={handleChange} className={cn(inputClass, fieldError("startDate"))} />
                                         </div>
                                         <div>
-                                            <label className={labelClass}>開催日 (終了) <span className="text-slate-400 font-normal">（任意）</span></label>
+                                            <label className={labelClass}>開催日 (終了) <span className="text-slate-500 font-normal">（任意）</span></label>
                                             <input name="endDate" type="date" value={formData.endDate} onChange={handleChange} className={inputClass} />
                                         </div>
                                     </div>
@@ -808,7 +808,7 @@ export default function CreateEventPage() {
                                                 <div className="space-y-3 p-4 bg-orange-50/50 rounded-xl border border-orange-100">
                                                     <div className="flex items-center justify-between">
                                                         <span className="text-sm font-semibold text-slate-700">日別スケジュール</span>
-                                                        <button type="button" onClick={() => setFormData(prev => ({ ...prev, usePerDaySchedule: false, eventSchedule: [] }))} className="text-xs text-slate-400 hover:text-red-500">解除</button>
+                                                        <button type="button" onClick={() => setFormData(prev => ({ ...prev, usePerDaySchedule: false, eventSchedule: [] }))} className="text-xs text-slate-500 hover:text-red-500">解除</button>
                                                     </div>
                                                     {formData.eventSchedule.map((day, idx) => (
                                                         <div key={day.date} className="flex items-center gap-3 bg-white rounded-lg p-3 border border-slate-200">
@@ -818,7 +818,7 @@ export default function CreateEventPage() {
                                                                 updated[idx] = { ...updated[idx], start_time: e.target.value };
                                                                 setFormData(prev => ({ ...prev, eventSchedule: updated }));
                                                             }} className="text-sm border border-slate-200 rounded-lg px-2 py-1.5" />
-                                                            <span className="text-slate-400">〜</span>
+                                                            <span className="text-slate-500">〜</span>
                                                             <input type="time" value={day.end_time} onChange={(e) => {
                                                                 const updated = [...formData.eventSchedule];
                                                                 updated[idx] = { ...updated[idx], end_time: e.target.value };
@@ -859,7 +859,7 @@ export default function CreateEventPage() {
                                                         {formData.postponedDates.map((day, idx) => (
                                                             <div key={day.date} className="flex items-center gap-3 bg-white rounded-lg p-3 border border-slate-200">
                                                                 <span className="text-sm font-medium text-slate-700 min-w-[90px]">{new Date(day.date).toLocaleDateString("ja-JP", { month: "short", day: "numeric", weekday: "short" })}</span>
-                                                                <span className="text-slate-400 text-sm">→</span>
+                                                                <span className="text-slate-500 text-sm">→</span>
                                                                 <input type="date" value={day.postponed_to} onChange={(e) => {
                                                                     const updated = [...formData.postponedDates];
                                                                     updated[idx] = { ...updated[idx], postponed_to: e.target.value };
@@ -874,7 +874,7 @@ export default function CreateEventPage() {
                                                 <input name="postponedNote" value={formData.postponedNote} onChange={handleChange} className={inputClass} placeholder="雨天延期 / 荒天時は翌週に延期 など" />
                                             </div>
                                         )}
-                                        <p className="text-xs text-slate-400 mt-1">※ 雨天等で延期する場合の予備日を設定できます</p>
+                                        <p className="text-xs text-slate-500 mt-1">※ 雨天等で延期する場合の予備日を設定できます</p>
                                     </div>
                                     <div className="p-4 bg-orange-50 border border-orange-100 rounded-xl">
                                         <label className="block text-sm font-semibold text-slate-900 mb-2 flex items-center gap-2">
@@ -905,10 +905,10 @@ export default function CreateEventPage() {
                                         {fieldErrorMsg("venueName")}
                                     </div>
                                     <div>
-                                        <label className={labelClass}>郵便番号 <span className="text-slate-400 font-normal">（任意）</span></label>
+                                        <label className={labelClass}>郵便番号 <span className="text-slate-500 font-normal">（任意）</span></label>
                                         <div className="flex gap-2">
                                             <div className="relative flex-1">
-                                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
                                                     <span className="text-sm font-bold">〒</span>
                                                 </div>
                                                 <input name="zipCode" value={formData.zipCode} onChange={handleChange} className={cn(inputClass, "pl-10")} placeholder="1500041" maxLength={7} />
@@ -928,7 +928,7 @@ export default function CreateEventPage() {
                                             <iframe width="100%" height="100%" style={{ border: 0 }} loading="lazy" allowFullScreen src={`https://maps.google.com/maps?q=${encodeURIComponent(formData.address)}&output=embed&z=15`} title="Venue Map"></iframe>
                                         </div>
                                     ) : (
-                                        <div className="h-32 bg-slate-50 rounded-xl flex items-center justify-center border-2 border-dashed border-slate-200 text-slate-400">
+                                        <div className="h-32 bg-slate-50 rounded-xl flex items-center justify-center border-2 border-dashed border-slate-200 text-slate-500">
                                             <div className="text-center">
                                                 <MapPin className="w-6 h-6 mx-auto mb-1 opacity-30" />
                                                 <p className="text-xs font-medium">住所を入力すると地図が表示されます</p>
@@ -966,7 +966,7 @@ export default function CreateEventPage() {
                                                 <div className="space-y-3 p-4 bg-orange-50/50 rounded-xl border border-orange-100">
                                                     <div className="flex items-center justify-between">
                                                         <span className="text-sm font-semibold text-slate-700">日別の募集条件</span>
-                                                        <button type="button" onClick={() => setFormData(prev => ({ ...prev, usePerDaySettings: false, eventDaySettings: [] }))} className="text-xs text-slate-400 hover:text-red-500">解除</button>
+                                                        <button type="button" onClick={() => setFormData(prev => ({ ...prev, usePerDaySettings: false, eventDaySettings: [] }))} className="text-xs text-slate-500 hover:text-red-500">解除</button>
                                                     </div>
                                                     {formData.eventDaySettings.map((day, idx) => (
                                                         <div key={day.date} className="bg-white rounded-lg p-3 border border-slate-200 space-y-2">
@@ -1045,11 +1045,11 @@ export default function CreateEventPage() {
                                         {showErrors && formData.restrictions.length === 0 && <p className="text-xs text-red-500 mt-1">1つ以上選択してください（制限なしの場合は該当なし以外を選択不要なら「なし」を追加）</p>}
                                     </div>
                                     <div>
-                                        <label className={labelClass}>その他のルール <span className="text-slate-400 font-normal">（任意）</span></label>
+                                        <label className={labelClass}>その他のルール <span className="text-slate-500 font-normal">（任意）</span></label>
                                         <textarea name="venueRules" value={formData.venueRules} onChange={handleChange} rows={4} className={textareaClass} placeholder={"・ゴミは各自持ち帰り\n・音量は80dB以下\n・搬入は8:00〜10:00"} />
                                     </div>
                                     <div>
-                                        <label className={labelClass}>会場レイアウト <span className="text-slate-400 font-normal">（任意）</span>{editableBadge}</label>
+                                        <label className={labelClass}>会場レイアウト <span className="text-slate-500 font-normal">（任意）</span>{editableBadge}</label>
                                         <label htmlFor="layout-upload" className="mt-2 flex justify-center rounded-xl border-2 border-dashed border-slate-300 px-6 py-6 hover:bg-slate-50 transition-colors relative overflow-hidden cursor-pointer">
                                             {formData.venueLayout ? (
                                                 <div className="relative w-full aspect-video">
@@ -1064,7 +1064,7 @@ export default function CreateEventPage() {
                                                     <div className="mt-2 flex text-sm text-slate-600 justify-center">
                                                         <span className="relative font-semibold text-orange-600">レイアウト画像をアップロード</span>
                                                     </div>
-                                                    <p className="text-xs text-slate-400 mt-1">PNG, JPG, PDF（10MB以下）</p>
+                                                    <p className="text-xs text-slate-500 mt-1">PNG, JPG, PDF（10MB以下）</p>
                                                 </div>
                                             )}
                                             <input id="layout-upload" type="file" className="sr-only" accept="image/*" onChange={(e) => handleFileChange(e, "layout")} />
@@ -1108,7 +1108,7 @@ export default function CreateEventPage() {
 
                             {/* カテゴリ別募集枠 */}
                             <section>
-                                <h2 className={sectionTitle}><ClipboardList className="w-5 h-5 text-orange-500" /> カテゴリ別募集枠 <span className="text-slate-400 font-normal text-sm ml-1">（任意）</span></h2>
+                                <h2 className={sectionTitle}><ClipboardList className="w-5 h-5 text-orange-500" /> カテゴリ別募集枠 <span className="text-slate-500 font-normal text-sm ml-1">（任意）</span></h2>
                                 <p className="text-sm text-slate-500 mb-4">カテゴリごとに募集枠数を設定できます。総枠数とのバランスにご注意ください。</p>
                                 <div className="space-y-3">
                                     {formData.categorySlots.map((slot, idx) => (
@@ -1121,7 +1121,7 @@ export default function CreateEventPage() {
                                                 <input type="number" min="1" value={slot.count} onChange={(e) => { const updated = [...formData.categorySlots]; updated[idx] = { ...updated[idx], count: parseInt(e.target.value) || 1 }; setFormData(prev => ({ ...prev, categorySlots: updated })); }} className="w-20 text-sm border border-slate-200 rounded-lg px-2 py-2 text-center outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-500" />
                                                 <span className="text-sm text-slate-500">枠</span>
                                             </div>
-                                            <button type="button" onClick={() => setFormData(prev => ({ ...prev, categorySlots: prev.categorySlots.filter((_, i) => i !== idx) }))} className="text-slate-400 hover:text-red-500 transition-colors p-1">
+                                            <button type="button" onClick={() => setFormData(prev => ({ ...prev, categorySlots: prev.categorySlots.filter((_, i) => i !== idx) }))} className="text-slate-500 hover:text-red-500 transition-colors p-1">
                                                 <X className="w-4 h-4" />
                                             </button>
                                         </div>
@@ -1191,18 +1191,18 @@ export default function CreateEventPage() {
                                 <p className="text-sm text-slate-500 mb-4">出店者に公開される連絡先情報です。</p>
                                 <div className="space-y-4">
                                     <div>
-                                        <label className={labelClass}><span className="flex items-center gap-2"><User className="w-4 h-4 text-slate-400" /> 主催者名 </span></label>
+                                        <label className={labelClass}><span className="flex items-center gap-2"><User className="w-4 h-4 text-slate-500" /> 主催者名 </span></label>
                                         <input name="organizerName" value={formData.organizerName} onChange={handleChange} className={cn(inputClass, fieldError("organizerName"))} placeholder="株式会社イベントプランニング / 田中太郎" />
                                         {fieldErrorMsg("organizerName")}
                                     </div>
                                     <div>
-                                        <label className={labelClass}><span className="flex items-center gap-2"><Mail className="w-4 h-4 text-slate-400" /> メールアドレス </span></label>
+                                        <label className={labelClass}><span className="flex items-center gap-2"><Mail className="w-4 h-4 text-slate-500" /> メールアドレス </span></label>
                                         <input name="organizerEmail" type="email" value={formData.organizerEmail} onChange={handleChange} onBlur={(e) => validateField("organizerEmail", e.target.value)} className={cn(inputClass, fieldError("organizerEmail"), fieldErrors.organizerEmail && errorBorder)} placeholder="event@example.com" />
                                         {fieldErrorMsg("organizerEmail")}
                                         {inlineError("organizerEmail")}
                                     </div>
                                     <div>
-                                        <label className={labelClass}><span className="flex items-center gap-2"><Phone className="w-4 h-4 text-slate-400" /> 電話番号 </span></label>
+                                        <label className={labelClass}><span className="flex items-center gap-2"><Phone className="w-4 h-4 text-slate-500" /> 電話番号 </span></label>
                                         <input name="organizerPhone" type="tel" value={formData.organizerPhone} onChange={handleChange} onBlur={(e) => validateField("organizerPhone", e.target.value)} className={cn(inputClass, fieldError("organizerPhone"), fieldErrors.organizerPhone && errorBorder)} placeholder="03-1234-5678" />
                                         {fieldErrorMsg("organizerPhone")}
                                         {inlineError("organizerPhone")}
@@ -1212,14 +1212,14 @@ export default function CreateEventPage() {
 
                             {/* 搬出入 */}
                             <section>
-                                <h2 className={sectionTitle}><Truck className="w-5 h-5 text-orange-500" /> 搬出入について <span className="text-slate-400 font-normal text-sm">（任意）</span>{editableBadge}</h2>
+                                <h2 className={sectionTitle}><Truck className="w-5 h-5 text-orange-500" /> 搬出入について <span className="text-slate-500 font-normal text-sm">（任意）</span>{editableBadge}</h2>
                                 <textarea name="loadingInfo" value={formData.loadingInfo} onChange={handleChange} rows={5} className={textareaClass} placeholder={"・搬入時間：開催日前日 14:00〜17:00、当日 7:00〜9:00\n・搬出時間：イベント終了後〜19:00\n・搬入口：会場北側ゲートから進入"} />
                                 <p className="text-xs text-green-600 mt-1">※ 後から追加・訂正できます</p>
                             </section>
 
                             {/* 出店者への質問項目 */}
                             <section>
-                                <h2 className={sectionTitle}><ClipboardList className="w-5 h-5 text-orange-500" /> 出店者への質問項目 <span className="text-slate-400 font-normal text-sm">（任意）</span></h2>
+                                <h2 className={sectionTitle}><ClipboardList className="w-5 h-5 text-orange-500" /> 出店者への質問項目 <span className="text-slate-500 font-normal text-sm">（任意）</span></h2>
                                 <p className="text-sm text-slate-500 mb-4">
                                     承認した出店者に自動送信されるフォームの項目を選択してください。
                                 </p>
@@ -1238,7 +1238,7 @@ export default function CreateEventPage() {
                                                         <input type="checkbox" checked={formData.selectedExhibitorFields.includes(field.key)} onChange={() => toggleExhibitorField(field.key)} className="w-4 h-4 rounded border-slate-300 accent-orange-500 focus:ring-orange-500" />
                                                         <div className="flex-1 min-w-0">
                                                             <span className="text-sm font-medium text-slate-900">{field.label}</span>
-                                                            <span className={cn("ml-2 text-[10px] font-bold px-1.5 py-0.5 rounded", TYPE_BADGE[field.type].class)}>
+                                                            <span className={cn("ml-2 text-xs font-bold px-1.5 py-0.5 rounded", TYPE_BADGE[field.type].class)}>
                                                                 {TYPE_BADGE[field.type].label}
                                                             </span>
                                                         </div>
@@ -1259,11 +1259,11 @@ export default function CreateEventPage() {
                                             </h3>
                                             {customFields.map(field => (
                                                 <div key={field.id} className="flex items-center gap-3 p-3 rounded-lg border-2 border-slate-100 bg-slate-50">
-                                                    <span className={cn("shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded", field.type === "file" ? "bg-blue-50 text-blue-600" : "bg-slate-200 text-slate-500")}>
+                                                    <span className={cn("shrink-0 text-xs font-bold px-1.5 py-0.5 rounded", field.type === "file" ? "bg-blue-50 text-blue-600" : "bg-slate-200 text-slate-500")}>
                                                         {field.type === "file" ? "画像" : "テキスト"}
                                                     </span>
                                                     <input value={field.label} onChange={(e) => updateCustomFieldLabel(field.id, e.target.value)} className="flex-1 bg-white rounded-md border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-900 outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-500" placeholder="質問項目名を入力" />
-                                                    <button type="button" onClick={() => removeCustomField(field.id)} className="p-1 text-slate-400 hover:text-red-500 transition-colors">
+                                                    <button type="button" onClick={() => removeCustomField(field.id)} className="p-1 text-slate-500 hover:text-red-500 transition-colors">
                                                         <X className="w-4 h-4" />
                                                     </button>
                                                 </div>
@@ -1301,15 +1301,15 @@ export default function CreateEventPage() {
                                                     <div key={key} className="space-y-1">
                                                         <label className="text-xs font-bold text-slate-600">{field.label}</label>
                                                         {field.type === "file" ? (
-                                                            <div className="h-10 bg-white rounded-lg border border-dashed border-slate-300 flex items-center justify-center text-xs text-slate-400">ファイルアップロード欄</div>
+                                                            <div className="h-10 bg-white rounded-lg border border-dashed border-slate-300 flex items-center justify-center text-xs text-slate-500">ファイルアップロード欄</div>
                                                         ) : field.type === "select" ? (
-                                                            <div className="h-10 bg-white rounded-lg border border-slate-200 flex items-center px-3 text-xs text-slate-400">{field.options?.join(" / ")}</div>
+                                                            <div className="h-10 bg-white rounded-lg border border-slate-200 flex items-center px-3 text-xs text-slate-500">{field.options?.join(" / ")}</div>
                                                         ) : field.type === "multiselect" ? (
-                                                            <div className="flex flex-wrap gap-1.5">{field.options?.map(o => <span key={o} className="text-[11px] px-2 py-0.5 bg-white border border-slate-200 rounded-full text-slate-500">{o}</span>)}</div>
+                                                            <div className="flex flex-wrap gap-1.5">{field.options?.map(o => <span key={o} className="text-xs px-2 py-0.5 bg-white border border-slate-200 rounded-full text-slate-500">{o}</span>)}</div>
                                                         ) : field.type === "radio_date" ? (
                                                             <div className="flex gap-2">
-                                                                <div className="h-10 flex-1 bg-white rounded-lg border border-slate-200 flex items-center px-3 text-xs text-slate-400">あり / なし</div>
-                                                                <div className="h-10 flex-1 bg-white rounded-lg border border-slate-200 flex items-center px-3 text-xs text-slate-400">有効期限</div>
+                                                                <div className="h-10 flex-1 bg-white rounded-lg border border-slate-200 flex items-center px-3 text-xs text-slate-500">あり / なし</div>
+                                                                <div className="h-10 flex-1 bg-white rounded-lg border border-slate-200 flex items-center px-3 text-xs text-slate-500">有効期限</div>
                                                             </div>
                                                         ) : field.type === "textarea" ? (
                                                             <div className="h-16 bg-white rounded-lg border border-slate-200"></div>
@@ -1323,7 +1323,7 @@ export default function CreateEventPage() {
                                                 <div key={field.id} className="space-y-1">
                                                     <label className="text-xs font-bold text-slate-600">{field.label || "(未入力)"}</label>
                                                     {field.type === "file" ? (
-                                                        <div className="h-10 bg-white rounded-lg border border-dashed border-slate-300 flex items-center justify-center text-xs text-slate-400">ファイルアップロード欄</div>
+                                                        <div className="h-10 bg-white rounded-lg border border-dashed border-slate-300 flex items-center justify-center text-xs text-slate-500">ファイルアップロード欄</div>
                                                     ) : (
                                                         <div className="h-10 bg-white rounded-lg border border-slate-200"></div>
                                                     )}
@@ -1452,7 +1452,7 @@ export default function CreateEventPage() {
                                                     <div key={key} className="flex items-center gap-2 text-sm">
                                                         <CheckCircle2 className="w-3.5 h-3.5 text-orange-500 shrink-0" />
                                                         <span className="font-semibold text-slate-900">{field.label}</span>
-                                                        <span className={cn("text-[10px] font-bold px-1.5 py-0.5 rounded", field.type === "file" ? "bg-blue-50 text-blue-600" : "bg-slate-100 text-slate-500")}>{field.type === "file" ? "画像" : "テキスト"}</span>
+                                                        <span className={cn("text-xs font-bold px-1.5 py-0.5 rounded", field.type === "file" ? "bg-blue-50 text-blue-600" : "bg-slate-100 text-slate-500")}>{field.type === "file" ? "画像" : "テキスト"}</span>
                                                     </div>
                                                 ) : null;
                                             })}
@@ -1460,8 +1460,8 @@ export default function CreateEventPage() {
                                                 <div key={field.id} className="flex items-center gap-2 text-sm">
                                                     <CheckCircle2 className="w-3.5 h-3.5 text-orange-500 shrink-0" />
                                                     <span className="font-semibold text-slate-900">{field.label}</span>
-                                                    <span className={cn("text-[10px] font-bold px-1.5 py-0.5 rounded", field.type === "file" ? "bg-blue-50 text-blue-600" : "bg-slate-100 text-slate-500")}>{field.type === "file" ? "画像" : "テキスト"}</span>
-                                                    <span className="text-[10px] text-slate-400">（カスタム）</span>
+                                                    <span className={cn("text-xs font-bold px-1.5 py-0.5 rounded", field.type === "file" ? "bg-blue-50 text-blue-600" : "bg-slate-100 text-slate-500")}>{field.type === "file" ? "画像" : "テキスト"}</span>
+                                                    <span className="text-xs text-slate-500">（カスタム）</span>
                                                 </div>
                                             ))}
                                         </div>

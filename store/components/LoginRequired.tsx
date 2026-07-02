@@ -28,7 +28,7 @@ export function LoginRequired({ label }: { label?: string }) {
                         新規登録
                     </Link>
                 </div>
-                <Link href="/" className="inline-block mt-6 text-sm text-slate-400 hover:text-slate-600">
+                <Link href="/" className="inline-block mt-6 text-sm text-slate-500 hover:text-slate-600">
                     ホームに戻る
                 </Link>
             </div>

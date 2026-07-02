@@ -178,8 +178,8 @@ export default function OnboardingPage() {
         }
     };
 
-    const inputBase = "w-full rounded-xl border pl-10 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 transition placeholder:text-slate-400";
-    const inputBaseNoIcon = "w-full rounded-xl border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 transition placeholder:text-slate-400";
+    const inputBase = "w-full rounded-xl border pl-10 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 transition placeholder:text-slate-500";
+    const inputBaseNoIcon = "w-full rounded-xl border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 transition placeholder:text-slate-500";
     const normalBorder = "border-slate-300 focus:ring-orange-500 focus:border-orange-500";
     const errorBorder = "border-red-400 focus:ring-red-500 focus:border-red-500";
     const fieldHasError = (name: string) => showErrors && !formData[name as keyof typeof formData];
@@ -213,7 +213,7 @@ export default function OnboardingPage() {
                 <div className="flex items-center justify-center gap-3 mb-6">
                     <LogoMark />
                     <span className="text-2xl font-bold text-slate-900">Wacca</span>
-                    <span className="text-[10px] bg-orange-100 text-orange-700 px-2 rounded-full font-semibold inline-flex items-center justify-center h-5" style={{ lineHeight: 1 }}>主催者</span>
+                    <span className="text-xs bg-orange-100 text-orange-700 px-2 rounded-full font-semibold inline-flex items-center justify-center h-5" style={{ lineHeight: 1 }}>主催者</span>
                 </div>
 
                 {sessionMissing && (
@@ -234,7 +234,7 @@ export default function OnboardingPage() {
                             <label className="block text-sm font-medium text-slate-700 mb-1.5">主催団体名 / 会社名</label>
                             {fieldErrorMsg("companyName", "団体名")}
                             <div className="relative">
-                                <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" />
+                                <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-500" />
                                 <input
                                     name="companyName"
                                     value={formData.companyName}
@@ -249,7 +249,7 @@ export default function OnboardingPage() {
                             <label className="block text-sm font-medium text-slate-700 mb-1.5">代表者名 / 担当者名</label>
                             {fieldErrorMsg("repName", "代表者名")}
                             <div className="relative">
-                                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" />
+                                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-500" />
                                 <input
                                     name="repName"
                                     value={formData.repName}
@@ -264,7 +264,7 @@ export default function OnboardingPage() {
                             <label className="block text-sm font-medium text-slate-700 mb-1.5">メールアドレス</label>
                             {fieldErrorMsg("email", "メールアドレス")}
                             <div className="relative">
-                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" />
+                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-500" />
                                 <input
                                     name="email"
                                     value={formData.email}
@@ -279,7 +279,7 @@ export default function OnboardingPage() {
                             <label className="block text-sm font-medium text-slate-700 mb-1.5">電話番号</label>
                             {fieldErrorMsg("phone", "電話番号")}
                             <div className="relative">
-                                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" />
+                                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-500" />
                                 <input
                                     name="phone"
                                     value={formData.phone}
@@ -292,9 +292,9 @@ export default function OnboardingPage() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1.5">SNS・ウェブサイト URL <span className="text-slate-400 font-normal">（任意）</span></label>
+                            <label className="block text-sm font-medium text-slate-700 mb-1.5">SNS・ウェブサイト URL <span className="text-slate-500 font-normal">（任意）</span></label>
                             <div className="relative">
-                                <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" />
+                                <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-500" />
                                 <input
                                     name="website"
                                     value={formData.website}
@@ -314,7 +314,7 @@ export default function OnboardingPage() {
                                     value={postalCode}
                                     onChange={e => { setPostalCode(e.target.value); setPostalCodeError(""); }}
                                     onKeyDown={e => e.key === "Enter" && lookupPostalCode()}
-                                    className={`flex-1 min-w-0 rounded-xl border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 transition placeholder:text-slate-400 ${normalBorder}`}
+                                    className={`flex-1 min-w-0 rounded-xl border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 transition placeholder:text-slate-500 ${normalBorder}`}
                                     placeholder="1234567"
                                     maxLength={8}
                                 />
@@ -334,7 +334,7 @@ export default function OnboardingPage() {
                             <label className="block text-sm font-medium text-slate-700 mb-1.5">都道府県</label>
                             {fieldErrorMsg("prefecture", "都道府県")}
                             <div className="relative">
-                                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" />
+                                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-500" />
                                 <select
                                     name="prefecture"
                                     value={formData.prefecture}
@@ -346,7 +346,7 @@ export default function OnboardingPage() {
                                         <option key={p} value={p}>{p}</option>
                                     ))}
                                 </select>
-                                <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                                <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 pointer-events-none" />
                             </div>
                         </div>
 
@@ -363,7 +363,7 @@ export default function OnboardingPage() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1.5">建物名 <span className="text-slate-400 font-normal">（任意）</span></label>
+                            <label className="block text-sm font-medium text-slate-700 mb-1.5">建物名 <span className="text-slate-500 font-normal">（任意）</span></label>
                             <input
                                 name="building"
                                 value={formData.building}
@@ -374,7 +374,7 @@ export default function OnboardingPage() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1.5">自己紹介 / 団体概要 <span className="text-slate-400 font-normal">（任意）</span></label>
+                            <label className="block text-sm font-medium text-slate-700 mb-1.5">自己紹介 / 団体概要 <span className="text-slate-500 font-normal">（任意）</span></label>
                             <textarea
                                 name="description"
                                 value={formData.description}

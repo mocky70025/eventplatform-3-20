@@ -49,7 +49,7 @@ export default function NotificationActions({
         <button
             onClick={handleMarkRead}
             disabled={isLoading}
-            className="text-xs text-slate-400 hover:text-orange-600 disabled:opacity-50 transition-colors"
+            className="text-xs text-slate-500 hover:text-orange-600 disabled:opacity-50 transition-colors"
         >
             既読にする
         </button>

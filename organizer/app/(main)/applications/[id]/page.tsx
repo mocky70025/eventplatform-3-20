@@ -80,7 +80,7 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
                             <div className="min-w-0">
                                 <div className="flex items-center gap-2">
                                     <h1 className="text-xl font-bold text-slate-900 truncate">{app.exhibitors?.shop_name}</h1>
-                                    <span className={`shrink-0 h-6 inline-flex items-center justify-center px-2.5 rounded-full text-[10px] font-semibold ${statusColor}`} style={{ lineHeight: 1 }}>
+                                    <span className={`shrink-0 h-6 inline-flex items-center justify-center px-2.5 rounded-full text-xs font-semibold ${statusColor}`} style={{ lineHeight: 1 }}>
                                         {statusLabel}
                                     </span>
                                 </div>
@@ -94,14 +94,14 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
                                             {app.exhibitors.rating}
                                         </span>
                                     )}
-                                    <span className="text-slate-400">
+                                    <span className="text-slate-500">
                                         申請日 {app.created_at ? new Date(app.created_at).toLocaleDateString("ja-JP") : "-"}
                                     </span>
                                 </div>
                             </div>
                         </div>
                         <div className="shrink-0 text-right">
-                            <p className="text-xs text-slate-400">応募イベント</p>
+                            <p className="text-xs text-slate-500">応募イベント</p>
                             <p className="text-sm font-semibold text-slate-700 mt-0.5">{app.events?.event_name}</p>
                         </div>
                     </div>
@@ -120,11 +120,11 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
                             </h3>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                                 <div className="flex justify-between py-2 border-b border-slate-50">
-                                    <span className="text-slate-400 font-medium">メール</span>
+                                    <span className="text-slate-500 font-medium">メール</span>
                                     <span className="text-slate-900 font-semibold">{app.exhibitors?.email || "-"}</span>
                                 </div>
                                 <div className="flex justify-between py-2 border-b border-slate-50">
-                                    <span className="text-slate-400 font-medium">電話番号</span>
+                                    <span className="text-slate-500 font-medium">電話番号</span>
                                     <span className="text-slate-900 font-semibold">{app.exhibitors?.phone_number || "-"}</span>
                                 </div>
                             </div>
@@ -190,23 +190,23 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
                             <h3 className="text-base font-bold text-slate-900 mb-4">応募概要</h3>
                             <div className="space-y-3 text-sm">
                                 <div className="flex justify-between py-2 border-b border-slate-50">
-                                    <span className="text-slate-400 font-medium">応募先</span>
+                                    <span className="text-slate-500 font-medium">応募先</span>
                                     <span className="text-slate-900 font-semibold">{app.events?.event_name}</span>
                                 </div>
                                 <div className="flex justify-between py-2 border-b border-slate-50">
-                                    <span className="text-slate-400 font-medium">開催日</span>
+                                    <span className="text-slate-500 font-medium">開催日</span>
                                     <span className="text-slate-900 font-semibold">{app.events?.event_start_date || "-"}</span>
                                 </div>
                                 <div className="flex justify-between py-2 border-b border-slate-50">
-                                    <span className="text-slate-400 font-medium">会場</span>
+                                    <span className="text-slate-500 font-medium">会場</span>
                                     <span className="text-slate-900 font-semibold">{app.events?.venue_name || "-"}</span>
                                 </div>
                                 <div className="flex justify-between py-2 border-b border-slate-50">
-                                    <span className="text-slate-400 font-medium">カテゴリ</span>
+                                    <span className="text-slate-500 font-medium">カテゴリ</span>
                                     <span className="text-slate-900 font-semibold">{app.events?.genre || "-"}</span>
                                 </div>
                                 <div className="flex justify-between py-2">
-                                    <span className="text-slate-400 font-medium">応募日時</span>
+                                    <span className="text-slate-500 font-medium">応募日時</span>
                                     <span className="text-slate-900 font-semibold">
                                         {app.created_at ? new Date(app.created_at).toLocaleDateString("ja-JP") : "-"}
                                     </span>

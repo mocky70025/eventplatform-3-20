@@ -230,7 +230,7 @@ export default function ApplyClient({ event, exhibitor }: { event: any, exhibito
                         トップページへ戻る
                     </Button>
                 </Link>
-                <p className="text-xs text-slate-400 mt-6">※ 3秒後に自動的に移動します</p>
+                <p className="text-xs text-slate-500 mt-6">※ 3秒後に自動的に移動します</p>
             </div>
         );
     }
@@ -248,7 +248,7 @@ export default function ApplyClient({ event, exhibitor }: { event: any, exhibito
 
             {/* Event Summary Card */}
             <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
-                <p className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-1">申し込み先イベント</p>
+                <p className="text-xs font-extrabold text-slate-500 uppercase tracking-widest mb-1">申し込み先イベント</p>
                 <h3 className="text-lg font-bold text-slate-900 mb-3">{event.event_name}</h3>
                 <div className="flex flex-wrap gap-4 text-sm text-slate-600">
                     <div className="flex items-center gap-1.5">
@@ -285,7 +285,7 @@ export default function ApplyClient({ event, exhibitor }: { event: any, exhibito
                                         phone_number: exhibitor.phone_number || "",
                                     });
                                 }}
-                                className="flex items-center gap-1 text-sm font-medium text-slate-400 hover:text-slate-600 transition-colors"
+                                className="flex items-center gap-1 text-sm font-medium text-slate-500 hover:text-slate-600 transition-colors"
                             >
                                 <X className="w-3.5 h-3.5" /> キャンセル
                             </button>
@@ -309,7 +309,7 @@ export default function ApplyClient({ event, exhibitor }: { event: any, exhibito
 
                 <div className="space-y-4 text-sm">
                     <div className="flex justify-between items-center py-3 border-b border-slate-50">
-                        <span className="text-slate-400 font-bold">屋号 / 店舗名</span>
+                        <span className="text-slate-500 font-bold">屋号 / 店舗名</span>
                         {isEditing ? (
                             <input
                                 value={profile.shop_name}
@@ -321,7 +321,7 @@ export default function ApplyClient({ event, exhibitor }: { event: any, exhibito
                         )}
                     </div>
                     <div className="flex justify-between items-center py-3 border-b border-slate-50">
-                        <span className="text-slate-400 font-bold">代表者名</span>
+                        <span className="text-slate-500 font-bold">代表者名</span>
                         {isEditing ? (
                             <input
                                 value={profile.name}
@@ -333,17 +333,17 @@ export default function ApplyClient({ event, exhibitor }: { event: any, exhibito
                         )}
                     </div>
                     <div className="flex justify-between py-3 border-b border-slate-50">
-                        <span className="text-slate-400 font-bold">ジャンル</span>
+                        <span className="text-slate-500 font-bold">ジャンル</span>
                         <span className="text-slate-900 font-bold">{exhibitor.genres?.length > 0 ? exhibitor.genres.join("、") : exhibitor.genre_free_text || exhibitor.genre || "未設定"}</span>
                     </div>
                     {exhibitor.business_styles?.length > 0 && (
                         <div className="flex justify-between py-3 border-b border-slate-50">
-                            <span className="text-slate-400 font-bold">営業形態</span>
+                            <span className="text-slate-500 font-bold">営業形態</span>
                             <span className="text-slate-900 font-bold">{exhibitor.business_styles.join("、")}</span>
                         </div>
                     )}
                     <div className="flex justify-between items-center py-3 border-b border-slate-50">
-                        <span className="text-slate-400 font-bold">メールアドレス</span>
+                        <span className="text-slate-500 font-bold">メールアドレス</span>
                         {isEditing ? (
                             <input
                                 type="email"
@@ -356,7 +356,7 @@ export default function ApplyClient({ event, exhibitor }: { event: any, exhibito
                         )}
                     </div>
                     <div className="flex justify-between items-center py-3">
-                        <span className="text-slate-400 font-bold">電話番号</span>
+                        <span className="text-slate-500 font-bold">電話番号</span>
                         {isEditing ? (
                             <input
                                 type="tel"
@@ -410,7 +410,7 @@ export default function ApplyClient({ event, exhibitor }: { event: any, exhibito
                                                         delete next[field.key];
                                                         return next;
                                                     })}
-                                                    className="text-xs text-slate-400 hover:text-red-500 ml-2"
+                                                    className="text-xs text-slate-500 hover:text-red-500 ml-2"
                                                 >
                                                     削除
                                                 </button>
@@ -490,7 +490,7 @@ export default function ApplyClient({ event, exhibitor }: { event: any, exhibito
                                     <span className="text-xs text-slate-500 ml-2">
                                         {day.recruit_count}区画 / {day.fee || "未定"}
                                     </span>
-                                    {day.notes && <p className="text-xs text-slate-400 mt-0.5">{day.notes}</p>}
+                                    {day.notes && <p className="text-xs text-slate-500 mt-0.5">{day.notes}</p>}
                                 </div>
                             </label>
                         ))}
@@ -528,7 +528,7 @@ export default function ApplyClient({ event, exhibitor }: { event: any, exhibito
                         "以上の内容で申し込みを確定する"
                     )}
                 </Button>
-                <p className="text-center text-xs text-slate-400 mt-4">
+                <p className="text-center text-xs text-slate-500 mt-4">
                     申し込みを確定すると、主催者にあなたのプロフィールが公開されます。
                 </p>
             </div>

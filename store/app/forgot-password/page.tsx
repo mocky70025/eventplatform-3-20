@@ -79,7 +79,7 @@ export default function ForgotPasswordPage() {
                                 name="email"
                                 type="email"
                                 required
-                                className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-store-500 focus:border-store-500 transition placeholder:text-slate-400"
+                                className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-store-500 focus:border-store-500 transition placeholder:text-slate-500"
                                 placeholder="you@example.com"
                             />
                         </div>

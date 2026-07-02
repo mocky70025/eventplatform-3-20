@@ -75,11 +75,11 @@ export function ReviewForm({ eventId, organizerUserId, existingReview }: ReviewF
     return (
         <div className="bg-white rounded-2xl border border-store-200 p-6">
             <h3 className="text-base font-bold text-slate-900 mb-1">主催者へのレビュー</h3>
-            <p className="text-xs text-slate-400 mb-4">イベントはいかがでしたか？主催者への評価を送りましょう。</p>
+            <p className="text-xs text-slate-500 mb-4">イベントはいかがでしたか？主催者への評価を送りましょう。</p>
 
             <div className="space-y-4">
                 <div>
-                    <label className="text-xs font-medium text-slate-400 block mb-2">評価</label>
+                    <label className="text-xs font-medium text-slate-500 block mb-2">評価</label>
                     <div className="flex gap-1">
                         {[1, 2, 3, 4, 5].map((star) => (
                             <button
@@ -103,7 +103,7 @@ export function ReviewForm({ eventId, organizerUserId, existingReview }: ReviewF
                 </div>
 
                 <div>
-                    <label className="text-xs font-medium text-slate-400 block mb-1">コメント（任意）</label>
+                    <label className="text-xs font-medium text-slate-500 block mb-1">コメント（任意）</label>
                     <textarea
                         value={comment}
                         onChange={(e) => setComment(e.target.value)}

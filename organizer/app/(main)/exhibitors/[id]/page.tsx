@@ -124,15 +124,15 @@ export default async function ExhibitorDetailPage({ params }: { params: Promise<
                     </div>
                     <div className="flex items-center gap-2 mt-3">
                         <h1 className="text-xl font-bold text-slate-900">{exhibitor.shop_name || "店舗名なし"}</h1>
-                        <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-semibold">出店者</span>
+                        <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-semibold">出店者</span>
                     </div>
                     <p className="text-sm text-slate-500 mt-1">
                         {[exhibitor.genre, location, rating ? `★ ${rating}` : null].filter(Boolean).join("　・　")}
                     </p>
                     <div className="flex items-center gap-10 mt-5">
-                        <div><p className="text-2xl font-bold text-slate-900">{approvedCount}</p><p className="text-xs text-slate-400 mt-0.5">出店回数</p></div>
-                        <div><p className="text-2xl font-bold text-slate-900">{rating ?? "—"}</p><p className="text-xs text-slate-400 mt-0.5">平均評価</p></div>
-                        <div><p className="text-2xl font-bold text-slate-900">{applications.length}</p><p className="text-xs text-slate-400 mt-0.5">応募回数</p></div>
+                        <div><p className="text-2xl font-bold text-slate-900">{approvedCount}</p><p className="text-xs text-slate-500 mt-0.5">出店回数</p></div>
+                        <div><p className="text-2xl font-bold text-slate-900">{rating ?? "—"}</p><p className="text-xs text-slate-500 mt-0.5">平均評価</p></div>
+                        <div><p className="text-2xl font-bold text-slate-900">{applications.length}</p><p className="text-xs text-slate-500 mt-0.5">応募回数</p></div>
                     </div>
                     {exhibitor.email && (
                         <a
@@ -168,11 +168,11 @@ export default async function ExhibitorDetailPage({ params }: { params: Promise<
                                 <div key={i} className="flex items-center justify-between py-3">
                                     <div>
                                         <p className="text-sm font-semibold text-slate-900">{ev.eventName}</p>
-                                        <p className="text-xs text-slate-400 mt-0.5">
+                                        <p className="text-xs text-slate-500 mt-0.5">
                                             {ev.eventDate ? new Date(ev.eventDate).toLocaleDateString("ja-JP") : "日付未定"}
                                         </p>
                                     </div>
-                                    <span className={`h-6 inline-flex items-center justify-center px-2.5 rounded-full text-[10px] font-semibold ${appStatusColor(ev.appStatus)}`} style={{ lineHeight: 1 }}>
+                                    <span className={`h-6 inline-flex items-center justify-center px-2.5 rounded-full text-xs font-semibold ${appStatusColor(ev.appStatus)}`} style={{ lineHeight: 1 }}>
                                         {appStatusLabel(ev.appStatus)}
                                     </span>
                                 </div>
@@ -199,7 +199,7 @@ export default async function ExhibitorDetailPage({ params }: { params: Promise<
                                 <Star className="w-5 h-5 text-amber-400 fill-amber-400" />
                                 レビューを書く
                             </h2>
-                            <p className="text-xs text-slate-400 mb-4">終了したイベントについて出店者を評価できます</p>
+                            <p className="text-xs text-slate-500 mb-4">終了したイベントについて出店者を評価できます</p>
                             <ReviewForm exhibitorUserId={exhibitor.user_id} events={reviewEvents} />
                         </section>
                     )}

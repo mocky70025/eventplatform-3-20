@@ -122,7 +122,7 @@ export default function LoginPage() {
                             autoComplete="email"
                             required
                             placeholder="you@example.com"
-                            className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition placeholder:text-slate-400"
+                            className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition placeholder:text-slate-500"
                         />
                     </div>
                     <div>
@@ -135,7 +135,7 @@ export default function LoginPage() {
                             autoComplete="current-password"
                             required
                             placeholder="********"
-                            className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition placeholder:text-slate-400"
+                            className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition placeholder:text-slate-500"
                         />
                     </div>
 
@@ -173,7 +173,7 @@ export default function LoginPage() {
                 {/* Divider */}
                 <div className="flex items-center gap-4 mb-6">
                     <div className="flex-1 h-px bg-slate-200" />
-                    <span className="text-xs text-slate-400 font-medium">または</span>
+                    <span className="text-xs text-slate-500 font-medium">または</span>
                     <div className="flex-1 h-px bg-slate-200" />
                 </div>
 

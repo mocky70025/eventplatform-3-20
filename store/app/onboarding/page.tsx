@@ -257,8 +257,8 @@ export default function OnboardingPage() {
         }
     };
 
-    const inputBase = "w-full rounded-xl border pl-10 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 transition placeholder:text-slate-400";
-    const inputBaseNoIcon = "w-full rounded-xl border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 transition placeholder:text-slate-400";
+    const inputBase = "w-full rounded-xl border pl-10 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 transition placeholder:text-slate-500";
+    const inputBaseNoIcon = "w-full rounded-xl border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 transition placeholder:text-slate-500";
     const normalBorder = "border-slate-300 focus:ring-store-500 focus:border-store-500";
     const errorBorder = "border-red-400 focus:ring-red-500 focus:border-red-500";
     const fieldHasError = (name: string) => showErrors && !formData[name as keyof typeof formData];
@@ -308,7 +308,7 @@ export default function OnboardingPage() {
                             <label className="block text-sm font-medium text-slate-700 mb-1.5">店舗名 / 屋号</label>
                             {fieldErrorMsg("storeName", "店舗名")}
                             <div className="relative">
-                                <Store className="absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" />
+                                <Store className="absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-500" />
                                 <input
                                     name="storeName"
                                     value={formData.storeName}
@@ -323,7 +323,7 @@ export default function OnboardingPage() {
                             <label className="block text-sm font-medium text-slate-700 mb-1.5">代表者名</label>
                             {fieldErrorMsg("repName", "代表者名")}
                             <div className="relative">
-                                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" />
+                                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-500" />
                                 <input
                                     name="repName"
                                     value={formData.repName}
@@ -339,7 +339,7 @@ export default function OnboardingPage() {
                             {fieldErrorMsg("email", "メールアドレス")}
                             {fieldErrors.email && <p className="text-xs text-red-500 mb-1">{fieldErrors.email}</p>}
                             <div className="relative">
-                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" />
+                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-500" />
                                 <input
                                     name="email"
                                     value={formData.email}
@@ -357,7 +357,7 @@ export default function OnboardingPage() {
                             {fieldErrorMsg("phone", "電話番号")}
                             {fieldErrors.phone && <p className="text-xs text-red-500 mb-1">{fieldErrors.phone}</p>}
                             <div className="relative">
-                                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" />
+                                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-500" />
                                 <input
                                     name="phone"
                                     value={formData.phone}
@@ -378,7 +378,7 @@ export default function OnboardingPage() {
                                     value={postalCode}
                                     onChange={e => { setPostalCode(e.target.value); setPostalCodeError(""); }}
                                     onKeyDown={e => e.key === "Enter" && lookupPostalCode()}
-                                    className={`flex-1 min-w-0 rounded-xl border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 transition placeholder:text-slate-400 ${normalBorder}`}
+                                    className={`flex-1 min-w-0 rounded-xl border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 transition placeholder:text-slate-500 ${normalBorder}`}
                                     placeholder="1234567"
                                     maxLength={8}
                                 />
@@ -398,7 +398,7 @@ export default function OnboardingPage() {
                             <label className="block text-sm font-medium text-slate-700 mb-1.5">都道府県</label>
                             {fieldErrorMsg("prefecture", "都道府県")}
                             <div className="relative">
-                                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" />
+                                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-500" />
                                 <select
                                     name="prefecture"
                                     value={formData.prefecture}
@@ -410,7 +410,7 @@ export default function OnboardingPage() {
                                         <option key={p} value={p}>{p}</option>
                                     ))}
                                 </select>
-                                <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                                <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 pointer-events-none" />
                             </div>
                         </div>
 
@@ -427,7 +427,7 @@ export default function OnboardingPage() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1.5">建物名 <span className="text-slate-400 font-normal">（任意）</span></label>
+                            <label className="block text-sm font-medium text-slate-700 mb-1.5">建物名 <span className="text-slate-500 font-normal">（任意）</span></label>
                             <input
                                 name="building"
                                 value={formData.building}
@@ -438,9 +438,9 @@ export default function OnboardingPage() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1.5">SNS・ウェブサイト URL <span className="text-slate-400 font-normal">（任意）</span></label>
+                            <label className="block text-sm font-medium text-slate-700 mb-1.5">SNS・ウェブサイト URL <span className="text-slate-500 font-normal">（任意）</span></label>
                             <div className="relative">
-                                <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" />
+                                <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-500" />
                                 <input
                                     name="website"
                                     value={formData.website}
@@ -464,14 +464,14 @@ export default function OnboardingPage() {
                                 className={inputClassNameNoIcon("description") + " resize-none"}
                                 placeholder="お店の特徴やメニューの紹介を入力してください"
                             />
-                            <p className="text-xs text-slate-400 mt-1 text-right">{formData.description.length}/100</p>
+                            <p className="text-xs text-slate-500 mt-1 text-right">{formData.description.length}/100</p>
                         </div>
 
                         {/* 営業許可証 */}
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1.5">
                                 <span className="flex items-center gap-1.5">
-                                    <FileText className="h-4 w-4 text-slate-400" />
+                                    <FileText className="h-4 w-4 text-slate-500" />
                                     営業許可証
                                 </span>
                             </label>
@@ -498,7 +498,7 @@ export default function OnboardingPage() {
                                         </div>
                                         <button
                                             onClick={removeFile}
-                                            className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 transition flex-shrink-0"
+                                            className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:text-red-500 hover:bg-red-50 transition flex-shrink-0"
                                         >
                                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -525,7 +525,7 @@ export default function OnboardingPage() {
                                         />
                                     </svg>
                                     <p className="text-sm text-slate-500">クリックしてアップロード</p>
-                                    <p className="text-xs text-slate-400 mt-0.5">PNG, JPG, PDF（最大10MB）</p>
+                                    <p className="text-xs text-slate-500 mt-0.5">PNG, JPG, PDF（最大10MB）</p>
                                     <input
                                         type="file"
                                         accept="image/*,.pdf"

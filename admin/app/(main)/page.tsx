@@ -73,7 +73,7 @@ export default async function Home() {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-slate-400 py-3">対応が必要な項目はありません。</p>
+            <p className="text-sm text-slate-500 py-3">対応が必要な項目はありません。</p>
           )}
         </div>
       </main>

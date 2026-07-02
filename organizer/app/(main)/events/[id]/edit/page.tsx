@@ -517,8 +517,8 @@ export default function EditEventPage() {
     const fieldErrorMsg = (name: string) => showErrors && !formData[name as keyof typeof formData] ? <p className="text-xs text-red-500 mt-1">この項目は必須です</p> : null;
     const inlineError = (name: string) => fieldErrors[name] ? <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p> : null;
     const sectionTitle = "text-lg font-bold text-slate-900 mb-4 flex items-center gap-2 border-b border-slate-200 pb-2";
-    const editableBadge = <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-green-50 text-green-600 border border-green-100">訂正可</span>;
-    const lockedBadge = <span className="ml-2 inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-400 border border-slate-200"><Lock className="w-2.5 h-2.5" />変更不可</span>;
+    const editableBadge = <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-xs font-bold bg-green-50 text-green-600 border border-green-100">訂正可</span>;
+    const lockedBadge = <span className="ml-2 inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-bold bg-slate-100 text-slate-500 border border-slate-200"><Lock className="w-2.5 h-2.5" />変更不可</span>;
 
     return (
         <div className="min-h-screen bg-[#fdf8f1] flex flex-col">
@@ -541,7 +541,7 @@ export default function EditEventPage() {
             {/* Header */}
             <header className="px-6 h-16 bg-white border-b border-slate-100 flex items-center justify-between sticky top-0 z-50">
                 <div className="flex items-center gap-4">
-                    <Link href={`/events/${eventId}`} className="text-slate-400 hover:text-slate-600 transition-colors">
+                    <Link href={`/events/${eventId}`} className="text-slate-500 hover:text-slate-600 transition-colors">
                         <ChevronLeft className="w-5 h-5" />
                     </Link>
                     <h1 className="text-lg font-bold text-slate-900">イベントの編集</h1>
@@ -604,7 +604,7 @@ export default function EditEventPage() {
                     {isLocked && (
                         <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-center gap-3 text-amber-700 text-sm">
                             <Lock className="w-5 h-5 shrink-0" />
-                            <p className="font-medium">公開済みイベントのため、一部の項目は変更できません。<span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-green-50 text-green-600 border border-green-100 ml-1">訂正可</span> マークのある項目のみ編集できます。</p>
+                            <p className="font-medium">公開済みイベントのため、一部の項目は変更できません。<span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-bold bg-green-50 text-green-600 border border-green-100 ml-1">訂正可</span> マークのある項目のみ編集できます。</p>
                         </div>
                     )}
 
@@ -691,7 +691,7 @@ export default function EditEventPage() {
                                             <input name="startDate" type="date" value={formData.startDate} onChange={handleChange} readOnly={isLocked} className={isLocked ? lockedInputClass : inputClass} />
                                         </div>
                                         <div>
-                                            <label className={labelClass}>開催日 (終了) <span className="text-slate-400 font-normal">（任意）</span></label>
+                                            <label className={labelClass}>開催日 (終了) <span className="text-slate-500 font-normal">（任意）</span></label>
                                             <input name="endDate" type="date" value={formData.endDate} onChange={handleChange} readOnly={isLocked} className={isLocked ? lockedInputClass : inputClass} />
                                         </div>
                                     </div>
@@ -736,11 +736,11 @@ export default function EditEventPage() {
                                         {formData.postponedType === "date" && (
                                             <input name="postponedDate" type="date" value={formData.postponedDate} onChange={handleChange} readOnly={isLocked} className={isLocked ? lockedInputClass : inputClass} />
                                         )}
-                                        <p className="text-xs text-slate-400 mt-1">※ 雨天等で延期する場合の予備日を設定できます</p>
+                                        <p className="text-xs text-slate-500 mt-1">※ 雨天等で延期する場合の予備日を設定できます</p>
                                     </div>
                                     <div className={cn("p-4 border rounded-xl", isLocked ? "bg-slate-50 border-slate-200" : "bg-orange-50 border-orange-100")}>
                                         <label className="block text-sm font-semibold text-slate-900 mb-2 flex items-center gap-2">
-                                            <AlertCircle className={cn("w-4 h-4", isLocked ? "text-slate-400" : "text-orange-500")} />
+                                            <AlertCircle className={cn("w-4 h-4", isLocked ? "text-slate-500" : "text-orange-500")} />
                                             出店募集の締め切り</label>
                                         <input name="appDeadline" type="date" value={formData.appDeadline} onChange={handleChange} readOnly={isLocked} className={cn(isLocked ? lockedInputClass : "block w-full rounded-lg border-orange-200 bg-white p-3.5 text-slate-900 outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition-all font-bold shadow-sm", !isLocked && fieldError("appDeadline"))} />
                                         {!isLocked && fieldErrorMsg("appDeadline")}
@@ -760,10 +760,10 @@ export default function EditEventPage() {
                                     </div>
                                     {!isLocked && (
                                         <div>
-                                            <label className={labelClass}>郵便番号 <span className="text-slate-400 font-normal">（任意）</span></label>
+                                            <label className={labelClass}>郵便番号 <span className="text-slate-500 font-normal">（任意）</span></label>
                                             <div className="flex gap-2">
                                                 <div className="relative flex-1">
-                                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
                                                         <span className="text-sm font-bold">〒</span>
                                                     </div>
                                                     <input name="zipCode" value={formData.zipCode} onChange={handleChange} className={cn(inputClass, "pl-10")} placeholder="1500041" maxLength={7} />
@@ -784,7 +784,7 @@ export default function EditEventPage() {
                                             <iframe width="100%" height="100%" style={{ border: 0 }} loading="lazy" allowFullScreen src={`https://maps.google.com/maps?q=${encodeURIComponent(formData.address)}&output=embed&z=15`} title="Venue Map"></iframe>
                                         </div>
                                     ) : (
-                                        <div className="h-32 bg-slate-50 rounded-xl flex items-center justify-center border-2 border-dashed border-slate-200 text-slate-400">
+                                        <div className="h-32 bg-slate-50 rounded-xl flex items-center justify-center border-2 border-dashed border-slate-200 text-slate-500">
                                             <div className="text-center">
                                                 <MapPin className="w-6 h-6 mx-auto mb-1 opacity-30" />
                                                 <p className="text-xs font-medium">住所を入力すると地図が表示されます</p>
@@ -814,7 +814,7 @@ export default function EditEventPage() {
                                         {fieldErrorMsg("venueRules")}
                                     </div>
                                     <div>
-                                        <label className={labelClass}>会場レイアウト <span className="text-slate-400 font-normal">（任意）</span>{editableBadge}</label>
+                                        <label className={labelClass}>会場レイアウト <span className="text-slate-500 font-normal">（任意）</span>{editableBadge}</label>
                                         <label htmlFor="layout-upload-edit" className="mt-2 flex justify-center rounded-xl border-2 border-dashed border-slate-300 px-6 py-6 hover:bg-slate-50 transition-colors relative overflow-hidden cursor-pointer">
                                             {formData.venueLayout ? (
                                                 <div className="relative w-full aspect-video">
@@ -829,7 +829,7 @@ export default function EditEventPage() {
                                                     <div className="mt-2 flex text-sm text-slate-600 justify-center">
                                                         <span className="relative font-semibold text-orange-600">レイアウト画像をアップロード</span>
                                                     </div>
-                                                    <p className="text-xs text-slate-400 mt-1">PNG, JPG, PDF（10MB以下）</p>
+                                                    <p className="text-xs text-slate-500 mt-1">PNG, JPG, PDF（10MB以下）</p>
                                                 </div>
                                             )}
                                             <input id="layout-upload-edit" type="file" className="sr-only" accept="image/*" onChange={(e) => handleFileChange(e, "layout")} />
@@ -848,7 +848,7 @@ export default function EditEventPage() {
                                             <Image src={formData.mainImage} alt="Preview" fill className="object-cover" />
                                         </div>
                                     ) : (
-                                        <div className="h-32 bg-slate-100 rounded-xl flex items-center justify-center border border-slate-200 text-slate-400">
+                                        <div className="h-32 bg-slate-100 rounded-xl flex items-center justify-center border border-slate-200 text-slate-500">
                                             <p className="text-sm">画像なし</p>
                                         </div>
                                     )
@@ -916,18 +916,18 @@ export default function EditEventPage() {
                                 <p className="text-sm text-slate-500 mb-4">出店者に公開される連絡先情報です。</p>
                                 <div className="space-y-4">
                                     <div>
-                                        <label className={labelClass}><span className="flex items-center gap-2"><User className="w-4 h-4 text-slate-400" /> 主催者名 </span></label>
+                                        <label className={labelClass}><span className="flex items-center gap-2"><User className="w-4 h-4 text-slate-500" /> 主催者名 </span></label>
                                         <input name="organizerName" value={formData.organizerName} onChange={handleChange} readOnly={isLocked} className={cn(isLocked ? lockedInputClass : inputClass, !isLocked && fieldError("organizerName"))} placeholder="株式会社イベントプランニング / 田中太郎" />
                                         {fieldErrorMsg("organizerName")}
                                     </div>
                                     <div>
-                                        <label className={labelClass}><span className="flex items-center gap-2"><Mail className="w-4 h-4 text-slate-400" /> メールアドレス </span></label>
+                                        <label className={labelClass}><span className="flex items-center gap-2"><Mail className="w-4 h-4 text-slate-500" /> メールアドレス </span></label>
                                         <input name="organizerEmail" type="email" value={formData.organizerEmail} onChange={handleChange} onBlur={(e) => !isLocked && validateField("organizerEmail", e.target.value)} readOnly={isLocked} className={cn(isLocked ? lockedInputClass : inputClass, !isLocked && fieldError("organizerEmail"), !isLocked && fieldErrors.organizerEmail && errorBorder)} placeholder="event@example.com" />
                                         {fieldErrorMsg("organizerEmail")}
                                         {inlineError("organizerEmail")}
                                     </div>
                                     <div>
-                                        <label className={labelClass}><span className="flex items-center gap-2"><Phone className="w-4 h-4 text-slate-400" /> 電話番号 </span></label>
+                                        <label className={labelClass}><span className="flex items-center gap-2"><Phone className="w-4 h-4 text-slate-500" /> 電話番号 </span></label>
                                         <input name="organizerPhone" type="tel" value={formData.organizerPhone} onChange={handleChange} onBlur={(e) => !isLocked && validateField("organizerPhone", e.target.value)} readOnly={isLocked} className={cn(isLocked ? lockedInputClass : inputClass, !isLocked && fieldError("organizerPhone"), !isLocked && fieldErrors.organizerPhone && errorBorder)} placeholder="03-1234-5678" />
                                         {fieldErrorMsg("organizerPhone")}
                                         {inlineError("organizerPhone")}
@@ -937,19 +937,19 @@ export default function EditEventPage() {
 
                             {/* 搬出入 */}
                             <section>
-                                <h2 className={sectionTitle}><Truck className="w-5 h-5 text-orange-500" /> 搬出入について <span className="text-slate-400 font-normal text-sm">（任意）</span>{editableBadge}</h2>
+                                <h2 className={sectionTitle}><Truck className="w-5 h-5 text-orange-500" /> 搬出入について <span className="text-slate-500 font-normal text-sm">（任意）</span>{editableBadge}</h2>
                                 <textarea name="loadingInfo" value={formData.loadingInfo} onChange={handleChange} rows={5} className={textareaClass} placeholder={"・搬入時間：開催日前日 14:00〜17:00、当日 7:00〜9:00\n・搬出時間：イベント終了後〜19:00\n・搬入口：会場北側ゲートから進入"} />
                                 <p className="text-xs text-green-600 mt-1">※ 後から追加・訂正できます</p>
                             </section>
 
                             {/* 出店者への質問項目 */}
                             <section>
-                                <h2 className={sectionTitle}><ClipboardList className="w-5 h-5 text-orange-500" /> 出店者への質問項目 <span className="text-slate-400 font-normal text-sm">（任意）</span> {isLocked && lockedBadge}</h2>
+                                <h2 className={sectionTitle}><ClipboardList className="w-5 h-5 text-orange-500" /> 出店者への質問項目 <span className="text-slate-500 font-normal text-sm">（任意）</span> {isLocked && lockedBadge}</h2>
                                 {isLocked ? (
                                     /* ロック時は読み取り専用リスト表示 */
                                     <div className="space-y-2">
                                         {formData.selectedExhibitorFields.length === 0 && customFields.length === 0 ? (
-                                            <p className="text-sm text-slate-400">質問項目は設定されていません。</p>
+                                            <p className="text-sm text-slate-500">質問項目は設定されていません。</p>
                                         ) : (
                                             <div className="bg-slate-50 rounded-xl border border-slate-200 p-4 space-y-2">
                                                 {formData.selectedExhibitorFields.map(key => {
@@ -958,7 +958,7 @@ export default function EditEventPage() {
                                                         <div key={key} className="flex items-center gap-2 text-sm">
                                                             <CheckCircle2 className="w-3.5 h-3.5 text-orange-500 shrink-0" />
                                                             <span className="font-medium text-slate-700">{field.label}</span>
-                                                            <span className={cn("text-[10px] font-bold px-1.5 py-0.5 rounded", field.type === "file" ? "bg-blue-50 text-blue-600" : "bg-slate-100 text-slate-500")}>{field.type === "file" ? "画像" : "テキスト"}</span>
+                                                            <span className={cn("text-xs font-bold px-1.5 py-0.5 rounded", field.type === "file" ? "bg-blue-50 text-blue-600" : "bg-slate-100 text-slate-500")}>{field.type === "file" ? "画像" : "テキスト"}</span>
                                                         </div>
                                                     ) : null;
                                                 })}
@@ -966,7 +966,7 @@ export default function EditEventPage() {
                                                     <div key={field.id} className="flex items-center gap-2 text-sm">
                                                         <CheckCircle2 className="w-3.5 h-3.5 text-orange-500 shrink-0" />
                                                         <span className="font-medium text-slate-700">{field.label}</span>
-                                                        <span className={cn("text-[10px] font-bold px-1.5 py-0.5 rounded", field.type === "file" ? "bg-blue-50 text-blue-600" : "bg-slate-100 text-slate-500")}>{field.type === "file" ? "画像" : "テキスト"}</span>
+                                                        <span className={cn("text-xs font-bold px-1.5 py-0.5 rounded", field.type === "file" ? "bg-blue-50 text-blue-600" : "bg-slate-100 text-slate-500")}>{field.type === "file" ? "画像" : "テキスト"}</span>
                                                     </div>
                                                 ))}
                                             </div>
@@ -993,7 +993,7 @@ export default function EditEventPage() {
                                                                 <input type="checkbox" checked={formData.selectedExhibitorFields.includes(field.key)} onChange={() => toggleExhibitorField(field.key)} className="w-4 h-4 rounded border-slate-300 accent-orange-500 focus:ring-orange-500" />
                                                                 <div className="flex-1 min-w-0">
                                                                     <span className="text-sm font-medium text-slate-900">{field.label}</span>
-                                                                    <span className={cn("ml-2 text-[10px] font-bold px-1.5 py-0.5 rounded", field.type === "file" ? "bg-blue-50 text-blue-600" : "bg-slate-100 text-slate-500")}>
+                                                                    <span className={cn("ml-2 text-xs font-bold px-1.5 py-0.5 rounded", field.type === "file" ? "bg-blue-50 text-blue-600" : "bg-slate-100 text-slate-500")}>
                                                                         {field.type === "file" ? "画像" : "テキスト"}
                                                                     </span>
                                                                 </div>
@@ -1014,11 +1014,11 @@ export default function EditEventPage() {
                                                     </h3>
                                                     {customFields.map(field => (
                                                         <div key={field.id} className="flex items-center gap-3 p-3 rounded-lg border-2 border-slate-100 bg-slate-50">
-                                                            <span className={cn("shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded", field.type === "file" ? "bg-blue-50 text-blue-600" : "bg-slate-200 text-slate-500")}>
+                                                            <span className={cn("shrink-0 text-xs font-bold px-1.5 py-0.5 rounded", field.type === "file" ? "bg-blue-50 text-blue-600" : "bg-slate-200 text-slate-500")}>
                                                                 {field.type === "file" ? "画像" : "テキスト"}
                                                             </span>
                                                             <input value={field.label} onChange={(e) => updateCustomFieldLabel(field.id, e.target.value)} className="flex-1 bg-white rounded-md border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-900 outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-500" placeholder="質問項目名を入力" />
-                                                            <button type="button" onClick={() => removeCustomField(field.id)} className="p-1 text-slate-400 hover:text-red-500 transition-colors">
+                                                            <button type="button" onClick={() => removeCustomField(field.id)} className="p-1 text-slate-500 hover:text-red-500 transition-colors">
                                                                 <X className="w-4 h-4" />
                                                             </button>
                                                         </div>
@@ -1051,7 +1051,7 @@ export default function EditEventPage() {
                                                             <div key={key} className="space-y-1">
                                                                 <label className="text-xs font-bold text-slate-600">{field.label}</label>
                                                                 {field.type === "file" ? (
-                                                                    <div className="h-10 bg-white rounded-lg border border-dashed border-slate-300 flex items-center justify-center text-xs text-slate-400">ファイルアップロード欄</div>
+                                                                    <div className="h-10 bg-white rounded-lg border border-dashed border-slate-300 flex items-center justify-center text-xs text-slate-500">ファイルアップロード欄</div>
                                                                 ) : (
                                                                     <div className="h-10 bg-white rounded-lg border border-slate-200"></div>
                                                                 )}
@@ -1062,7 +1062,7 @@ export default function EditEventPage() {
                                                         <div key={field.id} className="space-y-1">
                                                             <label className="text-xs font-bold text-slate-600">{field.label || "(未入力)"}</label>
                                                             {field.type === "file" ? (
-                                                                <div className="h-10 bg-white rounded-lg border border-dashed border-slate-300 flex items-center justify-center text-xs text-slate-400">ファイルアップロード欄</div>
+                                                                <div className="h-10 bg-white rounded-lg border border-dashed border-slate-300 flex items-center justify-center text-xs text-slate-500">ファイルアップロード欄</div>
                                                             ) : (
                                                                 <div className="h-10 bg-white rounded-lg border border-slate-200"></div>
                                                             )}
@@ -1186,7 +1186,7 @@ export default function EditEventPage() {
                                                     <div key={key} className="flex items-center gap-2 text-sm">
                                                         <CheckCircle2 className="w-3.5 h-3.5 text-orange-500 shrink-0" />
                                                         <span className="font-semibold text-slate-900">{field.label}</span>
-                                                        <span className={cn("text-[10px] font-bold px-1.5 py-0.5 rounded", field.type === "file" ? "bg-blue-50 text-blue-600" : "bg-slate-100 text-slate-500")}>{field.type === "file" ? "画像" : "テキスト"}</span>
+                                                        <span className={cn("text-xs font-bold px-1.5 py-0.5 rounded", field.type === "file" ? "bg-blue-50 text-blue-600" : "bg-slate-100 text-slate-500")}>{field.type === "file" ? "画像" : "テキスト"}</span>
                                                     </div>
                                                 ) : null;
                                             })}
@@ -1194,7 +1194,7 @@ export default function EditEventPage() {
                                                 <div key={field.id} className="flex items-center gap-2 text-sm">
                                                     <CheckCircle2 className="w-3.5 h-3.5 text-orange-500 shrink-0" />
                                                     <span className="font-semibold text-slate-900">{field.label}</span>
-                                                    <span className={cn("text-[10px] font-bold px-1.5 py-0.5 rounded", field.type === "file" ? "bg-blue-50 text-blue-600" : "bg-slate-100 text-slate-500")}>{field.type === "file" ? "画像" : "テキスト"}</span>
+                                                    <span className={cn("text-xs font-bold px-1.5 py-0.5 rounded", field.type === "file" ? "bg-blue-50 text-blue-600" : "bg-slate-100 text-slate-500")}>{field.type === "file" ? "画像" : "テキスト"}</span>
                                                 </div>
                                             ))}
                                         </div>

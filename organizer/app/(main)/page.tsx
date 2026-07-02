@@ -97,7 +97,7 @@ export default async function Home() {
                 return (
                   <div key={app.id} className="bg-white rounded-2xl border border-slate-200 p-4">
                     {app.status === "pending" && (
-                      <span className="inline-flex items-center text-[10px] font-semibold bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full mb-3">
+                      <span className="inline-flex items-center text-xs font-semibold bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full mb-3">
                         新規申請
                       </span>
                     )}
@@ -113,7 +113,7 @@ export default async function Home() {
                       )}
                     </div>
                     <p className="text-sm font-bold text-slate-900 truncate">{ex?.shop_name || "出店者"}</p>
-                    <div className="flex items-center gap-2 mt-1 text-xs text-slate-400">
+                    <div className="flex items-center gap-2 mt-1 text-xs text-slate-500">
                       {ex?.genre && <span className="truncate">{ex.genre}</span>}
                       {ex?.rating && (
                         <span className="inline-flex items-center gap-0.5 text-slate-500">
@@ -182,10 +182,10 @@ export default async function Home() {
                   <div key={todo.id} className="flex items-center gap-3 p-4">
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-bold text-slate-900 truncate">{todo.title}</p>
-                      <p className="text-xs text-slate-400 mt-0.5 truncate">{todo.meta}</p>
+                      <p className="text-xs text-slate-500 mt-0.5 truncate">{todo.meta}</p>
                     </div>
                     {todo.urgent && (
-                      <span className="shrink-0 text-[10px] font-semibold bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full">
+                      <span className="shrink-0 text-xs font-semibold bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full">
                         急ぎ
                       </span>
                     )}

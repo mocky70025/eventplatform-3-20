@@ -5,7 +5,7 @@ export function TermsContent() {
   return (
     <>
       <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">Wacca 利用規約</h1>
-      <p className="text-sm text-slate-400 mb-8">最終更新日: 2026年4月8日</p>
+      <p className="text-sm text-slate-500 mb-8">最終更新日: 2026年4月8日</p>
 
       <p className="text-slate-700 leading-relaxed mb-8">
         本利用規約（以下「本規約」といいます）は、株式会社Clarity Labo（以下「当社」といいます）が提供するイベントマッチングプラットフォーム「Wacca」（以下「本サービス」といいます）の利用条件を定めるものです。ユーザーは、本規約の全条項に同意した上で本サービスを利用するものとします。
@@ -96,7 +96,7 @@ export function PrivacyContent() {
   return (
     <>
       <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">プライバシーポリシー</h1>
-      <p className="text-sm text-slate-400 mb-8">最終更新日: 2026年3月1日</p>
+      <p className="text-sm text-slate-500 mb-8">最終更新日: 2026年3月1日</p>
 
       <div className="space-y-8 text-slate-700 leading-relaxed">
         <section>

@@ -74,7 +74,7 @@ export function ImageCropDialog({
                 </div>
 
                 <div className="flex items-center gap-3 mt-5">
-                    <Minus className="w-4 h-4 text-slate-400 shrink-0" />
+                    <Minus className="w-4 h-4 text-slate-500 shrink-0" />
                     <input
                         type="range"
                         min={1}
@@ -89,7 +89,7 @@ export function ImageCropDialog({
                             accentColor: accent,
                         }}
                     />
-                    <Plus className="w-4 h-4 text-slate-400 shrink-0" />
+                    <Plus className="w-4 h-4 text-slate-500 shrink-0" />
                 </div>
 
                 <div className="flex justify-end gap-3 mt-6">

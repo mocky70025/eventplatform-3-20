@@ -398,11 +398,11 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
                         readOnly
                         className={inputClass + " bg-slate-50 text-slate-500 cursor-not-allowed"}
                     />
-                    <p className="text-xs text-slate-400 mt-1">メールアドレスの変更はアカウント設定から行ってください</p>
+                    <p className="text-xs text-slate-500 mt-1">メールアドレスの変更はアカウント設定から行ってください</p>
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1.5">郵便番号 <span className="text-slate-400 text-xs font-normal">(任意)</span></label>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">郵便番号 <span className="text-slate-500 text-xs font-normal">(任意)</span></label>
                     <div className="flex gap-2">
                         <input
                             name="postalCode"
@@ -428,7 +428,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
                     )}
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1.5">所在地 <span className="text-slate-400 text-xs font-normal">(任意)</span></label>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">所在地 <span className="text-slate-500 text-xs font-normal">(任意)</span></label>
                     <input
                         name="address"
                         value={formData.address}
@@ -444,7 +444,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
 
                 <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                        SNS・ウェブサイト URL <span className="text-slate-400 text-xs font-normal">（任意）</span>
+                        SNS・ウェブサイト URL <span className="text-slate-500 text-xs font-normal">（任意）</span>
                     </label>
                     <input
                         name="website"
@@ -458,7 +458,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
 
                 <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                        自己紹介 / 団体概要 <span className="text-slate-400 text-xs font-normal">（任意）</span>
+                        自己紹介 / 団体概要 <span className="text-slate-500 text-xs font-normal">（任意）</span>
                     </label>
                     <textarea
                         name="description"
@@ -473,7 +473,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
 
             {/* Save actions */}
             <div className="flex items-center justify-between">
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-slate-500">
                     最終更新: {initialProfile?.updated_at
                         ? new Date(initialProfile.updated_at).toLocaleDateString("ja-JP")
                         : "-"}

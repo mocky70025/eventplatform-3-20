@@ -29,7 +29,7 @@ export default function ExhibitorList({ exhibitors }: { exhibitors: Exhibitor[] 
         return (
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-12 text-center">
                 <AlertCircle className="w-12 h-12 text-slate-200 mx-auto mb-4" />
-                <p className="text-slate-400">出店者がまだ登録されていません</p>
+                <p className="text-slate-500">出店者がまだ登録されていません</p>
             </div>
         );
     }
@@ -37,7 +37,7 @@ export default function ExhibitorList({ exhibitors }: { exhibitors: Exhibitor[] 
     return (
         <div className="space-y-4">
             <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                 <input
                     type="text"
                     placeholder="店舗名・担当者名・メール・ジャンルで検索"
@@ -46,7 +46,7 @@ export default function ExhibitorList({ exhibitors }: { exhibitors: Exhibitor[] 
                     className="w-full pl-9 pr-4 py-2.5 text-sm bg-white border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all"
                 />
                 {searchQuery && (
-                    <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                    <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-600">
                         <X className="w-3.5 h-3.5" />
                     </button>
                 )}
@@ -55,11 +55,11 @@ export default function ExhibitorList({ exhibitors }: { exhibitors: Exhibitor[] 
             {filtered.length === 0 ? (
                 <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-12 text-center">
                     <AlertCircle className="w-12 h-12 text-slate-200 mx-auto mb-4" />
-                    <p className="text-slate-400">"{searchQuery}" に一致する出店者はいません</p>
+                    <p className="text-slate-500">"{searchQuery}" に一致する出店者はいません</p>
                 </div>
             ) : (
                 <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-                    <div className="px-4 py-2.5 border-b border-slate-100 text-xs text-slate-400 font-medium">
+                    <div className="px-4 py-2.5 border-b border-slate-100 text-xs text-slate-500 font-medium">
                         {filtered.length} 件表示
                         {searchQuery && <span className="ml-1">（全 {exhibitors.length} 件中）</span>}
                     </div>
@@ -67,10 +67,10 @@ export default function ExhibitorList({ exhibitors }: { exhibitors: Exhibitor[] 
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="bg-slate-50/50 border-b border-slate-50">
-                                    <th className="px-6 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider">店舗名 / 担当者</th>
-                                    <th className="px-6 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider">連絡先</th>
-                                    <th className="px-6 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider">ジャンル</th>
-                                    <th className="px-6 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider">登録日</th>
+                                    <th className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">店舗名 / 担当者</th>
+                                    <th className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">連絡先</th>
+                                    <th className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">ジャンル</th>
+                                    <th className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">登録日</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-50">
@@ -89,9 +89,9 @@ export default function ExhibitorList({ exhibitors }: { exhibitors: Exhibitor[] 
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex flex-col gap-1 text-xs text-slate-600">
-                                                <span className="flex items-center gap-1"><Mail className="w-3 h-3 text-slate-400" />{exhibitor.email}</span>
+                                                <span className="flex items-center gap-1"><Mail className="w-3 h-3 text-slate-500" />{exhibitor.email}</span>
                                                 {exhibitor.phone_number && (
-                                                    <span className="flex items-center gap-1"><Phone className="w-3 h-3 text-slate-400" />{exhibitor.phone_number}</span>
+                                                    <span className="flex items-center gap-1"><Phone className="w-3 h-3 text-slate-500" />{exhibitor.phone_number}</span>
                                                 )}
                                             </div>
                                         </td>
@@ -101,10 +101,10 @@ export default function ExhibitorList({ exhibitors }: { exhibitors: Exhibitor[] 
                                                     {exhibitor.genre}
                                                 </span>
                                             ) : (
-                                                <span className="text-xs text-slate-400">未設定</span>
+                                                <span className="text-xs text-slate-500">未設定</span>
                                             )}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-xs text-slate-400">
+                                        <td className="px-6 py-4 whitespace-nowrap text-xs text-slate-500">
                                             {new Date(exhibitor.created_at).toLocaleDateString('ja-JP')}
                                         </td>
                                     </tr>

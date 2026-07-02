@@ -99,7 +99,7 @@ export default async function ProfilePage() {
                             <div className="min-w-0">
                                 <div className="flex items-center gap-2">
                                     <h1 className="text-xl font-bold text-slate-900 truncate">{displayName}</h1>
-                                    <span className="shrink-0 text-[10px] bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-semibold">主催者</span>
+                                    <span className="shrink-0 text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-semibold">主催者</span>
                                 </div>
                                 {location && <p className="text-sm text-slate-500 mt-1 truncate">{location}</p>}
                             </div>
@@ -116,15 +116,15 @@ export default async function ProfilePage() {
                     <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-slate-100 text-center">
                         <div>
                             <p className="text-2xl font-bold text-slate-900">{eventCount}</p>
-                            <p className="text-xs text-slate-400 mt-1">主催イベント</p>
+                            <p className="text-xs text-slate-500 mt-1">主催イベント</p>
                         </div>
                         <div>
                             <p className="text-2xl font-bold text-orange-500">{appCount}</p>
-                            <p className="text-xs text-slate-400 mt-1">累計応募</p>
+                            <p className="text-xs text-slate-500 mt-1">累計応募</p>
                         </div>
                         <div>
                             <p className="text-2xl font-bold text-orange-500">{avgRating !== null ? avgRating.toFixed(1) : "—"}</p>
-                            <p className="text-xs text-slate-400 mt-1">平均評価</p>
+                            <p className="text-xs text-slate-500 mt-1">平均評価</p>
                         </div>
                     </div>
                 </div>

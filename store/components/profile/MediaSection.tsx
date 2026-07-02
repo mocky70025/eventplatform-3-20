@@ -234,7 +234,7 @@ export function MediaSection({ initialProfile }: MediaSectionProps) {
                         <div key={`existing-${i}`} className="relative aspect-square rounded-xl overflow-hidden bg-slate-100 border border-slate-200">
                             <img src={url} alt={`写真 ${i + 1}`} className="w-full h-full object-cover" />
                             {i === 0 && (
-                                <span className="absolute top-2 left-2 h-5 inline-flex items-center justify-center px-2 rounded bg-store-500 text-white text-[10px] font-bold" style={{ lineHeight: 1 }}>
+                                <span className="absolute top-2 left-2 h-5 inline-flex items-center justify-center px-2 rounded bg-store-500 text-white text-xs font-bold" style={{ lineHeight: 1 }}>
                                     メイン
                                 </span>
                             )}
@@ -247,12 +247,12 @@ export function MediaSection({ initialProfile }: MediaSectionProps) {
                             <img src={preview} alt={`新規写真 ${i + 1}`} className="w-full h-full object-cover" />
                             <button
                                 onClick={() => removeNewPhoto(i)}
-                                className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-white/90 border border-slate-200 flex items-center justify-center text-slate-400 hover:text-red-500 transition"
+                                className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-white/90 border border-slate-200 flex items-center justify-center text-slate-500 hover:text-red-500 transition"
                             >
                                 <X className="w-3.5 h-3.5" />
                             </button>
                             {existingPhotos.length === 0 && i === 0 && (
-                                <span className="absolute top-2 left-2 h-5 inline-flex items-center justify-center px-2 rounded bg-store-500 text-white text-[10px] font-bold" style={{ lineHeight: 1 }}>
+                                <span className="absolute top-2 left-2 h-5 inline-flex items-center justify-center px-2 rounded bg-store-500 text-white text-xs font-bold" style={{ lineHeight: 1 }}>
                                     メイン
                                 </span>
                             )}
@@ -263,7 +263,7 @@ export function MediaSection({ initialProfile }: MediaSectionProps) {
                     {totalPhotos < MAX_PHOTOS && (
                         <label className="aspect-square rounded-xl border-2 border-dashed border-slate-300 hover:border-store-400 hover:bg-store-50/30 transition cursor-pointer flex flex-col items-center justify-center gap-1.5">
                             <ImagePlus className="w-6 h-6 text-slate-300" />
-                            <span className="text-xs text-slate-400">追加</span>
+                            <span className="text-xs text-slate-500">追加</span>
                             <input
                                 type="file"
                                 accept="image/*"
@@ -287,7 +287,7 @@ export function MediaSection({ initialProfile }: MediaSectionProps) {
 
             {/* Footer */}
             <div className="flex items-center justify-between">
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-slate-500">
                     最終更新: {initialProfile?.updated_at
                         ? new Date(initialProfile.updated_at).toLocaleDateString("ja-JP", { year: "numeric", month: "2-digit", day: "2-digit" }).replace(/\//g, "/") + " " + new Date(initialProfile.updated_at).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })
                         : "-"}

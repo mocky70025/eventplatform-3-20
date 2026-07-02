@@ -85,7 +85,7 @@ export default async function ProfilePage() {
                             <div className="min-w-0">
                                 <div className="flex items-center gap-2">
                                     <h1 className="text-xl font-bold text-slate-900 truncate">{displayName}</h1>
-                                    <span className="shrink-0 text-[10px] bg-store-100 text-store-700 px-2 py-0.5 rounded-full font-semibold">出店者</span>
+                                    <span className="shrink-0 text-xs bg-store-100 text-store-700 px-2 py-0.5 rounded-full font-semibold">出店者</span>
                                 </div>
                                 <p className="text-sm text-slate-500 mt-1 truncate">
                                     {[profile?.genre, location, rating ? `★ ${rating}` : null].filter(Boolean).join("　・　")}
@@ -99,15 +99,15 @@ export default async function ProfilePage() {
                     <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-slate-100 text-center">
                         <div>
                             <p className="text-2xl font-bold text-slate-900">{approvedCount}</p>
-                            <p className="text-xs text-slate-400 mt-1">出店回数</p>
+                            <p className="text-xs text-slate-500 mt-1">出店回数</p>
                         </div>
                         <div>
                             <p className="text-2xl font-bold text-store-600">{rating ?? "—"}</p>
-                            <p className="text-xs text-slate-400 mt-1">平均評価</p>
+                            <p className="text-xs text-slate-500 mt-1">平均評価</p>
                         </div>
                         <div>
                             <p className="text-2xl font-bold text-store-600">{appCount}</p>
-                            <p className="text-xs text-slate-400 mt-1">応募</p>
+                            <p className="text-xs text-slate-500 mt-1">応募</p>
                         </div>
                     </div>
                 </div>

@@ -22,7 +22,7 @@ export default function TermsPage() {
         <TermsContent />
 
         {/* Footer */}
-        <div className="mt-16 pt-8 border-t border-slate-100 flex items-center justify-between text-sm text-slate-400">
+        <div className="mt-16 pt-8 border-t border-slate-100 flex items-center justify-between text-sm text-slate-500">
           <p>Wacca</p>
           <Link href="/privacy" className="hover:text-slate-600 transition">
             プライバシーポリシー

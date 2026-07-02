@@ -150,7 +150,7 @@ function NotificationRow({ notification }: { notification: NotificationItem }) {
                     {description}
                 </p>
                 <div className="flex items-center gap-4 mt-2">
-                    <span className="text-xs text-slate-400">{timestamp}</span>
+                    <span className="text-xs text-slate-500">{timestamp}</span>
                     <Link
                         href={actionHref}
                         className={cn("text-xs font-medium hover:underline", !isRead ? "text-orange-600" : "text-slate-500")}
@@ -455,7 +455,7 @@ export default async function NotificationsPage({ searchParams }: PageProps) {
                             }, [])
                             .map((item, i) =>
                                 item === "dots" ? (
-                                    <span key={`dots-${i}`} className="w-9 h-9 flex items-center justify-center text-sm text-slate-400">...</span>
+                                    <span key={`dots-${i}`} className="w-9 h-9 flex items-center justify-center text-sm text-slate-500">...</span>
                                 ) : (
                                     <Link
                                         key={item}

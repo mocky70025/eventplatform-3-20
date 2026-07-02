@@ -81,7 +81,7 @@ export default async function OrganizerDetailPage({ params }: PageProps) {
                                             <Mail className="w-5 h-5 text-store-600" />
                                         </div>
                                         <div>
-                                            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">メールアドレス</p>
+                                            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">メールアドレス</p>
                                             <a 
                                                 href={`mailto:${organizer.email}`}
                                                 className="text-store-600 hover:text-store-700 font-medium break-all"
@@ -98,7 +98,7 @@ export default async function OrganizerDetailPage({ params }: PageProps) {
                                             <Phone className="w-5 h-5 text-blue-600" />
                                         </div>
                                         <div>
-                                            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">電話番号</p>
+                                            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">電話番号</p>
                                             <a 
                                                 href={`tel:${organizer.phone_number}`}
                                                 className="text-blue-600 hover:text-blue-700 font-medium"
@@ -131,7 +131,7 @@ export default async function OrganizerDetailPage({ params }: PageProps) {
                                                 <Globe className="w-5 h-5 text-purple-600" />
                                             </div>
                                             <div>
-                                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{platform}</p>
+                                                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{platform}</p>
                                                 <p className="text-purple-600 hover:text-purple-700 font-medium break-all">
                                                     {url}
                                                 </p>
@@ -156,7 +156,7 @@ export default async function OrganizerDetailPage({ params }: PageProps) {
                                                 <User className="w-5 h-5 text-pink-600" />
                                             </div>
                                             <div>
-                                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">性別</p>
+                                                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">性別</p>
                                                 <p className="text-slate-900 font-medium">{organizer.gender}</p>
                                             </div>
                                         </div>
@@ -168,7 +168,7 @@ export default async function OrganizerDetailPage({ params }: PageProps) {
                                                 <Building2 className="w-5 h-5 text-indigo-600" />
                                             </div>
                                             <div>
-                                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">年齢</p>
+                                                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">年齢</p>
                                                 <p className="text-slate-900 font-medium">{organizer.age}歳</p>
                                             </div>
                                         </div>
@@ -181,7 +181,7 @@ export default async function OrganizerDetailPage({ params }: PageProps) {
                         {!organizer.email && !organizer.phone_number && Object.keys(socialLinks).length === 0 && !organizer.gender && !organizer.age && (
                             <div className="p-8 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200 text-center">
                                 <AlertCircle className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-                                <p className="text-slate-400 text-sm">追加情報は登録されていません</p>
+                                <p className="text-slate-500 text-sm">追加情報は登録されていません</p>
                             </div>
                         )}
                     </div>

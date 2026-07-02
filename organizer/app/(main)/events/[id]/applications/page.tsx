@@ -151,11 +151,11 @@ export default async function EventApplicationsPage({ params, searchParams }: Pa
                         <table className="w-full">
                             <thead>
                                 <tr className="border-b border-slate-100">
-                                    <th className="text-left text-xs font-semibold text-slate-400 px-6 py-3">出店者</th>
-                                    <th className="text-left text-xs font-semibold text-slate-400 px-4 py-3">申請日</th>
-                                    <th className="text-left text-xs font-semibold text-slate-400 px-4 py-3">評価</th>
-                                    <th className="text-left text-xs font-semibold text-slate-400 px-4 py-3">ステータス</th>
-                                    <th className="text-left text-xs font-semibold text-slate-400 px-4 py-3">操作</th>
+                                    <th className="text-left text-xs font-semibold text-slate-500 px-6 py-3">出店者</th>
+                                    <th className="text-left text-xs font-semibold text-slate-500 px-4 py-3">申請日</th>
+                                    <th className="text-left text-xs font-semibold text-slate-500 px-4 py-3">評価</th>
+                                    <th className="text-left text-xs font-semibold text-slate-500 px-4 py-3">ステータス</th>
+                                    <th className="text-left text-xs font-semibold text-slate-500 px-4 py-3">操作</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -169,7 +169,7 @@ export default async function EventApplicationsPage({ params, searchParams }: Pa
                                             <td className="px-6 py-4">
                                                 <Link href={`/applications/${app.id}`} className="block">
                                                     <p className="text-sm font-bold text-slate-900">{shopName}</p>
-                                                    {genre && <p className="text-xs text-slate-400 mt-0.5">{genre}</p>}
+                                                    {genre && <p className="text-xs text-slate-500 mt-0.5">{genre}</p>}
                                                 </Link>
                                             </td>
                                             <td className="px-4 py-4 text-sm text-slate-500">
@@ -248,7 +248,7 @@ export default async function EventApplicationsPage({ params, searchParams }: Pa
                                 }, [])
                                 .map((item, i) =>
                                     item === "dots" ? (
-                                        <span key={`dots-${i}`} className="w-9 h-9 flex items-center justify-center text-sm text-slate-400">...</span>
+                                        <span key={`dots-${i}`} className="w-9 h-9 flex items-center justify-center text-sm text-slate-500">...</span>
                                     ) : (
                                         <Link
                                             key={item}
@@ -274,7 +274,7 @@ export default async function EventApplicationsPage({ params, searchParams }: Pa
                                 </span>
                             )}
                         </div>
-                        <span className="text-xs text-slate-400">
+                        <span className="text-xs text-slate-500">
                             {actualFilteredCount}件中 {from + 1}-{Math.min(from + ITEMS_PER_PAGE, actualFilteredCount)}件を表示
                         </span>
                     </div>

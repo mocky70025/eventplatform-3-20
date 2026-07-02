@@ -136,7 +136,7 @@ export function EventCardGrid({ events, gradients }: EventCardGridProps) {
               <div className="flex items-center gap-2 mb-2">
                 {event.genre && (
                   <span
-                    className={`text-[11px] font-semibold px-2 rounded-full ${categoryColor.bg} ${categoryColor.text} inline-flex items-center justify-center h-5`}
+                    className={`text-xs font-semibold px-2 rounded-full ${categoryColor.bg} ${categoryColor.text} inline-flex items-center justify-center h-5`}
                     style={{ lineHeight: 1 }}
                   >
                     {event.genre}
@@ -144,7 +144,7 @@ export function EventCardGrid({ events, gradients }: EventCardGridProps) {
                 )}
                 {isBookmarked && (
                   <span
-                    className="text-[11px] font-semibold px-2 rounded-full bg-store-50 text-store-600 inline-flex items-center justify-center h-5 gap-0.5"
+                    className="text-xs font-semibold px-2 rounded-full bg-store-50 text-store-600 inline-flex items-center justify-center h-5 gap-0.5"
                     style={{ lineHeight: 1 }}
                   >
                     <Bookmark className="w-3 h-3 fill-current" />
@@ -161,7 +161,7 @@ export function EventCardGrid({ events, gradients }: EventCardGridProps) {
               {/* Date */}
               <div className="flex items-center gap-2 text-sm text-slate-500 mb-1.5">
                 <svg
-                  className="w-4 h-4 text-slate-400 flex-shrink-0"
+                  className="w-4 h-4 text-slate-500 flex-shrink-0"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth={2}
@@ -181,7 +181,7 @@ export function EventCardGrid({ events, gradients }: EventCardGridProps) {
               {/* Location */}
               <div className="flex items-center gap-2 text-sm text-slate-500 mb-4">
                 <svg
-                  className="w-4 h-4 text-slate-400 flex-shrink-0"
+                  className="w-4 h-4 text-slate-500 flex-shrink-0"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth={2}
@@ -198,13 +198,13 @@ export function EventCardGrid({ events, gradients }: EventCardGridProps) {
               {/* Fee and Remaining Slots */}
               <div className="flex items-center justify-between pt-3 border-t border-slate-100">
                 <div className="text-sm">
-                  <span className="text-slate-400">出店料</span>
+                  <span className="text-slate-500">出店料</span>
                   <span className="ml-1.5 font-bold text-slate-900">
                     {event.fee || "未定"}
                   </span>
                 </div>
                 <div className="text-sm">
-                  <span className="text-slate-400">募集枠</span>
+                  <span className="text-slate-500">募集枠</span>
                   <span
                     className={`ml-1.5 font-bold ${
                       event.recruit_count && event.recruit_count <= 3

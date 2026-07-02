@@ -160,14 +160,14 @@ export default async function HistoryPage({ searchParams }: PageProps) {
                 {/* Stats */}
                 <div className="grid grid-cols-4 gap-3 mb-8">
                     <div className="bg-white rounded-2xl border border-slate-200 p-5">
-                        <p className="text-xs text-slate-400 font-medium mb-1">総出店回数</p>
+                        <p className="text-xs text-slate-500 font-medium mb-1">総出店回数</p>
                         <p className="text-2xl font-bold text-slate-900">
                             {completed.length}
-                            <span className="text-sm font-medium text-slate-400 ml-1">回</span>
+                            <span className="text-sm font-medium text-slate-500 ml-1">回</span>
                         </p>
                     </div>
                     <div className="bg-white rounded-2xl border border-slate-200 p-5">
-                        <p className="text-xs text-slate-400 font-medium mb-1">平均評価</p>
+                        <p className="text-xs text-slate-500 font-medium mb-1">平均評価</p>
                         {avgRating !== null ? (
                             <div className="flex items-center gap-2">
                                 <p className="text-2xl font-bold text-slate-900">{avgRating.toFixed(1)}</p>
@@ -186,21 +186,21 @@ export default async function HistoryPage({ searchParams }: PageProps) {
                                 </div>
                             </div>
                         ) : (
-                            <p className="text-2xl font-bold text-slate-400">-</p>
+                            <p className="text-2xl font-bold text-slate-500">-</p>
                         )}
                     </div>
                     <div className="bg-white rounded-2xl border border-slate-200 p-5">
-                        <p className="text-xs text-slate-400 font-medium mb-1">今年の出店</p>
+                        <p className="text-xs text-slate-500 font-medium mb-1">今年の出店</p>
                         <p className="text-2xl font-bold text-slate-900">
                             {thisYearCompleted.length}
-                            <span className="text-sm font-medium text-slate-400 ml-1">回</span>
+                            <span className="text-sm font-medium text-slate-500 ml-1">回</span>
                         </p>
                     </div>
                     <div className="bg-white rounded-2xl border border-slate-200 p-5">
-                        <p className="text-xs text-slate-400 font-medium mb-1">リピート率</p>
+                        <p className="text-xs text-slate-500 font-medium mb-1">リピート率</p>
                         <p className="text-2xl font-bold text-store-600">
                             {repeatRate}
-                            <span className="text-sm font-medium text-slate-400 ml-1">%</span>
+                            <span className="text-sm font-medium text-slate-500 ml-1">%</span>
                         </p>
                     </div>
                 </div>
@@ -211,19 +211,19 @@ export default async function HistoryPage({ searchParams }: PageProps) {
                         <table className="w-full">
                             <thead>
                                 <tr className="border-b border-slate-100 bg-slate-50">
-                                    <th className="text-left text-xs font-semibold text-slate-400 uppercase tracking-wider px-6 py-4">
+                                    <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-6 py-4">
                                         イベント
                                     </th>
-                                    <th className="text-left text-xs font-semibold text-slate-400 uppercase tracking-wider px-4 py-4">
+                                    <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-4 py-4">
                                         開催日
                                     </th>
-                                    <th className="text-left text-xs font-semibold text-slate-400 uppercase tracking-wider px-4 py-4">
+                                    <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-4 py-4">
                                         会場
                                     </th>
-                                    <th className="text-left text-xs font-semibold text-slate-400 uppercase tracking-wider px-4 py-4">
+                                    <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-4 py-4">
                                         評価
                                     </th>
-                                    <th className="text-left text-xs font-semibold text-slate-400 uppercase tracking-wider px-4 py-4">
+                                    <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-4 py-4">
                                         ステータス
                                     </th>
                                     <th className="px-4 py-4" />
@@ -246,7 +246,7 @@ export default async function HistoryPage({ searchParams }: PageProps) {
                                             </td>
                                             <td className="px-4 py-4">
                                                 <div className="flex items-center gap-1.5 text-sm text-slate-600">
-                                                    <CalendarDays className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                                    <CalendarDays className="w-3.5 h-3.5 text-slate-500 shrink-0" />
                                                     {entry.eventDate
                                                         ? new Date(entry.eventDate).toLocaleDateString("ja-JP")
                                                         : "-"}
@@ -254,7 +254,7 @@ export default async function HistoryPage({ searchParams }: PageProps) {
                                             </td>
                                             <td className="px-4 py-4">
                                                 <div className="flex items-center gap-1.5 text-sm text-slate-600">
-                                                    <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                                    <MapPin className="w-3.5 h-3.5 text-slate-500 shrink-0" />
                                                     {entry.venueName || "-"}
                                                 </div>
                                             </td>
@@ -262,7 +262,7 @@ export default async function HistoryPage({ searchParams }: PageProps) {
                                                 {entry.rating !== null ? (
                                                     <StarRating rating={entry.rating} />
                                                 ) : (
-                                                    <span className="text-xs text-slate-400">-</span>
+                                                    <span className="text-xs text-slate-500">-</span>
                                                 )}
                                             </td>
                                             <td className="px-4 py-4">

@@ -65,7 +65,7 @@ export default function ReviewForm({ exhibitorUserId, events }: ReviewFormProps)
 
     if (events.length === 0) {
         return (
-            <p className="text-sm text-slate-400 text-center py-4">
+            <p className="text-sm text-slate-500 text-center py-4">
                 終了したイベントがないため、まだレビューできません
             </p>
         );
@@ -75,7 +75,7 @@ export default function ReviewForm({ exhibitorUserId, events }: ReviewFormProps)
         <div className="space-y-4">
             {events.length > 1 && (
                 <div>
-                    <label className="text-xs font-medium text-slate-400 block mb-1">対象イベント</label>
+                    <label className="text-xs font-medium text-slate-500 block mb-1">対象イベント</label>
                     <select
                         value={selectedEventId}
                         onChange={(e) => handleEventChange(e.target.value)}
@@ -99,7 +99,7 @@ export default function ReviewForm({ exhibitorUserId, events }: ReviewFormProps)
             ) : (
                 <>
                     <div>
-                        <label className="text-xs font-medium text-slate-400 block mb-2">評価</label>
+                        <label className="text-xs font-medium text-slate-500 block mb-2">評価</label>
                         <div className="flex gap-1">
                             {[1, 2, 3, 4, 5].map((star) => (
                                 <button
@@ -123,7 +123,7 @@ export default function ReviewForm({ exhibitorUserId, events }: ReviewFormProps)
                     </div>
 
                     <div>
-                        <label className="text-xs font-medium text-slate-400 block mb-1">コメント（任意）</label>
+                        <label className="text-xs font-medium text-slate-500 block mb-1">コメント（任意）</label>
                         <textarea
                             value={comment}
                             onChange={(e) => setComment(e.target.value)}

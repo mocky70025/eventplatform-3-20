@@ -161,7 +161,7 @@ export default async function ApplicationsPage({ searchParams }: PageProps) {
                 {/* Filter / Search Bar */}
                 <div className="flex items-center gap-4 mb-6">
                     <form action="/applications" method="GET" className="relative">
-                        <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                        <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
                         <input
                             type="text"
                             name="q"
@@ -197,12 +197,12 @@ export default async function ApplicationsPage({ searchParams }: PageProps) {
                         <table className="w-full">
                             <thead>
                                 <tr className="bg-slate-50">
-                                    <th className="text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider px-6 py-3">出店者名</th>
-                                    <th className="text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider px-4 py-3">イベント</th>
-                                    <th className="text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider px-4 py-3">ジャンル</th>
-                                    <th className="text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider px-4 py-3">申込日</th>
-                                    <th className="text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider px-4 py-3">ステータス</th>
-                                    <th className="text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider px-4 py-3">アクション</th>
+                                    <th className="text-left text-xs font-bold text-slate-500 uppercase tracking-wider px-6 py-3">出店者名</th>
+                                    <th className="text-left text-xs font-bold text-slate-500 uppercase tracking-wider px-4 py-3">イベント</th>
+                                    <th className="text-left text-xs font-bold text-slate-500 uppercase tracking-wider px-4 py-3">ジャンル</th>
+                                    <th className="text-left text-xs font-bold text-slate-500 uppercase tracking-wider px-4 py-3">申込日</th>
+                                    <th className="text-left text-xs font-bold text-slate-500 uppercase tracking-wider px-4 py-3">ステータス</th>
+                                    <th className="text-left text-xs font-bold text-slate-500 uppercase tracking-wider px-4 py-3">アクション</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -238,7 +238,7 @@ export default async function ApplicationsPage({ searchParams }: PageProps) {
                                                     {app.events?.event_name || "-"}
                                                 </span>
                                                 {app.events?.event_start_date && (
-                                                    <span className="text-xs text-slate-400 block mt-0.5">
+                                                    <span className="text-xs text-slate-500 block mt-0.5">
                                                         {new Date(app.events.event_start_date).toLocaleDateString('ja-JP')}
                                                         {app.events.event_end_date && app.events.event_end_date !== app.events.event_start_date && (
                                                             <> 〜 {new Date(app.events.event_end_date).toLocaleDateString('ja-JP')}</>
@@ -250,7 +250,7 @@ export default async function ApplicationsPage({ searchParams }: PageProps) {
                                                 {genre && (
                                                     <span
                                                         className={cn(
-                                                            "h-6 inline-flex items-center justify-center px-2 rounded-full text-[10px] font-medium",
+                                                            "h-6 inline-flex items-center justify-center px-2 rounded-full text-xs font-medium",
                                                             getGenreBadgeColor(genre)
                                                         )}
                                                         style={{ lineHeight: 1 }}
@@ -265,7 +265,7 @@ export default async function ApplicationsPage({ searchParams }: PageProps) {
                                             <td className="px-4 py-4">
                                                 <span
                                                     className={cn(
-                                                        "h-5 inline-flex items-center justify-center text-[10px] font-semibold rounded-full px-2.5",
+                                                        "h-5 inline-flex items-center justify-center text-xs font-semibold rounded-full px-2.5",
                                                         status.className
                                                     )}
                                                     style={{ lineHeight: 1 }}
@@ -348,7 +348,7 @@ export default async function ApplicationsPage({ searchParams }: PageProps) {
                                 }, [])
                                 .map((item, i) =>
                                     item === "dots" ? (
-                                        <span key={`dots-${i}`} className="w-9 h-9 flex items-center justify-center text-sm text-slate-400">...</span>
+                                        <span key={`dots-${i}`} className="w-9 h-9 flex items-center justify-center text-sm text-slate-500">...</span>
                                     ) : (
                                         <Link
                                             key={item}
@@ -377,7 +377,7 @@ export default async function ApplicationsPage({ searchParams }: PageProps) {
                                 </span>
                             )}
                         </div>
-                        <span className="text-xs text-slate-400">
+                        <span className="text-xs text-slate-500">
                             {actualFilteredCount}件中 {from + 1}-{Math.min(from + ITEMS_PER_PAGE, actualFilteredCount)}件を表示
                         </span>
                     </div>

@@ -144,7 +144,7 @@ export function NotificationsSection({ initialProfile }: NotificationsSectionPro
 
             {/* Footer */}
             <div className="flex items-center justify-between">
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-slate-500">
                     最終更新: {initialProfile?.updated_at
                         ? new Date(initialProfile.updated_at).toLocaleDateString("ja-JP", { year: "numeric", month: "2-digit", day: "2-digit" }).replace(/\//g, "/") + " " + new Date(initialProfile.updated_at).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })
                         : "-"}

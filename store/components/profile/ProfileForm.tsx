@@ -557,7 +557,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
                         readOnly
                         className={inputClass + " bg-slate-50 text-slate-500 cursor-not-allowed"}
                     />
-                    <p className="text-xs text-slate-400 mt-1">メールアドレスの変更はアカウント設定から行ってください</p>
+                    <p className="text-xs text-slate-500 mt-1">メールアドレスの変更はアカウント設定から行ってください</p>
                 </div>
 
                 {/* Address section */}
@@ -632,7 +632,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                        建物名・部屋番号 <span className="text-slate-400 text-xs font-normal">(任意)</span>
+                        建物名・部屋番号 <span className="text-slate-500 text-xs font-normal">(任意)</span>
                     </label>
                     <input
                         name="building"
@@ -645,7 +645,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
 
                 {/* Genre multi-select chips */}
                 <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">ジャンル <span className="text-slate-400 text-xs font-normal">（複数選択可）</span></label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">ジャンル <span className="text-slate-500 text-xs font-normal">（複数選択可）</span></label>
                     <div className="flex flex-wrap gap-2">
                         {GENRE_OPTIONS.map(genre => (
                             <button
@@ -667,7 +667,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
 
                 {/* Business style multi-select chips */}
                 <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">営業形態 <span className="text-slate-400 text-xs font-normal">（任意・複数選択可）</span></label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">営業形態 <span className="text-slate-500 text-xs font-normal">（任意・複数選択可）</span></label>
                     <div className="flex flex-wrap gap-2">
                         {STYLE_OPTIONS.map(style => (
                             <button
@@ -690,7 +690,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
                 {/* Description textarea (optional) */}
                 <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                        店舗紹介 <span className="text-slate-400 text-xs font-normal">（任意）</span>
+                        店舗紹介 <span className="text-slate-500 text-xs font-normal">（任意）</span>
                     </label>
                     <textarea
                         name="description"
@@ -701,13 +701,13 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
                         placeholder="お店の特徴やこだわりをアピールしましょう"
                         className={cn(inputClass, "resize-none")}
                     />
-                    <p className="text-xs text-slate-400 mt-1 text-right">{formData.description.length}/100</p>
+                    <p className="text-xs text-slate-500 mt-1 text-right">{formData.description.length}/100</p>
                 </div>
             </div>
 
             {/* Save actions */}
             <div className="flex items-center justify-between">
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-slate-500">
                     最終更新: {initialProfile?.updated_at
                         ? new Date(initialProfile.updated_at).toLocaleDateString("ja-JP")
                         : "-"}

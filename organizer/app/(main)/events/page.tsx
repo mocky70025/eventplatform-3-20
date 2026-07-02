@@ -140,12 +140,12 @@ export default async function EventsPage({
                         ))}
                     </div>
                     <form className="relative flex-1 min-w-[200px] ml-auto">
-                        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                         <input
                             name="q"
                             defaultValue={searchQuery}
                             placeholder="イベント名で検索..."
-                            className="w-full pl-10 pr-4 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-500 placeholder:text-slate-400"
+                            className="w-full pl-10 pr-4 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-500 placeholder:text-slate-500"
                         />
                         <input type="hidden" name="status" value={filterStatus} />
                     </form>
@@ -199,7 +199,7 @@ export default async function EventsPage({
                                         <div className="text-sm">
                                             <p className="text-slate-700 font-medium">{formatDate(event.event_start_date)}</p>
                                             {(event.venue_name || event.address) && (
-                                                <p className="text-slate-400 text-[13px] truncate mt-0.5">
+                                                <p className="text-slate-500 text-[13px] truncate mt-0.5">
                                                     {event.venue_name || event.address}
                                                 </p>
                                             )}

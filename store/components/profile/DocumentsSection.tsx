@@ -178,17 +178,17 @@ export function DocumentsSection({ initialProfile }: DocumentsSectionProps) {
                                                 status === "expiring" ? "text-amber-700" : "text-slate-900"
                                             }`}>{doc.label}</p>
                                             {status === "verified" && (
-                                                <span className="h-5 inline-flex items-center justify-center px-2 rounded-full bg-store-50 text-store-700 text-[11px] font-medium" style={{ lineHeight: 1 }}>
+                                                <span className="h-5 inline-flex items-center justify-center px-2 rounded-full bg-store-50 text-store-700 text-xs font-medium" style={{ lineHeight: 1 }}>
                                                     確認済み
                                                 </span>
                                             )}
                                             {status === "expiring" && (
-                                                <span className="h-5 inline-flex items-center justify-center px-2 rounded-full bg-amber-100 text-amber-700 text-[11px] font-medium" style={{ lineHeight: 1 }}>
+                                                <span className="h-5 inline-flex items-center justify-center px-2 rounded-full bg-amber-100 text-amber-700 text-xs font-medium" style={{ lineHeight: 1 }}>
                                                     期限間近
                                                 </span>
                                             )}
                                             {status === "none" && !doc.required && (
-                                                <span className="text-xs text-slate-400">（任意）</span>
+                                                <span className="text-xs text-slate-500">（任意）</span>
                                             )}
                                         </div>
                                         {status !== "none" && expiryDate && (
