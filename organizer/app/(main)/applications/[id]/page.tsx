@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { signExhibitorDocuments } from "@/lib/supabase/documents";
 import { getUserWithRefresh } from "@/lib/supabase/auth";
-import { parseExhibitorFormFields } from "@/lib/exhibitorFields";
+import { parseExhibitorFormFields, formatAnswer } from "@/lib/exhibitorFields";
 import {
     ArrowLeft,
     Mail,
@@ -206,7 +206,7 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
                                         </div>
                                     )}
                                     {formFields.map((f) => {
-                                        const val = formAnswers[f.key];
+                                        const display = formatAnswer(formAnswers[f.key]);
                                         return (
                                             <div key={f.key}>
                                                 <p className="text-xs font-semibold text-slate-500 mb-1">{f.label}</p>
@@ -224,8 +224,8 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
                                                     ) : (
                                                         <p className="text-sm text-slate-500">未提出</p>
                                                     )
-                                                ) : val ? (
-                                                    <p className="text-sm text-slate-900 whitespace-pre-wrap">{String(val)}</p>
+                                                ) : display ? (
+                                                    <p className="text-sm text-slate-900 whitespace-pre-wrap">{display}</p>
                                                 ) : (
                                                     <p className="text-sm text-slate-500">未回答</p>
                                                 )}

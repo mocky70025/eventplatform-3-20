@@ -1,5 +1,5 @@
 // Canonical catalog of additional-info fields an organizer can require.
-// MUST stay in sync with store/lib/exhibitorFields.ts and the organizer
+// MUST stay in sync with organizer/lib/exhibitorFields.ts and the organizer
 // event-create preset list — the keys are the contract between the two apps.
 export interface PresetFieldDef {
     label: string;
@@ -77,17 +77,4 @@ export function parseExhibitorFormFields(event: any): FormField[] {
         // Invalid JSON — return whatever parsed so far
     }
     return fields;
-}
-
-/** Format a submitted answer (string | string[] | {value,date}) for display. */
-export function formatAnswer(val: any): string | null {
-    if (val == null || val === "") return null;
-    if (Array.isArray(val)) return val.filter(Boolean).join("、") || null;
-    if (typeof val === "object") {
-        const parts: string[] = [];
-        if (val.value) parts.push(String(val.value));
-        if (val.date) parts.push(`有効期限: ${val.date}`);
-        return parts.join(" ・ ") || null;
-    }
-    return String(val);
 }
