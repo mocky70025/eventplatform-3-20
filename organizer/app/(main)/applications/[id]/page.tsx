@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { signExhibitorDocuments } from "@/lib/supabase/documents";
 import { getUserWithRefresh } from "@/lib/supabase/auth";
+import { parseExhibitorFormFields } from "@/lib/exhibitorFields";
 import {
     ArrowLeft,
     Mail,
@@ -8,6 +9,7 @@ import {
     MessageCircle,
     ExternalLink,
     Star,
+    ClipboardList,
 } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
@@ -59,6 +61,17 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
         app.exhibitors?.pl_insurance_image_url,
         app.exhibitors?.fire_equipment_layout_image_url,
     ]);
+
+    // Additional info the organizer required for this event, and the answers
+    // the exhibitor submitted (file answers get signed for viewing).
+    const formFields = parseExhibitorFormFields(app.events);
+    const formAnswers = (app.form_answers ?? {}) as Record<string, any>;
+    const selectedDays: string[] = Array.isArray(formAnswers.selected_days) ? formAnswers.selected_days : [];
+    const fileFieldKeys = formFields.filter((f) => f.type === "file").map((f) => f.key);
+    const signedFiles = await signExhibitorDocuments(fileFieldKeys.map((k) => formAnswers[k]));
+    const fileUrlByKey: Record<string, string | undefined> = {};
+    fileFieldKeys.forEach((k, i) => { fileUrlByKey[k] = signedFiles[i]; });
+    const hasAdditionalInfo = formFields.length > 0 || selectedDays.length > 0;
 
     const statusLabel = app.status === "approved" ? "承認済み"
         : app.status === "rejected" ? "却下済み"
@@ -177,6 +190,51 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
                                 />
                             </div>
                         </div>
+
+                        {/* Additional Info Section */}
+                        {hasAdditionalInfo && (
+                            <div className="bg-white rounded-2xl border border-slate-200 p-6">
+                                <h3 className="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
+                                    <ClipboardList className="w-5 h-5 text-orange-500" />
+                                    追加情報
+                                </h3>
+                                <div className="space-y-4">
+                                    {selectedDays.length > 0 && (
+                                        <div>
+                                            <p className="text-xs font-semibold text-slate-500 mb-1">出店希望日</p>
+                                            <p className="text-sm text-slate-900">{selectedDays.join("、")}</p>
+                                        </div>
+                                    )}
+                                    {formFields.map((f) => {
+                                        const val = formAnswers[f.key];
+                                        return (
+                                            <div key={f.key}>
+                                                <p className="text-xs font-semibold text-slate-500 mb-1">{f.label}</p>
+                                                {f.type === "file" ? (
+                                                    fileUrlByKey[f.key] ? (
+                                                        <a
+                                                            href={fileUrlByKey[f.key]}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="inline-flex items-center gap-1.5 text-sm font-bold text-orange-600 hover:text-orange-700 underline"
+                                                        >
+                                                            <FileText className="w-4 h-4" />
+                                                            ファイルを開く
+                                                        </a>
+                                                    ) : (
+                                                        <p className="text-sm text-slate-500">未提出</p>
+                                                    )
+                                                ) : val ? (
+                                                    <p className="text-sm text-slate-900 whitespace-pre-wrap">{String(val)}</p>
+                                                ) : (
+                                                    <p className="text-sm text-slate-500">未回答</p>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
 
                     </div>
 

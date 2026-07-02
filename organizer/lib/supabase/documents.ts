@@ -14,9 +14,15 @@ export async function signExhibitorDocuments(
 ): Promise<(string | undefined)[]> {
     const admin = createAdminClient();
     return Promise.all(
-        paths.map(async (path) => {
-            if (!path) return undefined;
-            if (/^https?:\/\//.test(path)) return path;
+        paths.map(async (raw) => {
+            if (!raw) return undefined;
+            // Some values are stored as public/sign URLs to our (private) bucket.
+            // Extract the object path so we can re-sign it; pass through any
+            // truly external URL unchanged.
+            let path = raw;
+            const m = raw.match(/\/exhibitor-documents\/(.+?)(?:\?|$)/);
+            if (m) path = decodeURIComponent(m[1]);
+            else if (/^https?:\/\//.test(raw)) return raw;
             try {
                 const { data, error } = await admin.storage
                     .from(BUCKET)
