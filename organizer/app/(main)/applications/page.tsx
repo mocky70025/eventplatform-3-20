@@ -179,7 +179,7 @@ export default async function ApplicationsPage({ searchParams }: PageProps) {
                                 key={tab.value}
                                 href={`/applications${buildSearchParams({ status: tab.value, page: "1" })}`}
                                 className={cn(
-                                    "inline-flex items-center justify-center text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors",
+                                    "inline-flex items-center justify-center text-xs font-semibold px-3 py-1.5 rounded-full transition-colors",
                                     activeFilter === tab.value
                                         ? "text-white bg-orange-500"
                                         : "text-slate-500 hover:bg-slate-50"
@@ -300,14 +300,14 @@ export default async function ApplicationsPage({ searchParams }: PageProps) {
                             </tbody>
                         </table>
                     ) : (
-                        <div className="p-20 text-center">
-                            <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                                <ClipboardList className="w-10 h-10 text-slate-300" />
+                        <div className="p-12 text-center">
+                            <div className="w-16 h-16 bg-orange-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                <ClipboardList className="w-8 h-8 text-orange-300" />
                             </div>
-                            <h3 className="text-xl font-bold text-slate-900 mb-2">
+                            <h3 className="text-lg font-bold text-slate-900 mb-1">
                                 {q || (statusFilter && statusFilter !== "all") ? "該当する申し込みが見つかりません" : "まだ申し込みはありません"}
                             </h3>
-                            <p className="text-slate-500 max-w-sm mx-auto">
+                            <p className="text-sm text-slate-500 max-w-sm mx-auto">
                                 {q || (statusFilter && statusFilter !== "all")
                                     ? "検索条件やフィルターを変更してお試しください。"
                                     : "イベントを公開して出店者を募集しましょう。申し込みが届くとここに表示されます。"}

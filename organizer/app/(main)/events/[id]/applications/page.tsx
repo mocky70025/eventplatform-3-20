@@ -210,14 +210,14 @@ export default async function EventApplicationsPage({ params, searchParams }: Pa
                             </tbody>
                         </table>
                     ) : (
-                        <div className="p-20 text-center">
-                            <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                                <ClipboardList className="w-10 h-10 text-slate-300" />
+                        <div className="p-12 text-center">
+                            <div className="w-16 h-16 bg-orange-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                <ClipboardList className="w-8 h-8 text-orange-300" />
                             </div>
-                            <h3 className="text-xl font-bold text-slate-900 mb-2">
+                            <h3 className="text-lg font-bold text-slate-900 mb-1">
                                 {statusFilter && statusFilter !== "all" ? "該当する応募が見つかりません" : "まだ応募はありません"}
                             </h3>
-                            <p className="text-slate-500 max-w-sm mx-auto">
+                            <p className="text-sm text-slate-500 max-w-sm mx-auto">
                                 {statusFilter && statusFilter !== "all"
                                     ? "フィルターを変更してお試しください。"
                                     : "イベントを公開すると出店者から応募が届きます。"}

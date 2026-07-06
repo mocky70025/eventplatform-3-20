@@ -71,7 +71,7 @@ export default async function OrganizerDetailPage({ params }: PageProps) {
                         {/* Contact Information */}
                         <section>
                             <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
-                                <span className="w-1.5 h-6 bg-orange-500 rounded-full"></span>
+                                <span className="w-1 h-5 bg-store-500 rounded-full"></span>
                                 連絡先情報
                             </h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -115,7 +115,7 @@ export default async function OrganizerDetailPage({ params }: PageProps) {
                         {Object.keys(socialLinks).length > 0 && (
                             <section>
                                 <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
-                                    <span className="w-1.5 h-6 bg-orange-500 rounded-full"></span>
+                                    <span className="w-1 h-5 bg-store-500 rounded-full"></span>
                                     SNS・ウェブサイト
                                 </h2>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -146,7 +146,7 @@ export default async function OrganizerDetailPage({ params }: PageProps) {
                         {(organizer.gender || organizer.age) && (
                             <section>
                                 <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
-                                    <span className="w-1.5 h-6 bg-orange-500 rounded-full"></span>
+                                    <span className="w-1 h-5 bg-store-500 rounded-full"></span>
                                     その他の情報
                                 </h2>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
