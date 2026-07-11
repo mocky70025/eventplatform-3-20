@@ -78,8 +78,10 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
 
     const statusLabel = app.status === "approved" ? "承認済み"
         : app.status === "rejected" ? "却下済み"
+        : app.status === "cancelled" ? "キャンセル済み"
         : "審査中";
-    const statusColor = app.status === "approved" ? "bg-emerald-100 text-emerald-700"
+    const statusColor = app.status === "cancelled" ? "bg-slate-100 text-slate-600"
+        : app.status === "approved" ? "bg-emerald-100 text-emerald-700"
         : app.status === "rejected" ? "bg-red-100 text-red-700"
         : "bg-yellow-100 text-yellow-700";
 

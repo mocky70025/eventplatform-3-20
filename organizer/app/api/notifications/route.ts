@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "無効なユーザータイプです" }, { status: 400 });
         }
 
-        const validTypes = ["new_application", "application_approved", "application_rejected", "confirmed", "remind", "reviewRequest", "document_resubmit"];
+        const validTypes = ["new_application", "application_approved", "application_rejected", "confirmed", "remind", "reviewRequest", "document_resubmit", "application_cancelled"];
         if (!validTypes.includes(type)) {
             return NextResponse.json({ error: "無効な通知タイプです" }, { status: 400 });
         }

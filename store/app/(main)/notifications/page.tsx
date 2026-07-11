@@ -16,7 +16,7 @@ import { LoginRequired } from "@/components/LoginRequired";
 import Link from "next/link";
 import NotificationActions from "./NotificationActions";
 
-type NotificationType = "confirmed" | "remind" | "reviewRequest" | "application_approved" | "application_rejected" | "new_application" | "document_resubmit";
+type NotificationType = "confirmed" | "remind" | "reviewRequest" | "application_approved" | "application_rejected" | "new_application" | "document_resubmit" | "application_cancelled";
 
 interface Notification {
     id: string;
@@ -59,6 +59,7 @@ function getNotificationIcon(type: NotificationType) {
                 </div>
             );
         case "application_rejected":
+        case "application_cancelled":
             return (
                 <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center shrink-0">
                     <XCircle className="w-5 h-5 text-red-500" />
