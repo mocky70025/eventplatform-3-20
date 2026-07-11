@@ -4,12 +4,13 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import {
     CheckCircle2, AlertCircle, Loader2, ArrowLeft,
-    Store, User, Mail, Phone, Calendar, Info, Pencil, Save, X, Upload
+    Store, User, Mail, Phone, Calendar, Info, Pencil, Save, X, Upload, Check, FileCheck
 } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { parseExhibitorFormFields } from "@/lib/exhibitorFields";
+import { getRegisteredDocuments } from "@/lib/exhibitorDocuments";
 
 export default function ApplyClient({ event, exhibitor }: { event: any, exhibitor: any }) {
     const [isLoading, setIsLoading] = useState(false);
@@ -21,7 +22,14 @@ export default function ApplyClient({ event, exhibitor }: { event: any, exhibito
     const [agreedToTerms, setAgreedToTerms] = useState(false);
     const [selectedDays, setSelectedDays] = useState<string[]>([]);
 
+    const registeredDocs = getRegisteredDocuments(exhibitor);
+    const permitRegistered = registeredDocs.some(d => d.key === "business_permit");
+    const [selectedDocs, setSelectedDocs] = useState<string[]>(registeredDocs.map(d => d.key));
+
     const formFields = parseExhibitorFormFields(event);
+    // Documents are handled by the 提出書類 section (reused from the profile),
+    // so file-type additional questions no longer prompt a re-upload here.
+    const visibleFields = formFields.filter(f => f.type !== "file");
 
     // Parse day settings for multi-day events
     const daySettings = (() => {
@@ -101,9 +109,17 @@ export default function ApplyClient({ event, exhibitor }: { event: any, exhibito
         setError("");
 
         try {
-            const answers = formFields.length > 0 ? { ...formAnswers } : {};
+            if (!permitRegistered || !selectedDocs.includes("business_permit")) {
+                setError("応募には営業許可証の登録・選択が必要です。プロフィールで登録してください。");
+                setIsLoading(false);
+                return;
+            }
+            const answers: Record<string, any> = { ...formAnswers };
             if (daySettings && selectedDays.length > 0) {
-                (answers as Record<string, any>).selected_days = selectedDays;
+                answers.selected_days = selectedDays;
+            }
+            if (selectedDocs.length > 0) {
+                answers.submitted_documents = selectedDocs;
             }
 
             const { error: insertError } = await supabase
@@ -328,15 +344,67 @@ export default function ApplyClient({ event, exhibitor }: { event: any, exhibito
                 />
             </section>
 
+            {/* 提出書類（プロフィール登録済みを再利用） */}
+            {registeredDocs.length > 0 && (
+                <section className="bg-white rounded-2xl p-8 border border-slate-100 shadow-sm">
+                    <h3 className="text-lg font-bold text-slate-900 mb-2 flex items-center gap-2">
+                        <FileCheck className="w-5 h-5 text-store-600" /> 提出書類
+                    </h3>
+                    <p className="text-sm text-slate-500 mb-6">登録済みの書類から提出するものを選択してください。毎回のアップロードは不要です。</p>
+                    <div className="rounded-xl border border-slate-200 divide-y divide-slate-100 overflow-hidden">
+                        {registeredDocs.map(doc => {
+                            const checked = selectedDocs.includes(doc.key);
+                            return (
+                                <label key={doc.key} className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-slate-50 transition-colors">
+                                    <input
+                                        type="checkbox"
+                                        checked={checked}
+                                        onChange={() => setSelectedDocs(prev => prev.includes(doc.key) ? prev.filter(k => k !== doc.key) : [...prev, doc.key])}
+                                        className="sr-only"
+                                    />
+                                    <span className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition-colors ${checked ? "bg-store-500 border-store-500" : "border-slate-300 bg-white"}`}>
+                                        {checked && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
+                                    </span>
+                                    <div className="min-w-0 flex-1">
+                                        <p className="text-sm font-bold text-slate-900">
+                                            {doc.label}{doc.required && <span className="text-red-500 ml-1">*</span>}
+                                        </p>
+                                        {doc.expiry && (
+                                            <p className={`text-xs mt-0.5 ${doc.expired ? "text-red-600" : "text-slate-500"}`}>
+                                                {doc.expired ? "有効期限切れ・要更新" : `有効期限 ${doc.expiry}`}
+                                            </p>
+                                        )}
+                                    </div>
+                                    <span className={`shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full ${doc.expired ? "bg-red-100 text-red-600" : "bg-emerald-100 text-emerald-700"}`}>
+                                        {doc.expired ? "要更新" : "有効"}
+                                    </span>
+                                </label>
+                            );
+                        })}
+                    </div>
+                    <p className="text-xs text-slate-500 mt-3">書類はプロフィールから引用されます。追加・更新は設定＞書類から行えます。</p>
+                </section>
+            )}
+
+            {!permitRegistered && (
+                <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 flex items-start gap-3">
+                    <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                    <div className="text-sm">
+                        <p className="font-bold text-amber-900">営業許可証の登録が必要です</p>
+                        <p className="text-amber-700 mt-0.5">応募には営業許可証が必須です。<Link href="/profile#documents" className="underline font-semibold">プロフィールで登録</Link>してください。</p>
+                    </div>
+                </div>
+            )}
+
             {/* Exhibitor Form Fields */}
-            {formFields.length > 0 && (
+            {visibleFields.length > 0 && (
                 <section className="bg-white rounded-2xl p-8 border border-slate-100 shadow-sm">
                     <h3 className="text-lg font-bold text-slate-900 mb-2 flex items-center gap-2">
                         <Info className="w-5 h-5 text-store-600" /> 追加質問
                     </h3>
                     <p className="text-sm text-slate-500 mb-6">主催者が設定した質問項目に回答してください。</p>
                     <div className="space-y-5">
-                        {formFields.map(field => (
+                        {visibleFields.map(field => (
                             <div key={field.key}>
                                 <label className="block text-sm font-bold text-slate-700 mb-1.5">{field.label}</label>
                                 {field.type === "file" ? (
