@@ -70,11 +70,12 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
     const formFields = parseExhibitorFormFields(app.events);
     const formAnswers = (app.form_answers ?? {}) as Record<string, any>;
     const selectedDays: string[] = Array.isArray(formAnswers.selected_days) ? formAnswers.selected_days : [];
+    const selectedEquipment: string[] = Array.isArray(formAnswers.selected_equipment) ? formAnswers.selected_equipment : [];
     const fileFieldKeys = formFields.filter((f) => f.type === "file").map((f) => f.key);
     const signedFiles = await signExhibitorDocuments(fileFieldKeys.map((k) => formAnswers[k]));
     const fileUrlByKey: Record<string, string | undefined> = {};
     fileFieldKeys.forEach((k, i) => { fileUrlByKey[k] = signedFiles[i]; });
-    const hasAdditionalInfo = formFields.length > 0 || selectedDays.length > 0;
+    const hasAdditionalInfo = formFields.length > 0 || selectedDays.length > 0 || selectedEquipment.length > 0;
 
     const statusLabel = app.status === "approved" ? "承認済み"
         : app.status === "rejected" ? "却下済み"
@@ -223,6 +224,12 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
                                         <div>
                                             <p className="text-xs font-semibold text-slate-500 mb-1">出店希望日</p>
                                             <p className="text-sm text-slate-900">{selectedDays.join("、")}</p>
+                                        </div>
+                                    )}
+                                    {selectedEquipment.length > 0 && (
+                                        <div>
+                                            <p className="text-xs font-semibold text-slate-500 mb-1">貸出備品の利用希望</p>
+                                            <p className="text-sm text-slate-900">{selectedEquipment.join("、")}</p>
                                         </div>
                                     )}
                                     {formFields.map((f) => {

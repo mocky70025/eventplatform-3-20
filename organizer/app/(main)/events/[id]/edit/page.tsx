@@ -59,6 +59,7 @@ export default function EditEventPage() {
         genre: "",
         description: "",
         boothContent: "",
+        offeredEquipment: [] as string[],
         startDate: "",
         endDate: "",
         startTime: "",
@@ -163,6 +164,7 @@ export default function EditEventPage() {
                         genre: data.genre || "",
                         description: data.description || "",
                         boothContent: data.booth_content || "",
+                        offeredEquipment: (() => { try { const r = (data as any).offered_equipment; if (!r) return []; const p = typeof r === "string" ? JSON.parse(r) : r; return Array.isArray(p) ? p : []; } catch { return []; } })(),
                         startDate: data.event_start_date || "",
                         endDate: data.event_end_date || "",
                         startTime: startT?.trim() || "",
@@ -392,6 +394,7 @@ export default function EditEventPage() {
                     genre: formData.genre,
                     description: formData.description,
                     booth_content: formData.boothContent,
+                    offered_equipment: formData.offeredEquipment.length > 0 ? JSON.stringify(formData.offeredEquipment) : null,
                     event_start_date: formData.startDate,
                     event_end_date: formData.endDate || formData.startDate,
                     event_time: formData.usePerDaySchedule ? null : `${formData.startTime} - ${formData.endTime}`,
@@ -677,6 +680,26 @@ export default function EditEventPage() {
                                         <label className={labelClass}>出店内容 </label>
                                         <textarea name="boothContent" value={formData.boothContent} onChange={handleChange} readOnly={isLocked} rows={3} className={cn(isLocked ? lockedTextareaClass : textareaClass, !isLocked && fieldError("boothContent"))} placeholder={"・飲食ブース（キッチンカー含む）\n・ハンドメイド雑貨\n・ワークショップ体験"} />
                                         {fieldErrorMsg("boothContent")}
+                                    </div>
+                                    <div>
+                                        <label className={labelClass}>貸出備品（出店者に貸し出せるもの）</label>
+                                        <div className="flex flex-wrap gap-2">
+                                            {["電源", "テント", "テーブル", "椅子", "給水", "ゴミ回収", "冷蔵・保冷"].map((opt) => {
+                                                const active = formData.offeredEquipment.includes(opt);
+                                                return (
+                                                    <button
+                                                        key={opt}
+                                                        type="button"
+                                                        disabled={isLocked}
+                                                        onClick={() => setFormData(prev => ({ ...prev, offeredEquipment: prev.offeredEquipment.includes(opt) ? prev.offeredEquipment.filter(v => v !== opt) : [...prev.offeredEquipment, opt] }))}
+                                                        className={cn("px-4 py-2 rounded-full border text-sm font-medium transition-colors disabled:opacity-60", active ? "bg-orange-500 text-white border-orange-500" : "bg-white text-slate-700 border-slate-200 hover:border-orange-300")}
+                                                    >
+                                                        {opt}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                        <p className="text-xs text-slate-500 mt-1.5">選択した備品は、出店者が応募時に利用希望を選べます。</p>
                                     </div>
                                 </div>
                             </section>

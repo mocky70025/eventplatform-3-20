@@ -23,6 +23,8 @@ type PresetField = {
     options?: string[];
 };
 
+const EQUIPMENT_OPTIONS = ["電源", "テント", "テーブル", "椅子", "給水", "ゴミ回収", "冷蔵・保冷"];
+
 const PRESET_EXHIBITOR_FIELDS: PresetField[] = [
     // 基本・メニュー情報
     { key: "booth_type", label: "出店形態", type: "select", options: ["テント", "キッチンカー", "相談可"], category: "基本・メニュー情報" },
@@ -163,6 +165,7 @@ export default function CreateEventPage() {
         expectedVisitors: "",
         powerSupply: "" as "yes" | "no" | "",
         waterSupply: "" as "yes" | "no" | "",
+        offeredEquipment: [] as string[],
         restrictions: [] as string[],
         categorySlots: [] as Array<{ category: string; count: number }>,
         exhibitorListVisibility: "all" as "all" | "category" | "none",
@@ -508,6 +511,7 @@ export default function CreateEventPage() {
                     expected_visitors: formData.expectedVisitors ? parseInt(formData.expectedVisitors) : null,
                     power_supply: formData.powerSupply === "yes",
                     water_supply: formData.waterSupply === "yes",
+                    offered_equipment: formData.offeredEquipment.length > 0 ? JSON.stringify(formData.offeredEquipment) : null,
                     restrictions: formData.restrictions.length > 0 ? JSON.stringify(formData.restrictions) : null,
                     category_slots: formData.categorySlots.length > 0 ? JSON.stringify(formData.categorySlots) : null,
                     exhibitor_list_visibility: formData.exhibitorListVisibility,
@@ -1031,6 +1035,25 @@ export default function CreateEventPage() {
                                             </div>
                                         </div>
                                         {showErrors && (!formData.powerSupply || !formData.waterSupply) && <p className="text-xs text-red-500 mt-1">電源・水道どちらも選択してください</p>}
+                                    </div>
+                                    <div>
+                                        <label className={labelClass}>貸出備品（出店者に貸し出せるもの）</label>
+                                        <div className="flex flex-wrap gap-2">
+                                            {EQUIPMENT_OPTIONS.map((opt) => {
+                                                const active = formData.offeredEquipment.includes(opt);
+                                                return (
+                                                    <button
+                                                        key={opt}
+                                                        type="button"
+                                                        onClick={() => setFormData(prev => ({ ...prev, offeredEquipment: prev.offeredEquipment.includes(opt) ? prev.offeredEquipment.filter(v => v !== opt) : [...prev.offeredEquipment, opt] }))}
+                                                        className={cn("px-4 py-2 rounded-full border text-sm font-medium transition-colors", active ? "bg-orange-500 text-white border-orange-500" : "bg-white text-slate-700 border-slate-200 hover:border-orange-300")}
+                                                    >
+                                                        {opt}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                        <p className="text-xs text-slate-500 mt-1.5">選択した備品は、出店者が応募時に利用希望を選べます。</p>
                                     </div>
                                     <div>
                                         <label className={labelClass}>禁止・制限事項 </label>

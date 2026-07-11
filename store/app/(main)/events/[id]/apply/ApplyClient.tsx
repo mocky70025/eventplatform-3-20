@@ -41,6 +41,13 @@ export default function ApplyClient({ event, exhibitor }: { event: any, exhibito
     const permitRegistered = registeredDocs.some(d => d.key === "business_permit");
     const [selectedDocs, setSelectedDocs] = useState<string[]>(registeredDocs.map(d => d.key));
 
+    const offeredEquipment: string[] = (() => {
+        const raw = event.offered_equipment;
+        if (!raw) return [];
+        try { const p = typeof raw === "string" ? JSON.parse(raw) : raw; return Array.isArray(p) ? p : []; } catch { return []; }
+    })();
+    const [selectedEquipment, setSelectedEquipment] = useState<string[]>([]);
+
     const formFields = parseExhibitorFormFields(event);
     // Documents are handled by the 提出書類 section (reused from the profile),
     // so file-type additional questions no longer prompt a re-upload here.
@@ -135,6 +142,9 @@ export default function ApplyClient({ event, exhibitor }: { event: any, exhibito
             }
             if (selectedDocs.length > 0) {
                 answers.submitted_documents = selectedDocs;
+            }
+            if (selectedEquipment.length > 0) {
+                answers.selected_equipment = selectedEquipment;
             }
 
             const { error: insertError } = await supabase
@@ -409,6 +419,33 @@ export default function ApplyClient({ event, exhibitor }: { event: any, exhibito
                         <p className="text-amber-700 mt-0.5">応募には営業許可証が必須です。<Link href="/profile#documents" className="underline font-semibold">プロフィールで登録</Link>してください。</p>
                     </div>
                 </div>
+            )}
+
+            {/* 貸出備品の利用希望 */}
+            {offeredEquipment.length > 0 && (
+                <section className="bg-white rounded-2xl p-8 border border-slate-100 shadow-sm">
+                    <h3 className="text-lg font-bold text-slate-900 mb-2 flex items-center gap-2">
+                        <Store className="w-5 h-5 text-store-600" /> 貸出備品の利用希望
+                    </h3>
+                    <p className="text-sm text-slate-500 mb-6">主催者が貸し出せる備品です。利用したいものを選択してください。</p>
+                    <div className="flex flex-wrap gap-2">
+                        {offeredEquipment.map(opt => {
+                            const active = selectedEquipment.includes(opt);
+                            return (
+                                <button
+                                    key={opt}
+                                    type="button"
+                                    onClick={() => setSelectedEquipment(prev => prev.includes(opt) ? prev.filter(v => v !== opt) : [...prev, opt])}
+                                    className={active
+                                        ? "px-4 py-2 rounded-full border text-sm font-medium bg-store-500 text-white border-store-500"
+                                        : "px-4 py-2 rounded-full border text-sm font-medium bg-white text-slate-700 border-slate-200 hover:border-store-300"}
+                                >
+                                    {opt}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </section>
             )}
 
             {/* Exhibitor Form Fields */}
