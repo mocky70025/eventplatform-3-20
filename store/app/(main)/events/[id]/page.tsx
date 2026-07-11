@@ -46,6 +46,14 @@ export default async function EventDetailPage({ params }: PageProps) {
         }))
         .filter(Boolean);
 
+    // 商材かぶり回避: 主催者の公開設定に応じて応募状況を開示する
+    const listVisibility = ((event.exhibitor_list_visibility as string) || "all");
+    const categoryCounts: Record<string, number> = {};
+    for (const ex of applicantExhibitors as any[]) {
+        const gs = Array.isArray(ex.genres) && ex.genres.length > 0 ? ex.genres : (ex.genre ? [ex.genre] : []);
+        for (const g of gs) categoryCounts[g] = (categoryCounts[g] || 0) + 1;
+    }
+
     // 3. If logged in, check if already applied
     let hasApplied = false;
     let exhibitorProfile = null;
@@ -308,14 +316,29 @@ export default async function EventDetailPage({ params }: PageProps) {
                             })()}
                         </div>
 
-                        {/* 応募中の出店者 */}
-                        {applicantExhibitors.length > 0 && (
+                        {/* 応募状況（主催者の公開設定に応じて表示） */}
+                        {listVisibility !== "none" && applicantExhibitors.length > 0 && (
                             <div className="bg-white rounded-xl border border-slate-200 p-6">
                                 <h2 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
                                     <span className="w-1 h-5 bg-store-500 rounded-full"></span>
-                                    応募中の出店者
+                                    {listVisibility === "category" ? "応募中のカテゴリ" : "応募中の出店者"}
                                     <span className="text-sm font-normal text-slate-500 ml-1">({applicantExhibitors.length})</span>
                                 </h2>
+                                {listVisibility === "category" && (
+                                    <p className="text-sm text-slate-500 mb-4 -mt-2">商材のかぶりを避けるため、応募中のカテゴリのみ公開しています。</p>
+                                )}
+                                {listVisibility === "category" ? (
+                                    <div className="flex flex-wrap gap-2">
+                                        {Object.entries(categoryCounts).map(([g, c]) => (
+                                            <span key={g} className="inline-flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-full bg-slate-100 text-slate-700">
+                                                {g}<span className="font-bold text-store-600">{c}</span>
+                                            </span>
+                                        ))}
+                                        {Object.keys(categoryCounts).length === 0 && (
+                                            <p className="text-sm text-slate-500">カテゴリ情報のある応募はまだありません。</p>
+                                        )}
+                                    </div>
+                                ) : (
                                 <div className="space-y-3">
                                     {applicantExhibitors.map((ex: any) => {
                                         const genres = ex.genres && Array.isArray(ex.genres) && ex.genres.length > 0
@@ -350,6 +373,7 @@ export default async function EventDetailPage({ params }: PageProps) {
                                         );
                                     })}
                                 </div>
+                                )}
                             </div>
                         )}
 
