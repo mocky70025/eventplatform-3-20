@@ -12,6 +12,21 @@ import { useRouter } from "next/navigation";
 import { parseExhibitorFormFields } from "@/lib/exhibitorFields";
 import { getRegisteredDocuments } from "@/lib/exhibitorDocuments";
 
+const FIELD_PLACEHOLDERS: Record<string, string> = {
+    menu_list: "例：たこ焼き（8個 500円）、ドリンク各種 など提供予定の商品",
+    price_range: "例：300〜800円",
+    booth_description: "例：白テント＋のぼり。木目調の装飾で温かい雰囲気に。",
+    expected_sales_count: "例：1日 200食程度",
+    staff_count: "例：3名",
+    emergency_contact: "例：090-1234-5678（店長 田中）",
+    space_size: "例：3m × 3m",
+    tent_info: "例：2m×2m テント持参",
+    power_needed: "例：1000W（冷蔵庫・照明）",
+    water_needed: "例：手洗い用に必要",
+    vehicle_entry: "例：軽トラ1台 搬入のみ",
+    loading_time_preference: "例：8:00〜9:00",
+};
+
 export default function ApplyClient({ event, exhibitor }: { event: any, exhibitor: any }) {
     const [isLoading, setIsLoading] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
@@ -450,7 +465,8 @@ export default function ApplyClient({ event, exhibitor }: { event: any, exhibito
                                         value={formAnswers[field.key] || ""}
                                         onChange={(e) => setFormAnswers(prev => ({ ...prev, [field.key]: e.target.value }))}
                                         rows={3}
-                                        className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 text-slate-900 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm"
+                                        placeholder={FIELD_PLACEHOLDERS[field.key] || ""}
+                                        className="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 text-slate-900 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm placeholder:text-slate-400"
                                     />
                                 ) : field.type === "select" ? (
                                     <select
@@ -524,7 +540,8 @@ export default function ApplyClient({ event, exhibitor }: { event: any, exhibito
                                         type="text"
                                         value={formAnswers[field.key] || ""}
                                         onChange={(e) => setFormAnswers(prev => ({ ...prev, [field.key]: e.target.value }))}
-                                        className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-slate-900 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm"
+                                        placeholder={FIELD_PLACEHOLDERS[field.key] || ""}
+                                        className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-slate-900 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm placeholder:text-slate-400"
                                     />
                                 )}
                             </div>
