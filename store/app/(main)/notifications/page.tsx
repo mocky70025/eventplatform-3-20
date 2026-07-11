@@ -8,6 +8,7 @@ import {
     ChevronRight,
     CalendarClock,
     XCircle,
+    AlertTriangle,
 } from "lucide-react";
 import { redirect } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -15,7 +16,7 @@ import { LoginRequired } from "@/components/LoginRequired";
 import Link from "next/link";
 import NotificationActions from "./NotificationActions";
 
-type NotificationType = "confirmed" | "remind" | "reviewRequest" | "application_approved" | "application_rejected" | "new_application";
+type NotificationType = "confirmed" | "remind" | "reviewRequest" | "application_approved" | "application_rejected" | "new_application" | "document_resubmit";
 
 interface Notification {
     id: string;
@@ -73,6 +74,12 @@ function getNotificationIcon(type: NotificationType) {
             return (
                 <div className="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center shrink-0">
                     <Star className="w-5 h-5 text-purple-500" />
+                </div>
+            );
+        case "document_resubmit":
+            return (
+                <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center shrink-0">
+                    <AlertTriangle className="w-5 h-5 text-amber-600" />
                 </div>
             );
         default:

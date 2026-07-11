@@ -16,6 +16,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import ApplicationStatusActions from "./ApplicationStatusActions";
 import DocumentCard from "./DocumentCard";
+import RequestDocumentFix from "./RequestDocumentFix";
 
 export default async function ApplicationDetailPage({ params }: { params: { id: string } }) {
     const { id } = await params;
@@ -198,6 +199,14 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
                                     imageUrl={fireUrl}
                                 />
                             </div>
+                            {app.exhibitors?.user_id && (
+                                <RequestDocumentFix
+                                    exhibitorUserId={app.exhibitors.user_id}
+                                    eventId={(app.events as any)?.id}
+                                    eventName={(app.events as any)?.event_name || "イベント"}
+                                    applicationId={app.id}
+                                />
+                            )}
                         </div>
 
                         {/* Additional Info Section */}
