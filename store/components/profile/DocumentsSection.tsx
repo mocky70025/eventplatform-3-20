@@ -7,11 +7,11 @@ import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 
 const documentTypes = [
-    { key: "businessLicense", dbKey: "business_license_image_url", expiryDbKey: "business_license_expiry", label: "食品衛生責任者証", required: true },
     { key: "businessPermit", dbKey: "business_permit_image_url", expiryDbKey: "business_permit_expiry", label: "営業許可証", required: true },
+    { key: "businessLicense", dbKey: "business_license_image_url", expiryDbKey: "business_license_expiry", label: "食品衛生責任者証", required: false },
     { key: "plInsurance", dbKey: "pl_insurance_image_url", expiryDbKey: "pl_insurance_expiry", label: "PL保険証書", required: false },
-    { key: "vehicleInspection", dbKey: "vehicle_inspection_image_url", expiryDbKey: "vehicle_inspection_expiry", label: "自動車検査証", required: false, desc: "キッチンカーの車検証をアップロードしてください" },
-    { key: "fireManager", dbKey: "fire_equipment_layout_image_url", expiryDbKey: "fire_manager_expiry", label: "防火管理者証", required: false, desc: "火気を使用する場合に必要です" },
+    { key: "vehicleInspection", dbKey: "vehicle_inspection_image_url", expiryDbKey: "vehicle_inspection_expiry", label: "車検証", required: false, desc: "キッチンカーの車検証をアップロードしてください" },
+    { key: "fireManager", dbKey: "fire_equipment_layout_image_url", expiryDbKey: "fire_manager_expiry", label: "火器類配置図", required: false, desc: "火気を使用する場合に必要です" },
 ];
 
 interface DocumentsSectionProps {
