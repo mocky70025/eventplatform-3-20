@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { signExhibitorDocuments } from "@/lib/supabase/documents";
 import { getUserWithRefresh } from "@/lib/supabase/auth";
 import { parseExhibitorFormFields, formatAnswer } from "@/lib/exhibitorFields";
+import { getExhibitorRating } from "@/lib/ratings";
 import {
     ArrowLeft,
     Mail,
@@ -54,6 +55,7 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
     }
 
     const shopInitial = app.exhibitors?.shop_name?.charAt(0) || "?";
+    const rating = await getExhibitorRating(supabase, app.exhibitors?.user_id);
 
     const [permitUrl, vehicleUrl, plUrl, fireUrl] = await signExhibitorDocuments([
         app.exhibitors?.business_permit_image_url,
@@ -108,6 +110,13 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
                                 <p className="text-sm text-slate-500 mt-1">
                                     {[app.exhibitors?.genre, app.exhibitors?.name && `代表: ${app.exhibitors.name}`].filter(Boolean).join("　・　")}
                                 </p>
+                                {rating.count > 0 && (
+                                    <div className="flex items-center gap-1 mt-1.5 text-sm">
+                                        <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
+                                        <span className="font-bold text-slate-900">{rating.avg!.toFixed(1)}</span>
+                                        <span className="text-slate-500">（{rating.count}件の評価）</span>
+                                    </div>
+                                )}
                                 <div className="flex items-center gap-4 mt-2 text-sm">
                                     {app.exhibitors?.rating && (
                                         <span className="inline-flex items-center gap-1 text-slate-700">

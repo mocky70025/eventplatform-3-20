@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { signExhibitorDocuments } from "@/lib/supabase/documents";
+import { getExhibitorRating } from "@/lib/ratings";
 import { getUserWithRefresh } from "@/lib/supabase/auth";
 import { ArrowLeft, Mail, Star } from "lucide-react";
 import Link from "next/link";
@@ -106,7 +107,8 @@ export default async function ExhibitorDetailPage({ params }: { params: Promise<
             : "bg-yellow-100 text-yellow-700";
 
     const approvedCount = applications.filter((a: any) => a.status === "approved").length;
-    const rating = (exhibitor as any).rating as number | null;
+    const ratingSummary = await getExhibitorRating(supabase, exhibitor.user_id);
+    const rating = ratingSummary.avg;
     const location = [exhibitor.prefecture, exhibitor.city].filter(Boolean).join("") || exhibitor.address || null;
 
     const InfoRow = ({ label, value }: { label: string; value: React.ReactNode }) => (
@@ -136,11 +138,11 @@ export default async function ExhibitorDetailPage({ params }: { params: Promise<
                         <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-semibold">出店者</span>
                     </div>
                     <p className="text-sm text-slate-500 mt-1">
-                        {[exhibitor.genre, location, rating ? `★ ${rating}` : null].filter(Boolean).join("　・　")}
+                        {[exhibitor.genre, location, rating != null ? `★ ${rating.toFixed(1)}（${ratingSummary.count}件）` : null].filter(Boolean).join("　・　")}
                     </p>
                     <div className="flex items-center gap-10 mt-5">
                         <div><p className="text-2xl font-bold text-slate-900">{approvedCount}</p><p className="text-xs text-slate-500 mt-0.5">出店回数</p></div>
-                        <div><p className="text-2xl font-bold text-slate-900">{rating ?? "—"}</p><p className="text-xs text-slate-500 mt-0.5">平均評価</p></div>
+                        <div><p className="text-2xl font-bold text-slate-900">{rating != null ? rating.toFixed(1) : "—"}</p><p className="text-xs text-slate-500 mt-0.5">平均評価（{ratingSummary.count}件）</p></div>
                         <div><p className="text-2xl font-bold text-slate-900">{applications.length}</p><p className="text-xs text-slate-500 mt-0.5">応募回数</p></div>
                     </div>
                     {exhibitor.email && (
