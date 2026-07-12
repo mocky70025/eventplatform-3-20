@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import Image from "next/image";
 import { getUserWithRefresh } from "@/lib/supabase/auth";
 import { redirect } from "next/navigation";
 import { Inbox } from "lucide-react";
@@ -101,8 +102,9 @@ export default async function ApplicationsPage({ searchParams }: PageProps) {
                             return (
                                 <div key={app.id} className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
                                     {ev?.main_image_url ? (
-                                        // eslint-disable-next-line @next/next/no-img-element
-                                        <img src={ev.main_image_url} alt="" className="w-full aspect-video object-cover bg-slate-100" />
+                                        <div className="relative w-full aspect-video bg-slate-100">
+                                            <Image src={ev.main_image_url} alt="" fill sizes="(max-width: 768px) 100vw, 400px" className="object-cover" />
+                                        </div>
                                     ) : (
                                         <div className="w-full aspect-video bg-store-50" />
                                     )}

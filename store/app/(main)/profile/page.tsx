@@ -6,6 +6,7 @@ import { NotificationsSection } from "@/components/profile/NotificationsSection"
 import { ProfileSidebar } from "@/components/profile/ProfileSidebar";
 import { createClient } from "@/lib/supabase/server";
 import { getUserWithRefresh } from "@/lib/supabase/auth";
+import Image from "next/image";
 import { LoginRequired } from "@/components/LoginRequired";
 
 export default async function ProfilePage() {
@@ -74,10 +75,9 @@ export default async function ProfilePage() {
                 <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-6">
                     <div className="flex items-start justify-between gap-4">
                         <div className="flex items-center gap-4 min-w-0">
-                            <div className="w-16 h-16 rounded-full bg-store-500 flex items-center justify-center text-white text-2xl font-bold shrink-0 overflow-hidden">
+                            <div className="relative w-16 h-16 rounded-full bg-store-500 flex items-center justify-center text-white text-2xl font-bold shrink-0 overflow-hidden">
                                 {profile?.avatar_url ? (
-                                    // eslint-disable-next-line @next/next/no-img-element
-                                    <img src={profile.avatar_url} alt={displayName} className="w-full h-full object-cover" />
+                                    <Image src={profile.avatar_url} alt={displayName} fill sizes="64px" className="object-cover" />
                                 ) : (
                                     displayName.charAt(0)
                                 )}

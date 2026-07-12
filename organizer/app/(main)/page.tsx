@@ -4,6 +4,7 @@ import { getUserWithRefresh } from "@/lib/supabase/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getDashboardTodos } from "@/lib/dashboard/todos";
+import Image from "next/image";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -90,8 +91,9 @@ export default async function Home() {
                     <div className="grid grid-cols-3 gap-1.5 mb-3">
                       {[0, 1, 2].map((i) =>
                         imgs[i] ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img key={i} src={imgs[i]} alt="" className="w-full h-20 object-cover rounded-lg bg-slate-100" />
+                          <div key={i} className="relative w-full h-20 rounded-lg overflow-hidden bg-slate-100">
+                            <Image src={imgs[i]} alt="" fill sizes="120px" className="object-cover" />
+                          </div>
                         ) : (
                           <div key={i} className="w-full h-20 rounded-lg bg-slate-100" />
                         )
