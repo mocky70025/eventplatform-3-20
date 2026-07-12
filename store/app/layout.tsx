@@ -8,6 +8,10 @@ const notoSansJP = Noto_Sans_JP({
   display: "swap",
 });
 
+// Run Server Components / functions in Tokyo, close to users and the
+// Supabase region (ap-southeast-1) — avoids the ~1s TTFB seen from US (iad1).
+export const preferredRegion = "hnd1";
+
 export const metadata: Metadata = {
   title: "Wacca | 出店者",
   description: "イベント出店マッチングプラットフォーム",

@@ -8,6 +8,9 @@ const notoSansJP = Noto_Sans_JP({
   display: "swap",
 });
 
+// Run functions in Tokyo, close to users and the Supabase region.
+export const preferredRegion = "hnd1";
+
 export const metadata: Metadata = {
   title: "管理画面 | Wacca",
   description: "Wacca Platform Administration",
