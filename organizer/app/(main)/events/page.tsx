@@ -107,7 +107,7 @@ export default async function EventsPage({
                         <h1 className="text-2xl font-bold text-slate-900">イベント管理</h1>
                         <p className="text-sm text-slate-500 mt-1">あなたが作成したイベント一覧</p>
                     </div>
-                    {profile?.is_approved && (
+                    {(
                         <Link
                             href="/events/new"
                             className="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl px-5 py-2.5 text-sm transition-colors shadow-sm shadow-orange-500/20"
@@ -263,7 +263,7 @@ export default async function EventsPage({
                                 ? "フィルタ条件を変更してみてください。"
                                 : "最初のイベントを作成して出店者の募集を開始しましょう。"}
                         </p>
-                        {filterStatus === "all" && profile?.is_approved && (
+                        {filterStatus === "all" && (
                             <Link
                                 href="/events/new"
                                 className="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl px-5 py-2.5 text-sm transition-colors"

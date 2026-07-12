@@ -1,4 +1,4 @@
-import { Plus, AlertCircle, ArrowRight, Star, Inbox } from "lucide-react";
+import { Plus, ArrowRight, Star, Inbox } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getUserWithRefresh } from "@/lib/supabase/auth";
 import { redirect } from "next/navigation";
@@ -57,21 +57,6 @@ export default async function Home() {
   return (
     <div className="min-h-screen bg-[#fdf8f1]">
       <main className="max-w-6xl mx-auto py-8 px-6">
-
-        {/* Approval banner (only when not approved) */}
-        {!profile.is_approved && (
-          <div className="mb-6 bg-amber-50 border border-amber-200 rounded-2xl p-5">
-            <div className="flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-              <div>
-                <h3 className="text-sm font-bold text-amber-900">承認待ち</h3>
-                <p className="text-sm text-amber-700 mt-0.5">
-                  管理者による承認が完了するまで、イベントの作成はできません。
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* === 最近の応募 === */}
         <section className="mb-10">
@@ -142,14 +127,12 @@ export default async function Home() {
                 イベントを公開すると、出店者から応募が届きます。<br />
                 まずは新しくイベントを作ってみましょう。
               </p>
-              {profile.is_approved && (
-                <Link
-                  href="/events/new"
-                  className="mt-6 w-full max-w-md inline-flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl py-3 transition-colors"
-                >
-                  <Plus className="w-4 h-4" /> 新しくイベントを作る
-                </Link>
-              )}
+              <Link
+                href="/events/new"
+                className="mt-6 w-full max-w-md inline-flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl py-3 transition-colors"
+              >
+                <Plus className="w-4 h-4" /> 新しくイベントを作る
+              </Link>
               <Link href="/events?status=draft" className="mt-3 text-sm text-slate-500 hover:text-slate-700">
                 下書きのイベントを見る
               </Link>

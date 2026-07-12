@@ -452,10 +452,6 @@ export default function CreateEventPage() {
                 throw new Error("主催者プロフィールが見つかりません。");
             }
 
-            if (!profile.is_approved) {
-                throw new Error("アカウントがまだ承認されていません。");
-            }
-
             let mainImageUrl = "";
             let venueLayoutUrl = "";
 
