@@ -18,6 +18,13 @@ const PREFECTURES = [
     "福岡県", "佐賀県", "長崎県", "熊本県", "大分県", "宮崎県", "鹿児島県", "沖縄県",
 ];
 
+const OPTIONAL_DOCS: { key: string; label: string; col: string }[] = [
+    { key: "foodSafety", label: "食品衛生責任者証", col: "business_license_image_url" },
+    { key: "plInsurance", label: "PL保険証書", col: "pl_insurance_image_url" },
+    { key: "vehicleInspection", label: "車検証", col: "vehicle_inspection_image_url" },
+    { key: "fireEquipment", label: "火器類配置図", col: "fire_equipment_layout_image_url" },
+];
+
 export default function OnboardingPage() {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
@@ -66,6 +73,8 @@ export default function OnboardingPage() {
 
     const [licenseFile, setLicenseFile] = useState<File | null>(null);
     const [licensePreview, setLicensePreview] = useState("");
+    const [optionalFiles, setOptionalFiles] = useState<Record<string, File | null>>({});
+    const [optionalPreviews, setOptionalPreviews] = useState<Record<string, string>>({});
     const [aiResult, setAiResult] = useState<{ status: "idle" | "verifying" | "success" | "error"; message?: string }>({ status: "idle" });
     const [postalCode, setPostalCode] = useState("");
     const [postalCodeLoading, setPostalCodeLoading] = useState(false);
@@ -184,6 +193,25 @@ export default function OnboardingPage() {
         setAiResult({ status: "idle" });
     };
 
+    const handleOptionalFile = (key: string, file: File | null) => {
+        if (!file) return;
+        const ext = (file.name.split(".").pop() || "").toLowerCase();
+        if (!['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf'].includes(ext)) {
+            setError("対応していないファイル形式です");
+            return;
+        }
+        setError("");
+        setOptionalFiles((prev) => ({ ...prev, [key]: file }));
+        const reader = new FileReader();
+        reader.onloadend = () => setOptionalPreviews((prev) => ({ ...prev, [key]: reader.result as string }));
+        reader.readAsDataURL(file);
+    };
+
+    const removeOptionalFile = (key: string) => {
+        setOptionalFiles((prev) => ({ ...prev, [key]: null }));
+        setOptionalPreviews((prev) => ({ ...prev, [key]: "" }));
+    };
+
     const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     const isValidPhone = (phone: string) => /^[\d\-+() ]{10,15}$/.test(phone.replace(/\s/g, ''));
 
@@ -233,6 +261,18 @@ export default function OnboardingPage() {
                 licenseUrl = filePath;
             }
 
+            const extraDocCols: Record<string, string> = {};
+            for (const doc of OPTIONAL_DOCS) {
+                const f = optionalFiles[doc.key];
+                if (!f) continue;
+                const ext = (f.name.split(".").pop() || "").toLowerCase();
+                if (!ALLOWED_EXTENSIONS.includes(ext)) continue;
+                const p = `${user.id}/${doc.key}_${crypto.randomUUID()}.${ext}`;
+                const { error: upErr } = await supabase.storage.from("exhibitor-documents").upload(p, f);
+                if (upErr) throw new Error(`${doc.label}のアップロードに失敗しました`);
+                extraDocCols[doc.col] = p;
+            }
+
             const { error: insertError } = await supabase.from("exhibitors").insert({
                 user_id: user.id,
                 shop_name: formData.storeName,
@@ -245,6 +285,7 @@ export default function OnboardingPage() {
                 address: `${formData.prefecture}${formData.cityAddress}${formData.building || ""}`,
                 description: formData.description,
                 business_permit_image_url: licenseUrl,
+                ...extraDocCols,
             });
 
             if (insertError) throw insertError;
@@ -539,6 +580,42 @@ export default function OnboardingPage() {
                             {showErrors && !licenseFile && (
                                 <p className="text-red-500 text-xs mt-1">営業許可証のアップロードは必須です</p>
                             )}
+                        </div>
+                    </div>
+
+                    <div>
+                        <p className="text-sm font-bold text-slate-700 mb-1">その他の書類（任意）</p>
+                        <p className="text-xs text-slate-500 mb-3">後からでも登録できますが、今登録しておくと応募がスムーズです。</p>
+                        <div className="space-y-2">
+                            {OPTIONAL_DOCS.map((doc) => (
+                                <div key={doc.key} className="flex items-center gap-3 rounded-xl border border-slate-200 px-4 py-3">
+                                    <div className="min-w-0 flex-1">
+                                        <p className="text-sm font-medium text-slate-900">{doc.label}</p>
+                                        {optionalFiles[doc.key] && (
+                                            <p className="text-xs text-slate-500 truncate">{optionalFiles[doc.key]?.name}</p>
+                                        )}
+                                    </div>
+                                    {optionalFiles[doc.key] ? (
+                                        <button
+                                            type="button"
+                                            onClick={() => removeOptionalFile(doc.key)}
+                                            className="shrink-0 text-xs font-medium text-slate-500 hover:text-red-500"
+                                        >
+                                            削除
+                                        </button>
+                                    ) : (
+                                        <label className="shrink-0 cursor-pointer text-xs font-semibold text-store-600 border border-store-200 bg-store-50 hover:bg-store-100 rounded-lg px-3 py-1.5 transition-colors">
+                                            ファイルを選択
+                                            <input
+                                                type="file"
+                                                accept="image/*,.pdf"
+                                                className="hidden"
+                                                onChange={(e) => handleOptionalFile(doc.key, e.target.files?.[0] || null)}
+                                            />
+                                        </label>
+                                    )}
+                                </div>
+                            ))}
                         </div>
                     </div>
 
