@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+<html lang="ja" data-mode="normal">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wacca Design System v1.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+/* ============ TOKENS（tokens.cssと同じ） ============ */
+:root {
+  /* Sumi（墨）— 信頼・和の落ち着き。色相を抜いた暖かい墨色 */
+  --color-wacca-sumi-50: #faf8f5;  --color-wacca-sumi-100: #f0ebe1;
+  --color-wacca-sumi-200: #ddd6c8; --color-wacca-sumi-300: #c2b8a4;
+  --color-wacca-sumi-400: #8a8071; --color-wacca-sumi-500: #5c5246;
+  --color-wacca-sumi-600: #2a2620; --color-wacca-sumi-700: #1c1916;
+  --color-wacca-sumi-800: #100e0a; --color-wacca-sumi-900: #050402;
+
+  --color-wacca-orange-50: #fff7ed; --color-wacca-orange-100: #ffedd5;
+  --color-wacca-orange-200: #fed7aa; --color-wacca-orange-300: #fdba74;
+  --color-wacca-orange-400: #fb923c; --color-wacca-orange-500: #f97316;
+  --color-wacca-orange-600: #ea580c; --color-wacca-orange-700: #c2410c;
+  --color-wacca-orange-800: #9a3412; --color-wacca-orange-900: #7c2d12;
+
+  --color-wacca-green-50: #f0fdf4; --color-wacca-green-100: #dcfce7;
+  --color-wacca-green-200: #bbf7d0; --color-wacca-green-300: #86efac;
+  --color-wacca-green-400: #4ade80; --color-wacca-green-500: #16a34a;
+  --color-wacca-green-600: #15803d; --color-wacca-green-700: #166534;
+  --color-wacca-green-800: #14532d; --color-wacca-green-900: #052e16;
+
+  --color-wacca-cream-50: #fefcf9; --color-wacca-cream-100: #fdf8f1;
+  --color-wacca-cream-200: #f8f6f2; --color-wacca-cream-300: #f1ede3;
+
+  --color-neutral-50: #f8fafc; --color-neutral-100: #f1f5f9;
+  --color-neutral-200: #e2e8f0; --color-neutral-300: #cbd5e1;
+  --color-neutral-400: #94a3b8; --color-neutral-500: #64748b;
+  --color-neutral-600: #475569; --color-neutral-700: #334155;
+  --color-neutral-800: #1e293b; --color-neutral-900: #0f172a;
+
+  --color-success-500: #22c55e; --color-warning-500: #eab308;
+  --color-danger-500: #ef4444;  --color-info-500: #3b82f6;
+  --color-gold-300: #fde047; --color-gold-400: #facc15; --color-gold-500: #eab308;
+
+  --text-xs: 12px; --text-sm: 14px; --text-base: 18px;
+  --text-lg: 20px; --text-xl: 24px; --text-2xl: 30px;
+  --text-3xl: 36px; --text-4xl: 48px; --text-5xl: 64px;
+
+  --radius-sm: 6px; --radius-md: 12px; --radius-lg: 16px;
+  --radius-xl: 24px; --radius-full: 9999px;
+
+  --shadow-sm: 0 1px 3px rgba(15,23,42,0.06);
+  --shadow-md: 0 4px 12px rgba(15,23,42,0.08);
+  --shadow-lg: 0 8px 24px rgba(15,23,42,0.08);
+  --shadow-xl: 0 16px 40px rgba(15,23,42,0.10);
+
+  --touch-target-min: 56px;
+}
+[data-mode="senior"] {
+  --text-base: 20px; --text-lg: 24px; --text-xl: 28px;
+  --touch-target-min: 64px;
+}
+
+/* ============ BASE ============ */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: "Noto Sans JP", system-ui, -apple-system, sans-serif;
+  font-size: var(--text-base);
+  line-height: 1.7;
+  letter-spacing: 0.04em;
+  color: var(--color-neutral-900);
+  background: var(--color-wacca-cream-100);
+}
+
+/* ============ LAYOUT ============ */
+.container { max-width: 1280px; margin: 0 auto; padding: 0 32px; }
+.section { padding: 64px 0; border-bottom: 1px solid var(--color-neutral-200); }
+.section:last-child { border-bottom: none; }
+.section-title { font-size: var(--text-2xl); font-weight: 700; margin-bottom: 8px; color: var(--color-wacca-sumi-600); }
+.section-sub { font-size: var(--text-sm); color: var(--color-neutral-500); margin-bottom: 32px; }
+.component-title { font-size: var(--text-xl); font-weight: 700; margin-top: 48px; margin-bottom: 8px; color: var(--color-wacca-sumi-600); display: flex; align-items: center; gap: 12px;}
+.component-title::before { content: ""; display: inline-block; width: 4px; height: 24px; background: var(--color-wacca-orange-500); border-radius: 2px; }
+.component-desc { font-size: var(--text-sm); color: var(--color-neutral-500); margin-bottom: 16px; }
+.demo-block { background: white; border: 1px solid var(--color-neutral-200); border-radius: var(--radius-lg); padding: 32px; margin-bottom: 16px; }
+.demo-label { font-size: var(--text-xs); color: var(--color-neutral-500); margin-bottom: 12px; letter-spacing: 0.2em; text-transform: uppercase; }
+.demo-row { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin-bottom: 24px; }
+.demo-row:last-child { margin-bottom: 0; }
+.demo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+
+/* ============ HERO ============ */
+.hero { background: linear-gradient(135deg, var(--color-wacca-sumi-600), var(--color-wacca-sumi-800)); color: white; padding: 96px 0; }
+.hero h1 { font-size: var(--text-5xl); font-weight: 900; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 24px;}
+.hero h1 .accent { color: var(--color-wacca-orange-400); }
+.hero p { font-size: var(--text-xl); color: var(--color-wacca-sumi-100); margin-bottom: 32px; max-width: 720px; }
+.hero-meta { display: flex; gap: 32px; flex-wrap: wrap; font-size: var(--text-sm); color: var(--color-wacca-sumi-200); }
+.hero-meta div strong { display: block; color: white; font-size: var(--text-base); margin-bottom: 4px; }
+
+/* ============ MODE TOGGLE ============ */
+.mode-toggle { position: fixed; bottom: 24px; right: 24px; background: white; border: 1px solid var(--color-neutral-200); border-radius: var(--radius-full); padding: 12px 20px; box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 12px; z-index: 1000; cursor: pointer; }
+.mode-toggle:hover { transform: translateY(-1px); box-shadow: var(--shadow-xl); }
+.mode-toggle .label { font-size: var(--text-sm); font-weight: 600; }
+.mode-toggle .switch { width: 40px; height: 24px; background: var(--color-neutral-300); border-radius: var(--radius-full); position: relative; transition: 200ms; }
+.mode-toggle .switch::after { content: ""; position: absolute; left: 2px; top: 2px; width: 20px; height: 20px; background: white; border-radius: 50%; transition: 200ms; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+[data-mode="senior"] .mode-toggle .switch { background: var(--color-wacca-orange-500); }
+[data-mode="senior"] .mode-toggle .switch::after { left: 18px; }
+
+/* ============ COLOR PALETTE ============ */
+.color-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+.color-card { border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--color-neutral-200); }
+.color-swatch { height: 80px; display: flex; align-items: flex-end; padding: 8px 12px; color: white; font-weight: 600; font-size: 11px; }
+.color-swatch.light { color: var(--color-neutral-900); }
+.color-info { padding: 8px 12px; background: white; font-size: 11px; }
+.color-name { font-weight: 600; }
+.color-hex { color: var(--color-neutral-500); font-family: "JetBrains Mono", monospace; }
+
+/* ============ TYPOGRAPHY ============ */
+.type-row { display: flex; align-items: baseline; gap: 24px; padding: 16px 0; border-bottom: 1px dashed var(--color-neutral-200); }
+.type-row:last-child { border-bottom: none; }
+.type-label { width: 120px; flex-shrink: 0; color: var(--color-neutral-500); font-size: var(--text-xs); }
+.type-sample { color: var(--color-neutral-900); }
+.type-spec { width: 200px; flex-shrink: 0; color: var(--color-neutral-500); font-size: var(--text-xs); font-family: "JetBrains Mono", monospace; }
+
+/* ============ SPACING / RADIUS / SHADOW ============ */
+.scale-row { display: flex; align-items: center; gap: 16px; padding: 12px 0; }
+.scale-label { width: 80px; font-size: var(--text-xs); color: var(--color-neutral-500); font-family: monospace; }
+.scale-value { width: 60px; font-size: var(--text-xs); color: var(--color-neutral-700); font-family: monospace; }
+.scale-bar { background: var(--color-wacca-orange-500); height: 16px; border-radius: 2px; }
+.radius-sample, .shadow-sample { width: 80px; height: 80px; background: white; display: flex; align-items: center; justify-content: center; font-size: var(--text-xs); color: var(--color-neutral-500); }
+
+/* ============ BUTTONS ============ */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 24px; border-radius: var(--radius-md); font-family: inherit; font-size: var(--text-base); font-weight: 600; line-height: 1; cursor: pointer; border: none; transition: 200ms cubic-bezier(0.2,0,0,1); min-height: 48px; min-width: 120px;}
+.btn-primary { background: var(--color-wacca-orange-500); color: white; }
+.btn-primary:hover { background: var(--color-wacca-orange-600); transform: translateY(-1px); }
+.btn-primary-green { background: var(--color-wacca-green-500); color: white; }
+.btn-primary-green:hover { background: var(--color-wacca-green-600); transform: translateY(-1px); }
+.btn-secondary { background: transparent; color: var(--color-wacca-orange-500); border: 1px solid var(--color-wacca-orange-500);}
+.btn-secondary:hover { background: var(--color-wacca-orange-50); }
+.btn-ghost { background: transparent; color: var(--color-neutral-700); }
+.btn-ghost:hover { background: var(--color-neutral-100); }
+.btn-danger { background: var(--color-danger-500); color: white; }
+.btn-danger:hover { background: #dc2626; transform: translateY(-1px); }
+.btn-sm { padding: 8px 16px; font-size: var(--text-sm); min-height: 36px; min-width: 80px; }
+.btn-lg { padding: 16px 32px; font-size: var(--text-lg); min-height: 56px; min-width: 140px; }
+.btn-senior { padding: 20px 40px; font-size: var(--text-lg); min-height: 72px; min-width: 200px; font-weight: 700; }
+.btn:disabled, .btn[disabled] { background: var(--color-neutral-200); color: var(--color-neutral-400); cursor: not-allowed; }
+.btn:focus-visible { outline: 2px solid var(--color-wacca-sumi-500); outline-offset: 2px; }
+.btn .icon { width: 16px; height: 16px; }
+
+/* ============ INPUTS ============ */
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field-label { font-size: var(--text-sm); font-weight: 600; color: var(--color-neutral-700); }
+.field-label .req { color: var(--color-danger-500); margin-left: 4px; }
+.input { font-family: inherit; font-size: var(--text-base); padding: 12px 16px; border: 1px solid var(--color-neutral-200); border-radius: 8px; background: white; min-height: 48px; transition: 150ms;}
+.input:focus { outline: none; border: 2px solid var(--color-wacca-orange-500); padding: 11px 15px; }
+.input.error { border: 2px solid var(--color-danger-500); padding: 11px 15px; }
+.input:disabled { background: var(--color-neutral-100); color: var(--color-neutral-400); }
+.field-help { font-size: var(--text-xs); color: var(--color-neutral-500); }
+.field-error { font-size: var(--text-xs); color: var(--color-danger-500); }
+.textarea { min-height: 96px; resize: vertical; }
+.select { appearance: none; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'><polyline points='6 9 12 15 18 9'/></svg>"); background-repeat: no-repeat; background-position: right 16px center; padding-right: 48px; }
+
+/* ============ CHECKBOX / RADIO ============ */
+.choice { display: inline-flex; align-items: center; gap: 12px; cursor: pointer; font-size: var(--text-base); }
+.choice-input {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 24px; height: 24px;
+  margin: 0;
+  cursor: pointer;
+  background: white;
+  border: 2px solid var(--color-wacca-orange-500);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+  transition: background 150ms;
+}
+.choice-input:focus-visible {
+  outline: 2px solid var(--color-wacca-sumi-500);
+  outline-offset: 2px;
+}
+/* Checkbox: 角丸4px、チェック時=オレンジ塗り＋白チェック */
+input[type="checkbox"].choice-input { border-radius: 4px; }
+input[type="checkbox"].choice-input:checked {
+  background: var(--color-wacca-orange-500);
+}
+input[type="checkbox"].choice-input:checked::after {
+  content: "";
+  width: 14px;
+  height: 14px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'><polyline points='20 6 9 17 4 12'/></svg>");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 14px 14px;
+}
+/* Radio: 円形、チェック時=オレンジドット（外枠は常にオレンジのまま、追加リングなし） */
+input[type="radio"].choice-input { border-radius: 50%; }
+input[type="radio"].choice-input:checked::after {
+  content: "";
+  width: 12px;
+  height: 12px;
+  background: var(--color-wacca-orange-500);
+  border-radius: 50%;
+}
+.choice-group { display: flex; flex-direction: column; gap: 12px; }
+
+/* ============ CARDS ============ */
+.card { background: white; border: 1px solid var(--color-neutral-200); border-radius: var(--radius-md); padding: 24px; transition: 200ms cubic-bezier(0.2,0,0,1); }
+.card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+.event-card { padding: 0; overflow: hidden; }
+.event-card-img { aspect-ratio: 16/9; background: linear-gradient(135deg, var(--color-wacca-orange-200), var(--color-wacca-orange-400)); display: flex; align-items: center; justify-content: center; color: white; font-size: var(--text-sm); }
+.event-card-body { padding: 20px; }
+.event-card-title { font-size: var(--text-xl); font-weight: 700; margin-bottom: 12px; color: var(--color-wacca-sumi-600); }
+.event-card-meta { display: flex; flex-direction: column; gap: 8px; font-size: var(--text-sm); color: var(--color-neutral-700); margin-bottom: 16px; }
+.event-card-meta span { display: flex; align-items: center; gap: 6px; }
+.event-card-meta svg { color: var(--color-neutral-500); flex-shrink: 0; }
+.event-card-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 16px; border-top: 1px solid var(--color-neutral-200); }
+.event-card-price { font-size: var(--text-lg); font-weight: 700; color: var(--color-wacca-sumi-600); }
+.event-card-slots { font-size: var(--text-xs); color: var(--color-neutral-500); }
+
+.application-card { position: relative; }
+.application-card .status-badge { position: absolute; top: 16px; right: 16px; }
+.application-card-photos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-bottom: 16px; border-radius: 8px; overflow: hidden;}
+.application-card-photo { aspect-ratio: 1; background: linear-gradient(135deg, var(--color-wacca-cream-200), var(--color-wacca-cream-300)); display: flex; align-items: center; justify-content: center; color: var(--color-neutral-400); font-size: 10px; }
+.application-card-info { display: flex; align-items: center; gap: 12px; margin-bottom: 12px;}
+.application-card-info-text { flex: 1; }
+.application-card-name { font-size: var(--text-lg); font-weight: 700; color: var(--color-wacca-sumi-600); margin-bottom: 4px; }
+.application-card-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+.application-card-rating { display: flex; align-items: center; gap: 4px; font-size: var(--text-sm); color: var(--color-neutral-700); margin-bottom: 16px;}
+.application-card-rating .star { color: var(--color-gold-500); }
+.application-card-actions { display: flex; gap: 8px; }
+.application-card-actions .btn { flex: 1; padding: 10px 16px; min-width: 0; font-size: var(--text-sm); min-height: 44px;}
+
+/* ============ BADGE ============ */
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: var(--radius-full); font-size: var(--text-xs); font-weight: 600; letter-spacing: 0; }
+.badge-status-waiting { background: var(--color-warning-500); color: white; }
+.badge-status-accepted { background: var(--color-wacca-green-500); color: white; }
+.badge-status-rejected { background: var(--color-neutral-300); color: var(--color-neutral-700); }
+.badge-status-reserve { background: var(--color-info-500); color: white; }
+.badge-category { background: var(--color-wacca-cream-200); color: var(--color-wacca-sumi-600); border: 1px solid var(--color-wacca-cream-300); }
+.badge-cat-music { background: #ec4899; color: white; }
+.badge-cat-marche { background: var(--color-wacca-orange-500); color: white; }
+.badge-cat-food { background: var(--color-danger-500); color: white; }
+.badge-cat-festival { background: var(--color-wacca-orange-700); color: white; }
+.badge-count { background: var(--color-danger-500); color: white; padding: 2px 8px; min-width: 20px; justify-content: center; }
+.badge-sm { padding: 2px 8px; font-size: 10px; }
+.badge-md { padding: 6px 12px; font-size: var(--text-sm); }
+
+/* ============ GOLD STAR BADGE ============ */
+.gold-star { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: var(--radius-full); background: linear-gradient(135deg, var(--color-gold-300), var(--color-gold-500)); color: white; font-size: var(--text-sm); font-weight: 700; border: 1px solid var(--color-gold-600, #ca8a04); box-shadow: 0 0 12px rgba(234,179,8,0.3); }
+.gold-star svg { width: 16px; height: 16px; }
+
+/* ============ AVATAR ============ */
+.avatar { display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--color-wacca-cream-200); color: var(--color-wacca-sumi-600); font-weight: 700; overflow: hidden; flex-shrink: 0;}
+.avatar-xs { width: 24px; height: 24px; font-size: 10px; }
+.avatar-sm { width: 32px; height: 32px; font-size: var(--text-xs); }
+.avatar-md { width: 48px; height: 48px; font-size: var(--text-sm); }
+.avatar-lg { width: 64px; height: 64px; font-size: var(--text-base); }
+.avatar-xl { width: 96px; height: 96px; font-size: var(--text-2xl); }
+.avatar-store { border-radius: var(--radius-md); }
+.avatar-gold { border: 3px solid var(--color-gold-500); box-shadow: 0 0 0 2px white, 0 0 0 5px var(--color-gold-500); }
+
+/* ============ TOP NAV ============ */
+.top-nav { display: flex; align-items: center; justify-content: space-between; padding: 0 32px; height: 64px; background: white; border-bottom: 1px solid var(--color-neutral-200); }
+.top-nav-logo { font-weight: 900; font-size: var(--text-xl); color: var(--color-wacca-sumi-600); display: flex; align-items: center; gap: 8px;}
+.top-nav-logo-icon { width: 32px; height: 32px; background: var(--color-wacca-orange-500); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px;}
+.top-nav-menu { display: flex; gap: 32px; }
+.top-nav-menu a { color: var(--color-neutral-700); text-decoration: none; font-size: var(--text-base); font-weight: 500; }
+.top-nav-menu a:hover { color: var(--color-wacca-orange-500); }
+.top-nav-menu a.active { color: var(--color-wacca-orange-500); position: relative;}
+.top-nav-menu a.active::after { content: ""; position: absolute; bottom: -22px; left: 0; right: 0; height: 3px; background: var(--color-wacca-orange-500); border-radius: 2px;}
+.top-nav-right { display: flex; align-items: center; gap: 16px; }
+
+/* ============ TABS ============ */
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--color-neutral-200); }
+.tab { padding: 12px 16px; cursor: pointer; font-size: var(--text-base); color: var(--color-neutral-500); border-bottom: 3px solid transparent; transition: 150ms;}
+.tab:hover { color: var(--color-neutral-700); border-bottom-color: var(--color-neutral-300);}
+.tab.active { color: var(--color-wacca-orange-500); border-bottom-color: var(--color-wacca-orange-500); font-weight: 600;}
+
+/* ============ MODAL ============ */
+.modal-demo { background: rgba(15,23,42,0.4); padding: 32px; border-radius: var(--radius-lg);}
+.modal-container { background: white; border-radius: var(--radius-lg); padding: 32px; max-width: 540px; margin: 0 auto; box-shadow: var(--shadow-xl);}
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;}
+.modal-title { font-size: var(--text-xl); font-weight: 700; color: var(--color-wacca-sumi-600);}
+.modal-close { width: 32px; height: 32px; background: transparent; border: none; cursor: pointer; color: var(--color-neutral-500); font-size: 24px; border-radius: 50%;}
+.modal-close:hover { background: var(--color-neutral-100);}
+.modal-body { margin-bottom: 24px; color: var(--color-neutral-700);}
+.modal-footer { display: flex; gap: 8px; justify-content: flex-end;}
+
+/* ============ PHOTO GRID ============ */
+.photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; max-width: 480px;}
+.photo-grid > div { aspect-ratio: 1; background: linear-gradient(135deg, var(--color-wacca-cream-200), var(--color-wacca-cream-300)); display: flex; align-items: center; justify-content: center; color: var(--color-neutral-400); font-size: var(--text-xs); cursor: pointer; transition: 200ms;}
+.photo-grid > div:hover { opacity: 0.85; }
+
+/* ============ MISC ============ */
+.note { font-size: var(--text-xs); color: var(--color-neutral-500); padding: 12px 16px; background: var(--color-wacca-cream-200); border-left: 3px solid var(--color-wacca-orange-500); border-radius: 4px; margin-top: 12px;}
+.toc { position: sticky; top: 24px; }
+.toc-list { list-style: none; padding: 16px; background: white; border-radius: var(--radius-md); border: 1px solid var(--color-neutral-200);}
+.toc-list a { color: var(--color-neutral-700); text-decoration: none; display: block; padding: 4px 0; font-size: var(--text-sm);}
+.toc-list a:hover { color: var(--color-wacca-orange-500);}
+.toc-list h4 { font-size: var(--text-xs); color: var(--color-neutral-500); margin: 12px 0 4px; letter-spacing: 0.2em; text-transform: uppercase;}
+.layout-with-toc { display: grid; grid-template-columns: 220px 1fr; gap: 48px; align-items: start; }
+@media (max-width: 1024px) { .layout-with-toc { grid-template-columns: 1fr;} .toc { display: none;}}
+
+/* ============ ICONS ============ */
+svg.icon-inline { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2;}
+
+@keyframes fadeFast { 0%,100% { opacity: 1; } 50% { opacity: 0.2; } }
+@keyframes fadeBase { 0%,100% { opacity: 1; } 50% { opacity: 0.2; } }
+@keyframes fadeSlow { 0%,100% { opacity: 1; } 50% { opacity: 0.2; } }
+@keyframes slideStd { 0%,100% { transform: translateX(0); } 50% { transform: translateX(160px); } }
+@keyframes slideDec { 0%,100% { transform: translateX(0); } 50% { transform: translateX(160px); } }
+@keyframes slideAcc { 0%,100% { transform: translateX(0); } 50% { transform: translateX(160px); } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="container">
+    <h1>Wacca <span class="accent">Design System</span><br>v1.0</h1>
+    <p>イベントの輪を、もっと広げよう。<br>主催者・出店者・来場者を信頼でつなぐプラットフォームの、すべてのUIの基盤。</p>
+    <div class="hero-meta">
+      <div><strong>15</strong>コアコンポーネント</div>
+      <div><strong>40+</strong>カラートークン（Sumi/Orange/Green/Cream）</div>
+      <div><strong>9段</strong>タイポスケール</div>
+      <div><strong>WCAG AA+</strong>アクセシビリティ</div>
+      <div><strong>シニア対応</strong>モード搭載</div>
+    </div>
+  </div>
+</header>
+
+<!-- MODE TOGGLE -->
+<div class="mode-toggle" onclick="toggleMode()">
+  <span class="label">シニアモード</span>
+  <div class="switch"></div>
+</div>
+
+<div class="container layout-with-toc" style="padding-top: 48px;">
+
+<!-- TOC -->
+<aside class="toc">
+  <nav class="toc-list">
+    <h4>FOUNDATION</h4>
+    <a href="#principles">原則</a>
+    <a href="#color">カラー</a>
+    <a href="#typography">タイポグラフィ</a>
+    <a href="#spacing">スペーシング</a>
+    <a href="#radius">Radius</a>
+    <a href="#shadow">Shadow</a>
+    <a href="#motion">Motion</a>
+    <h4>COMPONENTS</h4>
+    <a href="#c-button">1. Button</a>
+    <a href="#c-input">2. TextInput</a>
+    <a href="#c-textarea">3. Textarea</a>
+    <a href="#c-select">4. Select</a>
+    <a href="#c-choice">5. Check / Radio</a>
+    <a href="#c-card">6. Card</a>
+    <a href="#c-eventcard">7. EventCard</a>
+    <a href="#c-appcard">8. ApplicationCard</a>
+    <a href="#c-badge">9. Badge</a>
+    <a href="#c-gold">10. GoldStarBadge</a>
+    <a href="#c-avatar">11. Avatar</a>
+    <a href="#c-nav">12. TopNav</a>
+    <a href="#c-tabs">13. Tabs</a>
+    <a href="#c-modal">14. Modal</a>
+    <a href="#c-photo">15. PhotoGrid</a>
+    <h4>GUIDELINES</h4>
+    <a href="#accessibility">アクセシビリティ</a>
+    <a href="#writing">ライティング</a>
+    <a href="#app-variants">3アプリ差分</a>
+    <a href="#senior-mode">シニアモード</a>
+  </nav>
+</aside>
+
+<main>
+
+<!-- ============ PRINCIPLES ============ -->
+<section class="section" id="principles">
+  <div class="section-title">デザイン原則</div>
+  <div class="section-sub">判断に迷ったらここに照らす。</div>
+  <div class="demo-grid">
+    <div class="demo-block">
+      <div class="demo-label">01</div>
+      <h3 style="margin-bottom:8px;font-size:var(--text-lg);">信頼でつながる</h3>
+      <p style="font-size:var(--text-sm);color:var(--color-neutral-700);">業務システム的にしない。相手の信頼性を視覚化する（評価・Gold Star・写真）。</p>
+    </div>
+    <div class="demo-block">
+      <div class="demo-label">02</div>
+      <h3 style="margin-bottom:8px;font-size:var(--text-lg);">ひと画面で完結する</h3>
+      <p style="font-size:var(--text-sm);color:var(--color-neutral-700);">ユーザーがタブを切り替えず、必要な情報と操作が一画面に揃う。</p>
+    </div>
+    <div class="demo-block">
+      <div class="demo-label">03</div>
+      <h3 style="margin-bottom:8px;font-size:var(--text-lg);">写真で語る</h3>
+      <p style="font-size:var(--text-sm);color:var(--color-neutral-700);">テキスト前に画像で世界観を伝える。Instagram風の判断UXを基本に。</p>
+    </div>
+    <div class="demo-block">
+      <div class="demo-label">04</div>
+      <h3 style="margin-bottom:8px;font-size:var(--text-lg);">シニアにも刺さる</h3>
+      <p style="font-size:var(--text-sm);color:var(--color-neutral-700);">18px以上、タッチ56px以上、カタカナ用語を避ける。シニアモードで強化。</p>
+    </div>
+    <div class="demo-block">
+      <div class="demo-label">05</div>
+      <h3 style="margin-bottom:8px;font-size:var(--text-lg);">ひとつの輪</h3>
+      <p style="font-size:var(--text-sm);color:var(--color-neutral-700);">organizer / store / admin の3アプリで一貫性を保ち、同じパーツを使う。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ COLOR ============ -->
+<section class="section" id="color">
+  <div class="section-title">カラーパレット</div>
+  <div class="section-sub">Wacca Sumi 墨（信頼・和）× Orange（情熱・主催者）× Green（循環・出店者）× Cream（温かみ）</div>
+
+  <div class="demo-label">Wacca Sumi 墨（基盤色 / 信頼・和の落ち着き）</div>
+  <div class="color-grid" style="margin-bottom:32px;">
+    <div class="color-card"><div class="color-swatch light" style="background:#faf8f5">50</div><div class="color-info"><div class="color-name">sumi-50</div><div class="color-hex">#faf8f5</div></div></div>
+    <div class="color-card"><div class="color-swatch light" style="background:#f0ebe1">100</div><div class="color-info"><div class="color-name">sumi-100</div><div class="color-hex">#f0ebe1</div></div></div>
+    <div class="color-card"><div class="color-swatch light" style="background:#ddd6c8">200</div><div class="color-info"><div class="color-name">sumi-200</div><div class="color-hex">#ddd6c8</div></div></div>
+    <div class="color-card"><div class="color-swatch light" style="background:#c2b8a4">300</div><div class="color-info"><div class="color-name">sumi-300</div><div class="color-hex">#c2b8a4</div></div></div>
+    <div class="color-card"><div class="color-swatch" style="background:#8a8071">400</div><div class="color-info"><div class="color-name">sumi-400</div><div class="color-hex">#8a8071</div></div></div>
+    <div class="color-card"><div class="color-swatch" style="background:#5c5246">500</div><div class="color-info"><div class="color-name">sumi-500</div><div class="color-hex">#5c5246</div></div></div>
+    <div class="color-card"><div class="color-swatch" style="background:#2a2620">600 ★</div><div class="color-info"><div class="color-name">sumi-600</div><div class="color-hex">#2a2620</div></div></div>
+    <div class="color-card"><div class="color-swatch" style="background:#1c1916">700</div><div class="color-info"><div class="color-name">sumi-700</div><div class="color-hex">#1c1916</div></div></div>
+    <div class="color-card"><div class="color-swatch" style="background:#100e0a">800</div><div class="color-info"><div class="color-name">sumi-800</div><div class="color-hex">#100e0a</div></div></div>
+  </div>
+
+  <div class="demo-label">Wacca Orange（organizerプライマリ / 情熱）</div>
+  <div class="color-grid" style="margin-bottom:32px;">
+    <div class="color-card"><div class="color-swatch light" style="background:#fff7ed">50</div><div class="color-info"><div class="color-name">orange-50</div><div class="color-hex">#fff7ed</div></div></div>
+    <div class="color-card"><div class="color-swatch light" style="background:#ffedd5">100</div><div class="color-info"><div class="color-name">orange-100</div><div class="color-hex">#ffedd5</div></div></div>
+    <div class="color-card"><div class="color-swatch light" style="background:#fed7aa">200</div><div class="color-info"><div class="color-name">orange-200</div><div class="color-hex">#fed7aa</div></div></div>
+    <div class="color-card"><div class="color-swatch" style="background:#fb923c">400</div><div class="color-info"><div class="color-name">orange-400</div><div class="color-hex">#fb923c</div></div></div>
+    <div class="color-card"><div class="color-swatch" style="background:#f97316">500 ★</div><div class="color-info"><div class="color-name">orange-500</div><div class="color-hex">#f97316</div></div></div>
+    <div class="color-card"><div class="color-swatch" style="background:#ea580c">600</div><div class="color-info"><div class="color-name">orange-600</div><div class="color-hex">#ea580c</div></div></div>
+    <div class="color-card"><div class="color-swatch" style="background:#c2410c">700</div><div class="color-info"><div class="color-name">orange-700</div><div class="color-hex">#c2410c</div></div></div>
+    <div class="color-card"><div class="color-swatch" style="background:#9a3412">800</div><div class="color-info"><div class="color-name">orange-800</div><div class="color-hex">#9a3412</div></div></div>
+  </div>
+
+  <div class="demo-label">Wacca Green（storeプライマリ / 循環・採用）</div>
+  <div class="color-grid" style="margin-bottom:32px;">
+    <div class="color-card"><div class="color-swatch light" style="background:#f0fdf4">50</div><div class="color-info"><div class="color-name">green-50</div><div class="color-hex">#f0fdf4</div></div></div>
+    <div class="color-card"><div class="color-swatch light" style="background:#dcfce7">100</div><div class="color-info"><div class="color-name">green-100</div><div class="color-hex">#dcfce7</div></div></div>
+    <div class="color-card"><div class="color-swatch light" style="background:#bbf7d0">200</div><div class="color-info"><div class="color-name">green-200</div><div class="color-hex">#bbf7d0</div></div></div>
+    <div class="color-card"><div class="color-swatch" style="background:#4ade80">400</div><div class="color-info"><div class="color-name">green-400</div><div class="color-hex">#4ade80</div></div></div>
+    <div class="color-card"><div class="color-swatch" style="background:#16a34a">500 ★</div><div class="color-info"><div class="color-name">green-500</div><div class="color-hex">#16a34a</div></div></div>
+    <div class="color-card"><div class="color-swatch" style="background:#15803d">600</div><div class="color-info"><div class="color-name">green-600</div><div class="color-hex">#15803d</div></div></div>
+    <div class="color-card"><div class="color-swatch" style="background:#166534">700</div><div class="color-info"><div class="color-name">green-700</div><div class="color-hex">#166534</div></div></div>
+    <div class="color-card"><div class="color-swatch" style="background:#14532d">800</div><div class="color-info"><div class="color-name">green-800</div><div class="color-hex">#14532d</div></div></div>
+  </div>
+
+  <div class="demo-label">Wacca Cream（背景・温かみ）</div>
+  <div class="color-grid" style="margin-bottom:32px;">
+    <div class="color-card"><div class="color-swatch light" style="background:#fefcf9;border:1px solid #eee;">50</div><div class="color-info"><div class="color-name">cream-50</div><div class="color-hex">#fefcf9</div></div></div>
+    <div class="color-card"><div class="color-swatch light" style="background:#fdf8f1;border:1px solid #eee;">100 ★</div><div class="color-info"><div class="color-name">cream-100</div><div class="color-hex">#fdf8f1</div></div></div>
+    <div class="color-card"><div class="color-swatch light" style="background:#f8f6f2;border:1px solid #eee;">200</div><div class="color-info"><div class="color-name">cream-200</div><div class="color-hex">#f8f6f2</div></div></div>
+    <div class="color-card"><div class="color-swatch light" style="background:#f1ede3;border:1px solid #eee;">300</div><div class="color-info"><div class="color-name">cream-300</div><div class="color-hex">#f1ede3</div></div></div>
+  </div>
+
+  <div class="demo-label">Semantic</div>
+  <div class="color-grid" style="margin-bottom:32px;">
+    <div class="color-card"><div class="color-swatch" style="background:#22c55e">Success</div><div class="color-info"><div class="color-name">success-500</div><div class="color-hex">#22c55e</div></div></div>
+    <div class="color-card"><div class="color-swatch" style="background:#eab308">Warning</div><div class="color-info"><div class="color-name">warning-500</div><div class="color-hex">#eab308</div></div></div>
+    <div class="color-card"><div class="color-swatch" style="background:#ef4444">Danger</div><div class="color-info"><div class="color-name">danger-500</div><div class="color-hex">#ef4444</div></div></div>
+    <div class="color-card"><div class="color-swatch" style="background:#3b82f6">Info</div><div class="color-info"><div class="color-name">info-500</div><div class="color-hex">#3b82f6</div></div></div>
+    <div class="color-card"><div class="color-swatch" style="background:linear-gradient(135deg,#fde047,#eab308)">Gold</div><div class="color-info"><div class="color-name">gold-500</div><div class="color-hex">#eab308</div></div></div>
+  </div>
+</section>
+
+<!-- ============ TYPOGRAPHY ============ -->
+<section class="section" id="typography">
+  <div class="section-title">タイポグラフィ</div>
+  <div class="section-sub">Noto Sans JP。本文 18px（シニアモードで 20px）。</div>
+  <div class="demo-block">
+    <div class="type-row"><div class="type-label">Display</div><div class="type-sample" style="font-size:64px;font-weight:900;line-height:1.2;letter-spacing:-0.02em;">輪を、広げよう</div><div class="type-spec">64px / 900 / 1.2</div></div>
+    <div class="type-row"><div class="type-label">Heading 1</div><div class="type-sample" style="font-size:36px;font-weight:700;line-height:1.3;letter-spacing:-0.01em;">イベントを作成</div><div class="type-spec">36px / 700 / 1.3</div></div>
+    <div class="type-row"><div class="type-label">Heading 2</div><div class="type-sample" style="font-size:30px;font-weight:700;line-height:1.3;">応募者を確認</div><div class="type-spec">30px / 700 / 1.3</div></div>
+    <div class="type-row"><div class="type-label">Heading 3</div><div class="type-sample" style="font-size:24px;font-weight:700;line-height:1.4;">出店者プロフィール</div><div class="type-spec">24px / 700 / 1.4</div></div>
+    <div class="type-row"><div class="type-label">Heading 4</div><div class="type-sample" style="font-size:20px;font-weight:600;line-height:1.5;">最近の活動</div><div class="type-spec">20px / 600 / 1.5</div></div>
+    <div class="type-row"><div class="type-label">Body</div><div class="type-sample" style="font-size:18px;font-weight:400;line-height:1.7;letter-spacing:0.04em;">私たちは、主催者の情熱と、出店者の技術を、信頼という糸でまっすぐに結びます。</div><div class="type-spec">18px / 400 / 1.7</div></div>
+    <div class="type-row"><div class="type-label">Body Bold</div><div class="type-sample" style="font-size:18px;font-weight:600;line-height:1.7;letter-spacing:0.04em;">重要なお知らせ</div><div class="type-spec">18px / 600 / 1.7</div></div>
+    <div class="type-row"><div class="type-label">Small</div><div class="type-sample" style="font-size:14px;font-weight:500;line-height:1.6;">2026年5月25日 / 静岡県沼津市</div><div class="type-spec">14px / 500 / 1.6</div></div>
+    <div class="type-row"><div class="type-label">Caption</div><div class="type-sample" style="font-size:12px;font-weight:400;line-height:1.5;">利用規約・プライバシーポリシー</div><div class="type-spec">12px / 400 / 1.5</div></div>
+  </div>
+</section>
+
+<!-- ============ SPACING ============ -->
+<section class="section" id="spacing">
+  <div class="section-title">スペーシング（4の倍数）</div>
+  <div class="section-sub">最頻使用：16/24/32（コンポーネント内）、48/64（セクション間）</div>
+  <div class="demo-block">
+    <div class="scale-row"><div class="scale-label">space-1</div><div class="scale-value">4px</div><div class="scale-bar" style="width:4px"></div></div>
+    <div class="scale-row"><div class="scale-label">space-2</div><div class="scale-value">8px</div><div class="scale-bar" style="width:8px"></div></div>
+    <div class="scale-row"><div class="scale-label">space-3</div><div class="scale-value">12px</div><div class="scale-bar" style="width:12px"></div></div>
+    <div class="scale-row"><div class="scale-label">space-4 ★</div><div class="scale-value">16px</div><div class="scale-bar" style="width:16px"></div></div>
+    <div class="scale-row"><div class="scale-label">space-6 ★</div><div class="scale-value">24px</div><div class="scale-bar" style="width:24px"></div></div>
+    <div class="scale-row"><div class="scale-label">space-8 ★</div><div class="scale-value">32px</div><div class="scale-bar" style="width:32px"></div></div>
+    <div class="scale-row"><div class="scale-label">space-12</div><div class="scale-value">48px</div><div class="scale-bar" style="width:48px"></div></div>
+    <div class="scale-row"><div class="scale-label">space-16</div><div class="scale-value">64px</div><div class="scale-bar" style="width:64px"></div></div>
+    <div class="scale-row"><div class="scale-label">space-24</div><div class="scale-value">96px</div><div class="scale-bar" style="width:96px"></div></div>
+  </div>
+</section>
+
+<!-- ============ RADIUS ============ -->
+<section class="section" id="radius">
+  <div class="section-title">Radius（角丸）</div>
+  <div class="demo-block">
+    <div class="demo-row">
+      <div class="radius-sample" style="border-radius:6px;background:var(--color-wacca-sumi-100);">sm 6px</div>
+      <div class="radius-sample" style="border-radius:12px;background:var(--color-wacca-orange-200);">md 12px ★</div>
+      <div class="radius-sample" style="border-radius:16px;background:var(--color-wacca-green-200);">lg 16px</div>
+      <div class="radius-sample" style="border-radius:24px;background:var(--color-wacca-cream-300);">xl 24px</div>
+      <div class="radius-sample" style="border-radius:50%;background:var(--color-wacca-sumi-200);">full</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SHADOW ============ -->
+<section class="section" id="shadow">
+  <div class="section-title">Shadow（影）</div>
+  <div class="section-sub">opacity 0.06〜0.10 で固定。強い影は禁止。</div>
+  <div class="demo-block" style="background:var(--color-wacca-cream-200);">
+    <div class="demo-row">
+      <div class="shadow-sample" style="box-shadow:var(--shadow-sm);border-radius:12px;">sm</div>
+      <div class="shadow-sample" style="box-shadow:var(--shadow-md);border-radius:12px;">md</div>
+      <div class="shadow-sample" style="box-shadow:var(--shadow-lg);border-radius:12px;">lg</div>
+      <div class="shadow-sample" style="box-shadow:var(--shadow-xl);border-radius:12px;">xl</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MOTION ============ -->
+<section class="section" id="motion">
+  <div class="section-title">Motion（モーション）</div>
+  <div class="section-sub">柔らかく、控えめに。`prefers-reduced-motion` を尊重する。</div>
+  <div class="demo-block">
+    <div class="demo-label">Duration（持続時間）</div>
+    <div class="demo-row" style="gap:32px;">
+      <div style="text-align:center;">
+        <div style="width:80px;height:80px;background:var(--color-wacca-orange-500);border-radius:12px;animation:fadeFast 1.5s infinite;"></div>
+        <div style="margin-top:8px;font-size:var(--text-xs);font-family:monospace;color:var(--color-neutral-700);">fast 150ms</div>
+        <div style="font-size:11px;color:var(--color-neutral-500);">ホバー</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="width:80px;height:80px;background:var(--color-wacca-orange-500);border-radius:12px;animation:fadeBase 1.5s infinite;"></div>
+        <div style="margin-top:8px;font-size:var(--text-xs);font-family:monospace;color:var(--color-neutral-700);">base 200ms ★</div>
+        <div style="font-size:11px;color:var(--color-neutral-500);">基本</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="width:80px;height:80px;background:var(--color-wacca-orange-500);border-radius:12px;animation:fadeSlow 1.5s infinite;"></div>
+        <div style="margin-top:8px;font-size:var(--text-xs);font-family:monospace;color:var(--color-neutral-700);">slow 300ms</div>
+        <div style="font-size:11px;color:var(--color-neutral-500);">ダイアログ・トースト</div>
+      </div>
+    </div>
+    <div class="demo-label" style="margin-top:32px;">Easing（イージング）</div>
+    <div class="demo-row" style="gap:32px;">
+      <div style="text-align:center;">
+        <div style="width:200px;height:8px;background:var(--color-neutral-200);border-radius:4px;position:relative;overflow:hidden;">
+          <div style="position:absolute;left:0;top:0;width:40px;height:100%;background:var(--color-wacca-sumi-600);border-radius:4px;animation:slideStd 2s infinite cubic-bezier(0.2,0,0,1);"></div>
+        </div>
+        <div style="margin-top:8px;font-size:var(--text-xs);font-family:monospace;color:var(--color-neutral-700);">standard ★</div>
+        <div style="font-size:11px;color:var(--color-neutral-500);">cubic-bezier(0.2,0,0,1)</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="width:200px;height:8px;background:var(--color-neutral-200);border-radius:4px;position:relative;overflow:hidden;">
+          <div style="position:absolute;left:0;top:0;width:40px;height:100%;background:var(--color-wacca-green-600);border-radius:4px;animation:slideDec 2s infinite cubic-bezier(0,0,0.2,1);"></div>
+        </div>
+        <div style="margin-top:8px;font-size:var(--text-xs);font-family:monospace;color:var(--color-neutral-700);">decelerate</div>
+        <div style="font-size:11px;color:var(--color-neutral-500);">入る要素</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="width:200px;height:8px;background:var(--color-neutral-200);border-radius:4px;position:relative;overflow:hidden;">
+          <div style="position:absolute;left:0;top:0;width:40px;height:100%;background:var(--color-wacca-orange-600);border-radius:4px;animation:slideAcc 2s infinite cubic-bezier(0.4,0,1,1);"></div>
+        </div>
+        <div style="margin-top:8px;font-size:var(--text-xs);font-family:monospace;color:var(--color-neutral-700);">accelerate</div>
+        <div style="font-size:11px;color:var(--color-neutral-500);">出る要素</div>
+      </div>
+    </div>
+    <div class="note">Wacca原則：派手な動きはしない。控えめに、目的のある動きだけ。シニアモードでは持続時間を短縮（最大200ms）。</div>
+  </div>
+</section>
+
+<!-- ============ C1. BUTTON ============ -->
+<section class="section">
+  <div class="component-title" id="c-button">1. Button</div>
+  <div class="component-desc">主要なアクション。Primaryは1画面1つ。</div>
+
+  <div class="demo-block">
+    <div class="demo-label">バリアント（organizer=Orange）</div>
+    <div class="demo-row">
+      <button class="btn btn-primary">申請する</button>
+      <button class="btn btn-secondary">下書き保存</button>
+      <button class="btn btn-ghost">取り消し</button>
+      <button class="btn btn-danger">不採用にする</button>
+    </div>
+    <div class="demo-label">バリアント（store=Green）</div>
+    <div class="demo-row">
+      <button class="btn btn-primary-green">出店申請する</button>
+    </div>
+    <div class="demo-label">サイズ</div>
+    <div class="demo-row">
+      <button class="btn btn-primary btn-sm">小</button>
+      <button class="btn btn-primary">標準</button>
+      <button class="btn btn-primary btn-lg">大</button>
+      <button class="btn btn-primary btn-senior">シニア大</button>
+    </div>
+    <div class="demo-label">状態</div>
+    <div class="demo-row">
+      <button class="btn btn-primary">通常</button>
+      <button class="btn btn-primary" disabled>無効</button>
+      <button class="btn btn-primary"><svg class="icon-inline" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> 読み込み中</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ C2. TEXT INPUT ============ -->
+<section class="section">
+  <div class="component-title" id="c-input">2. TextInput</div>
+  <div class="component-desc">テキスト・数値・メール等の単行入力。</div>
+  <div class="demo-block">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+      <div class="field">
+        <label class="field-label">イベント名<span class="req">*</span></label>
+        <input class="input" type="text" value="沼津サマーマルシェ 2026" />
+        <div class="field-help">公開時にトップに表示されます</div>
+      </div>
+      <div class="field">
+        <label class="field-label">メールアドレス<span class="req">*</span></label>
+        <input class="input error" type="email" value="example@" />
+        <div class="field-error">@マークの後ろを確認してください</div>
+      </div>
+      <div class="field">
+        <label class="field-label">電話番号</label>
+        <input class="input" type="text" placeholder="ハイフンなしで入力" />
+      </div>
+      <div class="field">
+        <label class="field-label">会場名</label>
+        <input class="input" type="text" value="使えません" disabled />
+        <div class="field-help">登録済みのため変更できません</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ C3. TEXTAREA ============ -->
+<section class="section">
+  <div class="component-title" id="c-textarea">3. Textarea</div>
+  <div class="component-desc">複数行入力。文字数カウンター任意。</div>
+  <div class="demo-block">
+    <div class="field">
+      <label class="field-label">イベント説明・想い<span class="req">*</span></label>
+      <textarea class="input textarea" rows="4">沼津駅前で開催する地域マルシェです。地元の生産者と作家を中心に、温かいつながりを大切にした空間を作ります。</textarea>
+      <div class="field-help">出店者が「ここに出たい」と思える、想いを込めた説明を</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ C4. SELECT ============ -->
+<section class="section">
+  <div class="component-title" id="c-select">4. Select</div>
+  <div class="component-desc">単選択。「選択してください」をプレースホルダに。</div>
+  <div class="demo-block">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+      <div class="field">
+        <label class="field-label">ジャンル<span class="req">*</span></label>
+        <select class="input select">
+          <option>選択してください</option>
+          <option>音楽フェス</option><option>ライブ</option>
+          <option selected>マルシェ</option><option>フリーマーケット</option>
+          <option>地域おこし</option><option>祭り</option>
+          <option>食フェス</option><option>グルメイベント</option>
+          <option>スポーツ</option><option>アウトドア</option>
+          <option>企業</option><option>展示会</option><option>その他</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="field-label">出店形態</label>
+        <select class="input select">
+          <option>選択してください</option>
+          <option>テントのみ</option>
+          <option>キッチンカーのみ</option>
+          <option>両方可</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ C5. CHECKBOX / RADIO ============ -->
+<section class="section">
+  <div class="component-title" id="c-choice">5. Checkbox + Radio</div>
+  <div class="component-desc">構造化入力。火気機材・発電機・消火器など、消防届出の根拠データを取る。</div>
+  <div class="demo-block">
+    <div class="demo-label">Checkbox: 火気を使う機材（複数選択）</div>
+    <div class="choice-group" style="margin-bottom:24px;">
+      <label class="choice"><input type="checkbox" class="choice-input" checked> ガスコンロ（プロパン）</label>
+      <label class="choice"><input type="checkbox" class="choice-input"> ガスコンロ（都市ガス）</label>
+      <label class="choice"><input type="checkbox" class="choice-input" checked> カセットコンロ</label>
+      <label class="choice"><input type="checkbox" class="choice-input"> 炭火（七輪・BBQ）</label>
+      <label class="choice"><input type="checkbox" class="choice-input"> ガスフライヤー</label>
+      <label class="choice"><input type="checkbox" class="choice-input"> IH・電気式</label>
+    </div>
+
+    <div class="demo-label">Radio: 発電機（単選択）</div>
+    <div class="choice-group" style="margin-bottom:24px;">
+      <label class="choice"><input type="radio" name="gen" class="choice-input"> 使わない</label>
+      <label class="choice"><input type="radio" name="gen" class="choice-input" checked> ガソリン式（火気扱い）</label>
+      <label class="choice"><input type="radio" name="gen" class="choice-input"> 灯油式（火気扱い）</label>
+      <label class="choice"><input type="radio" name="gen" class="choice-input"> ガス式（火気扱い）</label>
+      <label class="choice"><input type="radio" name="gen" class="choice-input"> 電動式（火気ではない）</label>
+    </div>
+
+    <div class="demo-label">Radio: 消火器</div>
+    <div class="choice-group">
+      <label class="choice"><input type="radio" name="fire" class="choice-input" checked> はい（有効期限内）</label>
+      <label class="choice"><input type="radio" name="fire" class="choice-input"> はい（期限切れ）</label>
+      <label class="choice"><input type="radio" name="fire" class="choice-input"> 持っていない</label>
+    </div>
+  </div>
+</section>
+
+<!-- ============ C6. CARD ============ -->
+<section class="section">
+  <div class="component-title" id="c-card">6. Card</div>
+  <div class="component-desc">汎用カード。slot式（image / header / body / footer）。</div>
+  <div class="demo-block">
+    <div class="demo-grid">
+      <div class="card">
+        <h3 style="font-size:var(--text-xl);font-weight:700;margin-bottom:8px;color:var(--color-wacca-sumi-600);">今週末のイベント</h3>
+        <p style="color:var(--color-neutral-700);font-size:var(--text-sm);">3件のあなた向けイベントが見つかりました</p>
+      </div>
+      <div class="card">
+        <h3 style="font-size:var(--text-xl);font-weight:700;margin-bottom:8px;color:var(--color-wacca-sumi-600);">採用率</h3>
+        <p style="font-size:var(--text-3xl);font-weight:900;color:var(--color-wacca-green-600);">82%</p>
+        <p style="font-size:var(--text-sm);color:var(--color-neutral-500);">過去6ヶ月</p>
+      </div>
+      <div class="card">
+        <h3 style="font-size:var(--text-xl);font-weight:700;margin-bottom:8px;color:var(--color-wacca-sumi-600);">次のお祭り</h3>
+        <p style="font-size:var(--text-3xl);font-weight:900;color:var(--color-wacca-orange-500);">28日</p>
+        <p style="font-size:var(--text-sm);color:var(--color-neutral-500);">沼津サマーマルシェまで</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ C7. EVENT CARD ============ -->
+<section class="section">
+  <div class="component-title" id="c-eventcard">7. EventCard</div>
+  <div class="component-desc">イベント表示用カード。写真ファースト。</div>
+  <div class="demo-block">
+    <div class="demo-grid">
+      <div class="card event-card">
+        <div class="event-card-img">[ イベント写真 16:9 ]</div>
+        <div class="event-card-body">
+          <span class="badge badge-cat-marche" style="margin-bottom:12px;display:inline-flex;">マルシェ</span>
+          <h3 class="event-card-title">沼津サマーマルシェ 2026</h3>
+          <div class="event-card-meta">
+            <span><svg class="icon-inline" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg> 2026年7月20日（土）10:00〜17:00</span>
+            <span><svg class="icon-inline" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> 沼津駅前広場</span>
+            <span><svg class="icon-inline" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 募集締切 7月10日</span>
+          </div>
+          <div class="event-card-footer">
+            <div>
+              <div class="event-card-price">¥5,000</div>
+              <div class="event-card-slots">残 12 / 40 枠</div>
+            </div>
+            <button class="btn btn-primary-green">申請する</button>
+          </div>
+        </div>
+      </div>
+      <div class="card event-card">
+        <div class="event-card-img" style="background:linear-gradient(135deg,#fed7aa,#fb923c);">[ イベント写真 16:9 ]</div>
+        <div class="event-card-body">
+          <span class="badge badge-cat-festival" style="margin-bottom:12px;display:inline-flex;">祭り</span>
+          <h3 class="event-card-title">三島夏祭り キッチンカーフェス</h3>
+          <div class="event-card-meta">
+            <span><svg class="icon-inline" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg> 2026年8月3日〜5日</span>
+            <span><svg class="icon-inline" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> 三島大社境内</span>
+          </div>
+          <div class="event-card-footer">
+            <div>
+              <div class="event-card-price">¥8,000/日</div>
+              <div class="event-card-slots">残 3 / 15 枠</div>
+            </div>
+            <button class="btn btn-primary-green">申請する</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ C8. APPLICATION CARD ============ -->
+<section class="section">
+  <div class="component-title" id="c-appcard">8. ApplicationCard</div>
+  <div class="component-desc">主催者の応募審査用カード。写真主体で世界観を判断。</div>
+  <div class="demo-block">
+    <div class="demo-grid">
+      <div class="card application-card">
+        <span class="badge badge-status-waiting status-badge">審査中</span>
+        <div class="application-card-photos">
+          <div class="application-card-photo">[ 写真1 ]</div>
+          <div class="application-card-photo">[ 写真2 ]</div>
+          <div class="application-card-photo">[ 写真3 ]</div>
+        </div>
+        <div class="application-card-info">
+          <div class="avatar avatar-md avatar-store avatar-gold">SW</div>
+          <div class="application-card-info-text">
+            <div class="application-card-name">Sweet Wagon</div>
+            <span class="gold-star"><svg viewBox="0 0 24 24" fill="white"><polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9"/></svg>Gold Star</span>
+          </div>
+        </div>
+        <div class="application-card-tags">
+          <span class="badge badge-category">キッチンカー</span>
+          <span class="badge badge-category">デザート</span>
+          <span class="badge badge-category">アレルゲン表示あり</span>
+        </div>
+        <div class="application-card-rating">
+          <span class="star">★★★★★</span>
+          <span>4.9 (28件)</span>
+        </div>
+        <div class="application-card-actions">
+          <button class="btn btn-primary">承認</button>
+          <button class="btn btn-secondary">保留</button>
+          <button class="btn btn-ghost">却下</button>
+        </div>
+      </div>
+
+      <div class="card application-card">
+        <span class="badge badge-status-accepted status-badge">採用</span>
+        <div class="application-card-photos">
+          <div class="application-card-photo" style="background:linear-gradient(135deg,#fed7aa,#fb923c);">[ 写真1 ]</div>
+          <div class="application-card-photo" style="background:linear-gradient(135deg,#fdba74,#f97316);">[ 写真2 ]</div>
+          <div class="application-card-photo">[ 写真3 ]</div>
+        </div>
+        <div class="application-card-info">
+          <div class="avatar avatar-md avatar-store">沼カ</div>
+          <div class="application-card-info-text">
+            <div class="application-card-name">沼津カレー食堂</div>
+          </div>
+        </div>
+        <div class="application-card-tags">
+          <span class="badge badge-category">キッチンカー</span>
+          <span class="badge badge-category">主食</span>
+        </div>
+        <div class="application-card-rating">
+          <span class="star">★★★★☆</span>
+          <span>4.2 (15件)</span>
+        </div>
+        <div class="application-card-actions">
+          <button class="btn btn-ghost">詳細を見る</button>
+          <button class="btn btn-secondary">チャット</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ C9. BADGE ============ -->
+<section class="section">
+  <div class="component-title" id="c-badge">9. Badge</div>
+  <div class="component-desc">ステータス・カテゴリ・カウントの3系統。</div>
+  <div class="demo-block">
+    <div class="demo-label">Status（申請状態）</div>
+    <div class="demo-row">
+      <span class="badge badge-status-waiting">審査中</span>
+      <span class="badge badge-status-accepted">採用</span>
+      <span class="badge badge-status-reserve">補欠</span>
+      <span class="badge badge-status-rejected">不採用</span>
+    </div>
+    <div class="demo-label">Category（ジャンル）</div>
+    <div class="demo-row">
+      <span class="badge badge-cat-music">音楽フェス</span>
+      <span class="badge badge-cat-marche">マルシェ</span>
+      <span class="badge badge-cat-food">食フェス</span>
+      <span class="badge badge-cat-festival">祭り</span>
+      <span class="badge badge-category">フリマ</span>
+      <span class="badge badge-category">アウトドア</span>
+    </div>
+    <div class="demo-label">Count</div>
+    <div class="demo-row">
+      <span class="badge badge-count">3</span>
+      <span class="badge badge-count">12</span>
+      <span class="badge badge-count">99+</span>
+    </div>
+    <div class="demo-label">サイズ</div>
+    <div class="demo-row">
+      <span class="badge badge-sm badge-status-waiting">小</span>
+      <span class="badge badge-status-waiting">標準</span>
+      <span class="badge badge-md badge-status-waiting">大</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ C10. GOLD STAR BADGE ============ -->
+<section class="section">
+  <div class="component-title" id="c-gold">10. GoldStarBadge（Wacca固有）</div>
+  <div class="component-desc">Wacca Gold Star認定。一定評価を獲得した優良出店者に付与される、ミシュラン的信頼の証。</div>
+  <div class="demo-block">
+    <div class="demo-row">
+      <span class="gold-star"><svg viewBox="0 0 24 24" fill="white"><polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9"/></svg>Gold Star</span>
+      <span class="gold-star" style="font-size:var(--text-base);padding:8px 18px;"><svg viewBox="0 0 24 24" fill="white" style="width:20px;height:20px;"><polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9"/></svg>Gold Star 認定</span>
+    </div>
+    <div class="note">物理ステッカーとしても出店者に配布される。会場で来場者の目にも触れる「信頼の物理アンカー」として機能する。</div>
+  </div>
+</section>
+
+<!-- ============ C11. AVATAR ============ -->
+<section class="section">
+  <div class="component-title" id="c-avatar">11. Avatar</div>
+  <div class="component-desc">ユーザー・店舗・主催者のアイコン。サイズ5段階。</div>
+  <div class="demo-block">
+    <div class="demo-label">サイズ</div>
+    <div class="demo-row" style="align-items:flex-end;">
+      <div class="avatar avatar-xs">河</div>
+      <div class="avatar avatar-sm">河</div>
+      <div class="avatar avatar-md">河</div>
+      <div class="avatar avatar-lg">河</div>
+      <div class="avatar avatar-xl">河</div>
+    </div>
+    <div class="demo-label">バリアント</div>
+    <div class="demo-row" style="align-items:flex-end;">
+      <div style="text-align:center;"><div class="avatar avatar-lg" style="background:var(--color-wacca-sumi-100);color:var(--color-wacca-sumi-600);">山田</div><div style="font-size:var(--text-xs);color:var(--color-neutral-500);margin-top:4px;">User</div></div>
+      <div style="text-align:center;"><div class="avatar avatar-lg avatar-store" style="background:linear-gradient(135deg,#fed7aa,#f97316);color:white;">SW</div><div style="font-size:var(--text-xs);color:var(--color-neutral-500);margin-top:4px;">Store</div></div>
+      <div style="text-align:center;"><div class="avatar avatar-lg" style="background:var(--color-wacca-cream-200);color:var(--color-wacca-orange-600);">沼商</div><div style="font-size:var(--text-xs);color:var(--color-neutral-500);margin-top:4px;">Organizer</div></div>
+      <div style="text-align:center;"><div class="avatar avatar-lg avatar-store avatar-gold" style="background:linear-gradient(135deg,#fed7aa,#f97316);color:white;">SW</div><div style="font-size:var(--text-xs);color:var(--color-neutral-500);margin-top:4px;">Gold認定</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ C12. TOP NAV ============ -->
+<section class="section">
+  <div class="component-title" id="c-nav">12. TopNav</div>
+  <div class="component-desc">グローバルナビゲーション。3アプリ共通レイアウト、アクセント色のみ変える。</div>
+  <div class="demo-block" style="padding:0;overflow:hidden;">
+    <nav class="top-nav">
+      <div class="top-nav-logo">
+        <span class="top-nav-logo-icon">W</span>
+        Wacca
+      </div>
+      <div class="top-nav-menu">
+        <a href="#" class="active">ダッシュボード</a>
+        <a href="#">イベント</a>
+        <a href="#">出店者</a>
+        <a href="#">通知</a>
+      </div>
+      <div class="top-nav-right">
+        <div style="position:relative;">
+          <svg style="width:24px;height:24px;color:var(--color-neutral-700);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="badge badge-count" style="position:absolute;top:-4px;right:-4px;">3</span>
+        </div>
+        <div class="avatar avatar-md">河</div>
+      </div>
+    </nav>
+  </div>
+</section>
+
+<!-- ============ C13. TABS ============ -->
+<section class="section">
+  <div class="component-title" id="c-tabs">13. Tabs</div>
+  <div class="component-desc">横並びタブ。アクティブは下線＋テーマカラー。</div>
+  <div class="demo-block">
+    <div class="tabs">
+      <div class="tab active">全て<span class="badge badge-count badge-sm" style="margin-left:8px;">24</span></div>
+      <div class="tab">審査中<span class="badge badge-count badge-sm" style="margin-left:8px;">8</span></div>
+      <div class="tab">採用済み<span class="badge badge-count badge-sm" style="margin-left:8px;">12</span></div>
+      <div class="tab">補欠</div>
+      <div class="tab">不採用</div>
+    </div>
+    <div style="padding:24px;color:var(--color-neutral-500);">タブのコンテンツがここに表示されます</div>
+  </div>
+</section>
+
+<!-- ============ C14. MODAL ============ -->
+<section class="section">
+  <div class="component-title" id="c-modal">14. Modal</div>
+  <div class="component-desc">Confirm / Form / Image の3バリアント。Focus trap、ESC、overlay click で閉じる。</div>
+  <div class="modal-demo">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 class="modal-title">本当に不採用にしますか？</h3>
+        <button class="modal-close" aria-label="閉じる">×</button>
+      </div>
+      <div class="modal-body">
+        <p>「Sweet Wagon」の応募を不採用にしようとしています。<br>相手にはメッセージが届き、この操作は取り消せません。</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost">やめる</button>
+        <button class="btn btn-danger">不採用にする</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ C15. PHOTO GRID ============ -->
+<section class="section">
+  <div class="component-title" id="c-photo">15. PhotoGrid</div>
+  <div class="component-desc">Instagram風グリッド。出店者プロフィール写真ギャラリー、主催者の過去イベント写真等。</div>
+  <div class="demo-block">
+    <div class="photo-grid">
+      <div style="background:linear-gradient(135deg,#fed7aa,#fb923c);">[ 写真1 ]</div>
+      <div style="background:linear-gradient(135deg,#fdba74,#f97316);">[ 写真2 ]</div>
+      <div style="background:linear-gradient(135deg,#fff7ed,#fed7aa);">[ 写真3 ]</div>
+      <div>[ 写真4 ]</div>
+      <div style="background:linear-gradient(135deg,#bbf7d0,#4ade80);">[ 写真5 ]</div>
+      <div>[ 写真6 ]</div>
+      <div style="background:linear-gradient(135deg,#dcfce7,#bbf7d0);">[ 写真7 ]</div>
+      <div>[ 写真8 ]</div>
+      <div style="background:linear-gradient(135deg,#fdf8f1,#f1ede3);">[ 写真9 ]</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ACCESSIBILITY ============ -->
+<section class="section" id="accessibility">
+  <div class="section-title">アクセシビリティ・ガイドライン</div>
+  <div class="section-sub">WCAG AA 以上。シニア対応箇所は AAA（7:1）。</div>
+
+  <div class="demo-block">
+    <div class="demo-label">コントラスト比（実例）</div>
+    <div class="demo-grid">
+      <div style="padding:24px;background:white;border:1px solid var(--color-neutral-200);border-radius:12px;">
+        <div style="color:var(--color-neutral-900);font-size:18px;margin-bottom:8px;">本文テキスト（neutral-900 on white）</div>
+        <div style="font-size:var(--text-xs);color:var(--color-neutral-500);font-family:monospace;">15.34 : 1 ✓ AAA</div>
+      </div>
+      <div style="padding:24px;background:var(--color-wacca-orange-500);border-radius:12px;">
+        <div style="color:white;font-size:18px;margin-bottom:8px;">CTA文字（white on orange-500）</div>
+        <div style="font-size:var(--text-xs);color:rgba(255,255,255,0.8);font-family:monospace;">3.82 : 1 ✓ AA Large</div>
+      </div>
+      <div style="padding:24px;background:var(--color-wacca-sumi-600);border-radius:12px;">
+        <div style="color:white;font-size:18px;margin-bottom:8px;">ナビ文字（white on sumi-600）</div>
+        <div style="font-size:var(--text-xs);color:rgba(255,255,255,0.8);font-family:monospace;">15.4 : 1 ✓ AAA</div>
+      </div>
+      <div style="padding:24px;background:white;border:1px solid var(--color-neutral-200);border-radius:12px;">
+        <div style="color:var(--color-neutral-500);font-size:18px;margin-bottom:8px;">補足テキスト（neutral-500 on white）</div>
+        <div style="font-size:var(--text-xs);color:var(--color-neutral-500);font-family:monospace;">4.84 : 1 ✓ AA</div>
+      </div>
+    </div>
+
+    <div class="demo-label" style="margin-top:32px;">フォーカスリング（キーボード操作）</div>
+    <div class="demo-row">
+      <button class="btn btn-primary" style="outline:2px solid var(--color-wacca-sumi-500);outline-offset:2px;">フォーカス状態</button>
+      <input class="input" value="フォーカス状態" style="outline:none;border:2px solid var(--color-wacca-orange-500);" />
+      <span style="font-size:var(--text-sm);color:var(--color-neutral-500);">Tabキーで全要素にフォーカスが到達できる必要あり</span>
+    </div>
+
+    <div class="demo-label" style="margin-top:32px;">タッチターゲット最小サイズ</div>
+    <div class="demo-row">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="width:56px;height:56px;background:var(--color-wacca-orange-100);border:2px dashed var(--color-wacca-orange-500);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--color-wacca-orange-600);font-size:var(--text-xs);font-weight:700;">56px</div>
+        <span style="font-size:var(--text-sm);">通常モード</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="width:64px;height:64px;background:var(--color-wacca-orange-200);border:2px dashed var(--color-wacca-orange-600);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--color-wacca-orange-700);font-size:var(--text-xs);font-weight:700;">64px</div>
+        <span style="font-size:var(--text-sm);">シニアモード</span>
+      </div>
+    </div>
+
+    <div class="demo-label" style="margin-top:32px;">色だけで伝えない</div>
+    <div class="demo-row">
+      <div style="display:flex;align-items:center;gap:6px;color:var(--color-success-500);">
+        <svg style="width:16px;height:16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>承認されました（緑＋チェックアイコン）</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;color:var(--color-danger-500);">
+        <svg style="width:16px;height:16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        <span>却下されました（赤＋×アイコン）</span>
+      </div>
+    </div>
+    <div class="note">色覚多様性（色弱）への配慮。色だけで意味を伝えず、必ずアイコンや文字を併用する。</div>
+  </div>
+</section>
+
+<!-- ============ WRITING GUIDE ============ -->
+<section class="section" id="writing">
+  <div class="section-title">ライティング・ガイド</div>
+  <div class="section-sub">シニアにも理解できる、業務システム的でない日本語。</div>
+
+  <div class="demo-block">
+    <div class="demo-label">カタカナ用語の言い換え（30語抜粋）</div>
+    <table style="width:100%;border-collapse:collapse;margin-top:12px;font-size:var(--text-sm);">
+      <thead>
+        <tr style="background:var(--color-wacca-cream-200);">
+          <th style="text-align:left;padding:12px 16px;color:var(--color-danger-600);font-weight:600;width:35%;">❌ NG（業務システム的）</th>
+          <th style="text-align:left;padding:12px 16px;color:var(--color-success-600);font-weight:600;width:35%;">✓ OK（Wacca）</th>
+          <th style="text-align:left;padding:12px 16px;color:var(--color-neutral-500);font-weight:500;">場面</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--color-neutral-200);"><td style="padding:10px 16px;">アップロード</td><td style="padding:10px 16px;font-weight:600;">ファイルを送る</td><td style="padding:10px 16px;color:var(--color-neutral-500);">書類提出</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-200);"><td style="padding:10px 16px;">ダウンロード</td><td style="padding:10px 16px;font-weight:600;">ファイルを受け取る／PDFを開く</td><td style="padding:10px 16px;color:var(--color-neutral-500);">請求書取得</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-200);"><td style="padding:10px 16px;">キャンセル</td><td style="padding:10px 16px;font-weight:600;">やめる／中止する</td><td style="padding:10px 16px;color:var(--color-neutral-500);">モーダル</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-200);"><td style="padding:10px 16px;">ログイン</td><td style="padding:10px 16px;font-weight:600;">サインイン／入る</td><td style="padding:10px 16px;color:var(--color-neutral-500);">認証</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-200);"><td style="padding:10px 16px;">サインアップ</td><td style="padding:10px 16px;font-weight:600;">はじめての登録</td><td style="padding:10px 16px;color:var(--color-neutral-500);">認証</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-200);"><td style="padding:10px 16px;">バリデーションエラー</td><td style="padding:10px 16px;font-weight:600;">入力に問題があります</td><td style="padding:10px 16px;color:var(--color-neutral-500);">フォーム</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-200);"><td style="padding:10px 16px;">プロフィール</td><td style="padding:10px 16px;font-weight:600;">あなたの情報／お店の情報</td><td style="padding:10px 16px;color:var(--color-neutral-500);">マイページ</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-200);"><td style="padding:10px 16px;">メンテナンス</td><td style="padding:10px 16px;font-weight:600;">お休み中</td><td style="padding:10px 16px;color:var(--color-neutral-500);">障害告知</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-200);"><td style="padding:10px 16px;">ステータス</td><td style="padding:10px 16px;font-weight:600;">状態</td><td style="padding:10px 16px;color:var(--color-neutral-500);">申請一覧</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-200);"><td style="padding:10px 16px;">ユーザー</td><td style="padding:10px 16px;font-weight:600;">あなた／お客さま</td><td style="padding:10px 16px;color:var(--color-neutral-500);">通知文</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-200);"><td style="padding:10px 16px;">サブミット</td><td style="padding:10px 16px;font-weight:600;">送る／申請する</td><td style="padding:10px 16px;color:var(--color-neutral-500);">フォーム</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-200);"><td style="padding:10px 16px;">セーブ</td><td style="padding:10px 16px;font-weight:600;">保存する</td><td style="padding:10px 16px;color:var(--color-neutral-500);">編集</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-200);"><td style="padding:10px 16px;">プレビュー</td><td style="padding:10px 16px;font-weight:600;">表示を確認</td><td style="padding:10px 16px;color:var(--color-neutral-500);">公開前</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-200);"><td style="padding:10px 16px;">フィルター</td><td style="padding:10px 16px;font-weight:600;">絞り込み</td><td style="padding:10px 16px;color:var(--color-neutral-500);">検索</td></tr>
+        <tr><td style="padding:10px 16px;">ノーティフィケーション</td><td style="padding:10px 16px;font-weight:600;">お知らせ</td><td style="padding:10px 16px;color:var(--color-neutral-500);">通知一覧</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="demo-block" style="margin-top:16px;">
+    <div class="demo-label">エラー文の型</div>
+    <div style="margin-top:12px;">
+      <div style="background:var(--color-danger-50);border-left:3px solid var(--color-danger-500);padding:16px;border-radius:4px;margin-bottom:12px;">
+        <div style="font-size:var(--text-xs);color:var(--color-danger-500);font-weight:600;margin-bottom:4px;">❌ NG（業務システム的）</div>
+        <div style="color:var(--color-neutral-700);font-family:monospace;font-size:var(--text-sm);">ValidationError: email is not valid format.</div>
+      </div>
+      <div style="background:var(--color-success-50);border-left:3px solid var(--color-success-500);padding:16px;border-radius:4px;">
+        <div style="font-size:var(--text-xs);color:var(--color-success-600);font-weight:600;margin-bottom:4px;">✓ OK（Wacca）</div>
+        <div style="color:var(--color-neutral-700);">メールアドレスの形式が正しくありません。<br>@マークの前後をご確認ください。</div>
+      </div>
+    </div>
+    <div class="note">構造：「<strong>[何が]ができませんでした</strong>。[なぜ]。[どうすれば]」</div>
+  </div>
+
+  <div class="demo-block" style="margin-top:16px;">
+    <div class="demo-label">確認モーダルの型</div>
+    <div style="margin-top:12px;">
+      <div style="background:var(--color-danger-50);border-left:3px solid var(--color-danger-500);padding:16px;border-radius:4px;margin-bottom:12px;">
+        <div style="font-size:var(--text-xs);color:var(--color-danger-500);font-weight:600;margin-bottom:4px;">❌ NG</div>
+        <div style="color:var(--color-neutral-700);">Are you sure?</div>
+      </div>
+      <div style="background:var(--color-success-50);border-left:3px solid var(--color-success-500);padding:16px;border-radius:4px;">
+        <div style="font-size:var(--text-xs);color:var(--color-success-600);font-weight:600;margin-bottom:4px;">✓ OK</div>
+        <div style="color:var(--color-neutral-700);">本当にこの応募を不採用にしますか？<br>相手にメッセージが届きます。</div>
+      </div>
+    </div>
+    <div class="note">構造：「<strong>本当に [動作] しますか？</strong> [影響]」</div>
+  </div>
+
+  <div class="demo-block" style="margin-top:16px;">
+    <div class="demo-label">通知文のテンプレート</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px;">
+      <div style="background:var(--color-wacca-green-50);border:1px solid var(--color-wacca-green-200);padding:16px;border-radius:12px;">
+        <div style="font-size:var(--text-sm);font-weight:700;color:var(--color-wacca-green-700);margin-bottom:8px;">採用通知</div>
+        <div style="color:var(--color-neutral-700);font-size:var(--text-sm);">あなたの応募が<strong>採用</strong>されました 🎉<br>「沼津サマーマルシェ 2026」へ。</div>
+      </div>
+      <div style="background:var(--color-info-500);background:#eff6ff;border:1px solid #bfdbfe;padding:16px;border-radius:12px;">
+        <div style="font-size:var(--text-sm);font-weight:700;color:var(--color-info-700);margin-bottom:8px;">補欠通知</div>
+        <div style="color:var(--color-neutral-700);font-size:var(--text-sm);">今回は<strong>補欠</strong>となりました。<br>辞退者が出た場合、再度ご連絡します。</div>
+      </div>
+      <div style="background:var(--color-neutral-50);border:1px solid var(--color-neutral-200);padding:16px;border-radius:12px;">
+        <div style="font-size:var(--text-sm);font-weight:700;color:var(--color-neutral-600);margin-bottom:8px;">不採用通知（婉曲）</div>
+        <div style="color:var(--color-neutral-700);font-size:var(--text-sm);">今回は他の方と<br>ご一緒することになりました。</div>
+      </div>
+      <div style="background:var(--color-warning-500);background:#fefce8;border:1px solid #fef08a;padding:16px;border-radius:12px;">
+        <div style="font-size:var(--text-sm);font-weight:700;color:var(--color-warning-700);margin-bottom:8px;">期限リマインド</div>
+        <div style="color:var(--color-neutral-700);font-size:var(--text-sm);"><strong>7月10日まで</strong>に営業許可証の<br>提出をお願いします。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ APP VARIANTS ============ -->
+<section class="section" id="app-variants">
+  <div class="section-title">3アプリ差分</div>
+  <div class="section-sub">レイアウト・コンポーネントは共通。アクセント色だけ変える。</div>
+
+  <div class="demo-grid" style="margin-top:24px;">
+    <div class="card" style="padding:0;overflow:hidden;border:2px solid var(--color-wacca-orange-500);">
+      <div style="background:var(--color-wacca-orange-500);color:white;padding:16px 24px;font-weight:700;">organizer（主催者）</div>
+      <div style="padding:24px;">
+        <div style="font-size:var(--text-xs);color:var(--color-neutral-500);text-transform:uppercase;letter-spacing:0.2em;margin-bottom:8px;">プライマリ色</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;"><div style="width:40px;height:40px;background:var(--color-wacca-orange-500);border-radius:8px;"></div><span style="font-family:monospace;font-size:var(--text-sm);">#f97316 Orange</span></div>
+        <div style="font-size:var(--text-xs);color:var(--color-neutral-500);text-transform:uppercase;letter-spacing:0.2em;margin-bottom:8px;">意味</div>
+        <p style="font-size:var(--text-sm);color:var(--color-neutral-700);margin-bottom:16px;">温かみ・歓迎・お祭りの提灯の灯。出店者を迎え入れるホスピタリティ。</p>
+        <button class="btn btn-primary">承認する</button>
+      </div>
+    </div>
+
+    <div class="card" style="padding:0;overflow:hidden;border:2px solid var(--color-wacca-green-500);">
+      <div style="background:var(--color-wacca-green-500);color:white;padding:16px 24px;font-weight:700;">store（出店者）</div>
+      <div style="padding:24px;">
+        <div style="font-size:var(--text-xs);color:var(--color-neutral-500);text-transform:uppercase;letter-spacing:0.2em;margin-bottom:8px;">プライマリ色</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;"><div style="width:40px;height:40px;background:var(--color-wacca-green-500);border-radius:8px;"></div><span style="font-family:monospace;font-size:var(--text-sm);">#16a34a Green</span></div>
+        <div style="font-size:var(--text-xs);color:var(--color-neutral-500);text-transform:uppercase;letter-spacing:0.2em;margin-bottom:8px;">意味</div>
+        <p style="font-size:var(--text-sm);color:var(--color-neutral-700);margin-bottom:16px;">安心・信頼・循環。出店者が安心してビジネスできるプラットフォーム。</p>
+        <button class="btn btn-primary-green">出店申請する</button>
+      </div>
+    </div>
+
+    <div class="card" style="padding:0;overflow:hidden;border:2px solid var(--color-wacca-sumi-600);">
+      <div style="background:var(--color-wacca-sumi-600);color:white;padding:16px 24px;font-weight:700;">admin（運営）</div>
+      <div style="padding:24px;">
+        <div style="font-size:var(--text-xs);color:var(--color-neutral-500);text-transform:uppercase;letter-spacing:0.2em;margin-bottom:8px;">プライマリ色</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;"><div style="width:40px;height:40px;background:var(--color-wacca-sumi-600);border-radius:8px;"></div><span style="font-family:monospace;font-size:var(--text-sm);">#2a2620 Sumi 墨</span></div>
+        <div style="font-size:var(--text-xs);color:var(--color-neutral-500);text-transform:uppercase;letter-spacing:0.2em;margin-bottom:8px;">意味</div>
+        <p style="font-size:var(--text-sm);color:var(--color-neutral-700);margin-bottom:16px;">信頼・誠実・和の落ち着き。書道の墨色のような、地に足のついた基盤。</p>
+        <button class="btn" style="background:var(--color-wacca-sumi-600);color:white;">承認する</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="demo-block" style="margin-top:24px;">
+    <div class="demo-label">変える要素 / 変えない要素</div>
+    <table style="width:100%;border-collapse:collapse;font-size:var(--text-sm);">
+      <thead>
+        <tr style="background:var(--color-wacca-cream-200);">
+          <th style="text-align:left;padding:12px 16px;font-weight:600;">要素</th>
+          <th style="text-align:left;padding:12px 16px;font-weight:600;">organizer</th>
+          <th style="text-align:left;padding:12px 16px;font-weight:600;">store</th>
+          <th style="text-align:left;padding:12px 16px;font-weight:600;">admin</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--color-neutral-200);"><td style="padding:10px 16px;font-weight:600;">プライマリボタン</td><td style="padding:10px 16px;">Orange</td><td style="padding:10px 16px;">Green</td><td style="padding:10px 16px;">Sumi</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-200);"><td style="padding:10px 16px;font-weight:600;">リンク・アクティブタブ</td><td style="padding:10px 16px;">Orange</td><td style="padding:10px 16px;">Green</td><td style="padding:10px 16px;">Sumi</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-200);"><td style="padding:10px 16px;font-weight:600;">ヘッダーロゴアイコン</td><td style="padding:10px 16px;">Orange丸</td><td style="padding:10px 16px;">Green丸</td><td style="padding:10px 16px;">Navy丸</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-200);"><td style="padding:10px 16px;font-weight:600;">レイアウト構造</td><td colspan="3" style="padding:10px 16px;text-align:center;color:var(--color-success-600);">完全に同じ</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-200);"><td style="padding:10px 16px;font-weight:600;">タイポグラフィ</td><td colspan="3" style="padding:10px 16px;text-align:center;color:var(--color-success-600);">完全に同じ（Noto Sans JP）</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-200);"><td style="padding:10px 16px;font-weight:600;">スペーシング・Radius・Shadow</td><td colspan="3" style="padding:10px 16px;text-align:center;color:var(--color-success-600);">完全に同じ</td></tr>
+        <tr><td style="padding:10px 16px;font-weight:600;">セマンティック色（Success/Warning/Danger/Info）</td><td colspan="3" style="padding:10px 16px;text-align:center;color:var(--color-success-600);">完全に同じ</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ SENIOR MODE ============ -->
+<section class="section" id="senior-mode">
+  <div class="section-title">シニアモード</div>
+  <div class="section-sub">右下のトグルで切り替え。全体が拡大・コントラスト強化される。</div>
+
+  <div class="demo-block">
+    <div class="demo-label">比較</div>
+    <table style="width:100%;border-collapse:collapse;font-size:var(--text-sm);margin-top:12px;">
+      <thead>
+        <tr style="background:var(--color-wacca-cream-200);">
+          <th style="text-align:left;padding:12px 16px;width:40%;font-weight:600;">項目</th>
+          <th style="text-align:left;padding:12px 16px;font-weight:600;">通常モード</th>
+          <th style="text-align:left;padding:12px 16px;font-weight:600;">シニアモード</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--color-neutral-200);"><td style="padding:10px 16px;">基本フォントサイズ</td><td style="padding:10px 16px;font-family:monospace;">18px</td><td style="padding:10px 16px;font-family:monospace;color:var(--color-wacca-orange-600);font-weight:700;">20px</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-200);"><td style="padding:10px 16px;">見出し H4</td><td style="padding:10px 16px;font-family:monospace;">20px</td><td style="padding:10px 16px;font-family:monospace;color:var(--color-wacca-orange-600);font-weight:700;">24px</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-200);"><td style="padding:10px 16px;">見出し H3</td><td style="padding:10px 16px;font-family:monospace;">24px</td><td style="padding:10px 16px;font-family:monospace;color:var(--color-wacca-orange-600);font-weight:700;">28px</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-200);"><td style="padding:10px 16px;">タッチターゲット最小</td><td style="padding:10px 16px;font-family:monospace;">56px</td><td style="padding:10px 16px;font-family:monospace;color:var(--color-wacca-orange-600);font-weight:700;">64px</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-200);"><td style="padding:10px 16px;">SeniorLargeボタン</td><td style="padding:10px 16px;color:var(--color-neutral-400);">未使用</td><td style="padding:10px 16px;font-family:monospace;color:var(--color-wacca-orange-600);font-weight:700;">72px</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-200);"><td style="padding:10px 16px;">本文コントラスト比</td><td style="padding:10px 16px;font-family:monospace;">4.5:1 (AA)</td><td style="padding:10px 16px;font-family:monospace;color:var(--color-wacca-orange-600);font-weight:700;">7:1 (AAA)</td></tr>
+        <tr><td style="padding:10px 16px;">アニメーション持続時間</td><td style="padding:10px 16px;font-family:monospace;">最大300ms</td><td style="padding:10px 16px;font-family:monospace;color:var(--color-wacca-orange-600);font-weight:700;">最大200ms</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note" style="margin-top:24px;">
+    💡 設定画面（プロフィール内）から切り替え可能、ローカルストレージで永続化。<br>
+    シニア層だけでなく「文字が小さいと疲れる」「ボタンの押し間違いが多い」といったあらゆるユーザーへの配慮として機能する。
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<section class="section" style="text-align:center;padding:96px 0;">
+  <p style="font-size:var(--text-2xl);font-weight:900;color:var(--color-wacca-sumi-600);margin-bottom:16px;">イベントの輪を、もっと広げよう。</p>
+  <p style="color:var(--color-neutral-500);font-size:var(--text-sm);">Wacca Design System v1.0 — 株式会社 Clarity Labo</p>
+  <p style="color:var(--color-neutral-400);font-size:var(--text-xs);margin-top:8px;">© 2026 design/design-system.md / tokens.css 参照</p>
+</section>
+
+</main>
+</div>
+
+<script>
+function toggleMode() {
+  const html = document.documentElement;
+  const current = html.getAttribute('data-mode');
+  html.setAttribute('data-mode', current === 'senior' ? 'normal' : 'senior');
+}
+</script>
+
+</body>
+</html>

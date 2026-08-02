@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wacca デザインサマリー</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --wacca-navy: #1e3a5f;
+    --wacca-navy-dark: #0f2540;
+    --wacca-navy-light: #2d5a8a;
+    --wacca-orange: #f97316;
+    --wacca-orange-dark: #ea580c;
+    --wacca-orange-light: #fed7aa;
+    --wacca-green: #16a34a;
+    --wacca-green-dark: #15803d;
+    --wacca-green-light: #bbf7d0;
+    --wacca-cream: #fdf8f1;
+    --wacca-cream-warm: #f8f6f2;
+    --text-primary: #0f172a;
+    --text-body: #334155;
+    --text-secondary: #64748b;
+    --text-disabled: #94a3b8;
+    --border: #e2e8f0;
+    --border-light: #f1f5f9;
+    --success: #22c55e;
+    --warning: #eab308;
+    --danger: #ef4444;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: "Noto Sans JP", system-ui, -apple-system, sans-serif;
+    font-size: 18px;
+    line-height: 1.7;
+    color: var(--text-body);
+    background: var(--wacca-cream);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* === Layout === */
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  section {
+    padding: 80px 0;
+    scroll-margin-top: 80px;
+  }
+
+  /* === Sticky nav === */
+  nav {
+    position: sticky;
+    top: 0;
+    background: rgba(253, 248, 241, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    z-index: 100;
+    padding: 16px 0;
+  }
+  nav .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  nav .logo {
+    font-size: 24px;
+    font-weight: 900;
+    color: var(--wacca-navy);
+    letter-spacing: -0.02em;
+  }
+  nav .logo span { color: var(--wacca-orange); }
+  nav ul {
+    display: flex;
+    gap: 24px;
+    list-style: none;
+    flex-wrap: wrap;
+  }
+  nav a {
+    color: var(--text-body);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 14px;
+    transition: color 0.2s;
+  }
+  nav a:hover { color: var(--wacca-orange); }
+
+  /* === Hero === */
+  .hero {
+    background: linear-gradient(135deg, var(--wacca-navy) 0%, var(--wacca-navy-dark) 100%);
+    color: white;
+    padding: 120px 0 100px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -100px;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, var(--wacca-orange) 0%, transparent 70%);
+    opacity: 0.3;
+    border-radius: 50%;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -150px;
+    left: -150px;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, var(--wacca-green) 0%, transparent 70%);
+    opacity: 0.2;
+    border-radius: 50%;
+  }
+  .hero .container { position: relative; z-index: 1; }
+  .hero .eyebrow {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--wacca-orange-light);
+    margin-bottom: 24px;
+  }
+  .hero h1 {
+    font-size: 72px;
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 32px;
+  }
+  .hero h1 .accent { color: var(--wacca-orange); }
+  .hero .purpose {
+    font-size: 28px;
+    font-weight: 500;
+    line-height: 1.5;
+    max-width: 720px;
+    margin-bottom: 48px;
+    opacity: 0.95;
+  }
+  .hero .catchphrase {
+    display: inline-block;
+    padding: 12px 32px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 999px;
+    font-size: 18px;
+    font-weight: 600;
+  }
+  .hero .meta {
+    margin-top: 64px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 32px;
+    padding-top: 32px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  .hero .meta dt {
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.7;
+    margin-bottom: 4px;
+  }
+  .hero .meta dd {
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  /* === Section titles === */
+  .section-eyebrow {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--wacca-orange);
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-size: 48px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--wacca-navy);
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+  }
+  .section-lead {
+    font-size: 20px;
+    line-height: 1.7;
+    color: var(--text-body);
+    max-width: 760px;
+    margin-bottom: 56px;
+  }
+
+  /* === Story (由来・ステートメント) === */
+  .story {
+    background: white;
+  }
+  .story-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+    align-items: start;
+  }
+  .story-card {
+    padding: 40px;
+    background: var(--wacca-cream-warm);
+    border-radius: 24px;
+    border-left: 6px solid var(--wacca-orange);
+  }
+  .story-card.green { border-left-color: var(--wacca-green); }
+  .story-card h3 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--wacca-navy);
+    margin-bottom: 16px;
+  }
+  .story-card p { font-size: 17px; line-height: 1.8; }
+
+  /* === Values (3つの価値) === */
+  .values {
+    background: var(--wacca-cream);
+  }
+  .values-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+  }
+  .value-card {
+    background: white;
+    border-radius: 24px;
+    padding: 40px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04);
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .value-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 16px 40px rgba(0,0,0,0.08);
+  }
+  .value-card .num {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    background: var(--wacca-orange);
+    color: white;
+    font-size: 24px;
+    font-weight: 900;
+    border-radius: 16px;
+    margin-bottom: 24px;
+  }
+  .value-card:nth-child(2) .num { background: var(--wacca-green); }
+  .value-card:nth-child(3) .num { background: var(--wacca-navy); }
+  .value-card h3 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--wacca-navy);
+    margin-bottom: 16px;
+  }
+  .value-card .perspective {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px dashed var(--border);
+  }
+  .value-card .perspective h4 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+    letter-spacing: 0.05em;
+  }
+  .value-card .perspective p {
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 12px;
+  }
+
+  /* === Personality・Tone === */
+  .personality {
+    background: var(--wacca-navy);
+    color: white;
+  }
+  .personality .section-title { color: white; }
+  .personality .section-eyebrow { color: var(--wacca-orange-light); }
+  .personality-quote {
+    font-size: 32px;
+    font-weight: 500;
+    line-height: 1.5;
+    max-width: 880px;
+    margin-bottom: 48px;
+    padding-left: 32px;
+    border-left: 6px solid var(--wacca-orange);
+  }
+  .tone-keywords {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 48px;
+  }
+  .tone-keyword {
+    padding: 12px 24px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 999px;
+    font-size: 18px;
+    font-weight: 500;
+  }
+  .tone-axes {
+    display: grid;
+    gap: 24px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 32px;
+    border-radius: 24px;
+  }
+  .tone-axis {
+    display: grid;
+    grid-template-columns: 1fr 200px 1fr;
+    align-items: center;
+    gap: 24px;
+    font-size: 16px;
+  }
+  .tone-axis .left,
+  .tone-axis .right {
+    color: rgba(255, 255, 255, 0.7);
+  }
+  .tone-axis .left { text-align: right; }
+  .tone-axis .marker {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 2px;
+    position: relative;
+  }
+  .tone-axis .dot {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background: var(--wacca-orange);
+    border-radius: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .tone-axis .highlight {
+    color: white;
+    font-weight: 700;
+  }
+
+  /* === Personas === */
+  .personas {
+    background: var(--wacca-cream);
+  }
+  .persona-group {
+    margin-bottom: 56px;
+  }
+  .persona-group-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--wacca-navy);
+    margin-bottom: 32px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--wacca-orange);
+    display: inline-block;
+  }
+  .persona-group.store .persona-group-title { border-bottom-color: var(--wacca-green); }
+  .personas-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  .persona-card {
+    background: white;
+    border-radius: 20px;
+    padding: 32px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    border-top: 6px solid var(--wacca-orange);
+  }
+  .persona-group.store .persona-card { border-top-color: var(--wacca-green); }
+  .persona-card .pid {
+    display: inline-block;
+    padding: 4px 12px;
+    background: var(--wacca-orange-light);
+    color: var(--wacca-orange-dark);
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 999px;
+    letter-spacing: 0.05em;
+    margin-bottom: 12px;
+  }
+  .persona-group.store .persona-card .pid {
+    background: var(--wacca-green-light);
+    color: var(--wacca-green-dark);
+  }
+  .persona-card h3 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--wacca-navy);
+    margin-bottom: 8px;
+    line-height: 1.4;
+  }
+  .persona-card .age {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+  }
+  .persona-card dl {
+    display: grid;
+    gap: 12px;
+    font-size: 14px;
+  }
+  .persona-card dt {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+  .persona-card dd { color: var(--text-body); line-height: 1.6; }
+  .persona-card .digital-level {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .persona-card .stars { color: var(--wacca-orange); letter-spacing: 2px; }
+  .persona-group.store .persona-card .stars { color: var(--wacca-green); }
+  .persona-card .pains {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px dashed var(--border);
+  }
+  .persona-card .pains h4 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--wacca-navy);
+    margin-bottom: 10px;
+  }
+  .persona-card .pains ul {
+    list-style: none;
+    padding: 0;
+  }
+  .persona-card .pains li {
+    position: relative;
+    padding-left: 18px;
+    font-size: 13px;
+    line-height: 1.6;
+    margin-bottom: 6px;
+    color: var(--text-body);
+  }
+  .persona-card .pains li::before {
+    content: '◆';
+    position: absolute;
+    left: 0;
+    color: var(--wacca-orange);
+    font-size: 9px;
+    top: 5px;
+  }
+  .persona-group.store .persona-card .pains li::before { color: var(--wacca-green); }
+
+  /* === CJM === */
+  .cjm {
+    background: white;
+  }
+  .cjm-side {
+    margin-bottom: 64px;
+  }
+  .cjm-side h3 {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--wacca-navy);
+    margin-bottom: 24px;
+  }
+  .cjm-side h3 .badge {
+    display: inline-block;
+    margin-left: 16px;
+    padding: 4px 12px;
+    background: var(--wacca-orange);
+    color: white;
+    font-size: 13px;
+    border-radius: 6px;
+    vertical-align: middle;
+  }
+  .cjm-side.store h3 .badge { background: var(--wacca-green); }
+  .cjm-table {
+    overflow-x: auto;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+  }
+  .cjm-table table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  .cjm-table th,
+  .cjm-table td {
+    padding: 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.6;
+  }
+  .cjm-table th:last-child,
+  .cjm-table td:last-child { border-right: none; }
+  .cjm-table thead th {
+    background: var(--wacca-navy);
+    color: white;
+    font-weight: 700;
+    font-size: 14px;
+  }
+  .cjm-table tbody th {
+    background: var(--wacca-cream-warm);
+    font-weight: 600;
+    color: var(--wacca-navy);
+    width: 130px;
+    font-size: 13px;
+  }
+  .cjm-table .pain { color: var(--danger); font-weight: 600; }
+  .cjm-table .gain { color: var(--success); font-weight: 600; }
+  .cjm-emoji { font-size: 20px; }
+
+  /* === Colors === */
+  .colors {
+    background: var(--wacca-cream);
+  }
+  .colors-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+  }
+  .color-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .color-swatch {
+    height: 160px;
+    position: relative;
+  }
+  .color-swatch .hex {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--text-primary);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'SF Mono', Monaco, monospace;
+  }
+  .color-card .meta {
+    padding: 24px;
+  }
+  .color-card h4 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--wacca-navy);
+    margin-bottom: 8px;
+  }
+  .color-card .role {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .color-card p {
+    font-size: 14px;
+    color: var(--text-body);
+    line-height: 1.6;
+  }
+
+  /* === Features === */
+  .features {
+    background: white;
+  }
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+  .feature-card {
+    background: var(--wacca-cream-warm);
+    padding: 32px;
+    border-radius: 20px;
+    border-left: 6px solid var(--wacca-navy);
+  }
+  .feature-card.orange { border-left-color: var(--wacca-orange); }
+  .feature-card.green { border-left-color: var(--wacca-green); }
+  .feature-card h4 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--wacca-navy);
+    margin-bottom: 12px;
+  }
+  .feature-card .badge {
+    display: inline-block;
+    padding: 4px 10px;
+    background: white;
+    color: var(--wacca-navy);
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 6px;
+    letter-spacing: 0.1em;
+    margin-bottom: 12px;
+  }
+  .feature-card ul {
+    list-style: none;
+    padding: 0;
+  }
+  .feature-card li {
+    position: relative;
+    padding-left: 22px;
+    font-size: 14px;
+    line-height: 1.7;
+    margin-bottom: 8px;
+    color: var(--text-body);
+  }
+  .feature-card li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--wacca-orange);
+    font-weight: 900;
+  }
+  .feature-card.green li::before { color: var(--wacca-green); }
+  .feature-card.navy li::before { color: var(--wacca-navy); }
+
+  /* === Trust === */
+  .trust {
+    background: linear-gradient(135deg, var(--wacca-navy-dark) 0%, var(--wacca-navy) 100%);
+    color: white;
+  }
+  .trust .section-title { color: white; }
+  .trust .section-eyebrow { color: var(--wacca-orange-light); }
+  .trust .section-lead { color: rgba(255, 255, 255, 0.85); }
+  .trust-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  .trust-card {
+    padding: 32px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+  }
+  .trust-card .icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: var(--wacca-orange);
+    border-radius: 12px;
+    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: 900;
+    color: white;
+  }
+  .trust-card h4 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+  .trust-card p {
+    font-size: 14px;
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  /* === Handoff === */
+  .handoff {
+    background: var(--wacca-cream);
+  }
+  .handoff-card {
+    background: white;
+    padding: 56px;
+    border-radius: 32px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 16px 40px rgba(0,0,0,0.06);
+  }
+  .handoff-list {
+    list-style: none;
+    counter-reset: handoff;
+    padding: 0;
+  }
+  .handoff-list li {
+    counter-increment: handoff;
+    position: relative;
+    padding: 16px 0 16px 64px;
+    font-size: 17px;
+    line-height: 1.7;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .handoff-list li:last-child { border-bottom: none; }
+  .handoff-list li::before {
+    content: counter(handoff, decimal-leading-zero);
+    position: absolute;
+    left: 0;
+    top: 16px;
+    font-size: 24px;
+    font-weight: 900;
+    color: var(--wacca-orange);
+    font-family: 'SF Mono', Monaco, monospace;
+  }
+
+  /* === Footer === */
+  footer {
+    background: var(--wacca-navy-dark);
+    color: rgba(255, 255, 255, 0.7);
+    padding: 48px 0;
+    text-align: center;
+    font-size: 14px;
+  }
+  footer .logo {
+    font-size: 28px;
+    font-weight: 900;
+    color: white;
+    margin-bottom: 16px;
+  }
+  footer .logo span { color: var(--wacca-orange); }
+
+  /* === Responsive === */
+  @media (max-width: 900px) {
+    .hero h1 { font-size: 48px; }
+    .hero .purpose { font-size: 22px; }
+    .section-title { font-size: 36px; }
+    .story-grid,
+    .values-grid,
+    .personas-grid,
+    .colors-grid,
+    .features-grid,
+    .trust-grid {
+      grid-template-columns: 1fr;
+    }
+    .tone-axis {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+    .tone-axis .left,
+    .tone-axis .right {
+      text-align: center;
+    }
+    .personality-quote { font-size: 22px; }
+    .handoff-card { padding: 32px; }
+    nav ul { gap: 12px; }
+    nav a { font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="logo">Wa<span>cc</span>a</div>
+    <ul>
+      <li><a href="#hero">概要</a></li>
+      <li><a href="#story">由来</a></li>
+      <li><a href="#values">3つの価値</a></li>
+      <li><a href="#personality">人格</a></li>
+      <li><a href="#personas">ペルソナ</a></li>
+      <li><a href="#cjm">CJM</a></li>
+      <li><a href="#colors">カラー</a></li>
+      <li><a href="#features">機能</a></li>
+      <li><a href="#trust">信頼演出</a></li>
+      <li><a href="#handoff">引き継ぎ</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="hero">
+  <div class="container">
+    <div class="eyebrow">Brand Design Summary v2</div>
+    <h1>イベントの輪を、<br>もっと<span class="accent">広げよう。</span></h1>
+    <p class="purpose">すべての街に、愛される賑わいを。<br>挑戦する人々の後ろ盾となり、日本中のシャッター街や空き地を、笑顔の集まる広場に変えていきます。</p>
+    <span class="catchphrase">— Wacca / ワッカ</span>
+
+    <dl class="meta">
+      <div><dt>運営会社</dt><dd>株式会社 Clarity Labo</dd></div>
+      <div><dt>基盤</dt><dd>静岡県東部 → 全国</dd></div>
+      <div><dt>形態</dt><dd>マッチングプラットフォーム</dd></div>
+      <div><dt>アプリ構成</dt><dd>Organizer / Store / Admin（Web）</dd></div>
+    </dl>
+  </div>
+</section>
+
+<!-- ============ STORY ============ -->
+<section class="story" id="story">
+  <div class="container">
+    <div class="section-eyebrow">Name Story & Statement</div>
+    <h2 class="section-title">名前と、想い</h2>
+    <p class="section-lead">バラバラだったイベント情報を「面」で結ぶインフラを目指して。Waccaという名前には、3つの「重なり」の物語があります。</p>
+
+    <div class="story-grid">
+      <div class="story-card">
+        <h3>由来 — 輪っか × 和</h3>
+        <p>「輪っか（輪）」と「和（調和・日本的）」の二つの意味から生まれた名前。主催者の熱意・出店者のこだわり・来場者の笑顔の3要素が重なり合って初めて、一つの輪が完成する。</p>
+      </div>
+      <div class="story-card green">
+        <h3>ステートメント</h3>
+        <p>いいイベントは、いい出会いから始まる。私たちは、主催者の情熱と、出店者の技術を、信頼という糸でまっすぐに結びます。煩雑な手続きをスムーズに、不安を安心に変えて。日本中の街に、新しい賑わいの輪を広げていく。それが、Waccaのミッションです。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ VALUES ============ -->
+<section class="values" id="values">
+  <div class="container">
+    <div class="section-eyebrow">Three Core Values</div>
+    <h2 class="section-title">提供する 3つの価値</h2>
+    <p class="section-lead">Waccaは主催者と出店者の双方に、同じ価値を異なる形で届けます。</p>
+
+    <div class="values-grid">
+      <div class="value-card">
+        <div class="num">01</div>
+        <h3>信頼で<br>つながる</h3>
+        <div class="perspective">
+          <h4>主催者にとって</h4>
+          <p>評価・Gold Star・反社チェック済みの出店者と、安心して出会える。</p>
+        </div>
+        <div class="perspective">
+          <h4>出店者にとって</h4>
+          <p>主催者の支払い実績・評判が見えて、空振りを避けられる。</p>
+        </div>
+      </div>
+
+      <div class="value-card">
+        <div class="num">02</div>
+        <h3>ひと画面で<br>完結する</h3>
+        <div class="perspective">
+          <h4>主催者にとって</h4>
+          <p>募集〜審査〜消防届出〜配置〜請求までシステム化される。</p>
+        </div>
+        <div class="perspective">
+          <h4>出店者にとって</h4>
+          <p>案件探し〜申請〜書類〜出店後フォローまで一つのアプリで。</p>
+        </div>
+      </div>
+
+      <div class="value-card">
+        <div class="num">03</div>
+        <h3>賑わいの輪が<br>広がる</h3>
+        <div class="perspective">
+          <h4>主催者にとって</h4>
+          <p>新規出店者の開拓・地域に新しい賑わいを生み出せる。</p>
+        </div>
+        <div class="perspective">
+          <h4>出店者にとって</h4>
+          <p>自分の世界観で正しく見つけてもらえる出店機会と出会える。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PERSONALITY & TONE ============ -->
+<section class="personality" id="personality">
+  <div class="container">
+    <div class="section-eyebrow">Brand Personality & Tone</div>
+    <h2 class="section-title">Waccaという「人」</h2>
+
+    <blockquote class="personality-quote">
+      地元の商工会で30年お世話になってる、<br>
+      デジタルに強くなった頼れる先輩。<br>
+      <span style="font-size: 18px; opacity: 0.7;">— 業界の人を皆知ってる。誠実で礼儀正しい。約束は守る。親しみやすいが、いい加減ではない。インフラとして街を支える矜持を持つ。</span>
+    </blockquote>
+
+    <div class="tone-keywords">
+      <span class="tone-keyword">信頼</span>
+      <span class="tone-keyword">温かい</span>
+      <span class="tone-keyword">整っている</span>
+      <span class="tone-keyword">小さく始まる</span>
+      <span class="tone-keyword">広がる</span>
+    </div>
+
+    <div class="tone-axes">
+      <div class="tone-axis">
+        <span class="left">プロフェッショナル</span>
+        <div class="marker"><div class="dot" style="left: 50%;"></div></div>
+        <span class="right">フレンドリー</span>
+      </div>
+      <div class="tone-axis">
+        <span class="left highlight">シンプル</span>
+        <div class="marker"><div class="dot" style="left: 28%;"></div></div>
+        <span class="right">にぎやか</span>
+      </div>
+      <div class="tone-axis">
+        <span class="left">都会的</span>
+        <div class="marker"><div class="dot" style="left: 72%;"></div></div>
+        <span class="right highlight">地域密着</span>
+      </div>
+      <div class="tone-axis">
+        <span class="left">落ち着いた</span>
+        <div class="marker"><div class="dot" style="left: 50%;"></div></div>
+        <span class="right">エネルギッシュ</span>
+      </div>
+      <div class="tone-axis">
+        <span class="left">新しい</span>
+        <div class="marker"><div class="dot" style="left: 70%;"></div></div>
+        <span class="right highlight">親しみのある</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PERSONAS ============ -->
+<section class="personas" id="personas">
+  <div class="container">
+    <div class="section-eyebrow">Target Personas（資料準拠・抽象化版）</div>
+    <h2 class="section-title">6人のターゲット</h2>
+    <p class="section-lead">資料が明示する「高齢の出展者・主催者でも迷わない」要件を反映し、各サイドにシニア層・デジタル感度高層・コンプライアンス重視層を含めた3+3=6名のペルソナ群。</p>
+
+    <div class="persona-group organizer">
+      <h3 class="persona-group-title">主催者（Organizer）— 3ペルソナ</h3>
+      <div class="personas-grid">
+        <div class="persona-card">
+          <span class="pid">O1</span>
+          <h3>地域祭実行委員型</h3>
+          <p class="age">60〜70代・自治会／商工会／観光協会</p>
+          <dl>
+            <div><dt>イベント頻度</dt><dd>年1〜4回（祭・盆踊り・収穫祭）</dd></div>
+            <div><dt>規模</dt><dd>15〜50店舗</dd></div>
+            <div><dt>デジタル習熟</dt><dd class="digital-level"><span class="stars">★☆☆☆☆</span></dd></div>
+            <div><dt>現状ツール</dt><dd>電話／FAX／LINE／紙ファイル／通帳</dd></div>
+          </dl>
+          <div class="pains">
+            <h4>一番困っていること</h4>
+            <ul>
+              <li>若い出店者を呼びたいが繋がりがない</li>
+              <li>申請書類が紙バラバラで管理しきれない</li>
+              <li>消防届出書類の作成が毎年苦痛</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="persona-card">
+          <span class="pid">O2</span>
+          <h3>個人主催型</h3>
+          <p class="age">30〜40代・マルシェ／地域おこし／副業</p>
+          <dl>
+            <div><dt>イベント頻度</dt><dd>月1〜年12回</dd></div>
+            <div><dt>規模</dt><dd>10〜40店舗</dd></div>
+            <div><dt>デジタル習熟</dt><dd class="digital-level"><span class="stars">★★★★☆</span></dd></div>
+            <div><dt>現状ツール</dt><dd>Instagram／Notion／Googleフォーム</dd></div>
+          </dl>
+          <div class="pains">
+            <h4>一番困っていること</h4>
+            <ul>
+              <li>応募管理ツールが散在</li>
+              <li>出店者の「世界観」が事前に判断しづらい</li>
+              <li>副業で時間がない、スマホ完結したい</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="persona-card">
+          <span class="pid">O3</span>
+          <h3>商業施設・企業販促型</h3>
+          <p class="age">30〜50代・販促部／自治体／企業広報</p>
+          <dl>
+            <div><dt>イベント頻度</dt><dd>月2〜3回（催事・キッチンカー定期）</dd></div>
+            <div><dt>規模</dt><dd>5〜20店舗</dd></div>
+            <div><dt>デジタル習熟</dt><dd class="digital-level"><span class="stars">★★★★★</span></dd></div>
+            <div><dt>現状ツール</dt><dd>モビマル併用／業務システム</dd></div>
+          </dl>
+          <div class="pains">
+            <h4>一番困っていること</h4>
+            <ul>
+              <li>既存サービスが高額・規模に合わない</li>
+              <li>上層部承認のための証跡管理が煩雑</li>
+              <li>レポート用データ集計に手間</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="persona-group store">
+      <h3 class="persona-group-title">出店者（Store）— 3ペルソナ</h3>
+      <div class="personas-grid">
+        <div class="persona-card">
+          <span class="pid">S1</span>
+          <h3>専業キッチンカー型</h3>
+          <p class="age">50〜60代・専業オーナー</p>
+          <dl>
+            <div><dt>規模</dt><dd>個人〜2-3人体制、年商600-1500万</dd></div>
+            <div><dt>出店頻度</dt><dd>週末中心、月4-10回</dd></div>
+            <div><dt>デジタル習熟</dt><dd class="digital-level"><span class="stars">★★☆☆☆</span></dd></div>
+            <div><dt>現状ツール</dt><dd>業界LINEグループ／知人紹介</dd></div>
+          </dl>
+          <div class="pains">
+            <h4>一番困っていること</h4>
+            <ul>
+              <li>案件探しに毎週時間取られる</li>
+              <li>主催者の信頼性・支払い実績が分からない</li>
+              <li>火気・発電機の届出書類が毎回違って混乱</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="persona-card">
+          <span class="pid">S2</span>
+          <h3>副業出店型</h3>
+          <p class="age">30〜40代・副業（スイーツ／クラフト／物販）</p>
+          <dl>
+            <div><dt>規模</dt><dd>個人、月商10-30万</dd></div>
+            <div><dt>出店頻度</dt><dd>月1-4回（土日中心）</dd></div>
+            <div><dt>デジタル習熟</dt><dd class="digital-level"><span class="stars">★★★★★</span></dd></div>
+            <div><dt>現状ツール</dt><dd>Instagram／Notion／Canva</dd></div>
+          </dl>
+          <div class="pains">
+            <h4>一番困っていること</h4>
+            <ul>
+              <li>平日時間ゼロ、スマホ完結必須</li>
+              <li>主催者の世界観・客層が判断難</li>
+              <li>申請文を毎回ゼロから書く労力</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="persona-card">
+          <span class="pid">S3</span>
+          <h3>農家・生産者型</h3>
+          <p class="age">50〜70代・農家／果樹／加工品</p>
+          <dl>
+            <div><dt>規模</dt><dd>個人 or 家族経営</dd></div>
+            <div><dt>出店頻度</dt><dd>収穫期に集中</dd></div>
+            <div><dt>デジタル習熟</dt><dd class="digital-level"><span class="stars">★☆☆☆☆</span></dd></div>
+            <div><dt>現状ツール</dt><dd>農協／地域団体経由／紹介</dd></div>
+          </dl>
+          <div class="pains">
+            <h4>一番困っていること</h4>
+            <ul>
+              <li>「もっと若い客層に届けたい」がチャネルがない</li>
+              <li>申請フォームの「カタカナ用語」が分からない</li>
+              <li>写真撮影・SNSが苦手</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CJM ============ -->
+<section class="cjm" id="cjm">
+  <div class="container">
+    <div class="section-eyebrow">Customer Journey Map（To-Be）</div>
+    <h2 class="section-title">Waccaが変える、両側の体験</h2>
+    <p class="section-lead">Wacca導入後の、主催者と出店者それぞれのカスタマージャーニー。As-isとの完全な対比は別ドキュメント参照。</p>
+
+    <div class="cjm-side organizer">
+      <h3>主催者ジャーニー<span class="badge">Organizer</span></h3>
+      <div class="cjm-table">
+        <table>
+          <thead>
+            <tr>
+              <th></th><th>①企画</th><th>②募集告知</th><th>③応募受付・審査</th><th>④事前準備</th><th>⑤当日運営</th><th>⑥事後</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>行動</th>
+              <td>過去履歴から候補抽出</td>
+              <td>テンプレ募集要項、公開URL自動発行</td>
+              <td>応募一覧（写真グリッド）でワンタップ承認</td>
+              <td>採用者一斉チャット、配置リスト自動生成</td>
+              <td>デジタル配置図共有、チャットで即時連絡</td>
+              <td>自動請求書PDF、評価入力1分</td>
+            </tr>
+            <tr>
+              <th>感情</th>
+              <td><span class="cjm-emoji">😊</span> 安心</td>
+              <td><span class="cjm-emoji">😄</span> 軽快</td>
+              <td><span class="cjm-emoji">😄</span> 確信</td>
+              <td><span class="cjm-emoji">😊</span> 整然</td>
+              <td><span class="cjm-emoji">😌</span> 余裕</td>
+              <td><span class="cjm-emoji">😄</span> 達成</td>
+            </tr>
+            <tr>
+              <th>解消されたペイン</th>
+              <td class="gain">候補抽出自動</td>
+              <td class="gain">拡散・フォーム同時</td>
+              <td class="gain">世界観＋信頼性可視化</td>
+              <td class="gain">消防届出自動出力</td>
+              <td class="gain">配置図デジタル共有</td>
+              <td class="gain">請求書自動</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="cjm-side store">
+      <h3>出店者ジャーニー<span class="badge">Store</span></h3>
+      <div class="cjm-table">
+        <table>
+          <thead>
+            <tr>
+              <th></th><th>①探す</th><th>②検討</th><th>③応募</th><th>④事前準備</th><th>⑤当日出店</th><th>⑥事後</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>行動</th>
+              <td>ホーム=「あなた向け」レコメンド</td>
+              <td>主催者プロフィール（写真・客層・予想来場者数・レビュー）で判断</td>
+              <td>申請1タップ、プロフィール＋書類自動添付</td>
+              <td>採用通知＋現場情報が一画面に</td>
+              <td>デジタル配置図、主催者と即時チャット</td>
+              <td>履歴自動追加、評価入力</td>
+            </tr>
+            <tr>
+              <th>感情</th>
+              <td><span class="cjm-emoji">😊</span> 軽快</td>
+              <td><span class="cjm-emoji">😄</span> 確信</td>
+              <td><span class="cjm-emoji">😄</span> 楽</td>
+              <td><span class="cjm-emoji">😊</span> 整然</td>
+              <td><span class="cjm-emoji">😌</span> 余裕</td>
+              <td><span class="cjm-emoji">😄</span> 達成</td>
+            </tr>
+            <tr>
+              <th>解消されたペイン</th>
+              <td class="gain">案件一覧＋マッチング</td>
+              <td class="gain">主催者情報充実</td>
+              <td class="gain">テンプレ＋書類再利用</td>
+              <td class="gain">詳細情報自動共有</td>
+              <td class="gain">デジタル配置図</td>
+              <td class="gain">履歴蓄積</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ COLORS ============ -->
+<section class="colors" id="colors">
+  <div class="container">
+    <div class="section-eyebrow">Color Strategy</div>
+    <h2 class="section-title">カラーパレット</h2>
+    <p class="section-lead">Wacca Navy（信頼）を基盤に、Organizer は Orange（情熱・歓迎）、Store は Green（循環・成長）。Cream の温かい背景が3色を包む。</p>
+
+    <div class="colors-grid">
+      <div class="color-card">
+        <div class="color-swatch" style="background: var(--wacca-navy);">
+          <span class="hex">#1e3a5f</span>
+        </div>
+        <div class="meta">
+          <h4>Wacca Navy</h4>
+          <div class="role">Base / Trust</div>
+          <p>ヘッダー・主要文字・信頼を表す要素。インフラとしての堅牢さを担う基盤色。</p>
+        </div>
+      </div>
+
+      <div class="color-card">
+        <div class="color-swatch" style="background: var(--wacca-orange);">
+          <span class="hex">#f97316</span>
+        </div>
+        <div class="meta">
+          <h4>Wacca Orange</h4>
+          <div class="role">Primary / Organizer</div>
+          <p>CTAボタン・主催者アクセント。お祭りの提灯、食欲、活気の灯。</p>
+        </div>
+      </div>
+
+      <div class="color-card">
+        <div class="color-swatch" style="background: var(--wacca-green);">
+          <span class="hex">#16a34a</span>
+        </div>
+        <div class="meta">
+          <h4>Wacca Green</h4>
+          <div class="role">Primary / Store</div>
+          <p>出店者アクセント・採用ステータス。循環、成長、成功を表す。</p>
+        </div>
+      </div>
+
+      <div class="color-card">
+        <div class="color-swatch" style="background: var(--wacca-cream); border: 1px solid var(--border);">
+          <span class="hex">#fdf8f1</span>
+        </div>
+        <div class="meta">
+          <h4>Wacca Cream</h4>
+          <div class="role">Background</div>
+          <p>温かみあるオフホワイト。余白と親しみを担う背景色。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FEATURES ============ -->
+<section class="features" id="features">
+  <div class="container">
+    <div class="section-eyebrow">Feature Requirements v1</div>
+    <h2 class="section-title">v1で実装する機能</h2>
+    <p class="section-lead">資料準拠の機能要件を、3つのアプリと横断要件で整理。詳細は 05-feature-requirements.md 参照。</p>
+
+    <div class="features-grid">
+      <div class="feature-card orange">
+        <span class="badge">Organizer</span>
+        <h4>主催者向け中核機能</h4>
+        <ul>
+          <li>4ステップのイベント作成フォーム（ターゲット層・予想来場者数・禁止事項を必須化）</li>
+          <li>応募一覧（写真グリッド・ステータスフィルター）</li>
+          <li>ワンタップ承認／保留／不採用</li>
+          <li>採用者一斉チャット＋個別チャット</li>
+          <li>配置リスト自動出力（区画・電源・搬入時間）</li>
+          <li>消防届出用機材リスト自動出力</li>
+          <li>自動請求書PDF（紹介数×日数×単価）</li>
+        </ul>
+      </div>
+
+      <div class="feature-card green">
+        <span class="badge">Store</span>
+        <h4>出店者向け中核機能</h4>
+        <ul>
+          <li>「あなた向け」レコメンド付きホーム</li>
+          <li>イベント検索（エリア・カテゴリ・ターゲット層）</li>
+          <li>「気になる」ブックマーク＋比較検討</li>
+          <li>申請フォーム（プロフィール／書類の自動入力）</li>
+          <li>写真主体プロフィール（複数枚ギャラリー）</li>
+          <li>主催者プロフィール詳細（写真・客層・レビュー）</li>
+          <li>出店履歴＋評価</li>
+        </ul>
+      </div>
+
+      <div class="feature-card navy">
+        <span class="badge">Admin</span>
+        <h4>運営向け管理機能</h4>
+        <ul>
+          <li>主催者／イベント／出店者の審査・承認</li>
+          <li>通報管理</li>
+          <li>Gold Star付与管理（評価ロジック設計）</li>
+          <li>請求書管理・送付</li>
+          <li>運営KPIダッシュボード</li>
+          <li>コンテンツ管理（Wacca Stories）</li>
+        </ul>
+      </div>
+
+      <div class="feature-card">
+        <span class="badge">Cross-Cutting</span>
+        <h4>横断要件</h4>
+        <ul>
+          <li><strong>シニア対応</strong>：18pxベース、56pxボタン、カタカナ用語回避</li>
+          <li><strong>モバイル対応</strong>：PWA、フル機能スマホ動作</li>
+          <li><strong>写真主体UI</strong>：プロフィール写真ファースト</li>
+          <li><strong>証跡対応</strong>：PDF出力、CSVエクスポート</li>
+          <li><strong>構造化入力</strong>：火気・発電機・消火器はラジオ／チェックボックス</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TRUST ============ -->
+<section class="trust" id="trust">
+  <div class="container">
+    <div class="section-eyebrow">Trust Architecture</div>
+    <h2 class="section-title">信頼を、デザインする</h2>
+    <p class="section-lead">マッチング後のトラブルを最小化し、両側に「ここなら安心」と感じてもらうための仕組みが、Waccaの根本にあります。</p>
+
+    <div class="trust-grid">
+      <div class="trust-card">
+        <div class="icon">★</div>
+        <h4>Wacca Gold Star認定</h4>
+        <p>一定評価獲得の優良Storeに金色バッジを自動付与。ミシュランのような信頼の証として、主催者の判断を強力にサポートする。</p>
+      </div>
+      <div class="trust-card">
+        <div class="icon">▣</div>
+        <h4>公式出店ステッカー</h4>
+        <p>マッチング成立後のStoreにオフラインステッカーを配布。会場で「Wacca認定店」と認知され、来場者にも安心感を演出する。</p>
+      </div>
+      <div class="trust-card">
+        <div class="icon">✓</div>
+        <h4>反社チェック表明</h4>
+        <p>登録時の表明・保証を必須化し、違反時即時アカウント削除。プラットフォームとしての健全性を最初から担保する。</p>
+      </div>
+      <div class="trust-card">
+        <div class="icon">↔</div>
+        <h4>双方向評価制度</h4>
+        <p>主催者⇔出店者の星＋コメント評価。運営と本人のみ閲覧可で、誹謗中傷リスクを抑えつつ信頼を蓄積する。</p>
+      </div>
+      <div class="trust-card">
+        <div class="icon">🔒</div>
+        <h4>承認まで連絡先非開示</h4>
+        <p>マッチング承認時のみ氏名・メール・電話を相手に開示。プライバシーを守りながら必要な情報だけを必要なタイミングで。</p>
+      </div>
+      <div class="trust-card">
+        <div class="icon">📖</div>
+        <h4>Wacca Stories</h4>
+        <p>主催者・出店者へのインタビュー記事をLPとSNSで継続発信。コンテンツによってブランドへの信頼と愛着を育てる。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HANDOFF ============ -->
+<section class="handoff" id="handoff">
+  <div class="container">
+    <div class="section-eyebrow">Next Step — Handoff to Hallmark</div>
+    <h2 class="section-title">次のフェーズへ</h2>
+    <p class="section-lead">orotyan-design-process の役割はここで完了。次は hallmark フェーズで、ここで定義された前提を元に代表画面のデザインに入る。</p>
+
+    <div class="handoff-card">
+      <ol class="handoff-list">
+        <li><strong>organizer ダッシュボード</strong> — 主催者の現在地と「やるべきこと」を一画面集約</li>
+        <li><strong>organizer 応募一覧（写真グリッド）</strong> — 審査UXの中核、Instagram風の世界観可視化</li>
+        <li><strong>store ホーム</strong> — 出店者の「あなた向け」レコメンド体験</li>
+        <li><strong>store プロフィール（写真ギャラリー）</strong> — 出店者の世界観表現の場</li>
+        <li><strong>organizer イベント作成 Step1</strong> — 構造化入力（ジャンル・ターゲット・禁止事項）の代表</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="logo">Wa<span>cc</span>a</div>
+    <p>株式会社 Clarity Labo / 静岡県東部 → 全国へ</p>
+    <p style="margin-top: 12px; font-size: 12px; opacity: 0.6;">Design Summary v2 — generated via orotyan-design-process skill</p>
+  </div>
+</footer>
+
+</body>
+</html>

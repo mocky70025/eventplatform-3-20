@@ -1,0 +1,198 @@
+/*
+ * Wacca Design Tokens v1.0
+ * Tailwind v4 @theme 形式
+ *
+ * 使い方：各アプリの globals.css 冒頭で:
+ *   @import "../../design/tokens.css";
+ *
+ * 出典: design-system.md v1
+ */
+
+@theme {
+  /* === COLOR — Brand === */
+  /* Sumi（墨）— 信頼・和の落ち着き。色相を抜いた暖かい墨色。Orange と競合しない */
+  --color-wacca-sumi-50:  #faf8f5;
+  --color-wacca-sumi-100: #f0ebe1;
+  --color-wacca-sumi-200: #ddd6c8;
+  --color-wacca-sumi-300: #c2b8a4;
+  --color-wacca-sumi-400: #8a8071;
+  --color-wacca-sumi-500: #5c5246;
+  --color-wacca-sumi-600: #2a2620; /* Base: 主要文字色・ヘッダー */
+  --color-wacca-sumi-700: #1c1916;
+  --color-wacca-sumi-800: #100e0a;
+  --color-wacca-sumi-900: #050402;
+
+  --color-wacca-orange-50:  #fff7ed;
+  --color-wacca-orange-100: #ffedd5;
+  --color-wacca-orange-200: #fed7aa;
+  --color-wacca-orange-300: #fdba74;
+  --color-wacca-orange-400: #fb923c;
+  --color-wacca-orange-500: #f97316; /* Primary: CTA・organizerアクセント */
+  --color-wacca-orange-600: #ea580c; /* Hover */
+  --color-wacca-orange-700: #c2410c;
+  --color-wacca-orange-800: #9a3412;
+  --color-wacca-orange-900: #7c2d12;
+  --color-wacca-orange-950: #431407;
+
+  --color-wacca-green-50:  #f0fdf4;
+  --color-wacca-green-100: #dcfce7;
+  --color-wacca-green-200: #bbf7d0;
+  --color-wacca-green-300: #86efac;
+  --color-wacca-green-400: #4ade80;
+  --color-wacca-green-500: #16a34a; /* Primary: storeアクセント・採用 */
+  --color-wacca-green-600: #15803d; /* Hover */
+  --color-wacca-green-700: #166534;
+  --color-wacca-green-800: #14532d;
+  --color-wacca-green-900: #052e16;
+  --color-wacca-green-950: #022c11;
+
+  --color-wacca-cream-50:  #fefcf9;
+  --color-wacca-cream-100: #fdf8f1; /* Default background */
+  --color-wacca-cream-200: #f8f6f2; /* Surface（やや暖色） */
+  --color-wacca-cream-300: #f1ede3;
+
+  /* === COLOR — Neutral (Slate-based) === */
+  --color-neutral-50:  #f8fafc;
+  --color-neutral-100: #f1f5f9;
+  --color-neutral-200: #e2e8f0; /* Border default */
+  --color-neutral-300: #cbd5e1;
+  --color-neutral-400: #94a3b8; /* Disabled text */
+  --color-neutral-500: #64748b; /* Secondary text */
+  --color-neutral-600: #475569;
+  --color-neutral-700: #334155; /* Body text */
+  --color-neutral-800: #1e293b;
+  --color-neutral-900: #0f172a; /* Primary text (純黒NG) */
+  --color-neutral-950: #020617;
+
+  /* === COLOR — Semantic === */
+  --color-success-50:  #f0fdf4;
+  --color-success-100: #dcfce7;
+  --color-success-500: #22c55e;
+  --color-success-600: #16a34a;
+  --color-success-700: #15803d;
+
+  --color-warning-50:  #fefce8;
+  --color-warning-100: #fef9c3;
+  --color-warning-500: #eab308;
+  --color-warning-600: #ca8a04;
+  --color-warning-700: #a16207;
+
+  --color-danger-50:  #fef2f2;
+  --color-danger-100: #fee2e2;
+  --color-danger-500: #ef4444;
+  --color-danger-600: #dc2626;
+  --color-danger-700: #b91c1c;
+
+  --color-info-50:  #eff6ff;
+  --color-info-100: #dbeafe;
+  --color-info-500: #3b82f6;
+  --color-info-600: #2563eb;
+  --color-info-700: #1d4ed8;
+
+  /* === COLOR — Gold (for Gold Star Badge) === */
+  --color-gold-300: #fde047;
+  --color-gold-400: #facc15;
+  --color-gold-500: #eab308;
+  --color-gold-600: #ca8a04;
+
+  /* === TYPOGRAPHY === */
+  --font-sans: "Noto Sans JP", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", Menlo, monospace;
+
+  /* シニア対応：基本18px、設定で20pxまで拡大可 */
+  --text-xs:   12px;
+  --text-sm:   14px;
+  --text-base: 18px;  /* デフォルト */
+  --text-lg:   20px;
+  --text-xl:   24px;
+  --text-2xl:  30px;
+  --text-3xl:  36px;
+  --text-4xl:  48px;
+  --text-5xl:  64px;
+
+  /* 行間 */
+  --leading-tight:   1.2;
+  --leading-snug:    1.3;
+  --leading-normal:  1.5;
+  --leading-relaxed: 1.7;  /* 本文標準 */
+  --leading-loose:   1.8;
+
+  /* 字間 */
+  --tracking-tight:  -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide:   0.04em; /* 本文 */
+  --tracking-widest: 0.2em;  /* CAPS用 */
+
+  /* フォントウェイト */
+  --font-weight-normal:   400;
+  --font-weight-medium:   500;
+  --font-weight-semibold: 600;
+  --font-weight-bold:     700;
+  --font-weight-black:    900;
+
+  /* === SPACING（4の倍数・教科書準拠） === */
+  --spacing-0:  0px;
+  --spacing-1:  4px;
+  --spacing-2:  8px;
+  --spacing-3:  12px;
+  --spacing-4:  16px;
+  --spacing-5:  20px;
+  --spacing-6:  24px;
+  --spacing-8:  32px;
+  --spacing-10: 40px;
+  --spacing-12: 48px;
+  --spacing-16: 64px;
+  --spacing-20: 80px;
+  --spacing-24: 96px;
+  --spacing-32: 128px;
+
+  /* === RADIUS === */
+  --radius-none: 0;
+  --radius-sm:   6px;
+  --radius-md:   12px;  /* ボタン・カードのデフォルト */
+  --radius-lg:   16px;
+  --radius-xl:   24px;
+  --radius-full: 9999px;
+
+  /* === SHADOW === */
+  --shadow-none: none;
+  --shadow-sm:   0 1px 3px rgba(15, 23, 42, 0.06);
+  --shadow-md:   0 4px 12px rgba(15, 23, 42, 0.08);
+  --shadow-lg:   0 8px 24px rgba(15, 23, 42, 0.08);
+  --shadow-xl:   0 16px 40px rgba(15, 23, 42, 0.10);
+
+  /* === MOTION === */
+  --duration-fast:    150ms;
+  --duration-base:    200ms;
+  --duration-slow:    300ms;
+  --easing-standard:   cubic-bezier(0.2, 0, 0, 1);
+  --easing-decelerate: cubic-bezier(0, 0, 0.2, 1);
+  --easing-accelerate: cubic-bezier(0.4, 0, 1, 1);
+
+  /* === LAYOUT === */
+  --container-sm: 640px;
+  --container-md: 768px;
+  --container-lg: 1024px;
+  --container-xl: 1280px;
+
+  /* タッチターゲット（シニア対応） */
+  --touch-target-min:    56px;  /* 通常 */
+  --touch-target-senior: 64px;  /* シニアモード */
+
+  /* === Z-INDEX === */
+  --z-base:     0;
+  --z-elevated: 10;
+  --z-sticky:   100;
+  --z-overlay:  500;
+  --z-modal:    1000;
+  --z-toast:    1100;
+  --z-tooltip:  1200;
+}
+
+/* === Senior Mode (data-mode="senior" 切り替えで適用) === */
+[data-mode="senior"] {
+  --text-base: 20px;
+  --text-lg:   24px;
+  --text-xl:   28px;
+  --touch-target-min: var(--touch-target-senior);
+}

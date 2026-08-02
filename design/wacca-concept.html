@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wacca — なぜ、このサービスがあるのか</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#1e3a5f; --navy-deep:#0f2540;
+    --orange:#f97316; --orange-deep:#ea580c;
+    --green:#16a34a; --green-50:#f0fdf4;
+    --cream:#fdf8f1; --ink:#0f172a; --muted:#64748b;
+    --line:#e7e1d6; --white:#fff;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:"Noto Sans JP",sans-serif;background:var(--cream);color:var(--ink);line-height:1.8;font-size:16px;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:920px;margin:0 auto;padding:0 24px}
+  section{padding:56px 0;border-bottom:1px solid var(--line)}
+  section:last-child{border-bottom:none}
+  .eyebrow{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.18em;color:var(--orange);margin-bottom:14px}
+  h2{font-size:26px;font-weight:900;color:var(--navy);margin-bottom:24px;letter-spacing:.01em}
+  h3{font-size:16px;font-weight:700;color:var(--navy)}
+  p{color:#334155}
+
+  /* Hero */
+  .hero{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-deep) 100%);color:#fff;padding:80px 0 72px;position:relative;overflow:hidden}
+  .hero::after{content:"";position:absolute;right:-120px;top:-120px;width:380px;height:380px;border:32px solid rgba(249,115,22,.16);border-radius:50%}
+  .hero::before{content:"";position:absolute;right:40px;bottom:-160px;width:300px;height:300px;border:28px solid rgba(22,163,74,.14);border-radius:50%}
+  .hero .wrap{position:relative;z-index:1}
+  .logo{display:flex;align-items:center;gap:10px;margin-bottom:34px}
+  .logo .dot{width:30px;height:30px;border-radius:50%;background:var(--orange)}
+  .logo span{font-size:22px;font-weight:900;letter-spacing:.02em}
+  .hero .role{font-size:13px;font-weight:500;color:#cbd5e1;margin-bottom:18px}
+  .hero h1{font-size:40px;line-height:1.45;font-weight:900;letter-spacing:.02em}
+  .hero h1 em{font-style:normal;color:var(--orange)}
+  .hero .lead{margin-top:22px;font-size:16px;color:#e2e8f0;max-width:680px}
+
+  .purpose{background:var(--white);border:1px solid var(--line);border-left:5px solid var(--orange);border-radius:16px;padding:28px 30px;margin-top:8px}
+  .purpose .q{font-size:24px;font-weight:900;color:var(--navy);line-height:1.6}
+  .purpose p{margin-top:14px}
+
+  .copy-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px}
+  .copy{background:var(--white);border:1px solid var(--line);border-radius:14px;padding:20px 22px}
+  .copy .label{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--muted);margin-bottom:8px}
+  .copy .text{font-size:17px;font-weight:700;color:var(--ink)}
+  .copy.main{grid-column:1 / -1;background:linear-gradient(135deg,#fff7ed,#fff);border-color:#fed7aa}
+  .copy.main .text{font-size:24px;font-weight:900;color:var(--orange-deep)}
+
+  .name{display:flex;gap:24px;align-items:flex-start;background:var(--white);border:1px solid var(--line);border-radius:16px;padding:26px 28px}
+  .name .ring{flex-shrink:0;width:72px;height:72px;border-radius:50%;border:8px solid var(--navy);border-right-color:var(--orange);border-bottom-color:var(--green);transform:rotate(15deg)}
+  .name b{color:var(--navy)}
+
+  .values{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .value{background:var(--white);border:1px solid var(--line);border-radius:16px;padding:24px;border-top:4px solid var(--orange)}
+  .value:nth-child(2){border-top-color:var(--navy)}
+  .value:nth-child(3){border-top-color:var(--green)}
+  .value .n{font-size:13px;font-weight:900;color:var(--muted)}
+  .value h3{margin:6px 0 14px;font-size:17px}
+  .value .row{font-size:13px;color:#475569;margin-top:10px}
+  .value .row b{display:block;font-size:11px;color:var(--muted);font-weight:700;margin-bottom:2px}
+
+  .sanpo{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .sanpo .card{background:var(--white);border:1px solid var(--line);border-radius:16px;padding:24px}
+  .sanpo .who{font-weight:900;color:var(--navy);font-size:16px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+  .sanpo .who::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--orange)}
+  .sanpo .card:nth-child(2) .who::before{background:var(--green)}
+  .sanpo .card:nth-child(3) .who::before{background:var(--navy)}
+  .sanpo ul{list-style:none;font-size:14px;color:#475569}
+  .sanpo li{padding-left:16px;position:relative;margin-bottom:8px}
+  .sanpo li::before{content:"";position:absolute;left:0;top:11px;width:6px;height:6px;border-radius:50%;background:var(--line)}
+
+  .flow{background:var(--navy);color:#fff;border-radius:16px;padding:30px;display:flex;align-items:center;flex-wrap:wrap;gap:10px;justify-content:center}
+  .flow .step{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);border-radius:10px;padding:10px 16px;font-size:13px;font-weight:500}
+  .flow .arrow{color:var(--orange);font-weight:900}
+  .flow .bill{background:var(--orange);border-color:var(--orange);font-weight:700}
+
+  .pos{background:linear-gradient(135deg,var(--green-50),#fff);border:1px solid #bbf7d0;border-radius:16px;padding:28px 30px}
+  .pos .q{font-size:19px;font-weight:900;color:var(--navy);line-height:1.6}
+  .pos .q em{font-style:normal;color:var(--green)}
+
+  .tone{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px}
+  .tag{background:var(--white);border:1px solid var(--line);border-radius:999px;padding:8px 18px;font-size:14px;font-weight:700;color:var(--navy)}
+
+  footer{padding:32px 0;text-align:center;color:var(--muted);font-size:12px}
+  .meta{font-size:12px;color:var(--muted);margin-top:18px}
+  .meta a{color:var(--orange-deep)}
+  @media(max-width:720px){
+    .copy-grid,.values,.sanpo{grid-template-columns:1fr}
+    .hero h1{font-size:30px}
+    .name{flex-direction:column}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="logo"><span class="dot"></span><span>Wacca</span></div>
+    <div class="role">イベント主催者 × 出店者 マッチングプラットフォーム ／ 株式会社Clarity Labo</div>
+    <h1>すべての街に、<em>愛される賑わい</em>を。</h1>
+    <p class="lead">良いイベントが一つ増えるだけで、その街の週末は少しだけ豊かになる。Waccaは、挑戦する人々の後ろ盾となり、日本中のシャッター街や空き地を、笑顔の集まる広場に変えていきます。</p>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <span class="eyebrow">PURPOSE — 北極星</span>
+    <h2>なぜ、Waccaをつくるのか</h2>
+    <div class="purpose">
+      <div class="q">「いいイベントは、いい出会いから始まる。」</div>
+      <p>主催者の情熱と、出店者の技術を、<b>信頼という糸</b>でまっすぐに結ぶ。煩雑な手続きをスムーズに、不安を安心に変えて、日本中の街に新しい賑わいの輪を広げていく。それが、Waccaのミッションです。</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <span class="eyebrow">MESSAGE — 言葉</span>
+    <h2>伝えたいこと</h2>
+    <div class="copy-grid">
+      <div class="copy main">
+        <div class="label">メインキャッチコピー</div>
+        <div class="text">イベントの輪を、もっと広げよう。</div>
+      </div>
+      <div class="copy">
+        <div class="label">主催者へ</div>
+        <div class="text">理想の出店者が、すぐに見つかる。</div>
+      </div>
+      <div class="copy">
+        <div class="label">出店者へ</div>
+        <div class="text">あなたのこだわりを、最高の舞台へ。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <span class="eyebrow">NAME — 名前の由来</span>
+    <h2>「Wacca」に込めた意味</h2>
+    <div class="name">
+      <div class="ring"></div>
+      <div>
+        <p><b>Wacca = 「輪っか（輪）」+「和（調和・日本的）」</b></p>
+        <p>主催者の熱意・出店者のこだわり・来場者の笑顔——3つの要素が重なり合って、初めて一つの「輪」が完成する。バラバラだったイベント情報を面で結び、循環（サイクル）を生み出すインフラを目指しています。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <span class="eyebrow">VALUE — 提供する価値</span>
+    <h2>Waccaが届ける3つの価値</h2>
+    <div class="values">
+      <div class="value">
+        <div class="n">01</div>
+        <h3>信頼でつながる</h3>
+        <div class="row"><b>主催者</b>評価・Gold Star・反社チェック済みの出店者と安心して出会える</div>
+        <div class="row"><b>出店者</b>主催者の支払い実績・評判が見えて空振りを避けられる</div>
+      </div>
+      <div class="value">
+        <div class="n">02</div>
+        <h3>ひと画面で完結する</h3>
+        <div class="row"><b>主催者</b>募集〜審査〜消防届出〜配置〜請求までシステム化</div>
+        <div class="row"><b>出店者</b>案件探し〜申請〜書類〜出店後フォローまで一つのアプリで</div>
+      </div>
+      <div class="value">
+        <div class="n">03</div>
+        <h3>賑わいの輪が広がる</h3>
+        <div class="row"><b>主催者</b>新規出店者の開拓・地域に新しい賑わい</div>
+        <div class="row"><b>出店者</b>自分の世界観で正しく見つけてもらえる出店機会</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <span class="eyebrow">MODEL — 仕組み</span>
+    <h2>マッチングから請求までの流れ</h2>
+    <div class="flow">
+      <span class="step">主催者がイベント作成</span>
+      <span class="arrow">→</span>
+      <span class="step">出店者が応募</span>
+      <span class="arrow">→</span>
+      <span class="step">主催者が承認（成立）</span>
+      <span class="arrow">→</span>
+      <span class="step">イベント当日</span>
+      <span class="arrow">→</span>
+      <span class="step bill">Waccaから主催者へ自動請求</span>
+    </div>
+    <p class="meta">課金対象は<b>主催者のみ</b>（紹介数 × イベント日数 × 単価）。出店料は主催者⇔出店者の直接決済で、Waccaは介在しません。</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <span class="eyebrow">WIN-WIN-WIN — 三方良し</span>
+    <h2>関わる全員が得をする</h2>
+    <div class="sanpo">
+      <div class="card">
+        <div class="who">主催者</div>
+        <ul>
+          <li>信頼できる出店者と効率的に出会える</li>
+          <li>審査・消防届出・請求書の自動生成で事務から解放</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="who">出店者</div>
+        <ul>
+          <li>次の出店先が労力少なく決まる</li>
+          <li>自分の世界観で正しく見つけてもらえる</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="who">運営（Clarity Labo）</div>
+        <ul>
+          <li>成立件数連動の健全な収益構造</li>
+          <li>地域文化を支えるインフラを担える</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <span class="eyebrow">POSITIONING — 立ち位置</span>
+    <h2>Waccaのポジショニング</h2>
+    <div class="pos">
+      <div class="q">「<em>モビマルの整理整頓</em> × <em>LINEの気軽さ</em> × <em>インフラとしての信頼</em>」を、地域中小イベントのために。</div>
+      <p style="margin-top:12px">高齢ユーザーでも迷わず使える「日本の祭り文化のデジタル下敷き」。小規模・多カテゴリの出店者に強く、主催者は無料〜小額から始められます。</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <span class="eyebrow">TONE — ブランドの人格</span>
+    <h2>Waccaらしさ</h2>
+    <p style="margin-bottom:18px">「地元の商工会で30年お世話になってる、デジタルに強くなった頼れる先輩」——誠実で礼儀正しく、親しみやすいが、いい加減ではない。インフラとして街を支える矜持を持つ。</p>
+    <div class="tone">
+      <span class="tag">信頼</span>
+      <span class="tag">温かい</span>
+      <span class="tag">整っている</span>
+      <span class="tag">小さく始まる</span>
+      <span class="tag">広がる</span>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    出典: <code>design/04-concept-wacca.md</code> ・ <code>design/01-business-model.md</code><br>
+    Wacca ／ 株式会社Clarity Labo — 静岡県東部から全国へ
+  </div>
+</footer>
+
+</body>
+</html>

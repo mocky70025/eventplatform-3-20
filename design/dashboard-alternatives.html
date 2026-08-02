@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>Wacca Dashboard — 3案比較</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Noto+Serif+JP:wght@400;500;700;900&family=Zen+Old+Mincho:wght@400;700;900&family=Zen+Kurenaido&family=Klee+One:wght@400;600&family=Shippori+Mincho:wght@400;700;800;900&family=Yuji+Boku&family=Yuji+Mai&family=Reggae+One&family=DotGothic16&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Serif+Display:ital@0;1&family=Fraunces:opsz,wght@9..144,400;9..144,700;9..144,900&family=Cinzel:wght@400;700;900&family=Bebas+Neue&family=Major+Mono+Display&family=Big+Shoulders+Display:wght@700;900&family=Anton&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sumi-50:#faf8f5; --sumi-100:#f0ebe1; --sumi-200:#ddd6c8; --sumi-300:#c2b8a4;
+  --sumi-400:#8a8071; --sumi-500:#5c5246; --sumi-600:#2a2620; --sumi-700:#1c1916; --sumi-800:#100e0a;
+  --orange-50:#fff7ed; --orange-100:#ffedd5; --orange-200:#fed7aa; --orange-300:#fdba74;
+  --orange-400:#fb923c; --orange-500:#f97316; --orange-600:#ea580c; --orange-700:#c2410c;
+  --green-100:#dcfce7; --green-500:#16a34a; --green-600:#15803d;
+  --cream-50:#fefcf9; --cream-100:#fdf8f1; --cream-200:#f8f6f2; --cream-300:#f1ede3;
+  --neutral-100:#f1f5f9; --neutral-200:#e2e8f0; --neutral-400:#94a3b8;
+  --neutral-500:#64748b; --neutral-700:#334155; --neutral-900:#0f172a;
+  --gold-400:#facc15; --gold-500:#eab308;
+  --danger-500:#ef4444; --warning-500:#eab308; --info-500:#3b82f6;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body {
+  font-family:"Noto Sans JP",system-ui,sans-serif;
+  background:var(--neutral-200);
+  color:var(--sumi-600);
+  font-size:18px; line-height:1.7; letter-spacing:0.04em;
+}
+.serif{font-family:"Noto Serif JP",serif;}
+.canvas-list{display:flex;flex-direction:column;gap:48px;padding:48px 24px;align-items:center;}
+.frame-wrap{width:1440px;display:flex;flex-direction:column;gap:16px;}
+.frame-label{display:flex;gap:12px;align-items:center;color:white;}
+.frame-label .badge{background:var(--sumi-600);color:white;padding:8px 16px;border-radius:8px;font-weight:900;letter-spacing:0.1em;}
+.frame-label .name{font-size:24px;font-weight:700;}
+.frame-label .desc{color:var(--sumi-600);background:white;padding:8px 16px;border-radius:8px;font-size:14px;}
+.frame{width:1440px;background:var(--cream-100);box-shadow:0 24px 60px rgba(15,23,42,0.18);border-radius:8px;overflow:hidden;}
+
+/* === Shared TopNav === */
+.topnav{height:64px;background:white;border-bottom:1px solid var(--neutral-200);display:flex;align-items:center;justify-content:space-between;padding:0 32px;}
+.topnav .logo{display:flex;align-items:center;gap:8px;font-weight:900;font-size:22px;color:var(--sumi-600);}
+.topnav .logo-dot{width:32px;height:32px;border-radius:50%;background:var(--orange-500);}
+.topnav .menu{display:flex;gap:32px;}
+.topnav .menu a{color:var(--neutral-700);font-weight:500;text-decoration:none;font-size:16px;position:relative;padding:24px 0;}
+.topnav .menu a.active{color:var(--orange-500);font-weight:700;}
+.topnav .menu a.active::after{content:"";position:absolute;left:0;right:0;bottom:8px;height:3px;background:var(--orange-500);border-radius:2px;}
+.topnav .right{display:flex;gap:16px;align-items:center;}
+.topnav .bell{width:24px;height:24px;color:var(--neutral-700);position:relative;}
+.topnav .bell .dot{position:absolute;top:-4px;right:-4px;background:var(--danger-500);color:white;border-radius:9999px;padding:2px 6px;font-size:10px;font-weight:700;}
+.topnav .avatar{width:48px;height:48px;border-radius:50%;background:var(--cream-200);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--sumi-600);}
+
+/* === Font Definitions per Alternative === */
+.fnt-edt-display{font-family:"Zen Old Mincho","Noto Serif JP",serif;}
+.fnt-edt-num{font-family:"Playfair Display","Noto Serif JP",serif;}
+.fnt-edt-label{font-family:"Bebas Neue","Noto Sans JP",sans-serif;letter-spacing:0.3em;}
+.fnt-psl-greet{font-family:"Klee One","Zen Kurenaido","Noto Sans JP",sans-serif;}
+.fnt-psl-num{font-family:"Major Mono Display","JetBrains Mono",monospace;}
+.fnt-alm-mon{font-family:"Yuji Boku","Shippori Mincho","Noto Serif JP",serif;}
+.fnt-alm-num{font-family:"Shippori Mincho","Noto Serif JP",serif;}
+.fnt-alm-en{font-family:"Cinzel",serif;letter-spacing:0.2em;}
+.fnt-alm-fest{font-family:"Reggae One","Yuji Boku",sans-serif;}
+
+/* === ① Editorial === */
+.edt{padding:0;}
+.edt-masthead{padding:32px 64px 24px;border-bottom:3px double var(--sumi-600);display:flex;justify-content:space-between;align-items:flex-end;}
+.edt-masthead .date-block{font-family:"Playfair Display",serif;line-height:1;}
+.edt-masthead .date-block .day{font-size:72px;font-weight:900;color:var(--sumi-600);font-style:italic;}
+.edt-masthead .date-block .meta{font-family:"Bebas Neue",sans-serif;font-size:14px;letter-spacing:0.3em;color:var(--neutral-500);margin-top:8px;}
+.edt-masthead .meta-right{text-align:right;font-family:"Zen Old Mincho",serif;}
+.edt-masthead .meta-right .title{font-family:"Bebas Neue",sans-serif;font-size:16px;letter-spacing:0.5em;color:var(--neutral-500);}
+.edt-masthead .meta-right .vol{font-family:"Zen Old Mincho",serif;font-size:20px;color:var(--sumi-600);margin-top:6px;font-weight:700;}
+.edt-issue-label{padding:16px 64px;background:var(--sumi-600);color:white;font-family:"Bebas Neue",sans-serif;font-size:14px;letter-spacing:0.5em;font-weight:400;}
+.edt-grid{display:grid;grid-template-columns:1fr 320px;}
+.edt-feature{padding:48px 32px 48px 64px;border-right:1px solid var(--neutral-200);}
+.edt-feature .kicker{font-family:"Bebas Neue",sans-serif;font-size:16px;letter-spacing:0.5em;color:var(--orange-600);margin-bottom:16px;font-weight:400;}
+.edt-feature .feature-hero{aspect-ratio:16/8;background:linear-gradient(135deg,#fed7aa,#ea580c 60%,#7c2d12);border-radius:4px;margin-bottom:32px;position:relative;overflow:hidden;}
+.edt-feature .feature-hero::after{content:"沼津駅前広場";position:absolute;bottom:24px;right:24px;color:white;font-size:14px;font-family:"Noto Serif JP",serif;background:rgba(0,0,0,0.3);padding:6px 12px;border-radius:4px;}
+.edt-feature .lead{display:flex;align-items:flex-end;gap:24px;margin-bottom:24px;}
+.edt-feature .lead .countdown{font-family:"Playfair Display",serif;font-weight:900;color:var(--sumi-600);line-height:1;font-style:italic;}
+.edt-feature .lead .countdown .num{font-size:140px;}
+.edt-feature .lead .countdown .suf{font-family:"Zen Old Mincho",serif;font-size:32px;margin-left:8px;font-style:normal;}
+.edt-feature .lead .lead-text{flex:1;padding-bottom:24px;}
+.edt-feature .lead .lead-text .label{font-family:"Bebas Neue",sans-serif;font-size:15px;letter-spacing:0.3em;color:var(--neutral-500);margin-bottom:8px;}
+.edt-feature .lead .lead-text p{font-family:"Zen Old Mincho",serif;font-size:18px;line-height:2;color:var(--sumi-600);}
+.edt-feature .feature-title{font-family:"Zen Old Mincho",serif;font-size:56px;font-weight:900;line-height:1.25;letter-spacing:-0.02em;color:var(--sumi-600);margin-bottom:16px;}
+.edt-feature .feature-meta{font-family:"Playfair Display",serif;font-style:italic;font-size:16px;letter-spacing:0.05em;color:var(--neutral-500);margin-bottom:24px;}
+.edt-feature .feature-action{display:inline-flex;align-items:center;gap:8px;padding:16px 32px;background:var(--sumi-600);color:white;border:none;font-family:"Bebas Neue",sans-serif;font-weight:400;font-size:18px;letter-spacing:0.2em;border-radius:0;cursor:pointer;}
+.edt-feature .feature-action:hover{background:var(--orange-500);}
+.edt-feature .feature-action .arrow{transform:translateY(0);}
+.edt-sidebar{padding:48px 32px;background:var(--cream-200);display:flex;flex-direction:column;gap:40px;}
+.edt-sidebar .col-title{font-family:"Bebas Neue",sans-serif;font-size:18px;letter-spacing:0.4em;color:var(--orange-600);font-weight:400;padding-bottom:8px;border-bottom:1px solid var(--sumi-600);}
+.edt-sidebar .col-body{font-family:"Zen Old Mincho",serif;color:var(--sumi-600);font-size:16px;line-height:2;}
+.edt-sidebar .col-body strong{color:var(--orange-600);}
+.edt-sidebar .num-list{display:flex;flex-direction:column;gap:16px;margin-top:12px;}
+.edt-sidebar .num-row{display:flex;justify-content:space-between;align-items:baseline;padding-bottom:12px;border-bottom:1px dashed var(--sumi-300);}
+.edt-sidebar .num-row .label{font-size:14px;color:var(--neutral-700);}
+.edt-sidebar .num-row .val{font-family:"Playfair Display",serif;font-style:italic;font-weight:900;color:var(--sumi-600);font-size:28px;}
+.edt-sidebar .num-row .val .small{font-family:"Zen Old Mincho",serif;font-style:normal;font-size:14px;font-weight:500;margin-left:4px;}
+.edt-sidebar .signature{font-family:"Playfair Display",serif;font-style:italic;font-size:14px;color:var(--neutral-500);text-align:right;margin-top:8px;}
+.edt-secondary{padding:48px 64px;border-top:1px solid var(--neutral-200);display:grid;grid-template-columns:repeat(3,1fr);gap:48px;}
+.edt-secondary .item{padding:0;}
+.edt-secondary .item .kicker{font-family:"Bebas Neue",sans-serif;font-size:14px;letter-spacing:0.4em;color:var(--orange-600);font-weight:400;margin-bottom:12px;}
+.edt-secondary .item .img{aspect-ratio:16/10;background:linear-gradient(135deg,#fed7aa,#c2410c);border-radius:2px;margin-bottom:16px;}
+.edt-secondary .item:nth-child(2) .img{background:linear-gradient(135deg,#fdba74,#7c2d12);}
+.edt-secondary .item:nth-child(3) .img{background:linear-gradient(135deg,#fee2e2,#dc2626);}
+.edt-secondary .item .title{font-family:"Zen Old Mincho",serif;font-size:24px;font-weight:700;color:var(--sumi-600);line-height:1.4;margin-bottom:8px;}
+.edt-secondary .item .meta{font-size:13px;color:var(--neutral-500);}
+.edt-applications{padding:48px 64px;background:var(--sumi-600);color:white;}
+.edt-applications .kicker{font-family:"Bebas Neue",sans-serif;font-size:16px;letter-spacing:0.5em;color:var(--orange-400);margin-bottom:8px;font-weight:400;}
+.edt-applications .title{font-family:"Zen Old Mincho",serif;font-size:42px;font-weight:900;margin-bottom:32px;}
+.edt-applications .list{display:flex;flex-direction:column;gap:0;}
+.edt-applications .row{display:grid;grid-template-columns:80px 1fr auto auto;gap:24px;align-items:center;padding:20px 0;border-bottom:1px solid rgba(255,255,255,0.15);}
+.edt-applications .row:last-child{border-bottom:none;}
+.edt-applications .row .avatar{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#fdba74,#ea580c);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:22px;}
+.edt-applications .row .name-block .name{font-family:"Zen Old Mincho",serif;font-size:26px;font-weight:700;margin-bottom:4px;}
+.edt-applications .row .name-block .tags{font-size:13px;color:var(--sumi-200);}
+.edt-applications .row .rating{display:flex;flex-direction:column;align-items:flex-end;}
+.edt-applications .row .rating .stars{color:var(--gold-400);font-size:16px;}
+.edt-applications .row .rating .num{color:var(--sumi-200);font-size:13px;margin-top:2px;}
+.edt-applications .row .action{padding:12px 24px;background:transparent;color:white;border:1px solid white;font-weight:700;font-size:14px;cursor:pointer;border-radius:0;}
+.edt-applications .row .action:hover{background:var(--orange-500);border-color:var(--orange-500);}
+
+/* === ② Personal Greeting === */
+.psl{padding:96px 64px 0;}
+.psl .greet-block{max-width:680px;margin:0 auto;text-align:center;padding-bottom:96px;}
+.psl .time{font-family:"Major Mono Display",monospace;font-size:13px;letter-spacing:0.3em;color:var(--neutral-500);font-weight:400;margin-bottom:40px;}
+.psl .hello{font-family:"Klee One","Noto Sans JP",sans-serif;font-size:56px;font-weight:600;color:var(--sumi-600);margin-bottom:40px;line-height:1.4;letter-spacing:-0.01em;}
+.psl .hello .accent{color:var(--orange-500);}
+.psl .body-msg{font-family:"Klee One","Noto Sans JP",sans-serif;font-size:21px;color:var(--neutral-700);line-height:2;margin-bottom:56px;letter-spacing:0.04em;}
+.psl .body-msg .num{font-family:"Major Mono Display",monospace;font-weight:400;color:var(--orange-600);font-size:1.3em;}
+.psl .cta-block{display:flex;flex-direction:column;gap:16px;align-items:center;}
+.psl .cta-primary{padding:24px 48px;background:var(--orange-500);color:white;border:none;font-family:"Klee One",sans-serif;font-weight:600;font-size:19px;border-radius:9999px;display:inline-flex;align-items:center;gap:12px;cursor:pointer;box-shadow:0 8px 24px rgba(249,115,22,0.3);}
+.psl .cta-primary:hover{background:var(--orange-600);transform:translateY(-1px);}
+.psl .cta-secondary{padding:12px 24px;background:transparent;color:var(--neutral-500);border:none;font-weight:500;font-size:15px;cursor:pointer;text-decoration:underline;text-underline-offset:6px;}
+.psl-divider{height:1px;background:var(--neutral-200);margin:0 64px;}
+.psl-list{padding:48px 64px 96px;max-width:980px;margin:0 auto;}
+.psl-list .section-title{font-family:"Major Mono Display",monospace;font-size:13px;letter-spacing:0.2em;color:var(--neutral-500);font-weight:400;margin-bottom:32px;}
+.psl-list .row{display:grid;grid-template-columns:24px 1fr auto auto;gap:24px;align-items:center;padding:24px 0;border-bottom:1px solid var(--neutral-200);}
+.psl-list .row:last-child{border-bottom:none;}
+.psl-list .row .dot{width:12px;height:12px;border-radius:50%;background:var(--green-500);margin-left:6px;}
+.psl-list .row .dot.draft{background:var(--neutral-400);}
+.psl-list .row .name{font-family:"Klee One",sans-serif;font-size:21px;font-weight:600;color:var(--sumi-600);}
+.psl-list .row .meta{font-size:14px;color:var(--neutral-500);}
+.psl-list .row .countdown{font-family:"Major Mono Display",monospace;font-size:18px;font-weight:400;color:var(--sumi-600);}
+.psl-list .row .status{font-size:13px;font-weight:700;color:var(--green-600);padding:4px 10px;background:var(--green-100);border-radius:9999px;}
+.psl-list .row .status.draft{color:var(--neutral-500);background:var(--neutral-100);}
+.psl-secondary{padding:48px 64px 96px;max-width:980px;margin:0 auto;}
+.psl-secondary .row{display:grid;grid-template-columns:48px 1fr auto;gap:20px;align-items:center;padding:20px 0;border-bottom:1px solid var(--neutral-200);}
+.psl-secondary .row:last-child{border-bottom:none;}
+.psl-secondary .row .av{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#fdba74,#ea580c);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;}
+.psl-secondary .row .info .name{font-family:"Klee One",sans-serif;font-size:19px;font-weight:600;color:var(--sumi-600);display:flex;align-items:center;gap:8px;}
+.psl-secondary .row .info .meta{font-size:13px;color:var(--neutral-500);}
+.psl-secondary .row .star{background:linear-gradient(135deg,var(--gold-400),var(--gold-500));color:white;padding:2px 8px;border-radius:9999px;font-size:11px;font-weight:700;}
+.psl-secondary .row .review{font-size:14px;color:var(--neutral-700);}
+
+/* === ③ Almanac === */
+.alm{padding:0;}
+.alm-header{padding:48px 64px 24px;text-align:center;border-bottom:1px solid var(--sumi-600);position:relative;}
+.alm-header::before{content:"";position:absolute;top:24px;left:50%;transform:translateX(-50%);width:48px;height:4px;background:var(--orange-500);}
+.alm-header .reign{font-family:"Shippori Mincho",serif;font-size:14px;letter-spacing:0.8em;color:var(--neutral-500);margin-top:32px;margin-bottom:12px;font-weight:400;}
+.alm-header .month-title{font-family:"Yuji Boku","Shippori Mincho",serif;font-size:140px;font-weight:400;color:var(--sumi-600);line-height:1;letter-spacing:-0.02em;}
+.alm-header .month-en{font-family:"Cinzel",serif;font-size:14px;letter-spacing:0.5em;color:var(--orange-600);margin-top:16px;font-weight:700;}
+.alm-body{display:grid;grid-template-columns:1.4fr 1fr;gap:0;}
+.alm-calendar{padding:48px;border-right:1px solid var(--neutral-200);}
+.alm-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:0;border-top:1px solid var(--sumi-600);border-left:1px solid var(--sumi-600);}
+.alm-cal-grid .head{padding:12px;text-align:center;font-family:"Shippori Mincho",serif;font-size:14px;letter-spacing:0.3em;color:var(--neutral-500);background:var(--cream-200);border-right:1px solid var(--sumi-600);border-bottom:1px solid var(--sumi-600);}
+.alm-cal-grid .head.sun{color:var(--danger-500);}
+.alm-cal-grid .head.sat{color:var(--info-500);}
+.alm-cal-grid .day{padding:14px;min-height:88px;border-right:1px solid var(--neutral-200);border-bottom:1px solid var(--neutral-200);font-family:"Shippori Mincho",serif;font-size:22px;color:var(--sumi-600);position:relative;}
+.alm-cal-grid .day.muted{color:var(--neutral-400);background:var(--cream-200);}
+.alm-cal-grid .day.today{background:var(--orange-500);color:white;font-weight:900;}
+.alm-cal-grid .day.has-event{background:linear-gradient(180deg,var(--cream-100) 70%,var(--orange-100));}
+.alm-cal-grid .day .pin{position:absolute;bottom:6px;left:6px;right:6px;font-size:10px;color:var(--orange-700);font-weight:700;background:var(--orange-100);padding:2px 4px;border-radius:2px;font-family:"Noto Sans JP",sans-serif;letter-spacing:0;line-height:1.3;}
+.alm-cal-grid .day.today .pin{background:var(--sumi-600);color:white;}
+.alm-cal-grid .day.fest .pin{background:var(--orange-500);color:white;}
+.alm-side{padding:48px;background:var(--cream-200);display:flex;flex-direction:column;gap:48px;}
+.alm-side .blk-title{font-family:"Yuji Boku",serif;font-size:20px;letter-spacing:0.2em;color:var(--orange-600);padding-bottom:8px;border-bottom:2px solid var(--sumi-600);margin-bottom:16px;font-weight:400;}
+.alm-side .featured{display:flex;flex-direction:column;gap:8px;}
+.alm-side .featured .date-row{display:flex;align-items:baseline;gap:8px;font-family:"Shippori Mincho",serif;}
+.alm-side .featured .date-row .date{font-family:"Cinzel",serif;font-size:42px;font-weight:900;color:var(--sumi-600);line-height:1;}
+.alm-side .featured .date-row .day{font-family:"Shippori Mincho",serif;font-size:15px;color:var(--neutral-500);letter-spacing:0.3em;}
+.alm-side .featured .name{font-family:"Yuji Boku",serif;font-size:30px;font-weight:400;color:var(--sumi-600);line-height:1.4;margin-top:8px;}
+.alm-side .featured .meta{font-size:14px;color:var(--neutral-700);margin-top:8px;}
+.alm-side .featured .lantern{font-size:20px;margin-right:6px;color:var(--orange-500);}
+.alm-side .featured .progress{margin-top:16px;}
+.alm-side .featured .progress .bar{height:6px;background:var(--cream-300);border-radius:3px;overflow:hidden;}
+.alm-side .featured .progress .bar .fill{height:100%;width:30%;background:linear-gradient(90deg,var(--orange-400),var(--orange-600));}
+.alm-side .featured .progress .label{display:flex;justify-content:space-between;font-family:"Cinzel",serif;font-size:12px;color:var(--neutral-500);margin-top:6px;letter-spacing:0.15em;}
+.alm-upcoming{display:flex;flex-direction:column;gap:0;}
+.alm-upcoming .item{display:grid;grid-template-columns:80px 1fr;gap:16px;padding:16px 0;border-bottom:1px dashed var(--sumi-300);}
+.alm-upcoming .item:last-child{border-bottom:none;}
+.alm-upcoming .item .date{font-family:"Cinzel",serif;font-weight:700;color:var(--sumi-600);}
+.alm-upcoming .item .date .big{font-size:32px;}
+.alm-upcoming .item .date .small{font-family:"Shippori Mincho",serif;font-size:14px;color:var(--neutral-500);letter-spacing:0.2em;display:block;margin-top:4px;}
+.alm-upcoming .item .info .name{font-family:"Shippori Mincho",serif;font-size:20px;font-weight:700;color:var(--sumi-600);}
+.alm-upcoming .item .info .place{font-size:13px;color:var(--neutral-500);margin-top:4px;}
+.alm-bottom{display:grid;grid-template-columns:1fr 1fr;background:var(--sumi-600);color:white;}
+.alm-bottom .blk{padding:48px;border-right:1px solid rgba(255,255,255,0.1);}
+.alm-bottom .blk:last-child{border-right:none;}
+.alm-bottom .blk-title{font-family:"Yuji Boku",serif;font-size:22px;letter-spacing:0.2em;color:var(--orange-400);padding-bottom:8px;border-bottom:2px solid white;margin-bottom:24px;font-weight:400;}
+.alm-app-row{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.1);}
+.alm-app-row:last-child{border-bottom:none;}
+.alm-app-row .name-block{display:flex;align-items:center;gap:12px;}
+.alm-app-row .avatar{width:40px;height:40px;border-radius:8px;background:linear-gradient(135deg,#fed7aa,#ea580c);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;}
+.alm-app-row .name{font-family:"Shippori Mincho",serif;font-size:20px;font-weight:700;}
+.alm-app-row .stars{color:var(--gold-400);font-size:14px;}
+.alm-app-row .rating{font-size:14px;color:var(--sumi-200);}
+.alm-app-row .gold{background:linear-gradient(135deg,var(--gold-400),var(--gold-500));color:white;padding:2px 8px;border-radius:9999px;font-size:10px;font-weight:700;letter-spacing:0;}
+.alm-app-row .action{font-family:"Yuji Boku",serif;color:var(--orange-400);font-size:18px;font-weight:400;border:none;background:none;cursor:pointer;letter-spacing:0.1em;}
+.alm-stats{display:flex;flex-direction:column;gap:0;}
+.alm-stats .item{display:flex;justify-content:space-between;align-items:baseline;padding:18px 0;border-bottom:1px solid rgba(255,255,255,0.1);}
+.alm-stats .item:last-child{border-bottom:none;}
+.alm-stats .item .label{font-family:"Shippori Mincho",serif;font-size:16px;color:var(--sumi-200);letter-spacing:0.15em;}
+.alm-stats .item .val{font-family:"Yuji Boku",serif;font-weight:400;color:white;font-size:42px;line-height:1;}
+.alm-stats .item .val .suf{font-family:"Shippori Mincho",serif;font-size:13px;font-weight:500;color:var(--sumi-200);margin-left:6px;}
+</style>
+</head>
+<body>
+
+<div class="canvas-list">
+
+<!-- ============ ① Editorial ============ -->
+<div class="frame-wrap">
+  <div class="frame-label">
+    <span class="badge">案 ①</span>
+    <span class="name serif">祭の一面 — Editorial Magazine</span>
+    <span class="desc">新聞・雑誌の一面メタファー / 主役1枚を巨大化 / セリフ系タイポ / 罫線で構造化</span>
+  </div>
+  <div class="frame">
+    <!-- TopNav -->
+    <div class="topnav">
+      <div class="logo"><div class="logo-dot"></div>Wacca</div>
+      <div class="menu">
+        <a href="#" class="active">ダッシュボード</a>
+        <a href="#">イベント</a>
+        <a href="#">出店者</a>
+        <a href="#">通知</a>
+      </div>
+      <div class="right">
+        <div class="bell">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="dot">3</span>
+        </div>
+        <div class="avatar">河</div>
+      </div>
+    </div>
+    <div class="edt">
+      <div class="edt-masthead">
+        <div class="date-block">
+          <div class="day">6.16</div>
+          <div class="meta">MON ・ 令和八年 五月廿日</div>
+        </div>
+        <div class="meta-right">
+          <div class="title">W A C C A 　D A I L Y</div>
+          <div class="vol">第 24 号 ・ 主催者編集部</div>
+        </div>
+      </div>
+      <div class="edt-issue-label">今 日 の 主 役 / TODAY'S HEADLINE</div>
+      <div class="edt-grid">
+        <div class="edt-feature">
+          <div class="kicker">M A R C H E ・ 7月 開催予定</div>
+          <h1 class="feature-title">沼津サマーマルシェ 2026、<br>あと28日。</h1>
+          <div class="feature-meta">2026年7月20日（土）10:00 - 17:00 ・ 沼津駅前広場</div>
+          <div class="feature-hero"></div>
+          <div class="lead">
+            <div class="countdown"><span class="num">28</span><span class="suf">日</span></div>
+            <div class="lead-text">
+              <div class="label">編集部より</div>
+              <p>梅雨明けと共に、いよいよ沼津駅前広場が賑わいの輪に包まれます。今年は出店枠を40に拡張、定員残り12枠。残された時間で、世界観の合う出店者を見つけませんか。</p>
+            </div>
+          </div>
+          <button class="feature-action">この特集を開く <span>→</span></button>
+        </div>
+        <div class="edt-sidebar">
+          <div>
+            <div class="col-title">編集後記</div>
+            <div class="col-body">
+              今週は新規申請が <strong>普段の2倍</strong> 来ています。<br>
+              特に <strong>Sweet Wagon</strong> さんは過去評価が高く、世界観もぴったり。早めの返事が次の縁を呼びます。
+              <div class="signature">— 編集部 河嶋</div>
+            </div>
+          </div>
+          <div>
+            <div class="col-title">今月の数字</div>
+            <div class="num-list">
+              <div class="num-row"><span class="label">進行中のお祭り</span><span class="val">3<span class="small">件</span></span></div>
+              <div class="num-row"><span class="label">今月の応募</span><span class="val">47<span class="small">件 ▲18%</span></span></div>
+              <div class="num-row"><span class="label">採用率</span><span class="val">82<span class="small">% ▲5pt</span></span></div>
+              <div class="num-row"><span class="label">あなたの評価</span><span class="val">★4.7<span class="small"> 12件</span></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="edt-secondary">
+        <div class="item">
+          <div class="kicker">P. 02 ・ 進行中</div>
+          <div class="img"></div>
+          <div class="title">三島夏祭り キッチンカーフェス</div>
+          <div class="meta">8月3日(日) – 5日(火) ・ 三島大社境内 ・ 募集中 3/15枠</div>
+        </div>
+        <div class="item">
+          <div class="kicker">P. 03 ・ 進行中</div>
+          <div class="img"></div>
+          <div class="title">Numazu Food Days 秋</div>
+          <div class="meta">10月12日(土) – 13日(日) ・ 千本浜公園 ・ 下書き 8/20枠</div>
+        </div>
+        <div class="item">
+          <div class="kicker">P. 04 ・ 来月予告</div>
+          <div class="img"></div>
+          <div class="title">冬の縁日 in 三島</div>
+          <div class="meta">12月13日(土) ・ 三島駅前 ・ 企画中</div>
+        </div>
+      </div>
+      <div class="edt-applications">
+        <div class="kicker">T O D A Y ' S 　A P P L I C A T I O N S</div>
+        <h2 class="title">今朝届いた応募 ─ 8 件</h2>
+        <div class="list">
+          <div class="row">
+            <div class="avatar">SW</div>
+            <div class="name-block"><div class="name">Sweet Wagon &nbsp; <span style="background:linear-gradient(135deg,#facc15,#eab308);color:white;padding:2px 8px;border-radius:9999px;font-size:11px;font-weight:700;font-family:'Noto Sans JP'">★ Gold</span></div><div class="tags">キッチンカー ・ デザート ・ アレルゲン表示あり</div></div>
+            <div class="rating"><div class="stars">★★★★★</div><div class="num">4.9 ・ 28件</div></div>
+            <button class="action">確認する →</button>
+          </div>
+          <div class="row">
+            <div class="avatar" style="background:linear-gradient(135deg,#ea580c,#7c2d12);">沼カ</div>
+            <div class="name-block"><div class="name">沼津カレー食堂</div><div class="tags">キッチンカー ・ 主食 ・ 火気使用あり</div></div>
+            <div class="rating"><div class="stars">★★★★☆</div><div class="num">4.2 ・ 15件</div></div>
+            <button class="action">確認する →</button>
+          </div>
+          <div class="row">
+            <div class="avatar" style="background:linear-gradient(135deg,#86efac,#15803d);">風土</div>
+            <div class="name-block"><div class="name">風土クラフト</div><div class="tags">テント ・ 雑貨 ・ ハンドメイド</div></div>
+            <div class="rating"><div class="stars">★★★★★</div><div class="num">4.7 ・ 9件</div></div>
+            <button class="action">確認する →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ② Personal Greeting ============ -->
+<div class="frame-wrap">
+  <div class="frame-label">
+    <span class="badge">案 ②</span>
+    <span class="name">朝の挨拶 — Personal Greeting</span>
+    <span class="desc">語りかけ起点 / 大きな余白 / 数字は本文に埋め込み / 1つのCTA / リスト中心</span>
+  </div>
+  <div class="frame">
+    <div class="topnav">
+      <div class="logo"><div class="logo-dot"></div>Wacca</div>
+      <div class="menu">
+        <a href="#" class="active">ホーム</a>
+        <a href="#">イベント</a>
+        <a href="#">応募</a>
+        <a href="#">出店者</a>
+      </div>
+      <div class="right">
+        <div class="bell">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="dot">3</span>
+        </div>
+        <div class="avatar">河</div>
+      </div>
+    </div>
+    <div class="psl">
+      <div class="greet-block">
+        <div class="time">2026.06.16 月曜日 ・ 朝 9:42</div>
+        <h1 class="hello">河嶋さん、<br>おはようございます。</h1>
+        <p class="body-msg">
+          今日は新規申請が <span class="num">8件</span> 来ています。<br>
+          そのうち2人は、お店の世界観が <span class="num">沼津サマーマルシェ</span> と<br>
+          ぴったり合いそうです。まずは、見てみますか？
+        </p>
+        <div class="cta-block">
+          <button class="cta-primary">8件の応募を確認する <span>→</span></button>
+          <button class="cta-secondary">あとで まとめて見る</button>
+        </div>
+      </div>
+    </div>
+    <div class="psl-divider"></div>
+    <div class="psl-list">
+      <div class="section-title">─ 進行中のお祭り</div>
+      <div class="row">
+        <div class="dot"></div>
+        <div>
+          <div class="name">沼津サマーマルシェ 2026</div>
+          <div class="meta">7月20日（土） ・ 沼津駅前広場 ・ 残 12 / 40 枠</div>
+        </div>
+        <div class="countdown">あと 28日</div>
+        <div class="status">募集中</div>
+      </div>
+      <div class="row">
+        <div class="dot"></div>
+        <div>
+          <div class="name">三島夏祭り キッチンカーフェス</div>
+          <div class="meta">8月3日（日）〜5日（火） ・ 三島大社境内 ・ 残 3 / 15 枠</div>
+        </div>
+        <div class="countdown">あと 42日</div>
+        <div class="status">募集中</div>
+      </div>
+      <div class="row">
+        <div class="dot draft"></div>
+        <div>
+          <div class="name">Numazu Food Days 秋</div>
+          <div class="meta">10月12日〜13日 ・ 千本浜公園 ・ 8 / 20 枠</div>
+        </div>
+        <div class="countdown">公開前</div>
+        <div class="status draft">下書き</div>
+      </div>
+    </div>
+    <div class="psl-divider"></div>
+    <div class="psl-secondary">
+      <div class="section-title" style="font-size:14px;letter-spacing:0.3em;color:var(--neutral-500);font-weight:700;margin-bottom:32px;">─ 今朝届いた応募</div>
+      <div class="row">
+        <div class="av">SW</div>
+        <div class="info">
+          <div class="name">Sweet Wagon <span class="star">★ Gold</span></div>
+          <div class="meta">キッチンカー ・ デザート ・ アレルゲン表示あり</div>
+        </div>
+        <div class="review">★★★★★ 4.9（28件）</div>
+      </div>
+      <div class="row">
+        <div class="av" style="background:linear-gradient(135deg,#ea580c,#7c2d12);">沼カ</div>
+        <div class="info">
+          <div class="name">沼津カレー食堂</div>
+          <div class="meta">キッチンカー ・ 主食 ・ 火気使用あり</div>
+        </div>
+        <div class="review">★★★★☆ 4.2（15件）</div>
+      </div>
+      <div class="row">
+        <div class="av" style="background:linear-gradient(135deg,#86efac,#15803d);">風土</div>
+        <div class="info">
+          <div class="name">風土クラフト</div>
+          <div class="meta">テント ・ 雑貨 ・ ハンドメイド</div>
+        </div>
+        <div class="review">★★★★★ 4.7（9件）</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ③ Almanac ============ -->
+<div class="frame-wrap">
+  <div class="frame-label">
+    <span class="badge">案 ③</span>
+    <span class="name serif">お祭り暦 — Almanac</span>
+    <span class="desc">暦・歳時記の系譜 / カレンダー主役 / 旧暦・和暦 / 縦書きと罫線</span>
+  </div>
+  <div class="frame">
+    <div class="topnav">
+      <div class="logo"><div class="logo-dot"></div>Wacca</div>
+      <div class="menu">
+        <a href="#" class="active">暦（こよみ）</a>
+        <a href="#">出店者帳</a>
+        <a href="#">届け書類</a>
+        <a href="#">便り</a>
+      </div>
+      <div class="right">
+        <div class="bell">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="dot">3</span>
+        </div>
+        <div class="avatar">河</div>
+      </div>
+    </div>
+    <div class="alm">
+      <div class="alm-header">
+        <div class="reign">令 和 八 年</div>
+        <div class="month-title">六月</div>
+        <div class="month-en">水無月（みなづき） ・ JUNE 2026</div>
+      </div>
+      <div class="alm-body">
+        <div class="alm-calendar">
+          <div class="alm-cal-grid">
+            <div class="head sun">日</div>
+            <div class="head">月</div>
+            <div class="head">火</div>
+            <div class="head">水</div>
+            <div class="head">木</div>
+            <div class="head">金</div>
+            <div class="head sat">土</div>
+
+            <div class="day muted">31</div>
+            <div class="day">1</div>
+            <div class="day">2</div>
+            <div class="day">3</div>
+            <div class="day">4</div>
+            <div class="day">5</div>
+            <div class="day">6</div>
+
+            <div class="day">7</div>
+            <div class="day">8</div>
+            <div class="day">9</div>
+            <div class="day">10</div>
+            <div class="day">11</div>
+            <div class="day">12</div>
+            <div class="day">13</div>
+
+            <div class="day">14</div>
+            <div class="day">15</div>
+            <div class="day today">16<div class="pin">今日 ・ 応募 8件</div></div>
+            <div class="day">17</div>
+            <div class="day">18</div>
+            <div class="day">19</div>
+            <div class="day">20</div>
+
+            <div class="day">21</div>
+            <div class="day">22</div>
+            <div class="day">23</div>
+            <div class="day has-event">24<div class="pin">仕込み開始</div></div>
+            <div class="day">25</div>
+            <div class="day">26</div>
+            <div class="day">27</div>
+
+            <div class="day">28</div>
+            <div class="day">29</div>
+            <div class="day">30</div>
+            <div class="day muted">1</div>
+            <div class="day muted">2</div>
+            <div class="day muted">3</div>
+            <div class="day muted fest">4<div class="pin">出店者集合</div></div>
+          </div>
+        </div>
+        <div class="alm-side">
+          <div>
+            <div class="blk-title">主役のお祭り ・ 来月</div>
+            <div class="featured">
+              <div class="date-row"><span class="date">7.20</span><span class="day">土 ・ 友引</span></div>
+              <div class="name"><span class="lantern">🏮</span>沼津サマーマルシェ 2026</div>
+              <div class="meta">沼津駅前広場 ・ 10:00 - 17:00<br>あと 28 日 ・ 出店者募集中</div>
+              <div class="progress">
+                <div class="bar"><div class="fill"></div></div>
+                <div class="label"><span>残り 28 枠</span><span>12 / 40 採用</span></div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="blk-title">続くお祭り</div>
+            <div class="alm-upcoming">
+              <div class="item">
+                <div class="date"><span class="big">8.3</span><span class="small">日</span></div>
+                <div class="info"><div class="name">三島夏祭り キッチンカーフェス</div><div class="place">三島大社境内 ・ 3日間</div></div>
+              </div>
+              <div class="item">
+                <div class="date"><span class="big">10.12</span><span class="small">土</span></div>
+                <div class="info"><div class="name">Numazu Food Days 秋</div><div class="place">千本浜公園 ・ 2日間</div></div>
+              </div>
+              <div class="item">
+                <div class="date"><span class="big">12.13</span><span class="small">土</span></div>
+                <div class="info"><div class="name">冬の縁日 in 三島</div><div class="place">三島駅前 ・ 企画中</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="alm-bottom">
+        <div class="blk">
+          <div class="blk-title">今朝の応募 ・ 八件</div>
+          <div class="alm-app-row">
+            <div class="name-block"><div class="avatar">SW</div><div><div class="name">Sweet Wagon &nbsp;<span class="gold">★ Gold</span></div><div class="rating"><span class="stars">★★★★★</span> 4.9 ・ 28件</div></div></div>
+            <button class="action">確かめる →</button>
+          </div>
+          <div class="alm-app-row">
+            <div class="name-block"><div class="avatar" style="background:linear-gradient(135deg,#ea580c,#7c2d12);">沼カ</div><div><div class="name">沼津カレー食堂</div><div class="rating"><span class="stars">★★★★☆</span> 4.2 ・ 15件</div></div></div>
+            <button class="action">確かめる →</button>
+          </div>
+          <div class="alm-app-row">
+            <div class="name-block"><div class="avatar" style="background:linear-gradient(135deg,#86efac,#15803d);">風土</div><div><div class="name">風土クラフト</div><div class="rating"><span class="stars">★★★★★</span> 4.7 ・ 9件</div></div></div>
+            <button class="action">確かめる →</button>
+          </div>
+        </div>
+        <div class="blk">
+          <div class="blk-title">今月のあなた</div>
+          <div class="alm-stats">
+            <div class="item"><span class="label">進行中の祭</span><span class="val">参 <span class="suf">件</span></span></div>
+            <div class="item"><span class="label">今月の応募</span><span class="val">四十七<span class="suf">件 ・前月比+18%</span></span></div>
+            <div class="item"><span class="label">採用率</span><span class="val">八割二分<span class="suf">・前月比+5pt</span></span></div>
+            <div class="item"><span class="label">評価</span><span class="val">★ 4.7<span class="suf"> 12件中</span></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+</body>
+</html>
