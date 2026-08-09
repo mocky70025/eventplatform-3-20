@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/Button";
 import { ImageCropDialog } from "@/components/ui/ImageCropDialog";
-import { Loader2, Check, X, AlertCircle, Sparkles, Camera, Search } from "lucide-react";
+import { Loader2, Camera, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
@@ -53,27 +53,6 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
     const [showErrors, setShowErrors] = useState(false);
     const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
     const [isSearchingZip, setIsSearchingZip] = useState(false);
-
-    const [files, setFiles] = useState<{ [key: string]: File | null }>({
-        businessLicense: null,
-        vehicleInspection: null,
-        plInsurance: null,
-        fireLayout: null,
-    });
-
-    const [previews, setPreviews] = useState<{ [key: string]: string }>({
-        businessLicense: initialProfile?.business_license_image_url || "",
-        vehicleInspection: initialProfile?.vehicle_inspection_image_url || "",
-        plInsurance: initialProfile?.pl_insurance_image_url || "",
-        fireLayout: initialProfile?.fire_equipment_layout_image_url || "",
-    });
-
-    const [aiResults, setAiResults] = useState<{ [key: string]: { status: 'idle' | 'verifying' | 'success' | 'error', message?: string, data?: any } }>({
-        businessLicense: { status: 'idle' },
-        vehicleInspection: { status: 'idle' },
-        plInsurance: { status: 'idle' },
-        fireLayout: { status: 'idle' },
-    });
 
     const validateField = (name: string, value: string): string | null => {
         switch (name) {
@@ -240,84 +219,6 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
         }
     };
 
-    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-    const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
-
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement> | null, key: string) => {
-        if (e && e.target.files && e.target.files[0]) {
-            const file = e.target.files[0];
-
-            if (file.size > MAX_FILE_SIZE) {
-                setError("ファイルサイズが大きすぎます（最大10MB）");
-                e.target.value = '';
-                return;
-            }
-
-            if (!ALLOWED_TYPES.includes(file.type)) {
-                setError("対応していないファイル形式です（JPEG, PNG, GIF, WebP, PDFのみ）");
-                e.target.value = '';
-                return;
-            }
-
-            setError("");
-            setFiles(prev => ({ ...prev, [key]: file }));
-
-            const reader = new FileReader();
-            reader.onloadend = async () => {
-                const result = reader.result as string;
-                setPreviews(prev => ({ ...prev, [key]: result }));
-
-                setAiResults(prev => ({ ...prev, [key]: { status: 'verifying' } }));
-                try {
-                    const response = await fetch('/api/verify-document', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ image: result, type: key })
-                    });
-                    const data = await response.json();
-                    if (data.success) {
-                        setAiResults(prev => ({ ...prev, [key]: { status: 'success', message: data.message, data: data.extractedData } }));
-                    } else {
-                        setAiResults(prev => ({ ...prev, [key]: { status: 'error', message: data.message } }));
-                    }
-                } catch (err) {
-                    setAiResults(prev => ({ ...prev, [key]: { status: 'error', message: 'AIチェックに失敗しました' } }));
-                }
-            };
-            reader.readAsDataURL(file);
-        } else if (e === null) {
-            setFiles(prev => ({ ...prev, [key]: null }));
-            setPreviews(prev => ({ ...prev, [key]: "" }));
-            setAiResults(prev => ({ ...prev, [key]: { status: 'idle' } }));
-        }
-    };
-
-    const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf'];
-
-    const uploadFiles = async (userId: string) => {
-        const updatedUrls: { [key: string]: string } = {};
-
-        for (const [key, file] of Object.entries(files)) {
-            if (file) {
-                const fileExt = (file.name.split('.').pop() || '').toLowerCase();
-                if (!ALLOWED_EXTENSIONS.includes(fileExt)) {
-                    throw new Error(`${key}: 対応していないファイル形式です（${ALLOWED_EXTENSIONS.join(', ')}のみ）`);
-                }
-                const fileName = `${userId}/${key}_${crypto.randomUUID()}.${fileExt}`;
-
-                const { error: uploadError } = await supabase.storage
-                    .from('exhibitor-documents')
-                    .upload(fileName, file);
-
-                if (uploadError) throw uploadError;
-
-                // Store file path (not public URL) for use with signed URLs
-                updatedUrls[key] = fileName;
-            }
-        }
-        return updatedUrls;
-    };
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -345,8 +246,6 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error("セッションがありません");
 
-            const uploadedUrls = await uploadFiles(user.id);
-
             // Validate input lengths
             if (formData.storeName.length > 200) throw new Error("店舗名は200文字以内で入力してください");
             if (formData.repName.length > 100) throw new Error("代表者名は100文字以内で入力してください");
@@ -367,11 +266,6 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
                 business_styles: formData.styles,
             };
 
-            if (uploadedUrls.businessLicense) updateData.business_license_image_url = uploadedUrls.businessLicense;
-            if (uploadedUrls.vehicleInspection) updateData.vehicle_inspection_image_url = uploadedUrls.vehicleInspection;
-            if (uploadedUrls.plInsurance) updateData.pl_insurance_image_url = uploadedUrls.plInsurance;
-            if (uploadedUrls.fireLayout) updateData.fire_equipment_layout_image_url = uploadedUrls.fireLayout;
-
             const { error: updateError } = await supabase
                 .from("exhibitors")
                 .update(updateData)
@@ -379,7 +273,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
 
             if (updateError) throw updateError;
 
-            setSuccess("プロフィールと書類を更新しました");
+            setSuccess("プロフィールを更新しました");
             router.refresh();
         } catch (err: any) {
             setError(err.message || "更新に失敗しました");

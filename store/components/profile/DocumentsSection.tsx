@@ -1,28 +1,28 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { Loader2, Check, AlertTriangle, Plus, Info, Eye, RefreshCw, Upload } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Loader2, Info } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { DocumentUploadField } from "@/components/ui/DocumentUploadField";
+import {
+    EXHIBITOR_DOCUMENTS,
+    validateDocumentFile,
+    isPdfLike,
+    type ExhibitorDocDef,
+} from "@/lib/exhibitorDocuments";
 import { createClient } from "@/lib/supabase/client";
+import { signExhibitorDocumentUrl, signExhibitorDocumentUrls } from "@/lib/supabase/documents";
 import { useRouter } from "next/navigation";
-
-const documentTypes = [
-    { key: "businessPermit", dbKey: "business_permit_image_url", expiryDbKey: "business_permit_expiry", label: "営業許可証", required: true },
-    { key: "businessLicense", dbKey: "business_license_image_url", expiryDbKey: "business_license_expiry", label: "食品衛生責任者証", required: false },
-    { key: "plInsurance", dbKey: "pl_insurance_image_url", expiryDbKey: "pl_insurance_expiry", label: "PL保険証書", required: false },
-    { key: "vehicleInspection", dbKey: "vehicle_inspection_image_url", expiryDbKey: "vehicle_inspection_expiry", label: "車検証", required: false, desc: "キッチンカーの車検証をアップロードしてください" },
-    { key: "fireManager", dbKey: "fire_equipment_layout_image_url", expiryDbKey: "fire_manager_expiry", label: "火器類配置図", required: false, desc: "火気を使用する場合に必要です" },
-];
 
 interface DocumentsSectionProps {
     initialProfile: any;
 }
 
-function getDocStatus(profile: any, doc: typeof documentTypes[0]): { status: "verified" | "expiring" | "none"; expiryDate?: string; daysLeft?: number } {
-    const url = profile?.[doc.dbKey];
+function getDocStatus(profile: any, doc: ExhibitorDocDef): { status: "verified" | "expiring" | "none"; expiryDate?: string; daysLeft?: number } {
+    const url = profile?.[doc.urlCol];
     if (!url) return { status: "none" };
 
-    const expiry = profile?.[doc.expiryDbKey];
+    const expiry = doc.expiryCol ? profile?.[doc.expiryCol] : null;
     if (expiry) {
         const expiryDate = new Date(expiry);
         const now = new Date();
@@ -42,48 +42,62 @@ export function DocumentsSection({ initialProfile }: DocumentsSectionProps) {
     const [isViewing, setIsViewing] = useState<string | null>(null);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
-    const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
+    const [previewUrls, setPreviewUrls] = useState<Record<string, string>>({});
+    const [previewsLoading, setPreviewsLoading] = useState(true);
 
-    const handleView = async (docKey: string, dbKey: string) => {
-        const path = initialProfile?.[dbKey];
+    // Stored documents live in a private bucket, so thumbnails need signed URLs.
+    // Sign every registered document in one request rather than one per card.
+    useEffect(() => {
+        let cancelled = false;
+        const registered = EXHIBITOR_DOCUMENTS.filter((d) => initialProfile?.[d.urlCol]);
+        if (registered.length === 0) {
+            setPreviewsLoading(false);
+            return;
+        }
+        (async () => {
+            const urls = await signExhibitorDocumentUrls(
+                supabase,
+                registered.map((d) => initialProfile[d.urlCol])
+            );
+            if (cancelled) return;
+            const next: Record<string, string> = {};
+            registered.forEach((d, i) => {
+                const u = urls[i];
+                if (u) next[d.key] = u;
+            });
+            setPreviewUrls(next);
+            setPreviewsLoading(false);
+        })();
+        return () => { cancelled = true; };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [initialProfile]);
+
+    const handleView = async (docKey: string, urlCol: string) => {
+        const path = initialProfile?.[urlCol];
         if (!path) return;
 
         setIsViewing(docKey);
         setError("");
 
         try {
-            let url: string;
-            if (path.startsWith("http://") || path.startsWith("https://")) {
-                url = path;
-            } else {
-                const { data, error: signError } = await supabase.storage
-                    .from("exhibitor-documents")
-                    .createSignedUrl(path, 3600);
-                if (signError) throw signError;
-                url = data.signedUrl;
-            }
+            const url = await signExhibitorDocumentUrl(supabase, path);
+            if (!url) throw new Error("signing failed");
             window.open(url, "_blank", "noopener,noreferrer");
-        } catch (err: any) {
+        } catch {
             setError("書類の表示に失敗しました");
         } finally {
             setIsViewing(null);
         }
     };
 
-    const MAX_FILE_SIZE = 10 * 1024 * 1024;
-    const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp", "application/pdf"];
-
-    const handleUpload = async (file: File, docKey: string, dbKey: string) => {
-        if (file.size > MAX_FILE_SIZE) {
-            setError("ファイルサイズが大きすぎます（最大10MB）");
-            return;
-        }
-        if (!ALLOWED_TYPES.includes(file.type)) {
-            setError("対応していないファイル形式です（JPEG, PNG, GIF, WebP, PDFのみ）");
+    const handleUpload = async (file: File, doc: ExhibitorDocDef) => {
+        const validationError = validateDocumentFile(file);
+        if (validationError) {
+            setError(validationError);
             return;
         }
 
-        setIsUploading(docKey);
+        setIsUploading(doc.key);
         setError("");
         setSuccess("");
 
@@ -92,7 +106,7 @@ export function DocumentsSection({ initialProfile }: DocumentsSectionProps) {
             if (!user) throw new Error("セッションがありません");
 
             const fileExt = (file.name.split(".").pop() || "").toLowerCase();
-            const filePath = `${user.id}/${docKey}_${crypto.randomUUID()}.${fileExt}`;
+            const filePath = `${user.id}/${doc.key}_${crypto.randomUUID()}.${fileExt}`;
 
             const { error: uploadError } = await supabase.storage
                 .from("exhibitor-documents")
@@ -101,7 +115,7 @@ export function DocumentsSection({ initialProfile }: DocumentsSectionProps) {
 
             const { error: updateError } = await supabase
                 .from("exhibitors")
-                .update({ [dbKey]: filePath })
+                .update({ [doc.urlCol]: filePath })
                 .eq("user_id", user.id);
             if (updateError) throw updateError;
 
@@ -111,13 +125,6 @@ export function DocumentsSection({ initialProfile }: DocumentsSectionProps) {
             setError(err.message || "アップロードに失敗しました");
         } finally {
             setIsUploading(null);
-        }
-    };
-
-    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>, docKey: string, dbKey: string) => {
-        if (e.target.files && e.target.files[0]) {
-            handleUpload(e.target.files[0], docKey, dbKey);
-            e.target.value = "";
         }
     };
 
@@ -150,116 +157,77 @@ export function DocumentsSection({ initialProfile }: DocumentsSectionProps) {
                     <h3 className="text-base font-bold text-slate-900">登録書類</h3>
                 </div>
 
-                <div className="divide-y divide-slate-100">
-                    {documentTypes.map(doc => {
+                <div className="space-y-5">
+                    {EXHIBITOR_DOCUMENTS.map((doc) => {
                         const { status, expiryDate, daysLeft } = getDocStatus(initialProfile, doc);
-                        const isLoading = isUploading === doc.key;
+                        const registered = status !== "none";
+                        const storedPath: string | undefined = initialProfile?.[doc.urlCol];
 
                         return (
-                            <div
+                            <DocumentUploadField
                                 key={doc.key}
-                                className={`flex items-center justify-between py-4 first:pt-0 last:pb-0 ${
-                                    status === "expiring" ? "bg-amber-50/50 -mx-3 px-3 rounded-lg" : ""
-                                }`}
-                            >
-                                <div className="flex items-center gap-3">
-                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                                        status === "verified" ? "bg-store-50" :
-                                        status === "expiring" ? "bg-amber-50" :
-                                        "bg-slate-50"
-                                    }`}>
-                                        {status === "verified" && <Check className="w-5 h-5 text-store-500" />}
-                                        {status === "expiring" && <AlertTriangle className="w-5 h-5 text-amber-500" />}
-                                        {status === "none" && <Plus className="w-5 h-5 text-slate-300" />}
-                                    </div>
-                                    <div>
-                                        <div className="flex items-center gap-2">
-                                            <p className={`text-sm font-medium ${
-                                                status === "expiring" ? "text-amber-700" : "text-slate-900"
-                                            }`}>{doc.label}</p>
-                                            {status === "verified" && (
-                                                <span className="h-5 inline-flex items-center justify-center px-2 rounded-full bg-store-50 text-store-700 text-xs font-medium" style={{ lineHeight: 1 }}>
-                                                    確認済み
-                                                </span>
-                                            )}
-                                            {status === "expiring" && (
-                                                <span className="h-5 inline-flex items-center justify-center px-2 rounded-full bg-amber-100 text-amber-700 text-xs font-medium" style={{ lineHeight: 1 }}>
-                                                    期限間近
-                                                </span>
-                                            )}
-                                            {status === "none" && !doc.required && (
-                                                <span className="text-xs text-slate-500">（任意）</span>
-                                            )}
-                                        </div>
-                                        {status !== "none" && expiryDate && (
-                                            <p className={`text-xs mt-0.5 ${
-                                                status === "expiring"
-                                                    ? "text-amber-600 font-medium"
-                                                    : "text-slate-500"
-                                            }`}>
-                                                有効期限: {formatDate(expiryDate)}
-                                                {status === "expiring" && daysLeft !== undefined && ` (残り${daysLeft}日)`}
-                                            </p>
-                                        )}
-                                        {status === "none" && doc.desc && (
-                                            <p className="text-xs text-slate-500 mt-0.5">{doc.desc}</p>
-                                        )}
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center gap-2">
-                                    <input
-                                        ref={el => { fileInputRefs.current[doc.key] = el; }}
-                                        type="file"
-                                        accept="image/*,.pdf"
-                                        className="hidden"
-                                        onChange={(e) => handleFileSelect(e, doc.key, doc.dbKey)}
-                                    />
-                                    {isLoading ? (
-                                        <div className="flex items-center gap-1.5 text-sm text-slate-500">
-                                            <Loader2 className="w-4 h-4 animate-spin" />
-                                            アップロード中...
-                                        </div>
-                                    ) : status !== "none" ? (
+                                label={doc.label}
+                                required={doc.required}
+                                desc={!registered ? doc.desc : undefined}
+                                size={doc.required ? "default" : "compact"}
+                                filled={registered}
+                                previewUrl={previewUrls[doc.key] || null}
+                                previewLoading={registered && previewsLoading}
+                                isPdf={isPdfLike(storedPath)}
+                                uploading={isUploading === doc.key}
+                                onSelect={(file) => handleUpload(file, doc)}
+                                statusBadge={
+                                    status === "verified" ? (
+                                        <span className="h-5 inline-flex items-center justify-center px-2 rounded-full bg-store-50 text-store-700 text-xs font-medium" style={{ lineHeight: 1 }}>
+                                            確認済み
+                                        </span>
+                                    ) : status === "expiring" ? (
+                                        <span className="h-5 inline-flex items-center justify-center px-2 rounded-full bg-amber-100 text-amber-700 text-xs font-medium" style={{ lineHeight: 1 }}>
+                                            期限間近
+                                        </span>
+                                    ) : null
+                                }
+                                expiryText={
+                                    registered && expiryDate
+                                        ? `有効期限: ${formatDate(expiryDate)}${status === "expiring" && daysLeft !== undefined ? ` (残り${daysLeft}日)` : ""}`
+                                        : null
+                                }
+                                expiryTone={status === "expiring" ? "warning" : "normal"}
+                                actions={
+                                    registered ? (
                                         <>
                                             <Button
                                                 variant="ghost"
                                                 type="button"
-                                                onClick={() => handleView(doc.key, doc.dbKey)}
+                                                onClick={() => handleView(doc.key, doc.urlCol)}
                                                 disabled={isViewing === doc.key}
                                                 className="text-sm text-slate-600 border border-slate-200 rounded-lg px-3 py-1.5 h-auto"
                                             >
-                                                {isViewing === doc.key ? (
-                                                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                                ) : (
-                                                    "表示"
-                                                )}
+                                                {isViewing === doc.key ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "表示"}
                                             </Button>
-                                            <Button
-                                                variant="outline"
-                                                type="button"
-                                                onClick={() => fileInputRefs.current[doc.key]?.click()}
-                                                className={`text-sm rounded-lg px-3 py-1.5 h-auto ${
+                                            <label
+                                                className={`cursor-pointer text-sm rounded-lg px-3 py-1.5 border inline-flex items-center ${
                                                     status === "expiring"
                                                         ? "bg-amber-500 hover:bg-amber-600 text-white border-amber-500"
                                                         : "border-slate-200 text-slate-700 hover:bg-slate-50"
                                                 }`}
                                             >
                                                 更新
-                                            </Button>
+                                                <input
+                                                    type="file"
+                                                    accept="image/*,.pdf"
+                                                    className="hidden"
+                                                    onChange={(e) => {
+                                                        const f = e.target.files?.[0];
+                                                        e.target.value = "";
+                                                        if (f) handleUpload(f, doc);
+                                                    }}
+                                                />
+                                            </label>
                                         </>
-                                    ) : (
-                                        <Button
-                                            variant="outline"
-                                            type="button"
-                                            onClick={() => fileInputRefs.current[doc.key]?.click()}
-                                            className="text-sm text-store-600 border-store-200 hover:bg-store-50 rounded-lg px-3 py-1.5 h-auto"
-                                        >
-                                            アップロード
-                                        </Button>
-                                    )}
-                                </div>
-                            </div>
+                                    ) : null
+                                }
+                            />
                         );
                     })}
                 </div>

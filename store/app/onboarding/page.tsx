@@ -2,10 +2,15 @@
 
 import { useState, useEffect } from "react";
 import { LogoMark } from "@/components/LogoMark";
-import { Store, User, Phone, Mail, Globe, MapPin, Loader2, FileText, ChevronDown, Check } from "lucide-react";
+import { Store, User, Phone, Mail, Globe, MapPin, Loader2, ChevronDown, Check } from "lucide-react";
 import { LegalModal } from "@/components/LegalModal";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { DocumentUploadField } from "@/components/ui/DocumentUploadField";
+import { EXHIBITOR_DOCUMENTS, validateDocumentFile, isPdfLike } from "@/lib/exhibitorDocuments";
+
+const PERMIT_DOC = EXHIBITOR_DOCUMENTS.find((d) => d.required)!;
+const OPTIONAL_DOC_DEFS = EXHIBITOR_DOCUMENTS.filter((d) => !d.required);
 
 const PREFECTURES = [
     "北海道", "青森県", "岩手県", "宮城県", "秋田県", "山形県", "福島県",
@@ -16,13 +21,6 @@ const PREFECTURES = [
     "鳥取県", "島根県", "岡山県", "広島県", "山口県",
     "徳島県", "香川県", "愛媛県", "高知県",
     "福岡県", "佐賀県", "長崎県", "熊本県", "大分県", "宮崎県", "鹿児島県", "沖縄県",
-];
-
-const OPTIONAL_DOCS: { key: string; label: string; col: string }[] = [
-    { key: "foodSafety", label: "食品衛生責任者証", col: "business_license_image_url" },
-    { key: "plInsurance", label: "PL保険証書", col: "pl_insurance_image_url" },
-    { key: "vehicleInspection", label: "車検証", col: "vehicle_inspection_image_url" },
-    { key: "fireEquipment", label: "火器類配置図", col: "fire_equipment_layout_image_url" },
 ];
 
 export default function OnboardingPage() {
@@ -134,57 +132,49 @@ export default function OnboardingPage() {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const MAX_FILE_SIZE = 10 * 1024 * 1024;
-    const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
-    const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf'];
-
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            const file = e.target.files[0];
-
-            if (file.size > MAX_FILE_SIZE) {
-                setError("ファイルサイズが大きすぎます（最大10MB）");
-                e.target.value = '';
-                return;
-            }
-
-            if (!ALLOWED_TYPES.includes(file.type)) {
-                setError("対応していないファイル形式です（JPEG, PNG, GIF, WebP, PDFのみ）");
-                e.target.value = '';
-                return;
-            }
-
-            setError("");
-            setLicenseFile(file);
-
-            const reader = new FileReader();
-            reader.onloadend = async () => {
-                const result = reader.result as string;
-                setLicensePreview(result);
-
-                setAiResult({ status: "verifying" });
-                try {
-                    const response = await fetch("/api/verify-document", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ image: result, type: "businessLicense" }),
-                    });
-                    if (!response.ok) {
-                        setAiResult({ status: "idle" });
-                        return;
-                    }
-                    const data = await response.json();
-                    if (data.success) {
-                        setAiResult({ status: "success", message: data.message });
-                    } else {
-                        setAiResult({ status: "idle", message: data.message });
-                    }
-                } catch {
-                    setAiResult({ status: "idle" });
-                }
-            };
-            reader.readAsDataURL(file);
+    const handleLicenseFile = (file: File) => {
+        const validationError = validateDocumentFile(file);
+        if (validationError) {
+            setError(validationError);
+            return;
         }
+
+        setError("");
+        setLicenseFile(file);
+
+        const reader = new FileReader();
+        reader.onloadend = async () => {
+            const result = reader.result as string;
+            setLicensePreview(result);
+
+            // The reader API only handles images; sending a PDF data URL fails silently.
+            if (isPdfLike(file.type)) {
+                setAiResult({ status: "idle" });
+                return;
+            }
+
+            setAiResult({ status: "verifying" });
+            try {
+                const response = await fetch("/api/verify-document", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ image: result, type: PERMIT_DOC.ai?.type }),
+                });
+                if (!response.ok) {
+                    setAiResult({ status: "idle" });
+                    return;
+                }
+                const data = await response.json();
+                if (data.success) {
+                    setAiResult({ status: "success", message: data.message });
+                } else {
+                    setAiResult({ status: "idle", message: data.message });
+                }
+            } catch {
+                setAiResult({ status: "idle" });
+            }
+        };
+        reader.readAsDataURL(file);
     };
 
     const removeFile = () => {
@@ -195,9 +185,9 @@ export default function OnboardingPage() {
 
     const handleOptionalFile = (key: string, file: File | null) => {
         if (!file) return;
-        const ext = (file.name.split(".").pop() || "").toLowerCase();
-        if (!['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf'].includes(ext)) {
-            setError("対応していないファイル形式です");
+        const validationError = validateDocumentFile(file);
+        if (validationError) {
+            setError(validationError);
             return;
         }
         setError("");
@@ -249,28 +239,25 @@ export default function OnboardingPage() {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error("ログインしていません。サインアップ後、自動的にログインされているはずですが、セッションが見つかりません。");
 
+            // Every file here already passed validateDocumentFile() at selection time.
+            const uploadDoc = async (doc: typeof PERMIT_DOC, file: File) => {
+                const ext = (file.name.split(".").pop() || "").toLowerCase();
+                const path = `${user.id}/${doc.key}_${crypto.randomUUID()}.${ext}`;
+                const { error: upErr } = await supabase.storage.from("exhibitor-documents").upload(path, file);
+                if (upErr) throw new Error(`${doc.label}のアップロードに失敗しました`);
+                return path;
+            };
+
             let licenseUrl: string | null = null;
             if (licenseFile) {
-                const fileExt = (licenseFile.name.split(".").pop() || '').toLowerCase();
-                if (!ALLOWED_EXTENSIONS.includes(fileExt)) {
-                    throw new Error("対応していないファイル形式です");
-                }
-                const filePath = `${user.id}/businessLicense_${crypto.randomUUID()}.${fileExt}`;
-                const { error: uploadError } = await supabase.storage.from("exhibitor-documents").upload(filePath, licenseFile);
-                if (uploadError) throw new Error("営業許可証のアップロードに失敗しました");
-                licenseUrl = filePath;
+                licenseUrl = await uploadDoc(PERMIT_DOC, licenseFile);
             }
 
             const extraDocCols: Record<string, string> = {};
-            for (const doc of OPTIONAL_DOCS) {
+            for (const doc of OPTIONAL_DOC_DEFS) {
                 const f = optionalFiles[doc.key];
                 if (!f) continue;
-                const ext = (f.name.split(".").pop() || "").toLowerCase();
-                if (!ALLOWED_EXTENSIONS.includes(ext)) continue;
-                const p = `${user.id}/${doc.key}_${crypto.randomUUID()}.${ext}`;
-                const { error: upErr } = await supabase.storage.from("exhibitor-documents").upload(p, f);
-                if (upErr) throw new Error(`${doc.label}のアップロードに失敗しました`);
-                extraDocCols[doc.col] = p;
+                extraDocCols[doc.urlCol] = await uploadDoc(doc, f);
             }
 
             const { error: insertError } = await supabase.from("exhibitors").insert({
@@ -511,110 +498,35 @@ export default function OnboardingPage() {
                         </div>
 
                         {/* 営業許可証 */}
-                        <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                                <span className="flex items-center gap-1.5">
-                                    <FileText className="h-4 w-4 text-slate-500" />
-                                    営業許可証
-                                </span>
-                            </label>
-
-                            {licensePreview ? (
-                                <div className="rounded-xl border border-slate-200 p-4">
-                                    <div className="flex items-start justify-between mb-2">
-                                        <div className="flex items-center gap-2">
-                                            <p className="text-xs text-slate-500 truncate max-w-[200px]">{licenseFile?.name}</p>
-                                            {aiResult.status === "success" && (
-                                                <span className="text-xs bg-store-50 text-store-700 px-2 py-0.5 rounded-full font-medium inline-flex items-center gap-1">
-                                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                                    </svg>
-                                                    AI確認済み
-                                                </span>
-                                            )}
-                                            {aiResult.status === "verifying" && (
-                                                <span className="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full font-medium inline-flex items-center gap-1">
-                                                    <Loader2 className="w-3 h-3 animate-spin" />
-                                                    確認中...
-                                                </span>
-                                            )}
-                                        </div>
-                                        <button
-                                            onClick={removeFile}
-                                            className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:text-red-500 hover:bg-red-50 transition flex-shrink-0"
-                                        >
-                                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                                            </svg>
-                                        </button>
-                                    </div>
-                                    <div className="rounded-lg overflow-hidden bg-slate-50 border border-slate-100">
-                                        <img src={licensePreview} alt="営業許可証" className="w-full h-36 object-contain" />
-                                    </div>
-                                </div>
-                            ) : (
-                                <label className="flex flex-col items-center justify-center h-28 rounded-xl border-2 border-dashed border-slate-300 hover:border-store-400 hover:bg-store-50/30 transition cursor-pointer">
-                                    <svg
-                                        className="w-7 h-7 text-slate-300 mb-1.5"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth="1.5"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
-                                        />
-                                    </svg>
-                                    <p className="text-sm text-slate-500">クリックしてアップロード</p>
-                                    <p className="text-xs text-slate-500 mt-0.5">PNG, JPG, PDF（最大10MB）</p>
-                                    <input
-                                        type="file"
-                                        accept="image/*,.pdf"
-                                        className="hidden"
-                                        onChange={handleFileChange}
-                                    />
-                                </label>
-                            )}
-                            {showErrors && !licenseFile && (
-                                <p className="text-red-500 text-xs mt-1">営業許可証のアップロードは必須です</p>
-                            )}
-                        </div>
+                        <DocumentUploadField
+                            label={PERMIT_DOC.label}
+                            required
+                            fileName={licenseFile?.name}
+                            previewUrl={licensePreview || null}
+                            isPdf={isPdfLike(licenseFile?.type)}
+                            aiStatus={aiResult.status}
+                            onSelect={handleLicenseFile}
+                            onRemove={removeFile}
+                            error={showErrors && !licenseFile ? "営業許可証のアップロードは必須です" : null}
+                        />
                     </div>
 
                     <div>
                         <p className="text-sm font-bold text-slate-700 mb-1">その他の書類（任意）</p>
                         <p className="text-xs text-slate-500 mb-3">後からでも登録できますが、今登録しておくと応募がスムーズです。</p>
-                        <div className="space-y-2">
-                            {OPTIONAL_DOCS.map((doc) => (
-                                <div key={doc.key} className="flex items-center gap-3 rounded-xl border border-slate-200 px-4 py-3">
-                                    <div className="min-w-0 flex-1">
-                                        <p className="text-sm font-medium text-slate-900">{doc.label}</p>
-                                        {optionalFiles[doc.key] && (
-                                            <p className="text-xs text-slate-500 truncate">{optionalFiles[doc.key]?.name}</p>
-                                        )}
-                                    </div>
-                                    {optionalFiles[doc.key] ? (
-                                        <button
-                                            type="button"
-                                            onClick={() => removeOptionalFile(doc.key)}
-                                            className="shrink-0 text-xs font-medium text-slate-500 hover:text-red-500"
-                                        >
-                                            削除
-                                        </button>
-                                    ) : (
-                                        <label className="shrink-0 cursor-pointer text-xs font-semibold text-store-600 border border-store-200 bg-store-50 hover:bg-store-100 rounded-lg px-3 py-1.5 transition-colors">
-                                            ファイルを選択
-                                            <input
-                                                type="file"
-                                                accept="image/*,.pdf"
-                                                className="hidden"
-                                                onChange={(e) => handleOptionalFile(doc.key, e.target.files?.[0] || null)}
-                                            />
-                                        </label>
-                                    )}
-                                </div>
+                        <div className="space-y-4">
+                            {OPTIONAL_DOC_DEFS.map((doc) => (
+                                <DocumentUploadField
+                                    key={doc.key}
+                                    label={doc.label}
+                                    desc={doc.desc}
+                                    size="compact"
+                                    fileName={optionalFiles[doc.key]?.name}
+                                    previewUrl={optionalPreviews[doc.key] || null}
+                                    isPdf={isPdfLike(optionalFiles[doc.key]?.type)}
+                                    onSelect={(file) => handleOptionalFile(doc.key, file)}
+                                    onRemove={() => removeOptionalFile(doc.key)}
+                                />
                             ))}
                         </div>
                     </div>
