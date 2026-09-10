@@ -6,7 +6,7 @@ export default async function OrganizersPage() {
 
     const { data: organizers, error } = await supabase
         .from("organizers")
-        .select("id, user_id, company_name, name, email, phone_number, is_approved, created_at")
+        .select("id, user_id, company_name, name, email, phone_number, created_at")
         .order("created_at", { ascending: false });
 
     if (error) {
@@ -25,7 +25,7 @@ export default async function OrganizersPage() {
             <main className="flex-1 container mx-auto px-6 py-8 max-w-6xl">
                 <div className="mb-6">
                     <h1 className="text-2xl font-bold text-slate-900">主催者管理</h1>
-                    <p className="text-sm text-slate-500 mt-1">/organizers — 主催者アカウントの管理・承認</p>
+                    <p className="text-sm text-slate-500 mt-1">/organizers — 主催者アカウントの一覧</p>
                 </div>
 
                 <OrganizerList organizers={organizers || []} />

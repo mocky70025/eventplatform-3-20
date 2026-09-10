@@ -47,7 +47,6 @@ interface Event {
         name: string;
         email: string;
         phone_number: string;
-        is_approved: boolean;
     };
 }
 
@@ -58,6 +57,7 @@ const STATUS_LABELS: Record<string, string> = {
     draft: "非公開",
     closed: "募集終了",
     ended: "終了",
+    deleted: "削除済み",
 };
 
 const STATUS_TABS = [
@@ -112,6 +112,7 @@ function StatusBadge({ status }: { status: string }) {
         closed: "bg-slate-200 text-slate-600",
         ended: "bg-slate-200 text-slate-500",
         draft: "bg-slate-100 text-slate-600",
+        deleted: "bg-red-100 text-red-700",
     };
     return (
         <span className={`px-2 py-1 rounded-full text-xs font-bold ${styles[status] || "bg-slate-100 text-slate-600"}`}>
@@ -164,14 +165,12 @@ export function EventRow({ event }: { event: Event }) {
                 <Button size="sm" variant="outline" onClick={() => handleToggleStatus('draft')} disabled={isUpdating} className="h-8 text-xs text-slate-500">
                     {isUpdating ? <Loader2 className="w-3 h-3 animate-spin" /> : "非公開にする"}
                 </Button>
-            ) : (
-                <Button size="sm" onClick={() => handleToggleStatus('published')} disabled={isUpdating} className="bg-blue-500 text-white hover:bg-blue-600 h-8 text-xs font-bold">
-                    {isUpdating ? <Loader2 className="w-3 h-3 animate-spin" /> : "公開許可"}
+            ) : null}
+            {event.status !== 'deleted' && (
+                <Button size="sm" variant="ghost" onClick={() => handleToggleStatus('deleted')} disabled={isUpdating} className="h-8 text-xs text-red-400 hover:text-red-600 hover:bg-red-50">
+                    <X className="w-3 h-3" />
                 </Button>
             )}
-            <Button size="sm" variant="ghost" onClick={() => handleToggleStatus('deleted')} disabled={isUpdating} className="h-8 text-xs text-red-400 hover:text-red-600 hover:bg-red-50">
-                <X className="w-3 h-3" />
-            </Button>
         </div>
     );
 
@@ -293,16 +292,9 @@ export function EventRow({ event }: { event: Event }) {
                                                     {(event.organizer?.company_name || event.organizer?.name || "?").charAt(0)}
                                                 </div>
                                                 <div className="min-w-0 flex-1">
-                                                    <div className="flex items-center gap-2">
-                                                        <p className="text-sm font-bold text-slate-900 truncate">
-                                                            {event.organizer?.company_name || event.organizer?.name}
-                                                        </p>
-                                                        {event.organizer?.is_approved ? (
-                                                            <span className="px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-bold">認証済み</span>
-                                                        ) : (
-                                                            <span className="px-1.5 py-0.5 rounded-full bg-yellow-100 text-yellow-700 text-xs font-bold">未認証</span>
-                                                        )}
-                                                    </div>
+                                                    <p className="text-sm font-bold text-slate-900 truncate">
+                                                        {event.organizer?.company_name || event.organizer?.name}
+                                                    </p>
                                                     <div className="flex items-center gap-4 mt-1 text-xs text-slate-500">
                                                         {event.organizer?.email && <span className="flex items-center gap-1"><Mail className="w-3 h-3" />{event.organizer.email}</span>}
                                                         {event.organizer?.phone_number && <span className="flex items-center gap-1"><Phone className="w-3 h-3" />{event.organizer.phone_number}</span>}

@@ -30,6 +30,8 @@ export default async function ApplyPage({ params }: PageProps) {
         .from("events")
         .select("*, organizers(company_name, user_id)")
         .eq("id", id)
+        .eq("status", "published")
+        .or("visibility.eq.public,visibility.is.null")
         .single();
 
     if (eventError || !event) return notFound();

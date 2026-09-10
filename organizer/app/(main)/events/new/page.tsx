@@ -82,13 +82,11 @@ export default function CreateEventPage() {
     const [step, setStep] = useState(1);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
-    const [isApproved, setIsApproved] = useState<boolean | null>(null);
-    const [isCheckingApproval, setIsCheckingApproval] = useState(true);
     const [agreedToTerms, setAgreedToTerms] = useState(false);
     const supabase = createClient();
 
     useEffect(() => {
-        const checkApproval = async () => {
+        const loadProfile = async () => {
             try {
                 const { data: { user }, error: userError } = await supabase.auth.getUser();
                 if (userError || !user) {
@@ -99,12 +97,11 @@ export default function CreateEventPage() {
 
                 const { data: profile } = await supabase
                     .from("organizers")
-                    .select("is_approved, company_name, name, email, phone_number")
+                    .select("company_name, name, email, phone_number")
                     .eq("user_id", user.id)
                     .single();
 
                 if (profile) {
-                    setIsApproved(profile.is_approved || false);
                     setFormData(prev => ({
                         ...prev,
                         organizerName: prev.organizerName || profile.company_name || profile.name || "",
@@ -115,13 +112,11 @@ export default function CreateEventPage() {
                     router.push("/onboarding");
                 }
             } catch (err) {
-                setError("承認状態の確認に失敗しました");
-            } finally {
-                setIsCheckingApproval(false);
+                setError("プロフィールの確認に失敗しました");
             }
         };
 
-        checkApproval();
+        loadProfile();
     }, [supabase, router]);
 
     // Form State
@@ -444,7 +439,7 @@ export default function CreateEventPage() {
 
             const { data: profile, error: profileError } = await supabase
                 .from("organizers")
-                .select("id, is_approved")
+                .select("id")
                 .eq("user_id", user.id)
                 .single();
 
@@ -497,7 +492,7 @@ export default function CreateEventPage() {
                         preset: formData.selectedExhibitorFields,
                         custom: customFields,
                     }),
-                    status: 'pending',
+                    status: 'draft',
                     visibility: formData.visibility,
                     event_schedule: formData.usePerDaySchedule && formData.eventSchedule.length > 0
                         ? JSON.stringify(formData.eventSchedule) : null,
@@ -597,32 +592,6 @@ export default function CreateEventPage() {
             </header>
 
             <main className="flex-1 container mx-auto max-w-3xl px-4 py-8">
-                {/* Approval Status Warning */}
-                {isCheckingApproval ? (
-                    <div className="mb-6 p-4 bg-slate-50 border border-slate-200 rounded-xl text-center">
-                        <p className="text-sm text-slate-500">承認状態を確認中...</p>
-                    </div>
-                ) : isApproved === false ? (
-                    <div className="mb-6 bg-amber-50 border-2 border-amber-200 rounded-2xl p-6 shadow-sm">
-                        <div className="flex items-start gap-4">
-                            <div className="p-2 bg-amber-100 rounded-lg shrink-0">
-                                <AlertCircle className="w-6 h-6 text-amber-600" />
-                            </div>
-                            <div className="flex-1">
-                                <h3 className="text-lg font-bold text-amber-900 mb-1">承認待ち</h3>
-                                <p className="text-sm text-amber-700 leading-relaxed mb-4">
-                                    現在、管理者による承認を待っています。承認が完了するまで、イベントの作成はできません。
-                                </p>
-                                <Link href="/">
-                                    <Button variant="outline" size="sm" className="border-amber-300 text-amber-700 hover:bg-amber-100">
-                                        ダッシュボードに戻る
-                                    </Button>
-                                </Link>
-                            </div>
-                        </div>
-                    </div>
-                ) : null}
-
                 {/* Progress Bar */}
                 <div className="mb-10 px-2">
                     <div className="flex justify-between relative max-w-lg mx-auto">
@@ -1497,7 +1466,7 @@ export default function CreateEventPage() {
                                     className="mt-0.5 w-4 h-4 rounded border-slate-300 accent-orange-500 focus:ring-orange-500"
                                 />
                                 <span className="text-sm text-slate-700">
-                                    上記の内容を確認し、<a href="/terms" target="_blank" className="text-orange-600 underline hover:text-orange-700">利用規約</a>に同意してイベントを作成します
+                                    上記の内容を確認し、<a href="/terms" target="_blank" className="text-orange-600 underline hover:text-orange-700">利用規約</a>に同意して下書きを作成します
                                 </span>
                             </label>
 
@@ -1531,11 +1500,11 @@ export default function CreateEventPage() {
                         ) : (
                             <Button
                                 onClick={handleSubmit}
-                                disabled={isLoading || isApproved === false || !agreedToTerms}
+                                disabled={isLoading || !agreedToTerms}
                                 className="bg-slate-900 hover:bg-black text-white rounded-full px-10 shadow-lg h-12 text-base disabled:opacity-50 disabled:cursor-not-allowed"
-                                title={isApproved === false ? "管理者の承認が必要です" : !agreedToTerms ? "利用規約への同意が必要です" : undefined}
+                                title={!agreedToTerms ? "利用規約への同意が必要です" : undefined}
                             >
-                                {isLoading ? "作成中..." : "イベントを作成する"}
+                                {isLoading ? "作成中..." : "下書きを作成する"}
                             </Button>
                         )}
                     </div>

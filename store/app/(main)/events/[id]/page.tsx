@@ -22,6 +22,8 @@ export default async function EventDetailPage({ params }: PageProps) {
         .from("events")
         .select("*, organizers(company_name, name, email, phone_number)")
         .eq("id", id)
+        .eq("status", "published")
+        .or("visibility.eq.public,visibility.is.null")
         .single();
 
     if (error || !event) {

@@ -1,0 +1,2 @@
+-- No-op marker for an existing production migration.
+-- Its resulting schema is included in 20260514000000_baseline.sql.

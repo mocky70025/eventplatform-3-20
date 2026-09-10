@@ -165,7 +165,6 @@ export default function OnboardingPage() {
                     address: `${formData.prefecture}${formData.cityAddress}${formData.building || ""}`,
                     description: formData.description || null,
                     social_links: formData.website ? { website: formData.website } : null,
-                    is_approved: true,
                 });
 
             if (insertError) throw insertError;

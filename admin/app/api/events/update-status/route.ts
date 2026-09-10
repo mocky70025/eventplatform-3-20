@@ -13,9 +13,9 @@ const supabaseAdmin = supabaseUrl && serviceRoleKey
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-// Allowed state transitions: from -> [allowed targets]
+// Allowed admin moderation transitions: from -> [allowed targets]
 const ALLOWED_TRANSITIONS: Record<string, string[]> = {
-    draft: ['pending', 'published'],
+    draft: ['pending'],
     pending: ['published', 'rejected'],
     published: ['draft', 'closed', 'ended'],
     rejected: ['pending', 'draft'],

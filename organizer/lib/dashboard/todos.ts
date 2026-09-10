@@ -179,11 +179,10 @@ export async function getDashboardTodos(
   // --- Getting started (new organizers) ---
   const { data: org } = await supabase
     .from("organizers")
-    .select("is_approved, description, avatar_url")
+    .select("description, avatar_url")
     .eq("id", organizerId)
     .maybeSingle();
-  // Create the first event — only once approved (unapproved organizers can't create yet).
-  if (org?.is_approved && eventList.length === 0) {
+  if (org && eventList.length === 0) {
     todos.push({
       id: "create-first-event",
       type: "create_first_event",

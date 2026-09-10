@@ -1,0 +1,2 @@
+-- No-op marker for the authorization policy already applied to production.
+-- Its resulting schema is included in 20260514000000_baseline.sql.

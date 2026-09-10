@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
     ChevronRight, ChevronLeft, Calendar, MapPin,
-    ImageIcon, FileText, CheckCircle2, Users, Upload, Clock, AlertCircle, Search, Trash2, Loader2,
+    ImageIcon, FileText, CheckCircle2, Users, Upload, Clock, AlertCircle, Search, Loader2,
     Shield, Phone, Mail, User, Truck, ClipboardList, Plus, X, Lock
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -86,7 +86,7 @@ export default function EditEventPage() {
         mainImage: null as string | null,
         loadingInfo: "",
         selectedExhibitorFields: [] as string[],
-        status: "published",
+        status: "draft",
         visibility: "public" as "public" | "private",
         usePerDaySchedule: false,
         eventSchedule: [] as Array<{ date: string; start_time: string; end_time: string }>,
@@ -191,7 +191,7 @@ export default function EditEventPage() {
                         mainImage: data.main_image_url || null,
                         loadingInfo: data.loading_info || "",
                         selectedExhibitorFields: selectedFields,
-                        status: data.status || "published",
+                        status: data.status || "draft",
                         visibility: data.visibility || "public",
                         usePerDaySchedule: parsedSchedule.length > 0,
                         eventSchedule: parsedSchedule,
@@ -442,40 +442,6 @@ export default function EditEventPage() {
         }
     };
 
-    const handleDelete = async () => {
-        if (!confirm("本当にこのイベントを削除しますか？この操作は取り消せません。")) return;
-
-        setIsLoading(true);
-        try {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) throw new Error("ログインセッションが見つかりません。");
-
-            const { data: profile } = await supabase
-                .from("organizers")
-                .select("id")
-                .eq("user_id", user.id)
-                .single();
-
-            if (!profile) throw new Error("主催者プロフィールが見つかりません。");
-
-            const { error, count } = await supabase
-                .from("events")
-                .delete({ count: "exact" })
-                .eq("id", eventId)
-                .eq("organizer_id", profile.id);
-
-            if (error) throw error;
-            if (count === 0) throw new Error("削除対象が見つかりませんでした。RLSポリシーを確認してください。");
-
-            router.push("/");
-            router.refresh();
-        } catch (err: any) {
-            alert(`イベントの削除に失敗しました: ${err.message || JSON.stringify(err)}`);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
     if (isFetching) {
         return (
             <div className="min-h-screen bg-[#fdf8f1] flex items-center justify-center">
@@ -550,10 +516,6 @@ export default function EditEventPage() {
                     <h1 className="text-lg font-bold text-slate-900">イベントの編集</h1>
                 </div>
                 <div className="flex items-center gap-3">
-                    <Button variant="ghost" size="sm" className="text-red-500 hover:bg-red-50" onClick={handleDelete}>
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        削除
-                    </Button>
                     <div className="text-sm font-medium text-slate-500 px-3 border-l border-slate-100">
                         Step {step} / {TOTAL_STEPS}
                     </div>
@@ -607,7 +569,7 @@ export default function EditEventPage() {
                     {isLocked && (
                         <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-center gap-3 text-amber-700 text-sm">
                             <Lock className="w-5 h-5 shrink-0" />
-                            <p className="font-medium">公開済みイベントのため、一部の項目は変更できません。<span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-bold bg-green-50 text-green-600 border border-green-100 ml-1">訂正可</span> マークのある項目のみ編集できます。</p>
+                            <p className="font-medium">審査提出後のイベントは編集できません。変更が必要な場合は管理者にお問い合わせください。</p>
                         </div>
                     )}
 
@@ -1237,8 +1199,8 @@ export default function EditEventPage() {
                                 次へ <ChevronRight className="w-4 h-4 ml-1" />
                             </Button>
                         ) : (
-                            <Button onClick={handleSubmit} disabled={isLoading} className="bg-slate-900 hover:bg-slate-800 text-white rounded-full px-10 h-12 font-bold shadow-lg">
-                                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "変更を保存する"}
+                            <Button onClick={handleSubmit} disabled={isLoading || isLocked} className="bg-slate-900 hover:bg-slate-800 text-white rounded-full px-10 h-12 font-bold shadow-lg">
+                                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "審査に提出する"}
                             </Button>
                         )}
                     </div>

@@ -12,14 +12,12 @@ export default async function Home() {
     { count: exhibitorCount },
     { count: publishedEventCount },
     { count: monthlyAppCount },
-    { count: pendingOrgCount },
     { count: pendingEventCount },
   ] = await Promise.all([
     supabase.from("organizers").select("*", { count: "exact", head: true }),
     supabase.from("exhibitors").select("*", { count: "exact", head: true }),
     supabase.from("events").select("*", { count: "exact", head: true }).eq("status", "published"),
     supabase.from("event_applications").select("*", { count: "exact", head: true }).gte("created_at", monthStart),
-    supabase.from("organizers").select("*", { count: "exact", head: true }).eq("is_approved", false),
     supabase.from("events").select("*", { count: "exact", head: true }).eq("status", "pending"),
   ]);
 
@@ -31,7 +29,6 @@ export default async function Home() {
   ];
 
   const todos = [
-    { label: "新規主催者の承認", count: pendingOrgCount || 0, route: "/organizers" },
     { label: "イベント公開申請", count: pendingEventCount || 0, route: "/events?filter=pending" },
   ].filter((t) => t.count > 0);
 

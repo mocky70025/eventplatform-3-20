@@ -16,7 +16,7 @@ export default async function Home() {
 
   const { data: profile } = await supabase
     .from("organizers")
-    .select("id, company_name, is_approved")
+    .select("id, company_name")
     .eq("user_id", user.id)
     .maybeSingle();
 

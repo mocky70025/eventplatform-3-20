@@ -319,9 +319,6 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
                             @{formData.email ? formData.email.split("@")[0] : "handle"}
                         </p>
                         <div className="flex items-center gap-2">
-                            <span className="h-6 inline-flex items-center justify-center px-2.5 rounded-full bg-orange-100 text-orange-700 text-xs font-semibold" style={{ lineHeight: 1 }}>
-                                {initialProfile?.is_approved ? "認証済み" : "承認待ち"}
-                            </span>
                             <span className="h-6 inline-flex items-center justify-center px-2.5 rounded-full bg-slate-100 text-slate-600 text-xs font-medium" style={{ lineHeight: 1 }}>
                                 主催者
                             </span>
