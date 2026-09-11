@@ -36,12 +36,8 @@ export async function GET(request: Request) {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-    // Collect every cookie Supabase wants to set during exchangeCodeForSession,
-    // then attach them to the final redirect response. Using the modern
-    // getAll/setAll adapter is required for correct handling of Supabase's
-    // chunked session cookies (name.0, name.1, …).
     const cookieStore = await cookies();
-    const pending: { name: string; value: string; options: any }[] = [];
+    let response = NextResponse.next();
 
     const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
         cookies: {
@@ -49,7 +45,11 @@ export async function GET(request: Request) {
                 return cookieStore.getAll();
             },
             setAll(cookiesToSet) {
-                pending.push(...cookiesToSet);
+                cookiesToSet.forEach(({ name, value }) => cookieStore.set(name, value));
+                response = NextResponse.next();
+                cookiesToSet.forEach(({ name, value, options }) =>
+                    response.cookies.set(name, value, options)
+                );
             },
         },
         cookieOptions: {
@@ -68,19 +68,11 @@ export async function GET(request: Request) {
         );
     }
 
-    let redirectTo: string;
-    if (type === 'recovery') {
-        redirectTo = `${origin}${next}`;
-    } else {
-        const { data: profile } = await supabase
-            .from('organizers')
-            .select('id')
-            .eq('user_id', data.user.id)
-            .maybeSingle();
-        redirectTo = profile ? `${origin}${next}` : `${origin}/onboarding`;
-    }
+    const redirectTo = `${origin}${next}`;
 
-    const response = NextResponse.redirect(redirectTo);
-    pending.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
-    return response;
+    const redirectResponse = NextResponse.redirect(redirectTo);
+    response.cookies.getAll().forEach(({ name, value, ...options }) =>
+        redirectResponse.cookies.set(name, value, options)
+    );
+    return redirectResponse;
 }

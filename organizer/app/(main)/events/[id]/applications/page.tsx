@@ -33,7 +33,7 @@ export default async function EventApplicationsPage({ params, searchParams }: Pa
         .single();
 
     if (!profile) {
-        redirect("/onboarding");
+        redirect("/profile");
     }
 
     // Verify this event belongs to the organizer

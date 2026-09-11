@@ -40,7 +40,7 @@ export default async function ApplicationsPage({ searchParams }: PageProps) {
         .single();
 
     if (!profile) {
-        redirect("/onboarding");
+        redirect("/profile");
     }
 
     // Fetch all applications in a single query

@@ -20,9 +20,10 @@ const PREFECTURES = [
 
 interface ProfileFormProps {
     initialProfile: any;
+    email: string;
 }
 
-export function ProfileForm({ initialProfile }: ProfileFormProps) {
+export function ProfileForm({ initialProfile, email }: ProfileFormProps) {
     const router = useRouter();
     const [isSaving, setIsSaving] = useState(false);
     const [isUploadingImage, setIsUploadingImage] = useState(false);
@@ -35,7 +36,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
     const initialFormData = {
         companyName: initialProfile?.company_name || "",
         repName: initialProfile?.name || "",
-        email: initialProfile?.email || "",
+        email,
         phone: initialProfile?.phone_number || "",
         postalCode: initialProfile?.postal_code || "",
         prefecture: initialProfile?.prefecture || "",
@@ -231,22 +232,22 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error("セッションがありません");
 
-            const { error: updateError } = await supabase
-                .from("organizers")
-                .update({
-                    company_name: formData.companyName,
-                    name: formData.repName,
-                    email: formData.email,
-                    phone_number: formData.phone,
-                    postal_code: formData.postalCode.replace(/[-\s]/g, "") || null,
-                    prefecture: formData.prefecture,
-                    city_address: formData.cityAddress,
-                    building: formData.building || null,
-                    address: `${formData.prefecture}${formData.cityAddress}${formData.building || ""}`,
-                    social_links: formData.website ? { website: formData.website } : null,
-                    description: formData.description,
-                })
-                .eq("user_id", user.id);
+            const updateData = {
+                company_name: formData.companyName,
+                name: formData.repName,
+                email: user.email || email,
+                phone_number: formData.phone,
+                postal_code: formData.postalCode.replace(/[-\s]/g, "") || null,
+                prefecture: formData.prefecture,
+                city_address: formData.cityAddress,
+                building: formData.building || null,
+                address: `${formData.prefecture}${formData.cityAddress}${formData.building || ""}`,
+                social_links: formData.website ? { website: formData.website } : null,
+                description: formData.description,
+            };
+            const { error: updateError } = initialProfile
+                ? await supabase.from("organizers").update(updateData).eq("user_id", user.id)
+                : await supabase.from("organizers").insert({ ...updateData, user_id: user.id });
 
             if (updateError) throw updateError;
 

@@ -44,7 +44,7 @@ export default async function ApplicationDetailPage({ params }: PageProps) {
     const exhibitor = exhibitors?.[0];
 
     if (!exhibitor) {
-        redirect("/onboarding");
+        redirect("/profile");
     }
 
     // Get application details with event

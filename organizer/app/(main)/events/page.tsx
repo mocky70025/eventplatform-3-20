@@ -41,7 +41,7 @@ export default async function EventsPage({
         .maybeSingle();
 
     if (!profile) {
-        redirect("/onboarding");
+        redirect("/profile");
     }
 
     const params = await searchParams;

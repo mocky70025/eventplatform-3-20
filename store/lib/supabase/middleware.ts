@@ -44,6 +44,13 @@ export async function updateSession(request: NextRequest) {
             headers: request.headers,
         },
     })
+    const redirect = (url: URL) => {
+        const redirectResponse = NextResponse.redirect(url)
+        response.cookies.getAll().forEach(({ name, value, ...options }) =>
+            redirectResponse.cookies.set(name, value, options)
+        )
+        return redirectResponse
+    }
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -52,7 +59,7 @@ export async function updateSession(request: NextRequest) {
         if (!isPublicRoute(request.nextUrl.pathname)) {
             const url = request.nextUrl.clone()
             url.pathname = '/signup'
-            return NextResponse.redirect(url)
+            return redirect(url)
         }
         return response;
     }
@@ -101,21 +108,21 @@ export async function updateSession(request: NextRequest) {
             const url = request.nextUrl.clone()
             url.pathname = '/signup'
             url.searchParams.set('next', pathname)
-            return NextResponse.redirect(url)
+            return redirect(url)
         }
 
         // Redirect authenticated users away from login/signup pages
         if (pathname === '/login' || pathname === '/signup') {
             const url = request.nextUrl.clone()
             url.pathname = '/'
-            return NextResponse.redirect(url)
+            return redirect(url)
         }
     } catch {
         // On error, only redirect if fully protected
         if (!isSoftProtected) {
             const url = request.nextUrl.clone()
             url.pathname = '/signup'
-            return NextResponse.redirect(url)
+            return redirect(url)
         }
     }
 

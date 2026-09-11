@@ -25,7 +25,7 @@ export default async function Home() {
     // user stays null
   }
 
-  let exhibitor: { id: string; shop_name?: string } | null = null;
+  let exhibitor: { id: string; shop_name?: string; name?: string; phone_number?: string; prefecture?: string; city_address?: string; business_permit_image_url?: string } | null = null;
   let applications: any[] = [];
   let todos: Awaited<ReturnType<typeof getExhibitorTodos>> = { todos: [], totalCount: 0, urgentCount: 0 };
   let openEventsCount = 0;
@@ -33,7 +33,7 @@ export default async function Home() {
   if (user) {
     const { data: exData } = await supabase
       .from("exhibitors")
-      .select("id, shop_name")
+      .select("id, shop_name, name, phone_number, prefecture, city_address, business_permit_image_url")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .limit(1);
@@ -63,6 +63,14 @@ export default async function Home() {
   }
 
   const pendingCount = applications.filter((a: any) => a.status === "pending").length;
+  const missingProfileFields = user ? [
+    !exhibitor?.shop_name && "店舗名",
+    !exhibitor?.name && "代表者名",
+    !exhibitor?.phone_number && "電話番号",
+    !exhibitor?.prefecture && "都道府県",
+    !exhibitor?.city_address && "市区町村・番地",
+    !exhibitor?.business_permit_image_url && "営業許可証",
+  ].filter(Boolean) as string[] : [];
 
   const statusBadge = (status: string) => {
     switch (status) {
@@ -125,6 +133,18 @@ export default async function Home() {
   return (
     <div className="min-h-screen bg-[#f0fdf4]">
       <main className="max-w-6xl mx-auto py-8 px-6">
+
+        {missingProfileFields.length > 0 && (
+          <section className="mb-8 rounded-2xl border border-amber-200 bg-amber-50 p-6">
+            <h1 className="text-lg font-bold text-amber-900">プロフィールを完成してください</h1>
+            <p className="mt-2 text-sm text-amber-800">未登録: {missingProfileFields.join("、")}</p>
+            <p className="mt-1 text-sm text-amber-800">イベントへの応募には基本情報と営業許可証が必要です。</p>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <Link href="/profile" className="inline-flex rounded-xl bg-store-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-store-600">プロフィールを編集する</Link>
+              {!exhibitor?.business_permit_image_url && <Link href="/profile#documents" className="inline-flex rounded-xl border border-amber-300 px-4 py-2.5 text-sm font-semibold text-amber-900 hover:bg-amber-100">営業許可証を登録する</Link>}
+            </div>
+          </section>
+        )}
 
         {/* === 最近の応募状況 === */}
         <section className="mb-10">

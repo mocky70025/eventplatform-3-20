@@ -39,13 +39,7 @@ export default function LoginPage() {
       });
 
       if (!error && data.user) {
-        const { data: profiles } = await supabase
-          .from("exhibitors")
-          .select("id")
-          .eq("user_id", data.user.id)
-          .limit(1);
-
-        router.push(!profiles?.length ? "/onboarding" : "/");
+        router.push("/");
         return;
       }
 
@@ -66,13 +60,7 @@ export default function LoginPage() {
 
       if (retryError || !retryData.user) throw new Error("login failed");
 
-      const { data: profiles } = await supabase
-        .from("exhibitors")
-        .select("id")
-        .eq("user_id", retryData.user.id)
-        .limit(1);
-
-      router.push(!profiles?.length ? "/onboarding" : "/");
+      router.push("/");
     } catch (error: any) {
       setError("メールアドレスまたはパスワードが正しくありません");
     } finally {

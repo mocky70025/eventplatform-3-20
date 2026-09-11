@@ -193,7 +193,7 @@ export default async function NotificationsPage({ searchParams }: PageProps) {
         .single();
 
     if (!profile) {
-        redirect("/onboarding");
+        redirect("/profile");
     }
 
     const now = new Date();

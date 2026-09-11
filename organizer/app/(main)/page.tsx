@@ -16,12 +16,30 @@ export default async function Home() {
 
   const { data: profile } = await supabase
     .from("organizers")
-    .select("id, company_name")
+    .select("id, company_name, name, phone_number, prefecture, city_address")
     .eq("user_id", user.id)
     .maybeSingle();
 
-  if (!profile) {
-    redirect("/onboarding");
+  const missingProfileFields = [
+    !profile?.company_name && "主催団体名 / 会社名",
+    !profile?.name && "代表者名 / 担当者名",
+    !profile?.phone_number && "電話番号",
+    !profile?.prefecture && "都道府県",
+    !profile?.city_address && "市区町村・番地",
+  ].filter(Boolean) as string[];
+
+  if (!profile || missingProfileFields.length > 0) {
+    return (
+      <div className="min-h-screen bg-[#fdf8f1]">
+        <main className="max-w-6xl mx-auto py-8 px-6">
+          <section className="rounded-2xl border border-amber-200 bg-amber-50 p-6">
+            <h1 className="text-lg font-bold text-amber-900">プロフィールを完成してください</h1>
+            <p className="mt-2 text-sm text-amber-800">イベント作成の前に、次の項目を登録してください: {missingProfileFields.join("、")}</p>
+            <Link href="/profile" className="mt-4 inline-flex rounded-xl bg-orange-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-orange-600">プロフィールを編集する</Link>
+          </section>
+        </main>
+      </div>
+    );
   }
 
   // Recent applications (newest first) for this organizer's events

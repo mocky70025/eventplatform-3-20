@@ -23,9 +23,10 @@ const PREFECTURES = [
 
 interface ProfileFormProps {
     initialProfile: any;
+    email: string;
 }
 
-export function ProfileForm({ initialProfile }: ProfileFormProps) {
+export function ProfileForm({ initialProfile, email }: ProfileFormProps) {
     const router = useRouter();
     const [isSaving, setIsSaving] = useState(false);
     const [isUploadingImage, setIsUploadingImage] = useState(false);
@@ -38,7 +39,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
     const initialFormData = {
         storeName: initialProfile?.shop_name || "",
         repName: initialProfile?.name || "",
-        email: initialProfile?.email || "",
+        email,
         phone: initialProfile?.phone_number || "",
         postalCode: initialProfile?.postal_code || "",
         prefecture: initialProfile?.prefecture || "",
@@ -256,7 +257,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
             const updateData: any = {
                 shop_name: formData.storeName,
                 name: formData.repName,
-                email: formData.email,
+                email: user.email || email,
                 phone_number: formData.phone,
                 postal_code: formData.postalCode.replace(/[-\s]/g, "") || null,
                 prefecture: formData.prefecture,
@@ -269,10 +270,9 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
                 business_styles: formData.styles,
             };
 
-            const { error: updateError } = await supabase
-                .from("exhibitors")
-                .update(updateData)
-                .eq("user_id", user.id);
+            const { error: updateError } = initialProfile
+                ? await supabase.from("exhibitors").update(updateData).eq("user_id", user.id)
+                : await supabase.from("exhibitors").insert({ ...updateData, user_id: user.id, email: user.email || email });
 
             if (updateError) throw updateError;
 

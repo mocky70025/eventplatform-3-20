@@ -53,13 +53,7 @@ export default function SignupPage() {
                 return;
             }
 
-            const { data: profiles } = await supabase
-                .from("organizers")
-                .select("id")
-                .eq("user_id", signInData.user.id)
-                .limit(1);
-
-            router.push(!profiles?.length ? "/onboarding" : "/");
+            router.push("/");
         } catch {
             setError("アカウント作成に失敗しました。入力内容を確認してください。");
         } finally {

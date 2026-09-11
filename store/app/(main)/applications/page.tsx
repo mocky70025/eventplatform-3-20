@@ -29,7 +29,7 @@ export default async function ApplicationsPage({ searchParams }: PageProps) {
 
     const exhibitor = exhibitors?.[0];
     if (!exhibitor) {
-        redirect("/onboarding");
+        redirect("/profile");
     }
 
     const { data: allApps } = await supabase

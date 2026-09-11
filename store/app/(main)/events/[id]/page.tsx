@@ -602,7 +602,7 @@ export default async function EventDetailPage({ params }: PageProps) {
                                         </button>
                                     </Link>
                                 ) : !exhibitorProfile ? (
-                                    <Link href="/onboarding" className="block">
+                                    <Link href="/profile" className="block">
                                         <button className="w-full h-12 rounded-xl text-sm font-bold bg-store-500 text-white hover:bg-store-600 transition-colors shadow-sm shadow-store-500/20 flex items-center justify-center gap-2">
                                             プロフィール作成へ
                                             <ChevronRight className="w-4 h-4" />

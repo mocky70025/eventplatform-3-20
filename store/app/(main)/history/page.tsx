@@ -32,7 +32,7 @@ export default async function HistoryPage({ searchParams }: PageProps) {
         .eq("user_id", user.id)
         .limit(1);
     const exhibitor = exhibitors?.[0];
-    if (!exhibitor) redirect("/onboarding");
+    if (!exhibitor) redirect("/profile");
 
     // 承認済み応募を全件取得
     const { data: apps } = await supabase

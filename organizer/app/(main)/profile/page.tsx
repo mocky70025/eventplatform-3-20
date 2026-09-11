@@ -137,7 +137,7 @@ export default async function ProfilePage() {
                     {/* Right content — all sections stacked as scroll anchors */}
                     <div className="flex-1 min-w-0 space-y-8">
                         <section id="basic" className="scroll-mt-24">
-                            <ProfileForm initialProfile={profile} />
+                            <ProfileForm initialProfile={profile} email={user.email || ""} />
                         </section>
                         <section id="reviews" className="scroll-mt-24">
                             <ReviewsSection reviews={reviews} />

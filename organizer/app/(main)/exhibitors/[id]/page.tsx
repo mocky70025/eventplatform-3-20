@@ -25,7 +25,7 @@ export default async function ExhibitorDetailPage({ params }: { params: Promise<
         .maybeSingle();
 
     if (!profile) {
-        redirect("/onboarding");
+        redirect("/profile");
     }
 
     const { data: applications } = await supabase

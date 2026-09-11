@@ -83,6 +83,7 @@ export default function CreateEventPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
     const [agreedToTerms, setAgreedToTerms] = useState(false);
+    const [missingProfileFields, setMissingProfileFields] = useState<string[]>([]);
     const supabase = createClient();
 
     useEffect(() => {
@@ -97,19 +98,26 @@ export default function CreateEventPage() {
 
                 const { data: profile } = await supabase
                     .from("organizers")
-                    .select("company_name, name, email, phone_number")
+                    .select("company_name, name, email, phone_number, prefecture, city_address")
                     .eq("user_id", user.id)
-                    .single();
+                    .maybeSingle();
 
-                if (profile) {
+                const missing = [
+                    !profile?.company_name && "主催団体名 / 会社名",
+                    !profile?.name && "代表者名 / 担当者名",
+                    !profile?.phone_number && "電話番号",
+                    !profile?.prefecture && "都道府県",
+                    !profile?.city_address && "市区町村・番地",
+                ].filter(Boolean) as string[];
+                setMissingProfileFields(missing);
+
+                if (profile && missing.length === 0) {
                     setFormData(prev => ({
                         ...prev,
                         organizerName: prev.organizerName || profile.company_name || profile.name || "",
                         organizerEmail: prev.organizerEmail || profile.email || "",
                         organizerPhone: prev.organizerPhone || profile.phone_number || "",
                     }));
-                } else {
-                    router.push("/onboarding");
                 }
             } catch (err) {
                 setError("プロフィールの確認に失敗しました");
@@ -439,12 +447,20 @@ export default function CreateEventPage() {
 
             const { data: profile, error: profileError } = await supabase
                 .from("organizers")
-                .select("id")
+                .select("id, company_name, name, phone_number, prefecture, city_address")
                 .eq("user_id", user.id)
                 .single();
 
-            if (profileError || !profile) {
-                throw new Error("主催者プロフィールが見つかりません。");
+            const missing = [
+                !profile?.company_name && "主催団体名 / 会社名",
+                !profile?.name && "代表者名 / 担当者名",
+                !profile?.phone_number && "電話番号",
+                !profile?.prefecture && "都道府県",
+                !profile?.city_address && "市区町村・番地",
+            ].filter(Boolean) as string[];
+            if (profileError || !profile || missing.length > 0) {
+                setMissingProfileFields(missing);
+                throw new Error(`イベント作成前にプロフィールを完成してください: ${missing.join("、")}`);
             }
 
             let mainImageUrl = "";
@@ -559,6 +575,20 @@ export default function CreateEventPage() {
     const inlineError = (name: string) => fieldErrors[name] ? <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p> : null;
     const sectionTitle = "text-lg font-bold text-slate-900 mb-4 flex items-center gap-2 border-b border-slate-200 pb-2";
     const editableBadge = <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-xs font-bold bg-green-50 text-green-600 border border-green-100">訂正可</span>;
+
+    if (missingProfileFields.length > 0) {
+        return (
+            <div className="min-h-screen bg-[#fdf8f1]">
+                <main className="mx-auto max-w-3xl px-6 py-8">
+                    <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6">
+                        <h1 className="text-lg font-bold text-amber-900">イベント作成前にプロフィールを完成してください</h1>
+                        <p className="mt-2 text-sm text-amber-800">未登録: {missingProfileFields.join("、")}</p>
+                        <Link href="/profile" className="mt-4 inline-flex rounded-xl bg-orange-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-orange-600">プロフィールを編集する</Link>
+                    </div>
+                </main>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-[#fdf8f1] flex flex-col">

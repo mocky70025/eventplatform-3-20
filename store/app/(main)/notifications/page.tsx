@@ -150,7 +150,7 @@ export default async function NotificationsPage({ searchParams }: PageProps) {
         .eq("user_id", user.id)
         .limit(1);
     const exhibitor = exhibitors?.[0];
-    if (!exhibitor) redirect("/onboarding");
+    if (!exhibitor) redirect("/profile");
 
     const now = new Date();
 

@@ -36,7 +36,7 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
         .single();
 
     if (!profile) {
-        redirect("/onboarding");
+        redirect("/profile");
     }
 
     // Fetch application details with event and exhibitor
@@ -324,4 +324,3 @@ export default async function ApplicationDetailPage({ params }: { params: { id: 
         </div>
     );
 }
-
