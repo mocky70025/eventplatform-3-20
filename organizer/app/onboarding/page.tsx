@@ -29,13 +29,12 @@ export default function OnboardingPage() {
     const [error, setError] = useState("");
     const [showErrors, setShowErrors] = useState(false);
     const [sessionMissing, setSessionMissing] = useState(false);
-    const [postalCode, setPostalCode] = useState("");
     const [postalCodeLoading, setPostalCodeLoading] = useState(false);
     const [postalCodeError, setPostalCodeError] = useState("");
     const supabase = createClient();
 
     const lookupPostalCode = async () => {
-        const code = postalCode.replace(/-/g, "");
+        const code = formData.postalCode.replace(/-/g, "");
         if (code.length !== 7) {
             setPostalCodeError("7桁の郵便番号を入力してください");
             return;
@@ -67,6 +66,7 @@ export default function OnboardingPage() {
         repName: "",
         email: "",
         phone: "",
+        postalCode: "",
         prefecture: "",
         cityAddress: "",
         building: "",
@@ -159,7 +159,7 @@ export default function OnboardingPage() {
                     name: formData.repName,
                     email: formData.email,
                     phone_number: formData.phone,
-                    postal_code: postalCode.replace(/-/g, "") || null,
+                    postal_code: formData.postalCode.replace(/-/g, "") || null,
                     prefecture: formData.prefecture,
                     city_address: formData.cityAddress,
                     building: formData.building || null,
@@ -313,8 +313,8 @@ export default function OnboardingPage() {
                             <div className="flex gap-2">
                                 <input
                                     type="text"
-                                    value={postalCode}
-                                    onChange={e => { setPostalCode(e.target.value); setPostalCodeError(""); }}
+                                    value={formData.postalCode}
+                                    onChange={e => { setFormData(prev => ({ ...prev, postalCode: e.target.value })); setPostalCodeError(""); }}
                                     onKeyDown={e => e.key === "Enter" && lookupPostalCode()}
                                     className={`flex-1 min-w-0 rounded-xl border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 transition placeholder:text-slate-500 ${normalBorder}`}
                                     placeholder="1234567"

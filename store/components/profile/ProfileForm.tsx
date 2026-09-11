@@ -44,6 +44,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
         prefecture: initialProfile?.prefecture || "",
         cityAddress: initialProfile?.city_address || "",
         building: initialProfile?.building || "",
+        website: initialProfile?.social_links?.website || "",
         description: initialProfile?.description || "",
         genres: (initialProfile?.genres as string[]) || [],
         styles: (initialProfile?.business_styles as string[]) || [],
@@ -262,6 +263,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
                 city_address: formData.cityAddress,
                 building: formData.building || null,
                 address: `${formData.prefecture}${formData.cityAddress}${formData.building || ""}`,
+                social_links: formData.website ? { website: formData.website } : null,
                 description: formData.description,
                 genres: formData.genres,
                 business_styles: formData.styles,
@@ -534,6 +536,19 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
                         value={formData.building}
                         onChange={handleChange}
                         placeholder="ワッカビル 301号室"
+                        className={inputClass}
+                    />
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                        SNS・ウェブサイト URL <span className="text-slate-500 text-xs font-normal">(任意)</span>
+                    </label>
+                    <input
+                        name="website"
+                        value={formData.website}
+                        onChange={handleChange}
+                        type="url"
+                        placeholder="https://..."
                         className={inputClass}
                     />
                 </div>

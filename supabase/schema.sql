@@ -96,6 +96,7 @@ CREATE TABLE exhibitors (
   allow_photo_usage BOOLEAN DEFAULT TRUE,
   -- Preferences
   notification_settings JSONB,
+  social_links JSONB,                              -- { website: "https://..." }
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
