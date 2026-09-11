@@ -14,7 +14,7 @@ export interface ExhibitorDocDef {
 }
 
 export const EXHIBITOR_DOCUMENTS: ExhibitorDocDef[] = [
-    { key: "business_permit", label: "営業許可証", urlCol: "business_permit_image_url", expiryCol: "business_permit_expiry", required: false, ai: { type: "businessLicense" }, desc: "応募時に必須です。後からでも登録できます。" },
+    { key: "business_permit", label: "営業許可証", urlCol: "business_permit_image_url", expiryCol: "business_permit_expiry", required: true, ai: { type: "businessLicense" }, desc: "応募時に必須です。後からでも登録できます。" },
     { key: "food_safety", label: "食品衛生責任者証", urlCol: "business_license_image_url", expiryCol: "business_license_expiry", required: false },
     { key: "pl_insurance", label: "PL保険証書", urlCol: "pl_insurance_image_url", expiryCol: "pl_insurance_expiry", required: false },
     { key: "vehicle_inspection", label: "車検証", urlCol: "vehicle_inspection_image_url", expiryCol: "vehicle_inspection_expiry", required: false, desc: "キッチンカーの車検証をアップロードしてください" },
