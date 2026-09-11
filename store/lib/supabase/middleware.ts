@@ -1,7 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-// Public routes that don't require authentication
+// Public routes that don't require authentication (no session check at all)
 const PUBLIC_ROUTES = [
     '/login',
     '/signup',
@@ -13,8 +13,11 @@ const PUBLIC_ROUTES = [
     '/organizers',
     '/privacy',
     '/terms',
-    // Soft-protected: let through so the page can show a friendly "login required"
-    // prompt instead of an abrupt redirect (the page renders LoginRequired when logged out).
+]
+
+// Soft-protected routes: run full auth check + session refresh, but don't redirect
+// unauthenticated users (page components render LoginRequired for friendly UX).
+const SOFT_PROTECTED_ROUTES = [
     '/applications',
     '/history',
     '/profile',
@@ -25,6 +28,12 @@ function isPublicRoute(pathname: string): boolean {
     // Home page is public
     if (pathname === '/') return true
     return PUBLIC_ROUTES.some(route =>
+        pathname === route || pathname.startsWith(route + '/')
+    )
+}
+
+function isSoftProtectedRoute(pathname: string): boolean {
+    return SOFT_PROTECTED_ROUTES.some(route =>
         pathname === route || pathname.startsWith(route + '/')
     )
 }
@@ -50,10 +59,13 @@ export async function updateSession(request: NextRequest) {
 
     const pathname = request.nextUrl.pathname
 
-    // Skip auth check entirely for public routes
+    // Public routes: skip auth entirely
     if (isPublicRoute(pathname)) {
         return response
     }
+
+    // Soft-protected routes: run auth check + session refresh, but don't redirect
+    const isSoftProtected = isSoftProtectedRoute(pathname)
 
     const supabase = createServerClient(
         supabaseUrl,
@@ -84,8 +96,8 @@ export async function updateSession(request: NextRequest) {
     try {
         const { data: { user } } = await supabase.auth.getUser()
 
-        // Redirect unauthenticated users from protected routes to signup
-        if (!user) {
+        // Redirect unauthenticated users from FULLY protected routes to signup
+        if (!user && !isSoftProtected) {
             const url = request.nextUrl.clone()
             url.pathname = '/signup'
             url.searchParams.set('next', pathname)
@@ -99,9 +111,12 @@ export async function updateSession(request: NextRequest) {
             return NextResponse.redirect(url)
         }
     } catch {
-        const url = request.nextUrl.clone()
-        url.pathname = '/signup'
-        return NextResponse.redirect(url)
+        // On error, only redirect if fully protected
+        if (!isSoftProtected) {
+            const url = request.nextUrl.clone()
+            url.pathname = '/signup'
+            return NextResponse.redirect(url)
+        }
     }
 
     return response
