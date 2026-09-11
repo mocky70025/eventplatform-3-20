@@ -110,7 +110,7 @@ export function DocumentsSection({ initialProfile }: DocumentsSectionProps) {
 
             const { error: uploadError } = await supabase.storage
                 .from("exhibitor-documents")
-                .upload(filePath, file);
+                .upload(filePath, file, { metadata: { user_id: user.id } });
             if (uploadError) throw new Error("アップロードに失敗しました");
 
             const { error: updateError } = await supabase
@@ -140,6 +140,17 @@ export function DocumentsSection({ initialProfile }: DocumentsSectionProps) {
             )}
             {success && (
                 <div className="bg-store-50 border border-store-200 text-store-700 px-4 py-3 rounded-xl text-sm">{success}</div>
+            )}
+
+            {/* Business permit warning */}
+            {!initialProfile?.business_permit_image_url && (
+                <div className="bg-amber-50 border border-amber-200 rounded-2xl px-5 py-4 flex items-start gap-3">
+                    <Info className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" />
+                    <div>
+                        <p className="text-sm font-bold text-amber-900">営業許可証が未登録です</p>
+                        <p className="text-xs text-amber-700 mt-0.5">イベント応募には営業許可証が必須です。下のリストからアップロードしてください。</p>
+                    </div>
+                </div>
             )}
 
             {/* Info banner */}

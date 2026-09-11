@@ -1,10 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+
+const RATE_LIMIT_MAX = 30;
+const RATE_LIMIT_WINDOW_SECONDS = 60;
+
+function getClientIP(request: NextRequest): string {
+    const forwarded = request.headers.get("x-forwarded-for");
+    if (forwarded) return forwarded.split(",")[0].trim();
+    return request.headers.get("x-real-ip") || "unknown";
+}
 
 export async function GET(request: NextRequest) {
     const zipcode = request.nextUrl.searchParams.get("zipcode");
 
     if (!zipcode || !/^\d{7}$/.test(zipcode)) {
         return NextResponse.json({ error: "正しい郵便番号を入力してください" }, { status: 400 });
+    }
+
+    // Rate limiting by IP
+    const admin = createAdminClient();
+    const clientIP = getClientIP(request);
+    const { data: allowed, error: rlError } = await admin.rpc("check_rate_limit", {
+        p_key: `zipcode:${clientIP}`,
+        p_max_requests: RATE_LIMIT_MAX,
+        p_window_seconds: RATE_LIMIT_WINDOW_SECONDS,
+    });
+    if (rlError || !allowed) {
+        return NextResponse.json(
+            { error: "リクエストが多すぎます。しばらく待ってから再試行してください。" },
+            { status: 429 }
+        );
     }
 
     try {

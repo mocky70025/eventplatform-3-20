@@ -105,7 +105,9 @@ export function MediaSection({ initialProfile }: MediaSectionProps) {
             if (coverFile) {
                 const fileExt = (coverFile.name.split(".").pop() || "").toLowerCase();
                 const filePath = `${user.id}/cover_${crypto.randomUUID()}.${fileExt}`;
-                const { error: uploadError } = await supabase.storage.from("exhibitor-documents").upload(filePath, coverFile);
+                const { error: uploadError } = await supabase.storage.from("exhibitor-documents").upload(filePath, coverFile, {
+                    metadata: { user_id: user.id },
+                });
                 if (uploadError) throw new Error("カバー写真のアップロードに失敗しました");
                 updateData.cover_image = filePath;
             }
@@ -116,7 +118,9 @@ export function MediaSection({ initialProfile }: MediaSectionProps) {
                 for (const file of newFiles) {
                     const fileExt = (file.name.split(".").pop() || "").toLowerCase();
                     const filePath = `${user.id}/gallery_${crypto.randomUUID()}.${fileExt}`;
-                    const { error: uploadError } = await supabase.storage.from("exhibitor-documents").upload(filePath, file);
+                    const { error: uploadError } = await supabase.storage.from("exhibitor-documents").upload(filePath, file, {
+                        metadata: { user_id: user.id },
+                    });
                     if (uploadError) throw new Error("写真のアップロードに失敗しました");
                     uploadedUrls.push(filePath);
                 }

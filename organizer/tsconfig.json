@@ -19,7 +19,9 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@wacca/types/*": ["../types/*"],
+      "@wacca/shared/*": ["../shared/*"]
     }
   },
   "include": [

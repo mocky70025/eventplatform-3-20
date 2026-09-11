@@ -1,11 +1,29 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
+
+const RATE_LIMIT_MAX = 5;
+const RATE_LIMIT_WINDOW_SECONDS = 3600; // 1 hour
 
 export async function POST(request: Request) {
     const supabase = await createClient();
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    // Rate limiting by user
+    const admin = createAdminClient();
+    const { data: allowed, error: rlError } = await admin.rpc("check_rate_limit", {
+        p_key: `reviews:${user.id}`,
+        p_max_requests: RATE_LIMIT_MAX,
+        p_window_seconds: RATE_LIMIT_WINDOW_SECONDS,
+    });
+    if (rlError || !allowed) {
+        return NextResponse.json(
+            { error: "リクエストが多すぎます。しばらく待ってから再試行してください。" },
+            { status: 429 }
+        );
+    }
 
     const { event_id, reviewee_id, rating, comment } = await request.json();
 

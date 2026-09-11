@@ -383,7 +383,7 @@ export default function CreateEventPage() {
         const fileName = `${userId}/${prefix}_${crypto.randomUUID()}.${fileExt}`;
         const { error: uploadError } = await supabase.storage
             .from('event-images')
-            .upload(fileName, file);
+            .upload(fileName, file, { metadata: { user_id: userId } });
 
         if (uploadError) throw uploadError;
 

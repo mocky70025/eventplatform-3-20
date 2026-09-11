@@ -10,6 +10,7 @@ interface PageProps {
     category?: string;
     period?: string;
     fee?: string;
+    recruiting?: string;
     page?: string;
   }>;
 }
@@ -72,7 +73,7 @@ function getRemainingDays(dateStr: string | null | undefined): { days: number; l
 }
 
 export default async function EventSearchPage({ searchParams }: PageProps) {
-  const { q, area, category, period, fee, page } = await searchParams;
+  const { q, area, category, period, fee, recruiting, page } = await searchParams;
   const currentPage = Math.max(1, parseInt(page || "1", 10));
   const supabase = await createClient();
 
@@ -110,6 +111,13 @@ export default async function EventSearchPage({ searchParams }: PageProps) {
       query = query.gte("event_start_date", now.toISOString().split("T")[0]);
       query = query.lte("event_start_date", endDate.toISOString().split("T")[0]);
     }
+  }
+
+  if (recruiting === "true") {
+    const today = new Date().toISOString().split("T")[0];
+    query = query
+      .or(`application_period_end.is.null,application_period_end.gte.${today}`)
+      .filter("applied_count", "lt", "recruit_count");
   }
 
   // Pagination
@@ -325,6 +333,18 @@ export default async function EventSearchPage({ searchParams }: PageProps) {
               <option>30,000円~</option>
             </select>
 
+            {/* Recruiting */}
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                name="recruiting"
+                defaultChecked={recruiting === "true"}
+                value="true"
+                className="w-4 h-4 rounded border-slate-300 accent-store-500 focus:ring-store-500"
+              />
+              <span className="text-sm text-slate-700">募集中のみ</span>
+            </label>
+
             {/* Search Button */}
             <button
               type="submit"
@@ -342,6 +362,19 @@ export default async function EventSearchPage({ searchParams }: PageProps) {
               </svg>
               検索する
             </button>
+
+            {/* Clear Filters */}
+            {q || area || category || period || fee || recruiting ? (
+              <a
+                href="/events"
+                className="text-sm text-slate-500 hover:text-store-600 underline flex items-center gap-1"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                条件をクリア
+              </a>
+            ) : null}
 
             {/* Spacer */}
             <div className="flex-1"></div>

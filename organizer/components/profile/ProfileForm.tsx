@@ -159,7 +159,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
 
             const { error: uploadError } = await supabase.storage
                 .from("organizer-avatars")
-                .upload(filePath, file, { upsert: true });
+                .upload(filePath, file, { upsert: true, metadata: { user_id: user.id } });
 
             if (uploadError) throw uploadError;
 

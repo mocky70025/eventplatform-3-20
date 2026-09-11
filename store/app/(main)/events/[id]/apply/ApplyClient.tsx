@@ -111,7 +111,7 @@ export default function ApplyClient({ event, exhibitor }: { event: any, exhibito
             const filePath = `${exhibitor.id}/${fieldKey}_${Date.now()}.${ext}`;
             const { error: uploadError } = await supabase.storage
                 .from("exhibitor-documents")
-                .upload(filePath, file);
+                .upload(filePath, file, { metadata: { user_id: exhibitor.user_id } });
             if (uploadError) throw uploadError;
 
             const { data: { publicUrl } } = supabase.storage

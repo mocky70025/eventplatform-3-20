@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
-    Calendar, MapPin, ChevronLeft,
+    Calendar, MapPin, ChevronLeft, Globe,
     Clock, AlertTriangle, Phone, Mail, User, Store,
     FileText, Shield, Camera, XCircle, ChevronRight
 } from "lucide-react";
@@ -17,10 +17,10 @@ export default async function EventDetailPage({ params }: PageProps) {
     const { id } = await params;
     const supabase = await createClient();
 
-    // 1. Get event details with organizer info
+    // 1. Get event details with organizer info (public view - no PII)
     const { data: event, error } = await supabase
         .from("events")
-        .select("*, organizers(company_name, name, email, phone_number)")
+        .select("*, organizers_public(company_name, name, avatar_url, description, social_links)")
         .eq("id", id)
         .eq("status", "published")
         .or("visibility.eq.public,visibility.is.null")
@@ -641,28 +641,28 @@ export default async function EventDetailPage({ params }: PageProps) {
                                     </div>
                                 </div>
                                 <div className="space-y-2 text-sm">
-                                    {event.organizers?.email && (
-                                        <div className="flex items-center gap-2 text-slate-500">
-                                            <Mail className="w-4 h-4 text-slate-500 shrink-0" />
-                                            <span className="truncate">{event.organizers.email}</span>
-                                        </div>
+                                    {event.organizers_public?.description && (
+                                        <p className="text-slate-600 text-sm line-clamp-2">{event.organizers_public.description}</p>
                                     )}
-                                    {event.organizers?.phone_number && (
-                                        <div className="flex items-center gap-2 text-slate-500">
-                                            <Phone className="w-4 h-4 text-slate-500 shrink-0" />
-                                            <span>{event.organizers.phone}</span>
+                                    {event.organizers_public?.social_links && typeof event.organizers_public.social_links === 'object' && (
+                                        <div className="flex flex-wrap gap-2">
+                                            {Object.entries(event.organizers_public.social_links as Record<string, string>).map(([platform, url]) => (
+                                                url && /^https?:\/\//i.test(url) && (
+                                                    <a
+                                                        key={platform}
+                                                        href={url}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200"
+                                                    >
+                                                        <Globe className="w-3 h-3" />
+                                                        {platform}
+                                                    </a>
+                                                )
+                                            ))}
                                         </div>
                                     )}
                                 </div>
-                                {event.organizers?.email && (
-                                    <a
-                                        href={`mailto:${event.organizers.email}?subject=${encodeURIComponent(`【${event.event_name}】に関するお問い合わせ`)}`}
-                                        className="mt-4 w-full inline-flex items-center justify-center gap-2 h-10 rounded-xl border border-store-200 text-store-700 hover:bg-store-50 text-sm font-medium transition"
-                                    >
-                                        <Mail className="w-4 h-4" />
-                                        お問い合わせ
-                                    </a>
-                                )}
                             </div>
 
                             {/* Share & Bookmark buttons */}

@@ -16,10 +16,12 @@ export async function Header() {
                     <span className="text-xs bg-blue-100 text-blue-700 px-2 rounded-full font-semibold inline-flex items-center justify-center h-5" style={{ lineHeight: 1 }}>ADMIN</span>
                 </Link>
 
-                <nav className="flex items-center gap-2 justify-self-center">
+                <nav className="flex items-center gap-2 justify-self-center flex-wrap">
                     <Link href="/organizers" className="text-sm font-medium px-3 py-2 rounded-lg text-slate-500 hover:text-blue-600 transition-colors">主催者管理</Link>
                     <Link href="/events" className="text-sm font-medium px-3 py-2 rounded-lg text-slate-500 hover:text-blue-600 transition-colors">イベント管理</Link>
                     <Link href="/exhibitors" className="text-sm font-medium px-3 py-2 rounded-lg text-slate-500 hover:text-blue-600 transition-colors">出店者管理</Link>
+                    <Link href="/applications" className="text-sm font-medium px-3 py-2 rounded-lg text-slate-500 hover:text-blue-600 transition-colors">申請管理</Link>
+                    <Link href="/audit-logs" className="text-sm font-medium px-3 py-2 rounded-lg text-slate-500 hover:text-blue-600 transition-colors">監査ログ</Link>
                 </nav>
 
                 <div className="justify-self-end">

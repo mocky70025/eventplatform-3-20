@@ -14,9 +14,9 @@ export default async function OrganizerDetailPage({ params }: PageProps) {
     const { id } = await params;
     const supabase = await createClient();
 
-    // Get organizer details
+    // Get organizer details (public view - no PII)
     const { data: organizer, error } = await supabase
-        .from("organizers")
+        .from("organizers_public")
         .select("*")
         .eq("id", id)
         .single();
@@ -53,7 +53,7 @@ export default async function OrganizerDetailPage({ params }: PageProps) {
                     <div className="bg-gradient-to-r from-orange-50 to-store-50 px-8 py-12 border-b border-slate-100">
                         <div className="flex items-center gap-6">
                             <div className="w-20 h-20 rounded-2xl bg-orange-100 flex items-center justify-center text-orange-600 font-bold text-3xl shadow-lg">
-                                {organizer.company_name?.[0] || '?'}
+                                {organizer.company_name?.[0] || organizer.avatar_url?.[0] || '?'}
                             </div>
                             <div>
                                 <h1 className="text-3xl font-extrabold text-slate-900 mb-2">
@@ -68,48 +68,18 @@ export default async function OrganizerDetailPage({ params }: PageProps) {
 
                     {/* Content */}
                     <div className="p-8 space-y-6">
-                        {/* Contact Information */}
-                        <section>
-                            <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
-                                <span className="w-1 h-5 bg-store-500 rounded-full"></span>
-                                連絡先情報
-                            </h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {organizer.email && (
-                                    <div className="flex items-start gap-4 p-4 bg-slate-50 rounded-xl border border-slate-100">
-                                        <div className="w-10 h-10 rounded-full bg-store-100 flex items-center justify-center shrink-0">
-                                            <Mail className="w-5 h-5 text-store-600" />
-                                        </div>
-                                        <div>
-                                            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">メールアドレス</p>
-                                            <a 
-                                                href={`mailto:${organizer.email}`}
-                                                className="text-store-600 hover:text-store-700 font-medium break-all"
-                                            >
-                                                {organizer.email}
-                                            </a>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {organizer.phone_number && (
-                                    <div className="flex items-start gap-4 p-4 bg-slate-50 rounded-xl border border-slate-100">
-                                        <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
-                                            <Phone className="w-5 h-5 text-blue-600" />
-                                        </div>
-                                        <div>
-                                            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">電話番号</p>
-                                            <a 
-                                                href={`tel:${organizer.phone_number}`}
-                                                className="text-blue-600 hover:text-blue-700 font-medium"
-                                            >
-                                                {organizer.phone_number}
-                                            </a>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        </section>
+                        {/* Description */}
+                        {organizer.description && (
+                            <section>
+                                <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+                                    <span className="w-1 h-5 bg-store-500 rounded-full"></span>
+                                    概要
+                                </h2>
+                                <p className="text-slate-600 leading-relaxed whitespace-pre-wrap">
+                                    {organizer.description}
+                                </p>
+                            </section>
+                        )}
 
                         {/* Social Links */}
                         {Object.keys(socialLinks).length > 0 && (
@@ -142,43 +112,8 @@ export default async function OrganizerDetailPage({ params }: PageProps) {
                             </section>
                         )}
 
-                        {/* Additional Info */}
-                        {(organizer.gender || organizer.age) && (
-                            <section>
-                                <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
-                                    <span className="w-1 h-5 bg-store-500 rounded-full"></span>
-                                    その他の情報
-                                </h2>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {organizer.gender && (
-                                        <div className="flex items-start gap-4 p-4 bg-slate-50 rounded-xl border border-slate-100">
-                                            <div className="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center shrink-0">
-                                                <User className="w-5 h-5 text-pink-600" />
-                                            </div>
-                                            <div>
-                                                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">性別</p>
-                                                <p className="text-slate-900 font-medium">{organizer.gender}</p>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {organizer.age && (
-                                        <div className="flex items-start gap-4 p-4 bg-slate-50 rounded-xl border border-slate-100">
-                                            <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center shrink-0">
-                                                <Building2 className="w-5 h-5 text-indigo-600" />
-                                            </div>
-                                            <div>
-                                                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">年齢</p>
-                                                <p className="text-slate-900 font-medium">{organizer.age}歳</p>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            </section>
-                        )}
-
                         {/* No Additional Info Message */}
-                        {!organizer.email && !organizer.phone_number && Object.keys(socialLinks).length === 0 && !organizer.gender && !organizer.age && (
+                        {!organizer.description && Object.keys(socialLinks).length === 0 && (
                             <div className="p-8 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200 text-center">
                                 <AlertCircle className="w-12 h-12 text-slate-300 mx-auto mb-4" />
                                 <p className="text-slate-500 text-sm">追加情報は登録されていません</p>

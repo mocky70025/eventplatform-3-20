@@ -17,6 +17,7 @@
     "install:all": "npm install && cd store && npm install && cd ../organizer && npm install"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "supabase": "^2.117.0"
   }
 }
