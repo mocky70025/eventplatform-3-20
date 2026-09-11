@@ -65,7 +65,7 @@ export default async function ProfilePage() {
     }
     const rating = profile?.rating as number | null;
     const displayName = profile?.shop_name || profile?.name || "出店者";
-    const location = [profile?.prefecture, profile?.city].filter(Boolean).join("") || profile?.address || null;
+    const location = [profile?.prefecture, profile?.city_address].filter(Boolean).join("") || profile?.address || null;
 
     return (
         <div className="min-h-screen bg-[#f0fdf4]">

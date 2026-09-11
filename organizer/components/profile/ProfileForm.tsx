@@ -7,6 +7,17 @@ import { Loader2, Camera, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
+const PREFECTURES = [
+    "北海道", "青森県", "岩手県", "宮城県", "秋田県", "山形県", "福島県",
+    "茨城県", "栃木県", "群馬県", "埼玉県", "千葉県", "東京都", "神奈川県",
+    "新潟県", "富山県", "石川県", "福井県", "山梨県", "長野県",
+    "岐阜県", "静岡県", "愛知県", "三重県",
+    "滋賀県", "京都府", "大阪府", "兵庫県", "奈良県", "和歌山県",
+    "鳥取県", "島根県", "岡山県", "広島県", "山口県",
+    "徳島県", "香川県", "愛媛県", "高知県",
+    "福岡県", "佐賀県", "長崎県", "熊本県", "大分県", "宮崎県", "鹿児島県", "沖縄県",
+];
+
 interface ProfileFormProps {
     initialProfile: any;
 }
@@ -27,7 +38,9 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
         email: initialProfile?.email || "",
         phone: initialProfile?.phone_number || "",
         postalCode: initialProfile?.postal_code || "",
-        address: initialProfile?.address || "",
+        prefecture: initialProfile?.prefecture || "",
+        cityAddress: initialProfile?.city_address || "",
+        building: initialProfile?.building || "",
         website: initialProfile?.social_links?.website || "",
         description: initialProfile?.description || "",
     };
@@ -55,16 +68,19 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
                 if (!value.trim()) return null;
                 if (!/^\d{3}-?\d{4}$/.test(value) && !/^\d{7}$/.test(value)) return "郵便番号は7桁の数字で入力してください";
                 return null;
-            case "address":
-                if (!value.trim()) return null; // optional for organizer
-                if (value.length > 200) return "住所は200文字以内で入力してください";
+            case "prefecture":
+                if (!value) return "都道府県を選択してください";
+                return null;
+            case "cityAddress":
+                if (!value.trim()) return "市区町村・番地を入力してください";
+                if (value.length > 200) return "市区町村・番地は200文字以内で入力してください";
                 return null;
             default:
                 return null;
         }
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
         setSuccess("");
@@ -97,12 +113,14 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
             const data = await res.json();
             if (data.results && data.results.length > 0) {
                 const result = data.results[0];
-                const address = `${result.address1}${result.address2}${result.address3}`;
-                setFormData(prev => ({ ...prev, address }));
+                const prefecture = result.address1;
+                const cityAddress = `${result.address2}${result.address3}`;
+                setFormData(prev => ({ ...prev, prefecture, cityAddress }));
                 setFieldErrors(prev => {
                     const next = { ...prev };
                     delete next.postalCode;
-                    delete next.address;
+                    delete next.prefecture;
+                    delete next.cityAddress;
                     return next;
                 });
             } else {
@@ -189,14 +207,14 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!formData.companyName || !formData.repName || !formData.phone) {
+        if (!formData.companyName || !formData.repName || !formData.phone || !formData.prefecture || !formData.cityAddress) {
             setShowErrors(true);
             return;
         }
 
         // Run field validations
         const errors: Record<string, string> = {};
-        for (const name of ["companyName", "repName", "phone", "postalCode", "address"] as const) {
+        for (const name of ["companyName", "repName", "phone", "postalCode", "prefecture", "cityAddress"] as const) {
             const err = validateField(name, formData[name]);
             if (err) errors[name] = err;
         }
@@ -221,7 +239,10 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
                     email: formData.email,
                     phone_number: formData.phone,
                     postal_code: formData.postalCode.replace(/[-\s]/g, "") || null,
-                    address: formData.address,
+                    prefecture: formData.prefecture,
+                    city_address: formData.cityAddress,
+                    building: formData.building || null,
+                    address: `${formData.prefecture}${formData.cityAddress}${formData.building || ""}`,
                     social_links: formData.website ? { website: formData.website } : null,
                     description: formData.description,
                 })
@@ -425,18 +446,45 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
                     )}
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1.5">所在地 <span className="text-slate-500 text-xs font-normal">(任意)</span></label>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">都道府県</label>
+                    <select
+                        name="prefecture"
+                        value={formData.prefecture}
+                        onChange={handleChange}
+                        className={(fieldErrors.prefecture || (showErrors && !formData.prefecture)) ? inputClass + " border-red-400 focus:ring-red-500 focus:border-red-500" : inputClass}
+                    >
+                        <option value="">選択してください</option>
+                        {PREFECTURES.map((prefecture) => (
+                            <option key={prefecture} value={prefecture}>{prefecture}</option>
+                        ))}
+                    </select>
+                    {(fieldErrors.prefecture || (showErrors && !formData.prefecture)) && (
+                        <p className="text-xs text-red-500 mt-1">{fieldErrors.prefecture || "都道府県を選択してください"}</p>
+                    )}
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">市区町村・番地</label>
                     <input
-                        name="address"
-                        value={formData.address}
+                        name="cityAddress"
+                        value={formData.cityAddress}
                         onChange={handleChange}
                         onBlur={handleBlur}
-                        placeholder="東京都渋谷区..."
-                        className={fieldErrors.address ? inputClass + " border-red-400 focus:ring-red-500 focus:border-red-500" : inputClass}
+                        placeholder="渋谷区神宮前1-2-3"
+                        className={(fieldErrors.cityAddress || (showErrors && !formData.cityAddress)) ? inputClass + " border-red-400 focus:ring-red-500 focus:border-red-500" : inputClass}
                     />
-                    {fieldErrors.address && (
-                        <p className="text-xs text-red-500 mt-1">{fieldErrors.address}</p>
+                    {(fieldErrors.cityAddress || (showErrors && !formData.cityAddress)) && (
+                        <p className="text-xs text-red-500 mt-1">{fieldErrors.cityAddress || "市区町村・番地を入力してください"}</p>
                     )}
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">建物名・部屋番号 <span className="text-slate-500 text-xs font-normal">(任意)</span></label>
+                    <input
+                        name="building"
+                        value={formData.building}
+                        onChange={handleChange}
+                        placeholder="ワッカビル 301号室"
+                        className={inputClass}
+                    />
                 </div>
 
                 <div>

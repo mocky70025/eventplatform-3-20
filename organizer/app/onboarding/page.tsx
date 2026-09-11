@@ -159,6 +159,7 @@ export default function OnboardingPage() {
                     name: formData.repName,
                     email: formData.email,
                     phone_number: formData.phone,
+                    postal_code: postalCode.replace(/-/g, "") || null,
                     prefecture: formData.prefecture,
                     city_address: formData.cityAddress,
                     building: formData.building || null,

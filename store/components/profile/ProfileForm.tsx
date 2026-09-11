@@ -40,7 +40,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
         repName: initialProfile?.name || "",
         email: initialProfile?.email || "",
         phone: initialProfile?.phone_number || "",
-        postalCode: "",
+        postalCode: initialProfile?.postal_code || "",
         prefecture: initialProfile?.prefecture || "",
         cityAddress: initialProfile?.city_address || "",
         building: initialProfile?.building || "",
@@ -84,7 +84,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
         }
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
         setSuccess("");
@@ -257,6 +257,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
                 name: formData.repName,
                 email: formData.email,
                 phone_number: formData.phone,
+                postal_code: formData.postalCode.replace(/[-\s]/g, "") || null,
                 prefecture: formData.prefecture,
                 city_address: formData.cityAddress,
                 building: formData.building || null,
