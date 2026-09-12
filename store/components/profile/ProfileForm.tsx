@@ -270,9 +270,12 @@ export function ProfileForm({ initialProfile, email }: ProfileFormProps) {
                 business_styles: formData.styles,
             };
 
-            const { error: updateError } = initialProfile
-                ? await supabase.from("exhibitors").update(updateData).eq("user_id", user.id)
-                : await supabase.from("exhibitors").insert({ ...updateData, user_id: user.id, email: user.email || email });
+            const { error: updateError } = await supabase
+                .from("exhibitors")
+                .upsert(
+                    { ...updateData, user_id: user.id, email: user.email || email },
+                    { onConflict: "user_id" }
+                );
 
             if (updateError) throw updateError;
 

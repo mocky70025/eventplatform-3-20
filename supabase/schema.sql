@@ -17,6 +17,8 @@ DROP FUNCTION IF EXISTS update_updated_at_column();
 DROP FUNCTION IF EXISTS get_user_id_by_email(TEXT);
 DROP FUNCTION IF EXISTS check_rate_limit(TEXT, INTEGER, INTEGER);
 DROP FUNCTION IF EXISTS cleanup_rate_limits(INTEGER);
+DROP FUNCTION IF EXISTS public.organizer_can_read_applicant_exhibitor_profile(UUID);
+DROP FUNCTION IF EXISTS public.exhibitor_can_read_applied_to_organizer_profile(UUID);
 
 DROP TABLE IF EXISTS admin_audit_logs CASCADE;
 DROP TABLE IF EXISTS rate_limits CASCADE;
@@ -386,16 +388,49 @@ ALTER TABLE rate_limits ENABLE ROW LEVEL SECURITY;
 ALTER TABLE admin_audit_logs ENABLE ROW LEVEL SECURITY;
 
 -- ---- organizers ---------------------------------------------------------
-CREATE POLICY "Anyone can read organizers" ON organizers
-  FOR SELECT USING (true);
+CREATE OR REPLACE VIEW public.organizers_public AS
+SELECT
+  id,
+  company_name,
+  name,
+  avatar_url,
+  description,
+  social_links,
+  created_at
+FROM organizers;
+
+GRANT SELECT ON public.organizers_public TO anon, authenticated;
+
+CREATE POLICY "Organizers can read own full profile" ON organizers
+  FOR SELECT USING (user_id = auth.uid());
 CREATE POLICY "Organizers can insert their own data" ON organizers
   FOR INSERT WITH CHECK (user_id = auth.uid());
 CREATE POLICY "Organizers can update their own data" ON organizers
   FOR UPDATE USING (user_id = auth.uid());
 
 -- ---- exhibitors ---------------------------------------------------------
-CREATE POLICY "Anyone can read exhibitors" ON exhibitors
-  FOR SELECT USING (true);
+CREATE OR REPLACE VIEW public.exhibitors_public AS
+SELECT
+  id,
+  shop_name,
+  name,
+  gender,
+  age,
+  avatar_url,
+  description,
+  genres,
+  business_styles,
+  genre_free_text,
+  gallery_images,
+  cover_image,
+  allow_photo_usage,
+  created_at
+FROM exhibitors;
+
+GRANT SELECT ON public.exhibitors_public TO anon, authenticated;
+
+CREATE POLICY "Exhibitors can read own full profile" ON exhibitors
+  FOR SELECT USING (user_id = auth.uid());
 CREATE POLICY "Exhibitors can insert their own data" ON exhibitors
   FOR INSERT WITH CHECK (user_id = auth.uid());
 CREATE POLICY "Exhibitors can update their own data" ON exhibitors
@@ -448,6 +483,58 @@ CREATE POLICY "Exhibitors can cancel their own applications" ON event_applicatio
   FOR DELETE USING (
     exhibitor_id IN (SELECT id FROM exhibitors WHERE user_id = auth.uid())
   );
+
+-- Counterparty checks run with RLS bypass to avoid circular policy evaluation.
+CREATE OR REPLACE FUNCTION public.organizer_can_read_applicant_exhibitor_profile(target_exhibitor_id UUID)
+RETURNS BOOLEAN
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.event_applications AS application
+    JOIN public.events AS event ON event.id = application.event_id
+    JOIN public.organizers AS organizer ON organizer.id = event.organizer_id
+    WHERE application.exhibitor_id = target_exhibitor_id
+      AND organizer.user_id = auth.uid()
+  );
+$$;
+
+CREATE OR REPLACE FUNCTION public.exhibitor_can_read_applied_to_organizer_profile(target_organizer_id UUID)
+RETURNS BOOLEAN
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.event_applications AS application
+    JOIN public.events AS event ON event.id = application.event_id
+    JOIN public.exhibitors AS exhibitor ON exhibitor.id = application.exhibitor_id
+    WHERE event.organizer_id = target_organizer_id
+      AND exhibitor.user_id = auth.uid()
+  );
+$$;
+
+REVOKE ALL ON FUNCTION public.organizer_can_read_applicant_exhibitor_profile(UUID) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.exhibitor_can_read_applied_to_organizer_profile(UUID) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.organizer_can_read_applicant_exhibitor_profile(UUID) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.exhibitor_can_read_applied_to_organizer_profile(UUID) TO authenticated;
+
+CREATE POLICY "Organizers can read applicant exhibitor profiles" ON exhibitors
+  FOR SELECT USING (public.organizer_can_read_applicant_exhibitor_profile(id));
+
+CREATE POLICY "Exhibitors can read applied-to organizer profiles" ON organizers
+  FOR SELECT USING (public.exhibitor_can_read_applied_to_organizer_profile(id));
+
+CREATE POLICY "Service role full access organizers" ON organizers
+  FOR ALL USING (auth.role() = 'service_role');
+
+CREATE POLICY "Service role full access exhibitors" ON exhibitors
+  FOR ALL USING (auth.role() = 'service_role');
 
 -- ---- event_reviews ------------------------------------------------------
 CREATE POLICY "Anyone can read reviews" ON event_reviews

@@ -17,12 +17,24 @@ export default async function ProfilePage() {
         return <LoginRequired label="設定" />;
     }
 
-    const { data: profiles } = await supabase
+    const { data: profiles, error: profileError } = await supabase
         .from("exhibitors")
         .select("*")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
         .limit(1);
+
+    if (profileError) {
+        return (
+            <main className="min-h-screen bg-[#f0fdf4] px-6 py-8">
+                <div role="alert" className="max-w-4xl mx-auto rounded-2xl border border-red-200 bg-red-50 p-6 text-red-800">
+                    <h1 className="font-bold">プロフィールを読み込めませんでした</h1>
+                    <p className="mt-2 text-sm">{profileError.message}</p>
+                </div>
+            </main>
+        );
+    }
+
     const profile = profiles?.[0] || null;
 
     // 直近3件の評価を取得（主催者→出店者）
