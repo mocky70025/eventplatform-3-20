@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
-    ChevronRight, ChevronLeft, Calendar, MapPin,
+    ChevronLeft, Calendar, MapPin,
     ImageIcon, FileText, CheckCircle2, Users, Upload, Clock, AlertCircle, Search, Loader2,
     Shield, Phone, Mail, User, Truck, ClipboardList, Plus, X, Lock, Eye, Send, CircleDot
 } from "lucide-react";
@@ -48,7 +48,6 @@ export default function EditEventPage() {
     const eventId = params.id as string;
     const supabase = createClient();
 
-    const [step, setStep] = useState(1);
     const [activeSection, setActiveSection] = useState("event-basics");
     const [isLoading, setIsLoading] = useState(false);
     const [isFetching, setIsFetching] = useState(true);
@@ -287,31 +286,11 @@ export default function EditEventPage() {
         }
     };
 
-    const handleNext = () => {
-        setShowErrors(false);
-        setStep(prev => {
-            const next = prev + 1;
-            setActiveSection(next === 2 ? "event-rules" : "event-review");
-            return next;
-        });
-        setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50);
-    };
-    const handleBack = () => {
-        setShowErrors(false);
-        setStep(prev => {
-            const next = prev - 1;
-            setActiveSection(next === 1 ? "event-basics" : "event-rules");
-            return next;
-        });
-        setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50);
-    };
-
-    const navigateToSection = (nextStep: number, sectionId: string) => {
+    const navigateToSection = (sectionId: string) => {
         setShowErrors(false);
         setActiveSection(sectionId);
-        setStep(nextStep);
         window.setTimeout(() => {
-            document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth", block: "start" });
+            window.scrollTo({ top: 0, behavior: "smooth" });
         }, 80);
     };
 
@@ -463,11 +442,11 @@ export default function EditEventPage() {
     const missingSections = requiredSections.filter(([, complete]) => !complete).map(([section]) => section);
 
     const creationSections = [
-        { id: "event-basics", step: 1, label: "イベント基本情報", complete: Boolean(formData.eventName && formData.genre && formData.description && formData.boothContent), icon: FileText },
-        { id: "event-schedule", step: 1, label: "開催日時", complete: Boolean(formData.startDate && formData.startTime && formData.endTime && formData.appDeadline), icon: Calendar },
-        { id: "event-recruitment", step: 1, label: "会場・募集要項", complete: Boolean(formData.venueName && formData.address && formData.recruitCount && formData.fee && formData.mainImage), icon: ImageIcon },
-        { id: "event-rules", step: 2, label: "規約・連絡先", complete: Boolean(formData.termsCompliance && formData.boothQualification && formData.privacyPolicy && formData.cancelPolicy && formData.organizerName && formData.organizerEmail && formData.organizerPhone), icon: Shield },
-        { id: "event-review", step: 3, label: "提出前確認", complete: missingSections.length === 0, icon: CheckCircle2 },
+        { id: "event-basics", label: "イベント基本情報", complete: Boolean(formData.eventName && formData.genre && formData.description && formData.boothContent), icon: FileText },
+        { id: "event-schedule", label: "開催日時", complete: Boolean(formData.startDate && formData.startTime && formData.endTime && formData.appDeadline), icon: Calendar },
+        { id: "event-recruitment", label: "会場・募集要項", complete: Boolean(formData.venueName && formData.address && formData.recruitCount && formData.fee && formData.mainImage), icon: ImageIcon },
+        { id: "event-rules", label: "規約・連絡先", complete: Boolean(formData.termsCompliance && formData.boothQualification && formData.privacyPolicy && formData.cancelPolicy && formData.organizerName && formData.organizerEmail && formData.organizerPhone), icon: Shield },
+        { id: "event-review", label: "提出前確認", complete: missingSections.length === 0, icon: CheckCircle2 },
     ];
 
     const handleSubmit = () => {
@@ -503,23 +482,6 @@ export default function EditEventPage() {
             </div>
         );
     }
-
-    const TOTAL_STEPS = 3;
-    const canProceed = () => {
-        // Published events have most fields locked; only validate editable fields
-        if (isLocked) return true;
-        switch (step) {
-            case 1:
-                return formData.eventName && formData.genre && formData.description
-                    && formData.startDate && formData.startTime && formData.endTime && formData.appDeadline
-                    && formData.venueName && formData.address
-                    && formData.recruitCount && formData.fee;
-            case 2:
-                return formData.termsCompliance && formData.boothQualification && formData.privacyPolicy && formData.cancelPolicy
-                    && formData.organizerName && formData.organizerEmail && formData.organizerPhone;
-            default: return true;
-        }
-    };
 
     // ドラフト以外は「訂正可」フィールドのみ編集可能
     const isLocked = formData.status !== "draft";
@@ -589,9 +551,9 @@ export default function EditEventPage() {
             <main className="mx-auto flex-1 w-full max-w-7xl px-4 py-6 lg:px-8 lg:py-8">
                 <div className="mb-5 rounded-xl border border-orange-100 bg-white px-4 py-3 shadow-sm lg:hidden">
                     <label htmlFor="creation-section" className="mb-1 block text-xs font-bold text-slate-500">作成セクション</label>
-                    <select id="creation-section" value={currentCreationSection} onChange={(event) => {
-                        const section = creationSections.find((item) => item.id === event.target.value);
-                        if (section) navigateToSection(section.step, section.id);
+                     <select id="creation-section" value={currentCreationSection} onChange={(event) => {
+                         const section = creationSections.find((item) => item.id === event.target.value);
+                         if (section) navigateToSection(section.id);
                     }} className="w-full rounded-lg border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-bold text-slate-800 outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100">
                         {creationSections.map((section) => <option key={section.id} value={section.id}>{section.complete ? "完了" : "未入力"} · {section.label}</option>)}
                     </select>
@@ -605,7 +567,7 @@ export default function EditEventPage() {
                                 {creationSections.map((section) => {
                                     const Icon = section.icon;
                                     const active = currentCreationSection === section.id;
-                                    return <button key={section.id} type="button" onClick={() => navigateToSection(section.step, section.id)} className={cn("flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition-colors", active ? "bg-orange-50 text-orange-800" : "text-slate-600 hover:bg-slate-50")}>
+                                    return <button key={section.id} type="button" onClick={() => navigateToSection(section.id)} className={cn("flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition-colors", active ? "bg-orange-50 text-orange-800" : "text-slate-600 hover:bg-slate-50")}>
                                         <Icon className={cn("h-4 w-4 shrink-0", active ? "text-orange-600" : "text-slate-400")} />
                                         <span className="min-w-0 flex-1 text-sm font-bold">{section.label}</span>
                                         {section.complete ? <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500" aria-label="完了" /> : <CircleDot className="h-4 w-4 shrink-0 text-amber-500" aria-label="未入力" />}
@@ -615,7 +577,7 @@ export default function EditEventPage() {
                             <div className="mt-5 border-t border-slate-100 pt-4">
                                 <Link href={`/events/${eventId}`} className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-bold text-slate-600 transition-colors hover:bg-slate-50 hover:text-orange-700"><Eye className="h-4 w-4" /> プレビューを確認</Link>
                                 {!isLocked && <Button onClick={saveDraft} disabled={isLoading} variant="outline" className="mt-2 w-full justify-center rounded-lg font-bold">{isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "下書きを保存"}</Button>}
-                                {!isLocked && step === TOTAL_STEPS && <Button onClick={handleSubmit} disabled={isLoading} className="mt-2 w-full justify-center rounded-lg bg-slate-900 font-bold text-white hover:bg-slate-800"><Send className="mr-2 h-4 w-4" />審査に提出する</Button>}
+                                {!isLocked && activeSection === "event-review" && <Button onClick={handleSubmit} disabled={isLoading} className="mt-2 w-full justify-center rounded-lg bg-slate-900 font-bold text-white hover:bg-slate-800"><Send className="mr-2 h-4 w-4" />審査に提出する</Button>}
                             </div>
                         </div>
                     </aside>
@@ -625,7 +587,7 @@ export default function EditEventPage() {
                             <p className="text-xs font-bold tracking-wider text-slate-500">公開までの進行</p>
                             <div className="mt-3 grid grid-cols-4 gap-1">
                                 {["作成中", "確認", "審査", "公開"].map((phase, index) => {
-                                    const activePhase = formData.status === "draft" ? (step === 3 ? 1 : 0) : formData.status === "pending" ? 2 : 3;
+                                    const activePhase = formData.status === "draft" ? (activeSection === "event-review" ? 1 : 0) : formData.status === "pending" ? 2 : 3;
                                     return <div key={phase} className="min-w-0">
                                         <div className={cn("h-1.5 rounded-full", index <= activePhase ? "bg-orange-500" : "bg-slate-100")} />
                                         <p className={cn("mt-2 text-center text-xs font-bold", index === activePhase ? "text-orange-700" : "text-slate-400")}>{phase}</p>
@@ -635,7 +597,7 @@ export default function EditEventPage() {
                         </div>
                         {!isLocked && <div className="mb-5 flex gap-2 lg:hidden">
                             <Button onClick={saveDraft} disabled={isLoading} variant="outline" className="flex-1 justify-center rounded-lg font-bold">{isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "下書きを保存"}</Button>
-                            {step === TOTAL_STEPS && <Button onClick={handleSubmit} disabled={isLoading} className="flex-1 justify-center rounded-lg bg-slate-900 font-bold text-white hover:bg-slate-800">審査に提出</Button>}
+                            {activeSection === "event-review" && <Button onClick={handleSubmit} disabled={isLoading} className="flex-1 justify-center rounded-lg bg-slate-900 font-bold text-white hover:bg-slate-800">審査に提出</Button>}
                         </div>}
 
                 {/* Content Card */}
@@ -677,7 +639,7 @@ export default function EditEventPage() {
                         </div>
                     )}
 
-                    {step === 3 && (
+                    {activeSection === "event-review" && (
                         <div className="mb-8 rounded-xl border border-slate-200 bg-slate-50 p-5">
                             <h2 className="text-base font-bold text-slate-900">提出前チェック</h2>
                             <p className="mt-1 text-sm text-slate-500">不足がある場合は該当セクションに戻って入力してください。</p>
@@ -686,14 +648,13 @@ export default function EditEventPage() {
                                     <button key={section} type="button" onClick={() => {
                                         if (complete) return;
                                         const target = index < 3 ? creationSections[index] : creationSections[3];
-                                        navigateToSection(target.step, target.id);
+                                        navigateToSection(target.id);
                                     }} className={cn("rounded-lg border px-3 py-2 text-left text-sm font-medium", complete ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-red-200 bg-red-50 text-red-700")}>{complete ? "完了" : "未入力"} · {section}</button>
                                 ))}
                             </div>
                         </div>
                     )}
-                    {/* ============ Step 1: イベント情報 ============ */}
-                    {step === 1 && (
+                    {activeSection === "event-basics" && (
                         <div className="space-y-10 animate-in fade-in slide-in-from-right-4 duration-300">
 
                             {/* 基本情報 */}
@@ -778,6 +739,11 @@ export default function EditEventPage() {
                                 </div>
                             </section>
 
+                        </div>
+                    )}
+
+                    {activeSection === "event-schedule" && (
+                        <div className="space-y-10 animate-in fade-in slide-in-from-right-4 duration-300">
                             {/* 日時 */}
                             <section id="event-schedule" className="scroll-mt-24">
                                 <h2 className={sectionTitle}><Calendar className="w-5 h-5 text-orange-500" /> 日時 {isLocked && lockedBadge}</h2>
@@ -846,6 +812,11 @@ export default function EditEventPage() {
                                 </div>
                             </section>
 
+                        </div>
+                    )}
+
+                    {activeSection === "event-recruitment" && (
+                        <div className="space-y-10 animate-in fade-in slide-in-from-right-4 duration-300">
                             {/* 場所 */}
                             <section id="event-recruitment" className="scroll-mt-24">
                                 <h2 className={sectionTitle}><MapPin className="w-5 h-5 text-orange-500" /> 場所 {isLocked && lockedBadge}</h2>
@@ -975,8 +946,7 @@ export default function EditEventPage() {
                         </div>
                     )}
 
-                    {/* ============ Step 2: 規約・運営 ============ */}
-                    {step === 2 && (
+                    {activeSection === "event-rules" && (
                         <div className="space-y-10 animate-in fade-in slide-in-from-right-4 duration-300">
 
                             {/* 出店規約 */}
@@ -1174,8 +1144,7 @@ export default function EditEventPage() {
                         </div>
                     )}
 
-                    {/* ============ Step 3: 確認 ============ */}
-                    {step === 3 && (
+                    {activeSection === "event-review" && (
                         <div id="event-review" className="space-y-8 scroll-mt-24 animate-in fade-in slide-in-from-right-4 duration-300">
                             <div className="text-center">
                                 <div className="w-16 h-16 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -1301,17 +1270,6 @@ export default function EditEventPage() {
                         </div>
                     )}
 
-                    {/* Navigation */}
-                    <div className="mt-10 pt-6 border-t border-slate-100 flex justify-between items-center">
-                        <Button variant="ghost" onClick={handleBack} disabled={step === 1 || isLoading} className={cn(step === 1 && "invisible")}>
-                            <ChevronLeft className="w-4 h-4 mr-1" /> 戻る
-                        </Button>
-                        {step < TOTAL_STEPS ? (
-                            <Button onClick={handleNext} className="bg-orange-500 hover:bg-orange-600 text-white rounded-full px-8 h-12 font-bold shadow-lg shadow-orange-200">
-                                次へ <ChevronRight className="w-4 h-4 ml-1" />
-                            </Button>
-                        ) : <span className="text-sm font-medium text-slate-500">{isLocked ? "このイベントは現在編集できません。" : "左側の操作から保存・提出できます。"}</span>}
-                    </div>
                 </div>
                     </div>
                 </div>
