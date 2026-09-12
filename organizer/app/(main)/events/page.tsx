@@ -1,9 +1,10 @@
 import { cn } from "@/lib/utils";
-import { Plus, Search, CalendarDays } from "lucide-react";
+import { Search, CalendarDays } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getUserWithRefresh } from "@/lib/supabase/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { CreateEventDraftButton } from "./CreateEventDraftButton";
 
 const STATUS_MAP: Record<string, { label: string; className: string }> = {
     published: { label: "募集中", className: "bg-emerald-100 text-emerald-700" },
@@ -107,15 +108,7 @@ export default async function EventsPage({
                         <h1 className="text-2xl font-bold text-slate-900">イベント管理</h1>
                         <p className="text-sm text-slate-500 mt-1">あなたが作成したイベント一覧</p>
                     </div>
-                    {(
-                        <Link
-                            href="/events/new"
-                            className="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl px-5 py-2.5 text-sm transition-colors shadow-sm shadow-orange-500/20"
-                        >
-                            <Plus className="w-4 h-4" />
-                            新規イベント作成
-                        </Link>
-                    )}
+                    <CreateEventDraftButton />
                 </div>
 
                 {/* Filter tabs + search */}
@@ -268,15 +261,7 @@ export default async function EventsPage({
                                 ? "フィルタ条件を変更してみてください。"
                                 : "最初のイベントを作成して出店者の募集を開始しましょう。"}
                         </p>
-                        {filterStatus === "all" && (
-                            <Link
-                                href="/events/new"
-                                className="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl px-5 py-2.5 text-sm transition-colors"
-                            >
-                                <Plus className="w-4 h-4" />
-                                新規イベント作成
-                            </Link>
-                        )}
+                        {filterStatus === "all" && <CreateEventDraftButton />}
                     </div>
                 )}
             </main>
