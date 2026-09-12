@@ -52,6 +52,7 @@ export default function EditEventPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [isFetching, setIsFetching] = useState(true);
     const [error, setError] = useState("");
+    const [showSubmitModal, setShowSubmitModal] = useState(false);
 
     // Form State — matches creation page
     const [formData, setFormData] = useState({
@@ -286,11 +287,6 @@ export default function EditEventPage() {
     };
 
     const handleNext = () => {
-        if (!canProceed()) {
-            setShowErrors(true);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            return;
-        }
         setShowErrors(false);
         setStep(prev => prev + 1);
         setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50);
@@ -349,8 +345,7 @@ export default function EditEventPage() {
         return publicUrl;
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const saveDraft = async () => {
 
         if (formData.organizerEmail && !isValidEmail(formData.organizerEmail)) {
             setError("有効なメールアドレスを入力してください。");
@@ -389,7 +384,6 @@ export default function EditEventPage() {
             const { error: updateError } = await supabase
                 .from("events")
                 .update({
-                    status: "pending",
                     event_name: formData.eventName,
                     genre: formData.genre,
                     description: formData.description,
@@ -433,10 +427,44 @@ export default function EditEventPage() {
 
             if (updateError) throw updateError;
 
-            router.push(`/events/${eventId}`);
-            router.refresh();
+            return true;
         } catch (err: any) {
             setError(err.message || "イベントの更新に失敗しました。");
+            return false;
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const requiredSections = [
+        ["基本情報", Boolean(formData.eventName && formData.genre && formData.description && formData.boothContent)],
+        ["日時・会場", Boolean(formData.startDate && formData.startTime && formData.endTime && formData.appDeadline && formData.venueName && formData.address)],
+        ["募集要項", Boolean(formData.recruitCount && formData.fee && formData.mainImage)],
+        ["規約・担当者", Boolean(formData.termsCompliance && formData.boothQualification && formData.privacyPolicy && formData.cancelPolicy && formData.organizerName && formData.organizerEmail && formData.organizerPhone)],
+    ] as const;
+    const missingSections = requiredSections.filter(([, complete]) => !complete).map(([section]) => section);
+
+    const handleSubmit = () => {
+        if (missingSections.length > 0) {
+            setError(`未入力の必須項目があります: ${missingSections.join("、")}`);
+            return;
+        }
+        setShowSubmitModal(true);
+    };
+
+    const confirmSubmit = async () => {
+        setShowSubmitModal(false);
+        const saved = await saveDraft();
+        if (!saved) return;
+        setIsLoading(true);
+        try {
+            const response = await fetch(`/api/events/${eventId}/submit`, { method: "POST" });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || "審査提出に失敗しました。");
+            router.push(`/events/${eventId}`);
+            router.refresh();
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "審査提出に失敗しました。");
         } finally {
             setIsLoading(false);
         }
@@ -491,6 +519,18 @@ export default function EditEventPage() {
 
     return (
         <div className="min-h-screen bg-[#fdf8f1] flex flex-col">
+            {showSubmitModal && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4" role="dialog" aria-modal="true">
+                    <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+                        <h2 className="text-lg font-bold text-slate-900">審査に提出しますか？</h2>
+                        <p className="mt-2 text-sm leading-6 text-slate-600">提出後は管理者の審査が完了するまで編集できません。公開は承認後に管理者が行います。</p>
+                        <div className="mt-6 flex justify-end gap-3">
+                            <Button variant="outline" onClick={() => setShowSubmitModal(false)}>戻る</Button>
+                            <Button onClick={confirmSubmit} className="bg-orange-500 text-white hover:bg-orange-600">提出する</Button>
+                        </div>
+                    </div>
+                </div>
+            )}
             {cropState && (
                 <ImageCropDialog
                     imageSrc={cropState.src}
@@ -566,10 +606,10 @@ export default function EditEventPage() {
                 {/* Content Card */}
                 <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-10">
 
-                    {isLocked && (
+                    {formData.status === "pending" && (
                         <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-center gap-3 text-amber-700 text-sm">
                             <Lock className="w-5 h-5 shrink-0" />
-                            <p className="font-medium">審査提出後のイベントは編集できません。変更が必要な場合は管理者にお問い合わせください。</p>
+                            <p className="font-medium">審査中です。管理者の確認が完了するまで編集できません。</p>
                         </div>
                     )}
 
@@ -580,6 +620,17 @@ export default function EditEventPage() {
                         </div>
                     )}
 
+                    {step === 3 && (
+                        <div className="mb-8 rounded-xl border border-slate-200 bg-slate-50 p-5">
+                            <h2 className="text-base font-bold text-slate-900">提出前チェック</h2>
+                            <p className="mt-1 text-sm text-slate-500">不足がある場合は該当セクションに戻って入力してください。</p>
+                            <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                                {requiredSections.map(([section, complete], index) => (
+                                    <button key={section} type="button" onClick={() => !complete && setStep(index < 3 ? index + 1 : 2)} className={cn("rounded-lg border px-3 py-2 text-left text-sm font-medium", complete ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-red-200 bg-red-50 text-red-700")}>{complete ? "完了" : "未入力"} · {section}</button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                     {/* ============ Step 1: イベント情報 ============ */}
                     {step === 1 && (
                         <div className="space-y-10 animate-in fade-in slide-in-from-right-4 duration-300">
@@ -1199,9 +1250,12 @@ export default function EditEventPage() {
                                 次へ <ChevronRight className="w-4 h-4 ml-1" />
                             </Button>
                         ) : (
-                            <Button onClick={handleSubmit} disabled={isLoading || isLocked} className="bg-slate-900 hover:bg-slate-800 text-white rounded-full px-10 h-12 font-bold shadow-lg">
+                            <div className="flex items-center gap-3">
+                                {!isLocked && <Button onClick={saveDraft} disabled={isLoading} variant="outline" className="rounded-full px-6 h-12 font-bold">下書きを保存</Button>}
+                                <Button onClick={handleSubmit} disabled={isLoading || isLocked} className="bg-slate-900 hover:bg-slate-800 text-white rounded-full px-10 h-12 font-bold shadow-lg">
                                 {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "審査に提出する"}
-                            </Button>
+                                </Button>
+                            </div>
                         )}
                     </div>
                 </div>

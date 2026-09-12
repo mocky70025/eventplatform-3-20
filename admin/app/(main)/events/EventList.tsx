@@ -42,6 +42,7 @@ interface Event {
     organizer_phone: string;
     created_at: string;
     organizer_id: string;
+    review_note: string | null;
     organizer: {
         company_name: string;
         name: string;
@@ -127,8 +128,13 @@ export function EventRow({ event }: { event: Event }) {
     const router = useRouter();
 
     const handleToggleStatus = async (newStatus: string) => {
+        let reviewNote: string | undefined;
         if (newStatus === 'deleted') {
             if (!confirm("本当にこのイベントを削除しますか？")) return;
+        }
+        if (newStatus === 'rejected') {
+            reviewNote = prompt("却下理由を入力してください（主催者に表示されます）:")?.trim();
+            if (!reviewNote) return;
         }
         setIsUpdating(true);
         try {
@@ -136,7 +142,7 @@ export function EventRow({ event }: { event: Event }) {
             const response = await fetch('/api/events/update-status', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ eventId: event.id, action }),
+                body: JSON.stringify({ eventId: event.id, action, reviewNote }),
             });
             if (!response.ok) {
                 const data = await response.json();
@@ -315,7 +321,7 @@ export function EventRow({ event }: { event: Event }) {
                                     </div>
                                 </div>
                             </div>
-                            <div className="grid grid-cols-2 gap-6">
+                                    <div className="grid grid-cols-2 gap-6">
                                 <TextBlock label="イベント説明" value={event.description} icon={<FileText className="w-3.5 h-3.5" />} />
                                 <TextBlock label="出店内容" value={event.booth_content} icon={<Tag className="w-3.5 h-3.5" />} />
                             </div>
@@ -352,6 +358,12 @@ export function EventRow({ event }: { event: Event }) {
                                             </div>
                                         )}
                                     </div>
+                                    {event.status === 'rejected' && event.review_note && (
+                                        <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                                            <p className="font-bold">却下理由</p>
+                                            <p className="mt-1 whitespace-pre-wrap">{event.review_note}</p>
+                                        </div>
+                                    )}
                                 </div>
                             )}
                             <div className="flex justify-end pt-2 border-t border-slate-200" onClick={(e) => e.stopPropagation()}>

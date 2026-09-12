@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-        const { eventId, action } = await request.json();
+        const { eventId, action, reviewNote } = await request.json();
 
         // UUID validation
         if (!eventId || typeof eventId !== 'string' || !UUID_REGEX.test(eventId)) {
@@ -121,9 +121,21 @@ export async function POST(request: NextRequest) {
             }, { status: 400 });
         }
 
+        if (currentEvent.status === 'pending' && action === 'rejected' && (typeof reviewNote !== 'string' || !reviewNote.trim())) {
+            return NextResponse.json({ error: '却下理由を入力してください' }, { status: 400 });
+        }
+
+        const statusUpdate: Record<string, unknown> = { status: action };
+        if (currentEvent.status === 'pending' && (action === 'published' || action === 'rejected')) {
+            statusUpdate.reviewed_at = new Date().toISOString();
+        }
+        if (currentEvent.status === 'pending' && action === 'rejected') {
+            statusUpdate.review_note = reviewNote.trim();
+        }
+
         const { data, error } = await supabaseAdmin
             .from('events')
-            .update({ status: action })
+            .update(statusUpdate)
             .eq('id', eventId)
             .select('id, status')
             .single();
@@ -137,7 +149,7 @@ export async function POST(request: NextRequest) {
             action: 'event_status_update',
             target_type: 'event',
             target_id: eventId,
-            details: { previous_status: currentEvent.status, new_status: action },
+            details: { previous_status: currentEvent.status, new_status: action, ...(action === 'rejected' ? { review_note: reviewNote.trim() } : {}) },
         });
 
         return NextResponse.json({

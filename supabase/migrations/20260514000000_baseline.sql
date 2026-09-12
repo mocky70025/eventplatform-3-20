@@ -107,7 +107,7 @@ CREATE TABLE exhibitors (
 CREATE TABLE events (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   organizer_id UUID REFERENCES organizers(id) ON DELETE CASCADE,
-  event_name VARCHAR(100) NOT NULL,
+  event_name VARCHAR(100),
   event_name_furigana VARCHAR(100),
   genre VARCHAR(50) CHECK (genre IN ('音楽フェス', 'ライブ', 'マルシェ', 'フリーマーケット', '地域おこし', '祭り', '食フェス', 'グルメイベント', 'スポーツ', 'アウトドア', '企業', '展示会', 'その他')),
   lead_text VARCHAR(200),
@@ -155,6 +155,9 @@ CREATE TABLE events (
   -- Flags
   visibility VARCHAR(10) DEFAULT 'public' CHECK (visibility IN ('public', 'private')),
   status VARCHAR(20) DEFAULT 'draft' CHECK (status IN ('draft', 'pending', 'published', 'rejected', 'closed', 'ended', 'deleted')),
+  submitted_at TIMESTAMPTZ,
+  reviewed_at TIMESTAMPTZ,
+  review_note TEXT,
   -- Day-of info (meeting time/place) shared with approved exhibitors
   meeting_info_sent BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -338,8 +341,14 @@ BEGIN
     IF NEW.status <> 'draft' THEN
       RAISE EXCEPTION 'Organizers can only create draft events';
     END IF;
-  ELSIF OLD.status <> 'draft' OR NEW.status NOT IN ('draft', 'pending') THEN
-    RAISE EXCEPTION 'Organizers can only edit draft events or submit them for review';
+  ELSIF OLD.status = 'draft' AND NEW.status = 'draft' THEN
+    RETURN NEW;
+  ELSIF OLD.status = 'rejected' AND NEW.status = 'draft' THEN
+    RETURN NEW;
+  ELSIF OLD.status = 'draft' AND NEW.status = 'pending' AND current_user <> 'authenticated' THEN
+    RETURN NEW;
+  ELSE
+    RAISE EXCEPTION 'Invalid organizer event status transition';
   END IF;
 
   RETURN NEW;
@@ -449,8 +458,43 @@ CREATE POLICY "Organizers can update their own events" ON events
     organizer_id IN (SELECT id FROM organizers WHERE user_id = auth.uid())
   ) WITH CHECK (
     organizer_id IN (SELECT id FROM organizers WHERE user_id = auth.uid())
-    AND status IN ('draft', 'pending')
+    AND status = 'draft'
   );
+
+CREATE OR REPLACE FUNCTION public.submit_organizer_event(p_event_id UUID)
+RETURNS UUID
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  event_row events%ROWTYPE;
+BEGIN
+  SELECT * INTO event_row FROM events
+  WHERE id = p_event_id
+    AND organizer_id IN (SELECT id FROM organizers WHERE user_id = auth.uid())
+  FOR UPDATE;
+  IF NOT FOUND OR event_row.status <> 'draft' THEN
+    RAISE EXCEPTION 'Only owned draft events can be submitted';
+  END IF;
+  IF NULLIF(BTRIM(event_row.event_name), '') IS NULL OR event_row.genre IS NULL
+    OR NULLIF(BTRIM(event_row.description), '') IS NULL OR NULLIF(BTRIM(event_row.booth_content), '') IS NULL
+    OR event_row.event_start_date IS NULL OR NULLIF(BTRIM(event_row.event_time), '') IS NULL
+    OR event_row.application_period_end IS NULL OR NULLIF(BTRIM(event_row.venue_name), '') IS NULL
+    OR NULLIF(BTRIM(event_row.address), '') IS NULL OR event_row.recruit_count IS NULL
+    OR NULLIF(BTRIM(event_row.fee), '') IS NULL OR NULLIF(BTRIM(event_row.terms_compliance), '') IS NULL
+    OR NULLIF(BTRIM(event_row.booth_qualification), '') IS NULL OR NULLIF(BTRIM(event_row.privacy_policy), '') IS NULL
+    OR NULLIF(BTRIM(event_row.cancel_policy), '') IS NULL OR NULLIF(BTRIM(event_row.organizer_name), '') IS NULL
+    OR NULLIF(BTRIM(event_row.organizer_email), '') IS NULL OR NULLIF(BTRIM(event_row.organizer_phone), '') IS NULL
+    OR event_row.main_image_url IS NULL THEN
+    RAISE EXCEPTION 'Required event information is incomplete';
+  END IF;
+  UPDATE events SET status = 'pending', submitted_at = NOW() WHERE id = p_event_id;
+  RETURN p_event_id;
+END;
+$$;
+REVOKE ALL ON FUNCTION public.submit_organizer_event(UUID) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.submit_organizer_event(UUID) TO authenticated;
 
 -- ---- event_applications -------------------------------------------------
 -- Readable only by the applicant or the event's organizer.

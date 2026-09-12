@@ -30,6 +30,7 @@ interface EventDetail {
     application_period_end: string;
     exhibitor_list_visibility: string;
     visibility: string;
+    review_note: string | null;
 }
 
 const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"];
@@ -169,6 +170,18 @@ export default function EventDetailPage() {
         }
     };
 
+    const resumeRejectedEvent = async () => {
+        try {
+            if (!orgIdRef.current) throw new Error("主催者プロフィールが見つかりません");
+            const { error } = await supabase.from("events").update({ status: "draft" }).eq("id", eventId).eq("organizer_id", orgIdRef.current).eq("status", "rejected");
+            if (error) throw error;
+            router.push(`/events/${eventId}/edit`);
+            router.refresh();
+        } catch (err) {
+            setActionMessage({ type: "error", text: err instanceof Error ? err.message : "修正の開始に失敗しました" });
+        }
+    };
+
     if (isLoading) {
         return (
             <div className="min-h-screen bg-[#fdf8f1] flex items-center justify-center">
@@ -248,7 +261,7 @@ export default function EventDetailPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                         <span className={cn("inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-full mb-2", statusInfo.className)}>{statusInfo.label}</span>
-                        <h1 className="text-2xl font-bold text-slate-900 mb-1">{event.event_name}</h1>
+                        <h1 className="text-2xl font-bold text-slate-900 mb-1">{event.event_name || "無題のイベント"}</h1>
                         <p className="text-sm text-slate-500 mb-4">{dateText}　・　{event.venue_name || event.address}</p>
                         <div className="flex flex-wrap gap-x-8 gap-y-2">
                             <div><p className="text-xs text-slate-500">出店料</p><p className="text-sm font-bold text-slate-900">{event.fee || "—"}</p></div>
@@ -262,6 +275,8 @@ export default function EventDetailPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
                     {/* Main */}
                     <div className="lg:col-span-2 space-y-6">
+                        {event.status === "pending" && <section className="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm font-medium text-amber-800">管理者が内容を審査中です。審査完了まで編集・公開はできません。</section>}
+                        {event.status === "rejected" && <section className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-800"><p className="font-bold">修正が必要です</p><p className="mt-2 whitespace-pre-wrap">{event.review_note || "却下理由は管理者にお問い合わせください。"}</p><Button onClick={resumeRejectedEvent} className="mt-4 bg-orange-500 text-white hover:bg-orange-600">修正を始める</Button></section>}
                         {event.description && (
                             <section className="bg-white rounded-2xl border border-slate-200 p-6">
                                 <h2 className="text-lg font-bold text-slate-900 mb-3">イベント概要</h2>
@@ -308,19 +323,17 @@ export default function EventDetailPage() {
                                     <span className="text-xs font-bold text-orange-700 bg-orange-50 px-2.5 py-1 rounded-full">{pendingCount}件</span>
                                 </div>
                             )}
-                            <Link href={`/events/${eventId}/applications`} className="w-full flex items-center justify-center gap-2 text-sm font-bold text-white bg-orange-500 hover:bg-orange-600 rounded-xl px-4 py-2.5 transition-colors">
-                                応募を確認する
-                            </Link>
+                            {event.status === "published" && <Link href={`/events/${eventId}/applications`} className="w-full flex items-center justify-center gap-2 text-sm font-bold text-white bg-orange-500 hover:bg-orange-600 rounded-xl px-4 py-2.5 transition-colors">応募を管理する</Link>}
                         </section>
 
                         {/* 操作 */}
                         <section className="bg-white rounded-2xl border border-slate-200 p-6">
                             <h3 className="text-sm font-bold text-slate-900 mb-3">操作</h3>
                             <div className="space-y-2">
-                                <SidebarBtn href={`/events/${eventId}/edit`}><Edit className="w-4 h-4" /> イベントを編集</SidebarBtn>
+                                {event.status === "draft" && <SidebarBtn href={`/events/${eventId}/edit`}><Edit className="w-4 h-4" /> 内容を確認して提出</SidebarBtn>}
                                 <SidebarBtn onClick={handleShare}><Share2 className="w-4 h-4" /> 当日情報を共有</SidebarBtn>
                                 <SidebarBtn onClick={handlePreview}><ExternalLink className="w-4 h-4" /> 公開ページをプレビュー</SidebarBtn>
-                                {event.status !== "closed" && event.status !== "ended" && (
+                                {event.status === "published" && (
                                     <SidebarBtn onClick={handleCloseRecruitment} variant="danger">募集を締め切る</SidebarBtn>
                                 )}
                             </div>
@@ -339,9 +352,9 @@ export default function EventDetailPage() {
                             </div>
                         </section>
 
-                        <button onClick={handleDelete} className="w-full text-center text-xs text-slate-500 hover:text-red-500 transition-colors py-2">
+                        {event.status === "draft" && <button onClick={handleDelete} className="w-full text-center text-xs text-slate-500 hover:text-red-500 transition-colors py-2">
                             このイベントを削除
-                        </button>
+                        </button>}
                     </div>
                 </div>
             </main>

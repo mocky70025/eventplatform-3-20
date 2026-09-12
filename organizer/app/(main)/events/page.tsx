@@ -185,7 +185,7 @@ export default async function EventsPage({
                                     {/* Content */}
                                     <div className="flex-1 min-w-0 p-5 flex flex-col gap-3">
                                         <div className="flex items-start justify-between gap-2">
-                                            <h3 className="text-lg font-bold text-slate-900 truncate">{event.event_name}</h3>
+                                            <h3 className="text-lg font-bold text-slate-900 truncate">{event.event_name || "無題のイベント"}</h3>
                                             <span
                                                 className={cn(
                                                     "shrink-0 inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-full",
@@ -205,7 +205,11 @@ export default async function EventsPage({
                                             )}
                                         </div>
 
-                                        {/* Application status */}
+                                        {event.status === "draft" ? (() => {
+                                            const required = [event.event_name, event.genre, event.description, event.booth_content, event.event_start_date, event.event_time, event.application_period_end, event.venue_name, event.address, event.recruit_count, event.fee, event.terms_compliance, event.booth_qualification, event.privacy_policy, event.cancel_policy, event.organizer_name, event.organizer_email, event.organizer_phone, event.main_image_url];
+                                            const missing = required.filter((value) => !value).length;
+                                            return <div className="rounded-xl bg-slate-50 p-3 text-sm"><div className="flex justify-between text-slate-600"><span>提出準備</span><span className="font-bold">未入力 {missing}項目</span></div><div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-200"><div className="h-full bg-orange-500" style={{ width: `${Math.round(((required.length - missing) / required.length) * 100)}%` }} /></div></div>;
+                                        })() : (
                                         <div>
                                             <div className="flex items-center justify-between mb-1.5">
                                                 <span className="text-xs text-slate-500 font-medium">応募状況</span>
@@ -220,6 +224,7 @@ export default async function EventsPage({
                                                 />
                                             </div>
                                         </div>
+                                        )}
 
                                         {/* Footer */}
                                         <div className="flex items-center justify-between gap-2 mt-auto pt-1">
@@ -238,10 +243,10 @@ export default async function EventsPage({
                                                     詳細
                                                 </Link>
                                                 <Link
-                                                    href={`/events/${event.id}/edit`}
+                                                    href={event.status === "draft" ? `/events/${event.id}/edit` : `/events/${event.id}`}
                                                     className="text-sm font-bold text-white bg-orange-500 hover:bg-orange-600 rounded-xl px-4 py-2 transition-colors"
                                                 >
-                                                    編集
+                                                    {event.status === "draft" ? "内容を確認して提出" : "確認"}
                                                 </Link>
                                             </div>
                                         </div>

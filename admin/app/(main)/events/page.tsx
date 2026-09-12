@@ -14,7 +14,7 @@ export default async function EventsPage() {
             event_schedule, event_day_settings, visibility,
             terms_compliance, booth_qualification, privacy_policy, cancel_policy,
             organizer_name, organizer_email, organizer_phone,
-            created_at, organizer_id,
+            created_at, organizer_id, review_note,
             organizer:organizers(company_name, name, email, phone_number)
         `)
         .order("created_at", { ascending: false });
