@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import {
     ChevronRight, ChevronLeft, Calendar, MapPin,
     ImageIcon, FileText, CheckCircle2, Users, Upload, Clock, AlertCircle, Search, Loader2,
-    Shield, Phone, Mail, User, Truck, ClipboardList, Plus, X, Lock
+    Shield, Phone, Mail, User, Truck, ClipboardList, Plus, X, Lock, Eye, Send, CircleDot
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
@@ -49,6 +49,7 @@ export default function EditEventPage() {
     const supabase = createClient();
 
     const [step, setStep] = useState(1);
+    const [activeSection, setActiveSection] = useState("event-basics");
     const [isLoading, setIsLoading] = useState(false);
     const [isFetching, setIsFetching] = useState(true);
     const [error, setError] = useState("");
@@ -288,13 +289,30 @@ export default function EditEventPage() {
 
     const handleNext = () => {
         setShowErrors(false);
-        setStep(prev => prev + 1);
+        setStep(prev => {
+            const next = prev + 1;
+            setActiveSection(next === 2 ? "event-rules" : "event-review");
+            return next;
+        });
         setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50);
     };
     const handleBack = () => {
         setShowErrors(false);
-        setStep(prev => prev - 1);
+        setStep(prev => {
+            const next = prev - 1;
+            setActiveSection(next === 1 ? "event-basics" : "event-rules");
+            return next;
+        });
         setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50);
+    };
+
+    const navigateToSection = (nextStep: number, sectionId: string) => {
+        setShowErrors(false);
+        setActiveSection(sectionId);
+        setStep(nextStep);
+        window.setTimeout(() => {
+            document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 80);
     };
 
     const searchAddress = async () => {
@@ -444,6 +462,14 @@ export default function EditEventPage() {
     ] as const;
     const missingSections = requiredSections.filter(([, complete]) => !complete).map(([section]) => section);
 
+    const creationSections = [
+        { id: "event-basics", step: 1, label: "イベント基本情報", complete: Boolean(formData.eventName && formData.genre && formData.description && formData.boothContent), icon: FileText },
+        { id: "event-schedule", step: 1, label: "開催日時", complete: Boolean(formData.startDate && formData.startTime && formData.endTime && formData.appDeadline), icon: Calendar },
+        { id: "event-recruitment", step: 1, label: "会場・募集要項", complete: Boolean(formData.venueName && formData.address && formData.recruitCount && formData.fee && formData.mainImage), icon: ImageIcon },
+        { id: "event-rules", step: 2, label: "規約・連絡先", complete: Boolean(formData.termsCompliance && formData.boothQualification && formData.privacyPolicy && formData.cancelPolicy && formData.organizerName && formData.organizerEmail && formData.organizerPhone), icon: Shield },
+        { id: "event-review", step: 3, label: "提出前確認", complete: missingSections.length === 0, icon: CheckCircle2 },
+    ];
+
     const handleSubmit = () => {
         if (missingSections.length > 0) {
             setError(`未入力の必須項目があります: ${missingSections.join("、")}`);
@@ -479,12 +505,6 @@ export default function EditEventPage() {
     }
 
     const TOTAL_STEPS = 3;
-    const steps = [
-        { id: 1, title: "イベント情報", icon: Calendar },
-        { id: 2, title: "規約・運営", icon: Shield },
-        { id: 3, title: "確認", icon: CheckCircle2 },
-    ];
-
     const canProceed = () => {
         // Published events have most fields locked; only validate editable fields
         if (isLocked) return true;
@@ -503,6 +523,7 @@ export default function EditEventPage() {
 
     // ドラフト以外は「訂正可」フィールドのみ編集可能
     const isLocked = formData.status !== "draft";
+    const currentCreationSection = activeSection;
 
     const errorBorder = "border-red-400 ring-2 ring-red-100";
     const inputClass = "block w-full rounded-lg border-slate-300 bg-slate-50 p-3.5 text-slate-900 outline-none focus:bg-white focus:ring-2 focus:ring-orange-200 focus:border-orange-500 transition-all font-medium shadow-sm";
@@ -553,63 +574,99 @@ export default function EditEventPage() {
                     <Link href={`/events/${eventId}`} className="text-slate-500 hover:text-slate-600 transition-colors">
                         <ChevronLeft className="w-5 h-5" />
                     </Link>
-                    <h1 className="text-lg font-bold text-slate-900">イベントの編集</h1>
+                    <div>
+                        <p className="text-xs font-medium text-slate-500">イベントを編集</p>
+                        <h1 className="max-w-[12rem] truncate text-lg font-bold text-slate-900 sm:max-w-md">{formData.eventName || "名称未設定のイベント"}</h1>
+                    </div>
                 </div>
                 <div className="flex items-center gap-3">
-                    <div className="text-sm font-medium text-slate-500 px-3 border-l border-slate-100">
-                        Step {step} / {TOTAL_STEPS}
-                    </div>
+                    <Link href={`/events/${eventId}`} className="hidden items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-bold text-slate-600 transition-colors hover:border-orange-200 hover:bg-orange-50 hover:text-orange-700 sm:flex">
+                        <Eye className="w-4 h-4" /> プレビュー
+                    </Link>
                 </div>
             </header>
 
-            <main className="flex-1 container mx-auto max-w-3xl px-4 py-8">
-                {/* Progress Bar */}
-                <div className="mb-10 px-2">
-                    <div className="flex justify-between relative max-w-lg mx-auto">
-                        {/* Background line */}
-                        <div className="absolute top-7 left-[calc(100%/(2*3))] right-[calc(100%/(2*3))] h-1.5 bg-slate-100 rounded-full"></div>
-                        {/* Active line */}
-                        <div
-                            className="absolute top-7 left-[calc(100%/(2*3))] h-1.5 bg-orange-500 rounded-full transition-all duration-500 ease-out shadow-[0_0_10px_rgba(249,115,22,0.3)]"
-                            style={{ width: `${((step - 1) / (steps.length - 1)) * (100 - 100 / steps.length)}%` }}
-                        ></div>
-
-                        {steps.map((s) => (
-                            <div key={s.id} className="flex flex-col items-center gap-2 z-10">
-                                <div className={cn(
-                                    "w-14 h-14 rounded-full flex items-center justify-center border-4 transition-all duration-500 relative bg-white",
-                                    step >= s.id
-                                        ? "border-orange-500 text-orange-600 shadow-lg shadow-orange-100 scale-110"
-                                        : "border-slate-100 text-slate-300"
-                                )}>
-                                    <s.icon className={cn(
-                                        "w-6 h-6 transition-transform duration-500",
-                                        step === s.id && "scale-110"
-                                    )} />
-                                    {step > s.id && (
-                                        <div className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 rounded-full border-2 border-white flex items-center justify-center animate-in zoom-in duration-300">
-                                            <CheckCircle2 className="w-3 h-3 text-white" />
-                                        </div>
-                                    )}
-                                </div>
-                                <span className={cn(
-                                    "text-xs font-bold tracking-wider transition-all duration-500 select-none",
-                                    step === s.id ? "text-orange-600" : step > s.id ? "text-orange-400" : "text-slate-300"
-                                )}>
-                                    {s.title}
-                                </span>
-                            </div>
-                        ))}
-                    </div>
+            <main className="mx-auto flex-1 w-full max-w-7xl px-4 py-6 lg:px-8 lg:py-8">
+                <div className="mb-5 rounded-xl border border-orange-100 bg-white px-4 py-3 shadow-sm lg:hidden">
+                    <label htmlFor="creation-section" className="mb-1 block text-xs font-bold text-slate-500">作成セクション</label>
+                    <select id="creation-section" value={currentCreationSection} onChange={(event) => {
+                        const section = creationSections.find((item) => item.id === event.target.value);
+                        if (section) navigateToSection(section.step, section.id);
+                    }} className="w-full rounded-lg border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-bold text-slate-800 outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100">
+                        {creationSections.map((section) => <option key={section.id} value={section.id}>{section.complete ? "完了" : "未入力"} · {section.label}</option>)}
+                    </select>
                 </div>
+
+                <div className="grid gap-8 lg:grid-cols-[17rem_minmax(0,1fr)]">
+                    <aside className="hidden lg:block">
+                        <div className="sticky top-24 rounded-2xl border border-orange-100 bg-white p-4 shadow-sm">
+                            <p className="px-2 text-xs font-bold tracking-wider text-orange-600">イベント作成</p>
+                            <nav className="mt-3 space-y-1" aria-label="イベント作成セクション">
+                                {creationSections.map((section) => {
+                                    const Icon = section.icon;
+                                    const active = currentCreationSection === section.id;
+                                    return <button key={section.id} type="button" onClick={() => navigateToSection(section.step, section.id)} className={cn("flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition-colors", active ? "bg-orange-50 text-orange-800" : "text-slate-600 hover:bg-slate-50")}>
+                                        <Icon className={cn("h-4 w-4 shrink-0", active ? "text-orange-600" : "text-slate-400")} />
+                                        <span className="min-w-0 flex-1 text-sm font-bold">{section.label}</span>
+                                        {section.complete ? <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500" aria-label="完了" /> : <CircleDot className="h-4 w-4 shrink-0 text-amber-500" aria-label="未入力" />}
+                                    </button>;
+                                })}
+                            </nav>
+                            <div className="mt-5 border-t border-slate-100 pt-4">
+                                <Link href={`/events/${eventId}`} className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-bold text-slate-600 transition-colors hover:bg-slate-50 hover:text-orange-700"><Eye className="h-4 w-4" /> プレビューを確認</Link>
+                                {!isLocked && <Button onClick={saveDraft} disabled={isLoading} variant="outline" className="mt-2 w-full justify-center rounded-lg font-bold">{isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "下書きを保存"}</Button>}
+                                {!isLocked && step === TOTAL_STEPS && <Button onClick={handleSubmit} disabled={isLoading} className="mt-2 w-full justify-center rounded-lg bg-slate-900 font-bold text-white hover:bg-slate-800"><Send className="mr-2 h-4 w-4" />審査に提出する</Button>}
+                            </div>
+                        </div>
+                    </aside>
+
+                    <div className="min-w-0">
+                        <div className="mb-5 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                            <p className="text-xs font-bold tracking-wider text-slate-500">公開までの進行</p>
+                            <div className="mt-3 grid grid-cols-4 gap-1">
+                                {["作成中", "確認", "審査", "公開"].map((phase, index) => {
+                                    const activePhase = formData.status === "draft" ? (step === 3 ? 1 : 0) : formData.status === "pending" ? 2 : 3;
+                                    return <div key={phase} className="min-w-0">
+                                        <div className={cn("h-1.5 rounded-full", index <= activePhase ? "bg-orange-500" : "bg-slate-100")} />
+                                        <p className={cn("mt-2 text-center text-xs font-bold", index === activePhase ? "text-orange-700" : "text-slate-400")}>{phase}</p>
+                                    </div>;
+                                })}
+                            </div>
+                        </div>
+                        {!isLocked && <div className="mb-5 flex gap-2 lg:hidden">
+                            <Button onClick={saveDraft} disabled={isLoading} variant="outline" className="flex-1 justify-center rounded-lg font-bold">{isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "下書きを保存"}</Button>
+                            {step === TOTAL_STEPS && <Button onClick={handleSubmit} disabled={isLoading} className="flex-1 justify-center rounded-lg bg-slate-900 font-bold text-white hover:bg-slate-800">審査に提出</Button>}
+                        </div>}
 
                 {/* Content Card */}
                 <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-10">
+
+                    {formData.status === "draft" && (
+                        <div className="mb-6 flex items-center gap-3 rounded-xl border border-orange-200 bg-orange-50 p-4 text-sm text-orange-800">
+                            <CircleDot className="h-5 w-5 shrink-0 text-orange-500" />
+                            <p className="font-medium">下書きを作成中です。必要項目を入力し、内容を確認してから審査へ提出してください。</p>
+                        </div>
+                    )}
 
                     {formData.status === "pending" && (
                         <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-center gap-3 text-amber-700 text-sm">
                             <Lock className="w-5 h-5 shrink-0" />
                             <p className="font-medium">審査中です。管理者の確認が完了するまで編集できません。</p>
+                        </div>
+                    )}
+
+                    {formData.status === "rejected" && (
+                        <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+                            <p className="font-bold">修正が必要です</p>
+                            <p className="mt-1">イベント詳細画面で修正を開始すると、下書きとして編集できます。</p>
+                            <Link href={`/events/${eventId}`} className="mt-3 inline-flex font-bold text-red-700 underline underline-offset-2 hover:text-red-900">イベント詳細へ戻る</Link>
+                        </div>
+                    )}
+
+                    {formData.status === "published" && (
+                        <div className="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">
+                            <p className="font-bold">このイベントは公開中です</p>
+                            <p className="mt-1">公開内容を編集することはできません。応募状況はイベント詳細から確認できます。</p>
                         </div>
                     )}
 
@@ -626,7 +683,11 @@ export default function EditEventPage() {
                             <p className="mt-1 text-sm text-slate-500">不足がある場合は該当セクションに戻って入力してください。</p>
                             <div className="mt-4 grid gap-2 sm:grid-cols-2">
                                 {requiredSections.map(([section, complete], index) => (
-                                    <button key={section} type="button" onClick={() => !complete && setStep(index < 3 ? index + 1 : 2)} className={cn("rounded-lg border px-3 py-2 text-left text-sm font-medium", complete ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-red-200 bg-red-50 text-red-700")}>{complete ? "完了" : "未入力"} · {section}</button>
+                                    <button key={section} type="button" onClick={() => {
+                                        if (complete) return;
+                                        const target = index < 3 ? creationSections[index] : creationSections[3];
+                                        navigateToSection(target.step, target.id);
+                                    }} className={cn("rounded-lg border px-3 py-2 text-left text-sm font-medium", complete ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-red-200 bg-red-50 text-red-700")}>{complete ? "完了" : "未入力"} · {section}</button>
                                 ))}
                             </div>
                         </div>
@@ -636,7 +697,7 @@ export default function EditEventPage() {
                         <div className="space-y-10 animate-in fade-in slide-in-from-right-4 duration-300">
 
                             {/* 基本情報 */}
-                            <section>
+                            <section id="event-basics" className="scroll-mt-24">
                                 <h2 className={sectionTitle}><FileText className="w-5 h-5 text-orange-500" /> 基本情報 {isLocked && lockedBadge}</h2>
                                 <div className="space-y-4">
                                     <div>
@@ -718,7 +779,7 @@ export default function EditEventPage() {
                             </section>
 
                             {/* 日時 */}
-                            <section>
+                            <section id="event-schedule" className="scroll-mt-24">
                                 <h2 className={sectionTitle}><Calendar className="w-5 h-5 text-orange-500" /> 日時 {isLocked && lockedBadge}</h2>
                                 <div className="space-y-4">
                                     <div className="grid grid-cols-2 gap-4">
@@ -786,7 +847,7 @@ export default function EditEventPage() {
                             </section>
 
                             {/* 場所 */}
-                            <section>
+                            <section id="event-recruitment" className="scroll-mt-24">
                                 <h2 className={sectionTitle}><MapPin className="w-5 h-5 text-orange-500" /> 場所 {isLocked && lockedBadge}</h2>
                                 <div className="space-y-4">
                                     <div>
@@ -919,7 +980,7 @@ export default function EditEventPage() {
                         <div className="space-y-10 animate-in fade-in slide-in-from-right-4 duration-300">
 
                             {/* 出店規約 */}
-                            <section>
+                            <section id="event-rules" className="scroll-mt-24">
                                 <h2 className={sectionTitle}><Shield className="w-5 h-5 text-orange-500" /> 出店規約 {isLocked && lockedBadge}</h2>
                                 <p className="text-sm text-slate-500 mb-4">出店者に同意していただく規約内容を設定してください。</p>
                                 <div className="space-y-4">
@@ -1115,7 +1176,7 @@ export default function EditEventPage() {
 
                     {/* ============ Step 3: 確認 ============ */}
                     {step === 3 && (
-                        <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
+                        <div id="event-review" className="space-y-8 scroll-mt-24 animate-in fade-in slide-in-from-right-4 duration-300">
                             <div className="text-center">
                                 <div className="w-16 h-16 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mx-auto mb-4">
                                     <CheckCircle2 className="h-8 w-8" />
@@ -1249,14 +1310,9 @@ export default function EditEventPage() {
                             <Button onClick={handleNext} className="bg-orange-500 hover:bg-orange-600 text-white rounded-full px-8 h-12 font-bold shadow-lg shadow-orange-200">
                                 次へ <ChevronRight className="w-4 h-4 ml-1" />
                             </Button>
-                        ) : (
-                            <div className="flex items-center gap-3">
-                                {!isLocked && <Button onClick={saveDraft} disabled={isLoading} variant="outline" className="rounded-full px-6 h-12 font-bold">下書きを保存</Button>}
-                                <Button onClick={handleSubmit} disabled={isLoading || isLocked} className="bg-slate-900 hover:bg-slate-800 text-white rounded-full px-10 h-12 font-bold shadow-lg">
-                                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "審査に提出する"}
-                                </Button>
-                            </div>
-                        )}
+                        ) : <span className="text-sm font-medium text-slate-500">{isLocked ? "このイベントは現在編集できません。" : "左側の操作から保存・提出できます。"}</span>}
+                    </div>
+                </div>
                     </div>
                 </div>
             </main>
