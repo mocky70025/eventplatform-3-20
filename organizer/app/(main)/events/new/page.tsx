@@ -13,6 +13,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { ImageCropDialog } from "@/components/ui/ImageCropDialog";
+import { LegalModal } from "@/components/LegalModal";
 
 // 出店者に求める情報のプリセット項目
 type PresetField = {
@@ -83,6 +84,7 @@ export default function CreateEventPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
     const [agreedToTerms, setAgreedToTerms] = useState(false);
+    const [termsModalOpen, setTermsModalOpen] = useState(false);
     const [missingProfileFields, setMissingProfileFields] = useState<string[]>([]);
     const supabase = createClient();
 
@@ -592,6 +594,7 @@ export default function CreateEventPage() {
 
     return (
         <div className="min-h-screen bg-[#fdf8f1] flex flex-col">
+            <LegalModal type={termsModalOpen ? "terms" : null} onClose={() => setTermsModalOpen(false)} />
             {cropState && (
                 <ImageCropDialog
                     imageSrc={cropState.src}
@@ -1496,7 +1499,7 @@ export default function CreateEventPage() {
                                     className="mt-0.5 w-4 h-4 rounded border-slate-300 accent-orange-500 focus:ring-orange-500"
                                 />
                                 <span className="text-sm text-slate-700">
-                                    上記の内容を確認し、<a href="/terms" target="_blank" className="text-orange-600 underline hover:text-orange-700">利用規約</a>に同意して下書きを作成します
+                                    上記の内容を確認し、<button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setTermsModalOpen(true); }} className="text-orange-600 underline hover:text-orange-700">利用規約</button>に同意して下書きを作成します
                                 </span>
                             </label>
 
